@@ -165,12 +165,14 @@ skillfortify dashboard --output security-report.html
 
 ## 迭代協議
 
+> 完整迭代協議定義見 `skills/workflow-skills/iter-loop.md`。以下為本 Stage 的具體化。
+
 ```
 ┌──────────────────────────────────────────────┐
 │  Step A: Agent α（破綻發掘者）               │
 │  → 依 D1-D5 維度                             │
 │  → 驗證實作與 Stage 4/5 設計一致性           │
-│  → 產出：問題清單 + 方向建議                 │
+│  → 產出：問題清單 + 方向建議（按嚴重度降序） │
 ├──────────────────────────────────────────────┤
 │  Step B: Agent β（收斂整合者）               │
 │  → 紅-綠-重構循環                            │
@@ -181,11 +183,16 @@ skillfortify dashboard --output security-report.html
 │  → 觸發 skills/workflow-skills/impact-analysis-exec.md │
 │  → TC-xxx 追溯至 SC-xxx/INV-xxx              │
 │  → SonarCloud 品質閘門                       │
-│  → 全數通過才進入 Step C                     │
+│  → 全數通過才進入 Step F                     │
 ├──────────────────────────────────────────────┤
-│  Step C: 👤 HITL 迭代閘門                    │
-│  → [1] 繼續迭代  [2] 加入新需求              │
-│  → [3] 通過 ✅ → 最終安全審計 → 出口閘門    │
+│  Step F: 不動點判定（AI 自主）               │
+│  → 所有發現皆 YAGNI → REACHED → Step C      │
+│  → CRITICAL+HIGH 未收斂 → DIVERGING → Step C │
+│  → 否則 → NOT_REACHED → 回到 Step A         │
+├──────────────────────────────────────────────┤
+│  Step C: 👤 HITL 收斂確認（僅不動點時觸發） │
+│  → [1] 加入新需求後繼續 → 回到 Step A       │
+│  → [2] 通過 ✅ → 最終安全審計 → 出口閘門    │
 └──────────────────────────────────────────────┘
 ```
 

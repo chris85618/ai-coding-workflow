@@ -42,11 +42,12 @@
 
 > 僅在 AI 判定達不動點後填寫。
 
-**Presented Summary**: [AI 收斂報告摘要]
-**User Choice**: [1] 繼續 / [2] 加入需求 / [3] 通過
+**Presented Summary**: [AI 收斂報告摘要（含不動點判定理由）]
+**Fixed-point Status**: REACHED | DIVERGING
+**User Choice**: [1] 加入需求後繼續 / [2] 通過 ✅
 **User Feedback**: [若有]
 **ADR Reference**: ADR-GATE-S{N}-{xxx}
-**New Requirements** (if [2]): [描述]
+**New Requirements** (if [1]): [描述]
 ```
 
 ---

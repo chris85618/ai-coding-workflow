@@ -56,28 +56,33 @@ Scenario: Red Team 挑戰發現範圍衝突
 **追溯**: UC-003 (covers), INV-003, INV-004, INV-005 (verifies)
 
 ```gherkin
-Scenario: Agent α/β 迭代正常收斂
+Scenario: Agent α/β 迭代自主收斂（Step F REACHED）
   Given Stage N 已就緒
   When Agent α 批判後所有發現為 YAGNI 級
-  Then 系統建議終止迭代
+  Then Step F 判定 fixed_point = REACHED
+  And HITL 收斂確認觸發
   And HITL 確認後 Stage 狀態變為 PASSED [INV-003]
 
-Scenario: 迭代達上限強制 HITL
+Scenario: 迭代達上限強制 HITL（DIVERGING）
   Given Stage N 正在迭代
   And 迭代次數已達 10 [INV-004]
   When 第 11 次迭代嘗試
-  Then 系統強制上報 HITL
+  Then Step F 判定 fixed_point = DIVERGING
+  And 系統強制上報 HITL
   And 不再自動迭代
 
-Scenario: HITL 選擇繼續迭代
+Scenario: NOT_REACHED 自主繼續（不觸發 HITL）
   Given Step M 微驗證通過 [INV-005]
-  When HITL 選擇 [1] 繼續迭代
-  Then Agent α 重新批判
+  And 仍有 CRITICAL 或 HIGH 未收斂發現
+  When Step F 執行判定
+  Then fixed_point = NOT_REACHED
+  And Agent α 自動重新批判
   And iterationCount += 1
+  And HITL 不觸發
 
 Scenario: HITL 選擇加入新需求
-  Given HITL 閘門顯示選項
-  When HITL 選擇 [2] 加入新需求
+  Given HITL 收斂確認閘門顯示（fixed_point 已達）
+  When HITL 選擇 [1] 加入新需求後繼續
   Then 輸入更新
   And Agent α 以新輸入重新批判
 ```

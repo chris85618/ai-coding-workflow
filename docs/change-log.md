@@ -225,3 +225,96 @@
   - CHANGE-MANAGEMENT Step 5 → 跨切面變更時全矩陣重驗證
 - **更新 Skill**: CHANGE-MANAGEMENT.md ✅ (Step 2f + Step 5), micro-validation.md ✅ (Step 5.5/5.7)
 
+---
+
+## IMP-008: 全面追溯審計 — iter-loop AI-first 模型傳播修正
+
+- **日期**: 2026-05-14T01:43+08:00
+- **類型**: FIX (MODIFY × 13 files)
+- **觸發**: 使用者指令「仔細掃描每一個 docs/ 下的文件是否可透過追溯矩陣完整追溯到 skills 下的具體內容」
+- **爆炸半徑**: 13 個檔案，跨 Phase 2 / Stage 3-8 / Phase 9 / skills/ / docs/
+- **嚴重度**: MAJOR（跨 8+ Stage/Phase）
+- **微驗證**: PASS（Step 0-7 + 5.5/5.7 全數通過）
+- **PGVG**: PASS（2a-2e 通過；2e: grep「繼續迭代」= 0 殘留；grep「三選項」= 0 殘留）
+- **跨切面驗證**: PASS（Step 5 執行，13 個檔案交叉掃描，過期引用清零）
+
+### 變更明細
+
+| # | 檔案 | 修正內容 | 根因類別 |
+|---|------|----------|----------|
+| 1-6 | `docs/stages/stage-{3-8}*.md` | 迭代協議：加 Step F + 改 Step C 為 2 選項 + 加 iter-loop.md 引用 | PROCESS_GAP |
+| 7 | `docs/phases/phase-2-project-analysis.md` | 移除未定義 `ASM-xxx` 孤兒前綴 | NAMING_INCONSISTENCY |
+| 8 | `skills/workflow-skills/s2c-requirements.md` | 新增 PGVG 區塊（與其他 s2c-*.md 對齊）| COVERAGE_GAP |
+| 9 | `docs/phases/phase-9-ship-deploy.md` | 新增 `completion-check.md` skill 引用 | PROCESS_GAP |
+| 10 | `docs/requirements.md` | FR-013 補完整 3 種不動點狀態；FR-014 改為 AI-first 2 選項描述 | SEMANTIC_DRIFT |
+| 11 | `docs/bdd-scenarios.md` | SC-003 場景更新反映 Step F + NOT_REACHED 自主繼續 | SEMANTIC_DRIFT |
+| 12 | `docs/adr/ADR-TEMPLATE.md` | GATE 補充區塊改為 2 選項 AI-first 格式 | SEMANTIC_DRIFT |
+| 13 | `docs/iteration-log.md` | HITL Decision 格式改為 2 選項 | SEMANTIC_DRIFT |
+
+### 閘門重新驗證
+
+- [x] Stage 3-8 出口閘門：iter-loop.md 引用一致 ✅
+- [x] FR-013/014 追溯至 FEA-005 ✅
+- [x] SC-003 追溯至 UC-003 + INV-003/004/005 ✅
+- [x] ADR-TEMPLATE.md 追溯至 ADR-GOV-002 ✅
+- [x] s2c-requirements.md PGVG 追溯至 FR-017 ✅
+
+### LESSON-008: Skill 版本演化未觸發下游文件級聯更新
+
+- **根因分類**: PROCESS_GAP
+- **根因描述**: `skills/workflow-skills/iter-loop.md` 從「HITL-per-iteration（3 選項）」演化為「AI-first 收斂（Step F + 2 選項）」，但沒有任何機制確保所有引用此 skill 的 docs/ 文件同步更新。Stage 3-8 文件各自包含了 iter-loop 的「快照副本」，副本在 skill 升級後變成過期引用。
+- **5 Whys**:
+  1. 為什麼 Stage docs 仍有舊 3 選項？→ 文件在 iter-loop.md 升級前已建立，升級後未觸發 cascade 更新
+  2. 為什麼沒有 cascade 更新？→ 無「Skill 版本升級 → 引用方掃描」協議
+  3. 為什麼文件有 inline 副本而非直接引用？→ 建立時為說明具體化，未明確標注為「快照，需與 skill 同步」
+  4. 為什麼無同步驗證？→ micro-validation Step 5.5 僅追溯 ID 連結，不追溯 skill 版本一致性
+  5. 結構性修正？→ Stage 文件迭代協議區塊改為「引用 iter-loop.md + 本 Stage 具體化」格式，消除副本
+- **左移守衛**:
+  1. **格式不變量**：Stage 文件迭代協議必須以 `> 完整迭代協議定義見 skills/workflow-skills/iter-loop.md` 開頭（已實施 ✅）
+  2. **Skill 升級 SOP**：修改 iter-loop.md 時，PGVG Step 2e 必須掃描 docs/stages/*.md 驗證協議一致性
+- **更新 Skill**: stage-3 到 stage-8（加 iter-loop.md 引用）✅
+- **守衛驗證證據**: 格式守衛已內嵌於 6 個 stage 文件，grep「完整迭代協議定義見」= 6 結果（全覆蓋）
+
+**處理狀態**: ✅ 完成
+
+---
+
+## IMP-009: Session-End Hook 提前觸發 — CM Steps 2-5 缺少前置斷言
+
+- **日期**: 2026-05-14T01:48+08:00
+- **類型**: FIX (MODIFY × 3 files)
+- **觸發**: 使用者 RCA 要求（「你在分析當前狀態&下一步時沒有繼續完成完整變更管理流程」）
+- **爆炸半徑**: 3 個檔案（AGENTS.md, CHANGE-MANAGEMENT.md, change-log.md）
+- **嚴重度**: MAJOR（影響所有含 FIX/MODIFY 的 session 的 CM 完整性）
+- **微驗證**: PASS
+- **根因分類**: PROCESS_GAP
+
+### 變更明細
+
+| 檔案 | 變更 |
+|------|------|
+| `AGENTS.md` | session_end_hook() 新增 Step 0 (CM 前置斷言 Precondition Gate) |
+| `docs/governance/CHANGE-MANAGEMENT.md` | Step 6 新增顯式 Precondition Gate 區塊；新增 INV-CM-005 結構不變量 |
+| `docs/change-log.md` | 寫入 IMP-009 + LESSON-009 |
+
+### LESSON-009: CM 多步驟流程缺少「前置步驟完成」強制斷言
+
+- **FIX 來源**: IMP-009
+- **根因分類**: PROCESS_GAP
+- **5 Whys**:
+  1. 為什麼 Session-End Hook 在 CM Steps 2-5 未完成前觸發？→ AI 將「完成本輪檔案修改」（Step 1）視為 CM 流程完成
+  2. 為什麼 AI 有這個誤判？→ CM Step 6 只寫「每次回覆前執行」，無 precondition 要求 Steps 0-5 已完成
+  3. 為什麼 Step 6 沒有 precondition？→ 設計時假設「線性流程自然前進」，未考慮 AI 可能跳步
+  4. 為什麼 AI 可能跳步？→ Step 4（根因左移）有「唯一免除條件」出口，AI 誤判可用此出口；Step 5 觸發條件需 AI 自主判斷是否「橫跨 2+ Stage」，判斷可能偏保守
+  5. 結構性修正？→ Step 6 加入顯式前置斷言清單（每個 FIX/MODIFY 逐一確認 Steps 0-5 完成狀態）
+- **左移守衛**:
+  1. **AGENTS.md session_end_hook Step 0**：precondition_check() — FOR each FIX/MODIFY: ASSERT steps 0-5 complete（已實施 ✅）
+  2. **CHANGE-MANAGEMENT.md Step 6 Precondition Gate**：顯式 precondition block（已實施 ✅）
+  3. **INV-CM-005**：Session-End Hook 後置不變量（已實施 ✅）
+- **守衛驗證證據**:
+  - AGENTS.md Step 0: precondition_check() 中任一 ASSERT fail → STOP 並禁止輸出「📍 當前狀態 & 下一步」
+  - 模擬原始情境（完成 Step 1 後嘗試觸發 Step 6）→ Step 0 ASSERT step_2_pgvg_passed FAIL → STOP，AI 必須先執行 PGVG
+- **更新 Skill**: AGENTS.md ✅, CHANGE-MANAGEMENT.md ✅
+- **守衛強化歷程**: 首次建立（2026-05-14），非 GUARD_STRENGTHENING 模式
+
+**處理狀態**: ✅ 完成

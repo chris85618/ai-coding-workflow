@@ -106,6 +106,22 @@ cross_cutting_verify():
 
 > 每次回覆使用者前強制執行。詳見 AGENTS.md「收尾協議」章節。
 
+> **[!IMPORTANT]**
+> **前置斷言（Precondition Gate）— 必須在 Step 6 任何子步驟前自我確認：**
+> ```
+> precondition_check():
+>   FOR each FIX/MODIFY change made this session:
+>     ASSERT step_0_classified    = TRUE  # 變更類型已分類
+>     ASSERT step_1_generated     = TRUE  # 產出已完成
+>     ASSERT step_2_pgvg          = TRUE  # PGVG 2a-2f 已執行且 PASS
+>     ASSERT step_3_micro_val     = TRUE  # 微驗證已執行且 PASS
+>     ASSERT step_4_rca_done      = TRUE  # RCA / root-cause-leftshift 已執行
+>     ASSERT step_5_cross_cutting = TRUE  # 跨切面驗證已執行（若觸發條件達標）
+>     IF any ASSERT fails:
+>       STOP; complete missing steps FIRST; only then return to Step 6
+> ```
+> **若任一項未完成，禁止執行 Step 6 子步驟並禁止輸出「📍 當前狀態 & 下一步」。**
+
 1. 讀取 `docs/workflow-state.md` 當前記錄狀態
 2. 比對本次 session 實際工作 vs 記錄狀態
 3. 更新 `docs/workflow-state.md`（Pipeline Position, WBS, Gates, Next Actions, Session Summary）
@@ -175,6 +191,12 @@ cross_cutting_verify():
 > 新治理機制的決策準則，必須從第一性原則（公理 → 定理 → 規則）推導。禁止直接提出啟發法。啟發法僅作為推導結論的實務落地手段。
 
 **根因**: ADR-GATE 頻率最初以「每個 Stage HITL 至少 1 個」的啟發法提出，未從 SOLID/SRP 原則推導。後由 HITL 修正為 Decision Unit 理論。
+
+### INV-CM-005：Session-End Hook 後置不變量
+
+> Session-End Hook（CM Step 6）的執行，必須後置於本 session 所有 FIX/MODIFY 變更的 CM Steps 0-5 全數完成之後。若任一 Step 尚未執行，AI 必須先完成該 Step，再執行 Step 6。禁止在 CM Steps 0-5 未完成的情況下輸出「📍 當前狀態 & 下一步」區塊。
+
+**根因**: AI 將「完成本輪檔案修改」誤等同於「CM 流程完成」，在 Steps 2-5 未執行的情況下直接觸發 Step 6（Session-End Hook），導致使用者需額外 re-prompt 才能繼續 CM 流程。See LESSON-009。
 
 ---
 

@@ -385,6 +385,19 @@ AI 即將回覆使用者時（無論是完成任務、回答問題、或請求 H
 
 ```
 session_end_hook():
+  # Step 0: CM 前置斷言（Precondition Gate）
+  #
+  # 在執行任何子步驟前，強制自我確認本 session 所有 FIX/MODIFY 變更的 CM Steps 0-5 已全數完成。
+  FOR each change IN session_changes WHERE type IN [FIX, MODIFY]:
+    IF NOT step_0_classified:    STOP; classify_change(); return to CM Step 0
+    IF NOT step_1_generated:     STOP; complete generation; return to CM Step 1
+    IF NOT step_2_pgvg_passed:   STOP; run PGVG 2a-2f; return to CM Step 2
+    IF NOT step_3_micro_passed:  STOP; run micro-validation; return to CM Step 3
+    IF NOT step_4_rca_done:      STOP; run root-cause-leftshift.md; return to CM Step 4
+    IF cross_cutting_triggered AND NOT step_5_done:
+                                 STOP; run cross_cutting_verify(); return to CM Step 5
+  # 若任一 STOP 觸發→ 禁止輸出「📍 當前狀態 & 下一步」區塊
+
   # Step 1: 讀取狀態
   state = read("docs/workflow-state.md")
   recorded_position = state.pipeline_position

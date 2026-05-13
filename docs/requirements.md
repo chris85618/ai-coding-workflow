@@ -67,14 +67,14 @@
 **描述**：Stage 3-8 各自定義審查維度，共用 `iter-loop.md` 迭代協議（Step A → B → M → C）。
 **追溯**：FEA-005 (decomposes)
 
-### FR-013: 不動點偵測
+### FR-013: 不動點判定
 
-**描述**：當 Agent α 僅剩 YAGNI 級質疑時，自動建議終止迭代。
+**描述**：Stage 3-8 迭代中，每輪 Step M 通過後執行不動點判定（Step F）：若 Agent α 所有發現皆為 YAGNI → REACHED → 觸發 HITL；若有 CRITICAL+HIGH 未收斂 → DIVERGING → 觸發 HITL；其他情況 → NOT_REACHED → 自主繼續迭代。
 **追溯**：FEA-005 (decomposes)
 
-### FR-014: HITL 閘門三選項
+### FR-014: HITL 收斂確認（AI-first 模型）
 
-**描述**：每個 HITL 閘門提供三個選項：[1] 繼續迭代、[2] 加入新需求、[3] 通過。
+**描述**：HITL 閘門僅在 AI 自主達到不動點（REACHED 或 DIVERGING）後觸發，提供兩個選項：[1] 加入新需求後繼續（回到 Step A）、[2] 通過 ✅（進入出口閘門）。AI 自主迭代期間不觸發 HITL。
 **追溯**：FEA-005 (decomposes)
 
 ### FR-015: SonarCloud 門檻定義

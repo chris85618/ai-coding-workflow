@@ -15,7 +15,7 @@
 
 ### 預發布完成檢查
 
-在 `/ship` 前強制驗證：
+在 `/ship` 前強制驗證（執行 `skills/workflow-skills/completion-check.md`）：
 - 每個 FR-xxx 至少有一個 TC-xxx
 - 每個 UC-xxx 至少有一個 SC-xxx
 - 每個 INV-xxx 至少有一個驗證

@@ -10,7 +10,7 @@
 
 **Pipeline ID**: `pipe-antigravity-governance-v1`
 **Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成，尚未開始目標專案的 Stage 3`
-**Last Updated**: `2026-05-14T00:50+08:00`
+**Last Updated**: `2026-05-14T01:48+08:00`
 **Recovery Mode**: false
 
 ---
@@ -215,9 +215,9 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T00:50+08:00
+- **Last Session Date**: 2026-05-14T01:48+08:00
 - **Pipeline Position (recorded)**: Stage 3 (self-bootstrap, 治理架構)
-- **Actual Work Done**: FR-022~025 制度化 + 跨切面一致性驗證制度化 + Session-End Hook 建立 + LESSON-006 GUARD_STRENGTHENING + LESSON-007 + IMP-007 + CM Step 0-6 全流程執行
-- **State Diff**: Pipeline Position 從 {PLACEHOLDER} 更新為 Stage 3 (self-bootstrap)。Gate Status 從 Phase 0 ⏳ 更新為 Phase 0~Stage 8 全部 ✅ (self-bootstrap)。
+- **Actual Work Done**: 系統性分析 + RCA 左移（IMP-009 / LESSON-009）。識別 Session-End Hook 提前觸發的根因：CM Step 6 缺少前置斷言。已更新三個守衛：(1) AGENTS.md session_end_hook Step 0 precondition_check()；(2) CHANGE-MANAGEMENT.md Step 6 Precondition Gate；(3) INV-CM-005 結構不變量。
+- **State Diff**: 一致（Pipeline Position 未變，Gate Status 未變）
 - **Pending Escalations Carried Over**: 無
 

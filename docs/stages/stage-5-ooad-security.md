@@ -76,11 +76,13 @@ skillfortify lock . --output skill-lock.json
 
 ## 迭代協議
 
+> 完整迭代協議定義見 `skills/workflow-skills/iter-loop.md`。以下為本 Stage 的具體化。
+
 ```
 ┌──────────────────────────────────────────────┐
 │  Step A: Agent α（破綻發掘者）               │
 │  → 依 OA-OD 4 維度 + DDD 分析               │
-│  → 產出：問題清單 + 方向建議                 │
+│  → 產出：問題清單 + 方向建議（按嚴重度降序） │
 ├──────────────────────────────────────────────┤
 │  Step B: Agent β（收斂整合者）               │
 │  → 最小完備抽象收斂                          │
@@ -91,12 +93,17 @@ skillfortify lock . --output skill-lock.json
 │  → 觸發 skills/workflow-skills/impact-analysis-exec.md │
 │  → CLS-xxx 追溯至 UC-xxx/ALG-xxx             │
 │  → EVT-xxx 追溯至 CLS-xxx                    │
-│  → 全數通過才進入 Step C                     │
+│  → 全數通過才進入 Step F                     │
 ├──────────────────────────────────────────────┤
-│  Step C: 👤 HITL 迭代閘門                    │
-│  → [1] 繼續迭代  [2] 加入新需求              │
-│  → [3] 通過 ✅ → 執行子步驟 5b 安全審計     │
-│  → 安全審計通過 → 出口閘門驗證               │
+│  Step F: 不動點判定（AI 自主）               │
+│  → 所有發現皆 YAGNI → REACHED → Step C      │
+│  → CRITICAL+HIGH 未收斂 → DIVERGING → Step C │
+│  → 否則 → NOT_REACHED → 回到 Step A         │
+├──────────────────────────────────────────────┤
+│  Step C: 👤 HITL 收斂確認（僅不動點時觸發） │
+│  → [1] 加入新需求後繼續 → 回到 Step A       │
+│  → [2] 通過 ✅ → 執行子步驟 5b 安全審計     │
+│      → 安全審計通過 → 出口閘門驗證          │
 └──────────────────────────────────────────────┘
 ```
 

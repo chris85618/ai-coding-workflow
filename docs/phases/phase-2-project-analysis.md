@@ -176,7 +176,7 @@ FOR each FEA-xxx IN out_of_scope:
 |------|---------|---------|
 | 範圍定義 | `FEA-xxx` | `docs/scope-definition.md` |
 | 約束條件 | — | `docs/scope-definition.md` |
-| 假設登記 | `ASM-xxx` | `docs/scope-definition.md` |
+| 假設登記 | — | `docs/scope-definition.md` |
 
 ### 追溯驗證
 - [ ] 所有 FEA-xxx 可追溯至 BG-xxx 和/或 S-xxx
