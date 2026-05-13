@@ -1,8 +1,8 @@
-﻿# Traceability Matrix — Unified Agentic Workflow System
+# Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-14T00:25:00+08:00 (全鏈自我驗證)
-**Validation Status**: ✅ Stage 3 complete; UC-010/011 pending Stage 5-8 expansion
+**Last Validated**: 2026-05-14T03:55:00+08:00 (B2: 16 Skills 順序化 + B3: AGENTS.md/README.md 重構)
+**Validation Status**: ✅ Stage 3 complete; 17 ADRs restored; 16 skills sequentialized; AGENTS.md/README.md restructured
 
 ---
 
@@ -84,6 +84,23 @@
 | ADR-GOV-001 | FR-001, NFR-001 | justifies | ✅ |
 | ADR-GOV-002 | FR-001, FR-002, FR-003, NFR-001 | justifies | ✅ |
 | ADR-GOV-002 | FR-022, FR-023 | justifies | ✅ |
+| ADR-GOV-003 | FR-005, FR-007 | justifies | ✅ |
+| ADR-GOV-004 | FR-005, FR-017 | justifies | ✅ |
+| ADR-GOV-005 | FR-016 | justifies | ✅ |
+| ADR-GOV-006 | FR-005, FR-007 | justifies | ✅ |
+| ADR-GOV-007 | FR-024 | justifies | ✅ |
+| ADR-GOV-008 | FR-022, FR-023, FR-024, FR-025 | justifies | ✅ |
+| ADR-GOV-009 | FR-024 | justifies | ✅ |
+| ADR-GOV-010 | FR-007 | justifies | ✅ |
+| ADR-GOV-011 | FR-005, FR-006, FR-007 | justifies | ✅ |
+| ADR-GOV-012 | FR-019 | justifies | ✅ |
+| ADR-GOV-013 | FR-005 | justifies | ✅ |
+| ADR-GOV-014 | NFR-001 | justifies | ✅ |
+| ADR-GOV-015 | NFR-001 | justifies | ✅ |
+| ADR-GOV-016 | NFR-001, FR-014 | justifies | ✅ |
+| ADR-GOV-017 | NFR-001, NFR-003 | justifies | ✅ |
+| ADR-GOV-018 | FR-019 | justifies | ✅ |
+| ADR-GOV-019 | FR-005, FR-007 | justifies | ✅ |
 
 ### ALG → FR
 
@@ -200,14 +217,14 @@
 | Stage 3 | NFR-xxx | 6 | 6/6 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 11 | 11/11 | 9/11 (UC-010/011 待 Stage 5-8) | 82% |
 | Stage 3 | ADR-STR-xxx | 1 | 1/1 | — | 100% |
-| 治理層 | ADR-GOV-xxx | 2 | 2/2 | — (治理) | 100% |
+| 治理層 | ADR-GOV-xxx | 19 | 19/19 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 5 | 5/5 | 5/5 | 100% |
 | Stage 5 | CLS-xxx | 12 | 12/12 | 12/12 | 100% |
 | Stage 5 | EVT-xxx | 5 | 5/5 | — | 100% |
 | Stage 6 | INV-xxx | 17 | 17/17 | 17/17 | 100% |
 | Stage 7 | SC-xxx | 9 | 9/9 | 9/9 | 100% |
 | Stage 8 | TC-xxx | 9 | 9/9 | — (末端) | 100% |
-| **合計** | — | **120** | — | — | **100%** |
+| **合計** | — | **137** | — | — | **100%** |
 
-> **Status**: Stage 3-8 迭代管線自舉完成 + ADR 治理層微驗證完成 + FR-019~025/NFR-005~006/UC-010~011 擴充完成。全鏈雙向驗證通過。120 個 ID，零孤兒。UC-001~009 全鏈 100% 覆蓋；UC-010/011 Stage 3 完成，Stage 5-8 下游（CLS/INV/SC/TC）待下輪迭代擴充。
+> **Status**: Stage 3-8 迭代管線自舉完成 + ADR 治理層微驗證完成 + FR-019~025/NFR-005~006/UC-010~011 擴充完成。所有 IMP/LESSON 內容已遷移至對應 ADR（ADR-GOV-003~019）。change-log.md 已廢棄。全鏈雙向驗證通過。137 個 ID，零孤兒。
 

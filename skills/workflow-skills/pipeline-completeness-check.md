@@ -6,73 +6,38 @@
 
 ---
 
-## 檢查協議
+## Step 1: 快速掃描
 
-```
-pipeline_completeness_check():
-  # Step 1: 快速掃描（< 30 秒）
-  checks = {
-    "workflow_state":  exists("docs/workflow-state.md"),
-    "project_charter": exists("docs/project-charter.md") AND has_ids("BG-"),
-    "stakeholders":    exists("docs/stakeholder-analysis.md") AND has_ids("S-"),
-    "scope":           exists("docs/scope-definition.md") AND has_ids("FEA-"),
-    "requirements":    exists("docs/requirements.md") AND has_ids("FR-"),
-    "use_cases":       exists("docs/use-cases.md") AND has_ids("UC-"),
-    "traceability":    exists("docs/traceability-matrix.md"),
-    "adr_index":       exists("docs/adr/ADR-INDEX.md"),
-    "iteration_log":   exists("docs/iteration-log.md"),
-    "gate_adrs":       count("docs/adr/ADR-GATE-*.md") > 0
-  }
+檢查以下 10 項是否存在且含有效 ID：
 
-  # Step 2: 計算完備度
-  passed = count(v for v in checks.values() if v)
-  total = len(checks)
-  completeness = passed / total
+| # | 檢查項 | 對應 Phase/Stage | 檢查條件 |
+|---|--------|-----------------|----------|
+| 1 | workflow_state | 跨切面 | `docs/workflow-state.md` 存在 |
+| 2 | project_charter | Phase 2.0 | `docs/project-charter.md` 存在 且 含 BG- |
+| 3 | stakeholders | Phase 2.1 | `docs/stakeholder-analysis.md` 存在 且 含 S- |
+| 4 | scope | Phase 2.2 | `docs/scope-definition.md` 存在 且 含 FEA- |
+| 5 | requirements | Stage 3 | `docs/requirements.md` 存在 且 含 FR- |
+| 6 | use_cases | Stage 3 | `docs/use-cases.md` 存在 且 含 UC- |
+| 7 | traceability | 跨切面 | `docs/traceability-matrix.md` 存在 |
+| 8 | adr_index | 跨切面 | `docs/adr/ADR-INDEX.md` 存在 |
+| 9 | iteration_log | Stage 3-8 | `docs/iteration-log.md` 存在 |
+| 10 | gate_adrs | Stage 3-8 | `docs/adr/ADR-GATE-*.md` 數量 > 0 |
 
-  # Step 3: 判定
-  IF completeness == 1.0:
-    → Pipeline 完整：所有 Phase/Stage 的產出物皆存在且有 ID
-    → 等同 HITL-P0-01 通過
-    → 進一步判定：workflow-state.md 的 current position
-    → 若有中斷的工作 → 觸發 workflow-resume.md
+## Step 2: 計算完備度
 
-  ELIF completeness >= 0.6:
-    → Pipeline 部分完成：已有基礎記錄
-    → 判定最後完成的 Stage（從 Gate Status 讀取）
-    → 觸發 workflow-resume.md 從斷點繼續
+1. passed = 通過的檢查項數量
+2. completeness = passed / 10
 
-  ELIF completeness > 0 AND completeness < 0.6:
-    → Pipeline 剛起步或不完整
-    → 判定是 Path A（Greenfield）還是 Path B（既有 codebase 但未跑完管線）
-    → Path B 判定：掃描專案目錄是否有非 docs/ 的原始碼
-    → 若 Path B → Phase 1（/understand）→ Phase 2
-    → 若 Path A → Phase 2
+## Step 3: 判定路徑
 
-  ELSE (completeness == 0):
-    → 全新專案
-    → 掃描專案目錄判定 Path A/B
-    → 進入對應路徑
+- **completeness == 1.0** → Pipeline 完整。判定 workflow-state.md 的 current position。若有中斷工作 → 觸發 `workflow-resume.md`
+- **completeness >= 0.6** → Pipeline 部分完成。從 Gate Status 判定最後完成的 Stage → 觸發 `workflow-resume.md` 從斷點繼續
+- **0 < completeness < 0.6** → Pipeline 剛起步。判定 Path A（Greenfield）或 Path B（既有 codebase 但未跑完管線）。Path B 判定：掃描專案目錄是否有非 docs/ 的原始碼。Path B → Phase 1。Path A → Phase 2
+- **completeness == 0** → 全新專案。掃描目錄判定 Path A/B → 進入對應路徑
 
-  # Step 4: 報告（輕量輸出）
-  REPORT:
-    completeness_score: {passed}/{total}
-    decision: {path}
-    next_action: {action}
-```
+## Step 4: 報告
 
----
-
-## 檢查項說明
-
-| 檢查項 | 對應 Phase/Stage | 為什麼需要 |
-|--------|-----------------|-----------|
-| workflow_state | 跨切面 | 狀態機存在 = 管線曾經啟動 |
-| project_charter | Phase 2.0 | BG-xxx 存在 = 商業目標已定義 |
-| stakeholders | Phase 2.1 | S-xxx 存在 = 利害關係人已分析 |
-| scope | Phase 2.2 | FEA-xxx 存在 = 範圍已定義 |
-| requirements | Stage 3 | FR-xxx 存在 = 需求已分解 |
-| use_cases | Stage 3 | UC-xxx 存在 = 使用案例已識別 |
-| traceability | 跨切面 | 追溯矩陣存在 = 追溯系統運作中 |
-| adr_index | 跨切面 | ADR 索引存在 = 決策記錄系統運作中 |
-| iteration_log | Stage 3-8 | 迭代紀錄存在 = 至少一輪迭代已執行 |
-| gate_adrs | Stage 3-8 | 閘門 ADR 存在 = 至少一個閘門已通過 |
+輸出：
+- completeness_score: {passed}/10
+- decision: {path}
+- next_action: {action}

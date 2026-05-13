@@ -29,9 +29,8 @@
 | `TC-xxx` | 測試案例 | Stage 7/8 | TC-001: test_login_success | SC, INV | — |
 | `DEBT-xxx` | 技術債項目 | Phase 10 | DEBT-001: 缺少錯誤處理 | 任意 | ADR |
 | `RISK-xxx` | 風險 | 任意階段 | RISK-001: 第三方 API 中斷 | 任意 | ADR |
-| `IMP-xxx` | 影響分析紀錄 | 任意階段 | IMP-001: FR-003 變更影響 | ADR | 任意 |
 
-> **ADR 整合**：所有 IMP-xxx 必須追溯至授權 ADR。所有 DEBT-xxx 可追溯至產生原因 ADR。
+> **ADR 整合**：所有變更紀錄直接寫入對應 ADR 的「變更紀錄」區段。所有 DEBT-xxx 可追溯至產生原因 ADR。
 > 完整 ADR 治理規則見 `docs/governance/ADR-GOVERNANCE.md`。
 
 ---
@@ -143,7 +142,7 @@ ALG-xxx → CLS-xxx → INV-xxx
 │  → 標記受影響的下游 ID                                  │
 │                                                         │
 │  Step 7: 變更紀錄 + 根因左移（所有變更類型皆執行）      │
-│  → 寫入 IMP-xxx 至 docs/change-log.md                   │
+│  → 寫入變更紀錄至對應 ADR 的「變更紀錄」區段             │
 │  → 執行 root-cause-leftshift.md（含 LESSON 重用檢查）    │
 │  → 產出 LESSON-xxx 或強化既有 LESSON                    │
 │  → 更新觸發問題的 skill/prompt/governance 文件          │

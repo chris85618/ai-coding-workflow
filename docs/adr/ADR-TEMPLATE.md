@@ -65,17 +65,55 @@
 - **跨 Stage 影響**: {N} 個 Stage
 - **嚴重度**: COSMETIC | MINOR | MODERATE | MAJOR
 - **受影響 ID**: {ID 列表}
-- **關聯 IMP-xxx**: {影響分析紀錄 ID}
+
+## 變更紀錄 (Implementation Records)
+
+> 此 ADR 所驅動的全部變更紀錄。每次變更追加一個子區塊。
+
+### 變更 #{N}: {簡述}
+
+- **日期**: {ISO 8601 含時區}
+- **類型**: CREATE | MODIFY | FIX
+- **檔案**: {file path(s)}
+- **影響 ID**: {affected IDs}
+- **爆炸半徑**: {blast_radius}
+- **嚴重度**: COSMETIC | MINOR | MODERATE | MAJOR
+- **微驗證**: PASS | FAIL (step N)
+- **PGVG**: PASS | FAIL (2a-2f) (optional)
+- **跨切面驗證**: PASS | N/A (optional)
+
+**變更明細**:
+
+| # | 檔案 | 修正內容 | 根因類別 |
+|---|------|----------|----------|
+| 1 | {path} | {description} | {category} |
+
+## 根因分析與教訓 (Root Cause & Lessons)
+
+> 此 ADR 關聯的全部根因分析與教訓。每個教訓追加一個子區塊。
+> LESSON-xxx ID 保留作為跨 ADR 引用標識。
+
+### LESSON-{NNN}: {標題}
+
+- **根因分類**: {從根因分類法中選擇}
+- **根因描述**: {一句話描述根因}
+- **5 Whys**:
+  1. {Why 1} → {Answer}
+  2. {Why 2} → {Answer}
+  3. {Why 3} → {Answer}
+  4. {Why 4} → {Answer}
+  5. {Why 5 / 結構性修正} → {Answer}
+- **左移守衛**: {更新的 skill / governance 文件 + 具體規則}
+- **更新 Skill**: {skill names ✅}
+- **守衛驗證證據**: {guard_name 能攔截 scenario 的證據}
+- **守衛強化歷程**: {若有 GUARD_STRENGTHENING，記錄各版本} (optional)
 
 ## 關聯產出物
 
 | 類型 | ID | 說明 |
 |------|----|------|
-| 影響分析 | IMP-xxx | {摘要} |
 | 技術債 | DEBT-xxx | {摘要} (optional) |
-| 變更紀錄 | IMP-xxx | {摘要} |
 | 風險 | RISK-xxx | {摘要} (optional) |
-| 教訓 | LESSON-xxx | {摘要} (optional) |
 ```
 
 ---
@@ -181,3 +219,5 @@
 6. **後果必須雙面**：正面和負面後果各至少 1 項
 7. **語言一致性**：與專案主要語言一致（繁體中文或英文）
 8. **檔名格式**：`ADR-{CATEGORY}-{NNN}.md`，所有類別一致使用前綴（STRUCTURAL = `ADR-STR-xxx`）
+9. **變更紀錄內嵌**：每個 ADR 的變更紀錄直接寫入「變更紀錄」區段
+10. **教訓內嵌**：LESSON-xxx 直接寫入「根因分析與教訓」區段，保留 LESSON-xxx ID 作為跨 ADR 引用標識

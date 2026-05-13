@@ -75,7 +75,7 @@ Tier 3: External Tools (WHO)
 - **跨 Stage 影響**: 全部（跨切面架構變更）
 - **嚴重度**: MAJOR
 - **受影響 ID**: 所有 Stage/Phase 文件的結構
-- **關聯 IMP-xxx**: 初始建立，無前序影響分析
+
 
 ## 架構影響
 

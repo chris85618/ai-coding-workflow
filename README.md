@@ -8,13 +8,22 @@
 
 ```
 ai_coding/
-├── AGENTS.md        # 統一配置：workflow + agent instructions + skill routing
-├── .gitignore       # 排除生成物
+├── AGENTS.md              # 統一配置：workflow + agent instructions + skill routing
+├── .gitignore             # 排除生成物
+├── docs/
+│   ├── governance/        # 跨切面治理：追溯、影響分析、變更管理、ADR
+│   ├── adr/               # 20 ADRs（架構/治理/安全/範圍/閘門/營運）
+│   ├── phases/            # Phase 0-2, 9-10 定義
+│   ├── stages/            # Stage 3-8 完整定義 + 審查維度
+│   ├── workflow-state.md  # 工作流狀態機
+│   ├── adr/               # ADR 決策紀錄（含變更紀錄 + LESSON）
+│   └── traceability-matrix.md  # 追溯矩陣（137+ IDs）
 └── skills/
-    ├── everything-claude-code/   # ECC — 開發護欄、hooks、agents
-    ├── gstack/                   # gstack — 工作流引擎（QA、ship、review）
-    ├── understand-anything/      # Understand Anything — 程式碼理解、知識圖譜
-    └── skillfortify/             # SkillFortify — 供應鏈安全、SBOM
+    ├── workflow-skills/           # 16 個可執行協議（全部 ## Step N 格式）
+    ├── everything-claude-code/    # ECC — 開發護欄、hooks、agents
+    ├── gstack/                    # gstack — 工作流引擎（QA、ship、review）
+    ├── understand-anything/       # Understand Anything — 程式碼理解、知識圖譜
+    └── skillfortify/              # SkillFortify — 供應鏈安全、SBOM
 ```
 
 ## Workflow Pipeline
@@ -39,10 +48,29 @@ Phase 10  /retro → /understand → /evolve
 
 所有開發任務遵循完整管線，**無簡化路徑**。
 
+## Skill Protocol Format
+
+所有 `skills/workflow-skills/*.md` 使用統一格式：
+
+```
+# Skill: [Name]
+> Metadata (trigger, input, output)
+---
+## Step 1: [Name]
+[numbered sub-items]
+## Step 2: [Name]
+...
+## Step N: [Name]
+---
+## DbC / 判定 (optional terminal reference)
+```
+
+LLM 從 Step 1 按編號執行到最後一步。無需分析結構。
+
 ## Symlink Setup
 
 ```bash
-# Antigravity (Gemini)
+# Gemini
 # Windows: mklink "C:\Users\<user>\.gemini\GEMINI.md" "C:\Users\<user>\.setup\ai_coding\AGENTS.md"
 # Linux:   ln -sf ~/.setup/ai_coding/AGENTS.md ~/.gemini/GEMINI.md
 
@@ -63,3 +91,6 @@ Phase 10  /retro → /understand → /evolve
 | File | Purpose |
 |------|---------|
 | [AGENTS.md](./AGENTS.md) | 統一配置：完整管線定義、審查維度、HITL 閘門、skill routing、agent instructions |
+| [docs/traceability-matrix.md](./docs/traceability-matrix.md) | 追溯矩陣：137+ IDs，全方向追溯鏈 |
+| [docs/adr/ADR-INDEX.md](./docs/adr/ADR-INDEX.md) | 20 ADRs 活索引 |
+| [docs/adr/](./docs/adr/) | ADR 決策紀錄（含變更紀錄 + LESSON） |

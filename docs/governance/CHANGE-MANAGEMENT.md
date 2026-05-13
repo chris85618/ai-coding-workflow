@@ -42,12 +42,12 @@
 │  → Step 5.5: 全方向連結追溯（FR-022）              │
 │  → Step 5.7: LESSON 重用檢查（FR-023，所有變更類型）   │
 │  → Step 6: 影響分析                                  │
-│  → Step 7: 變更紀錄 → IMP-xxx 寫入 change-log.md     │
+│  → Step 7: 變更紀錄 → 寫入對應 ADR 的「變更紀錄」區段   │
 ├─────────────────────────────────────────────────────┤
 │  Step 4: 根因左移迴圈（強制執行條件見下方）        │
 │  → 掃描完整對話歷程，窮舉所有疑慮/修正/Q&A       │
 │  → 對每個識別出的問題執行 RCA                      │
-│  → 產出 LESSON-xxx                                  │
+│  → 產出 LESSON-xxx（寫入對應 ADR）                        │
 │  → 更新觸發錯誤的 skill/prompt/governance 文件      │
 │  → 驗證左移後的規則可防止重現                       │
 │                                                      │
@@ -126,12 +126,15 @@ cross_cutting_verify():
 
 ---
 
-## IMP-xxx 變更紀錄格式
+## ADR 變更紀錄格式
+
+> 變更紀錄直接寫入對應 ADR 的「變更紀錄 (Implementation Records)」區段。
 
 ```
-### IMP-xxx: [簡述]
+### 變更 #N: [簡述]
 
 - **類型**: CREATE | MODIFY | FIX
+- **日期**: [ISO 8601 含時區]
 - **檔案**: [file path]
 - **影響 ID**: [affected IDs]
 - **爆炸半徑**: [blast_radius]
@@ -140,7 +143,7 @@ cross_cutting_verify():
 - **根因分類**: [強制填寫，所有變更類型皆需]
 - **根因描述 / 變更動機**: [強制填寫，「為什麼需要這個變更？原先缺了什麼？」]
 - **左移動作**: [skill updated 或 「無需左移」的完整理由]
-- **守衛驗證證據**: [guard_name] 能攔截 [scenario] 的證據（grep 結果/測試輸出/步驟引用）
+- **守衛驗證證據**: [guard_name] 能攔截 [scenario] 的證據
 - **LESSON-xxx**: [reference]
 ```
 

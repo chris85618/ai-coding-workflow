@@ -27,7 +27,7 @@
 ```
 conversation_rca_sweep():
   # Step 1: 掃描全部對話紀錄（去重：排除已處理）
-  existing_lessons = read("docs/change-log.md").filter(LESSON-xxx)
+  existing_lessons = read("docs/adr/").filter(LESSON-xxx)
   FOR each conversation_segment IN current_sprint:
     IF segment already covered by existing_lessons:
       SKIP  # CHANGE-MANAGEMENT Step 4 已處理，不重複
@@ -62,7 +62,7 @@ conversation_rca_sweep():
   # Step 4: 更新 skill + 寫入 LESSON-xxx
   FOR each guard:
     update_skill(guard.target_skill, guard.content)
-    persist(LESSON-xxx, "docs/change-log.md")
+    persist(LESSON-xxx, "對應 ADR 根因分析與教訓區段")
 
   # Step 5: 驗證左移有效性
   FOR each updated_skill:

@@ -66,7 +66,7 @@
 - **爆炸半徑**: ADR-GOVERNANCE.md 全文、ADR-TEMPLATE.md 的 GATE 區塊、所有 Stage 文件的 HITL 閘門描述
 - **跨 Stage 影響**: 全部（框架層變更）
 - **嚴重度**: MAJOR
-- **關聯 IMP-xxx**: 本次為初始建立，無前序影響分析
+
 
 ## 流程變更
 

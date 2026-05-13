@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-unified-governance-v1`
-**Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成，尚未開始目標專案的 Stage 3`
-**Last Updated**: `2026-05-14T02:56+08:00`
+**Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成 + 17 ADRs 還原 + 18 files 順序化重構 (全 B1-B3 完成)`
+**Last Updated**: `2026-05-14T03:56+08:00`
 **Recovery Mode**: false
 
 ---
@@ -182,7 +182,7 @@ FOR each pending WBS leaf L:
 ```
 每完成一個 WBS leaf:
   1. 確認產出物已持久化至 docs/ 對應文件
-  2. 確認相關 IMP-xxx / ADR 已記錄
+  2. 確認相關 ADR 變更紀錄已記錄
   3. 將該 leaf 狀態標為 ✅
   4. 檢查是否需拆分新 leaf（發現了原始規劃未預見的工作）
   5. 更新 Gate Status（若為閘門類 leaf）

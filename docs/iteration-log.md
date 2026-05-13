@@ -32,7 +32,7 @@
 | 1 | #1 | [修復摘要] | Occam + Merge | docs/requirements.md |
 
 **Micro-validation Result**: PASS / FAIL (Step {N})
-**Impact Analysis**: IMP-{xxx} (severity: {level})
+**Impact Analysis**: ADR-{CAT}-{xxx} 變更 #{N} (severity: {level})
 **Fixed-point Assessment**: NOT_REACHED / APPROACHING / REACHED
   - Rationale: [為什麼判定為此狀態]
 

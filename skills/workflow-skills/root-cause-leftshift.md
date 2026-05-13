@@ -1,108 +1,83 @@
-# Root Cause Left-Shift Skill
+# Skill: 根因左移
 
 > **觸發條件**：**所有變更，無例外。全面強制執行。**
-> **禁止 N/A 判定**：AI 不得以「非 FIX」「本次無問題」「變更太小」等任何理由跳過此步驟。每次變更都有原因，找出「為什麼需要這個變更」本身就是左移的核心。
+> **禁止 N/A 判定**：AI 不得以「非 FIX」「本次無問題」「變更太小」等任何理由跳過此步驟。
 > **強制等級**：與 INV-CM-005（Session-End Hook 後置不變量）同級。未執行 RCA 即執行 Session-End Hook 構成治理違規。
-> **輸出**：LESSON-xxx + 更新觸發問題的 skill（若為 MODIFY/CREATE 且無問題，仍須產出「變更動機紀錄」寫入 change-log.md）
+> **輸出**：LESSON-xxx + 更新觸發問題的 skill（若為 MODIFY/CREATE 且無問題，仍須產出「變更動機紀錄」寫入對應 ADR 的「變更紀錄」區段）
 
 ---
 
-## 執行流程
+## Step 1: 根因分類
 
-```
-root_cause_leftshift(change_record):
-  # Step 1: 根因分類（所有變更類型皆適用）
-  category = classify(change_record):
-    IF change involves format/syntax → FORMAT_ERROR
-    IF change involves coverage claim vs actual → COVERAGE_GAP
-    IF change involves LLM output inconsistency → LLM_HALLUCINATION
-    IF change involves missing process step → PROCESS_GAP
-    IF change involves upstream/downstream mismatch → SEMANTIC_DRIFT
-    IF change involves naming rule exception → NAMING_INCONSISTENCY
-    IF change involves skipped governance step → GOVERNANCE_BYPASS
-    IF change involves incomplete scan/audit → SCAN_INCOMPLETENESS
-    IF change is CREATE with no prior gap → NEW_CAPABILITY (仍須記錄動機)
-    IF change is MODIFY improving existing → IMPROVEMENT (仍須記錄「為什麼原先不完整」)
+對當前變更進行分類（所有變更類型皆適用）：
 
-  # Step 1.5: LESSON 重用檢查（FR-023）
-  existing_lessons = search("docs/change-log.md", LESSON-xxx)
-  matching = [L for L in existing_lessons
-              if L.category == category
-              AND L.root_cause_pattern ~= change_record.pattern]
+| 分類 | 觸發條件 |
+|------|----------|
+| FORMAT_ERROR | 涉及格式/語法 |
+| COVERAGE_GAP | 覆蓋宣稱 vs 實際不符 |
+| LLM_HALLUCINATION | LLM 輸出不一致 |
+| PROCESS_GAP | 缺少流程步驟 |
+| SEMANTIC_DRIFT | 上下游語意不匹配 |
+| NAMING_INCONSISTENCY | 命名規則例外 |
+| GOVERNANCE_BYPASS | 跳過治理步驟 |
+| SCAN_INCOMPLETENESS | 掃描/審計不完整 |
+| DECLARATION_IMPLEMENTATION_GAP | 宣告規則無對應強制機制 |
+| NEW_CAPABILITY | CREATE 且無先前缺口（仍須記錄動機） |
+| IMPROVEMENT | MODIFY 改善既有（仍須記錄「為什麼原先不完整」） |
 
-  IF matching is not empty:
-    # 過去已處理過相同根因 → 左移守衛不足
-    prior = matching[0]  # 最近的匹配 LESSON
-    mode = GUARD_STRENGTHENING
-    target_guard = prior.guard
-    target_skill = prior.skill_updated
-    # 不建立新 LESSON，強化既有守衛
-  ELSE:
-    mode = NEW_LESSON
-    # 標準 RCA 流程
+## Step 1.5: LESSON 重用檢查（FR-023）
 
-  # Step 2: 根因鑽取（5 Whys）
-  root = five_whys(change_record):
-    why_1: 為什麼這個錯誤出現？
-    why_2: 為什麼沒有被阻止？
-    why_3: 為什麼驗證沒有偵測到？
-    why_4: 為什麼流程允許它通過？
-    why_5: 什麼結構性改變可以消除它？
-    IF mode == GUARD_STRENGTHENING:
-      why_extra: 為什麼既有守衛（{target_guard}）沒有攔截？
+1. 搜尋 `docs/adr/` 中各 ADR 已存在的 LESSON-xxx
+2. 若有相同根因類別 + 相似模式 → `mode = GUARD_STRENGTHENING`（強化既有守衛，不建新 LESSON）
+3. 若無相同根因 → `mode = NEW_LESSON`（標準 RCA 流程）
 
-  # Step 3: 定位觸發錯誤的 skill/prompt
-  IF mode == GUARD_STRENGTHENING:
-    source_skill = target_skill  # 直接定位到有缺陷的守衛
-  ELSE:
-    source_skill = trace_back(change_record.file, change_record.stage)
+## Step 2: 根因鑽取（5 Whys）
 
-  # Step 4: 設計/強化左移守衛
-  IF mode == GUARD_STRENGTHENING:
-    guard = strengthen_guard(target_guard, root):
-      → 分析原始守衛為何未攔截
-      → 擴展守衛覆蓋範圍或收緊匹配條件
-      → 記錄守衛演進歷史
-  ELSE:
-    guard = design_guard(category, root):
-      IF FORMAT_ERROR → 在 source_skill 加入格式 lint 指令
-      IF COVERAGE_GAP → 在 source_skill 加入自動化計數斷言
-      IF LLM_HALLUCINATION → 在 source_skill 加入二次驗證 + 結構化約束
-      IF PROCESS_GAP → 在 stage doc 加入強制步驟
-      IF SEMANTIC_DRIFT → 在 micro-validation 強化 Step 4
+1. Why 1: 為什麼這個錯誤出現？
+2. Why 2: 為什麼沒有被阻止？
+3. Why 3: 為什麼驗證沒有偵測到？
+4. Why 4: 為什麼流程允許它通過？
+5. Why 5: 什麼結構性改變可以消除它？
+6. 若 `mode == GUARD_STRENGTHENING`：Why Extra: 為什麼既有守衛沒有攔截？
 
-  # Step 5: 更新 skill
-  update_skill(source_skill, guard)
+## Step 3: 定位觸發源 Skill
 
-  # Step 6: 驗證左移有效性
-  simulate(original_input, updated_skill):
-    ASSERT 原始錯誤不再出現
-    IF mode == GUARD_STRENGTHENING:
-      ASSERT 過往 LESSON 的原始錯誤也不再出現
+- 若 `mode == GUARD_STRENGTHENING` → 直接定位到有缺陷的既有守衛
+- 否則 → 從 `change_record.file` 和 `change_record.stage` 反向追溯至來源 skill
 
-  # Step 7: 寫入紀錄
-  IF mode == NEW_LESSON:
-    lesson = LESSON(
-      id = next_lesson_id(),
-      fix_ref = change_record.id,
-      category = category,
-      root_cause = root.why_5,
-      guard = guard,
-      skill_updated = source_skill,
-      timestamp = now()
-    )
-    persist(lesson, "docs/change-log.md")
-  ELSE:  # GUARD_STRENGTHENING
-    update_lesson(prior.id):
-      append_strengthening_record(
-        trigger = change_record.id,
-        why_guard_failed = root.why_extra,
-        guard_before = target_guard,
-        guard_after = guard,
-        timestamp = now()
-      )
-    persist(update, "docs/change-log.md")
-```
+## Step 4: 設計/強化左移守衛
+
+**若 GUARD_STRENGTHENING**：
+1. 分析原始守衛為何未攔截
+2. 擴展守衛覆蓋範圍或收緊匹配條件
+3. 記錄守衛演進歷史
+
+**若 NEW_LESSON**：
+1. FORMAT_ERROR → 在 source_skill 加入格式 lint 指令
+2. COVERAGE_GAP → 在 source_skill 加入自動化計數斷言
+3. LLM_HALLUCINATION → 在 source_skill 加入二次驗證 + 結構化約束
+4. PROCESS_GAP → 在 stage doc 加入強制步驟
+5. SEMANTIC_DRIFT → 在 micro-validation 強化 Step 4
+
+## Step 5: 更新 Skill
+
+執行 `update_skill(source_skill, guard)`。
+
+## Step 6: 驗證左移有效性
+
+1. 模擬原始輸入 + 更新後的 skill
+2. 斷言：原始錯誤不再出現
+3. 若 `mode == GUARD_STRENGTHENING`：斷言過往 LESSON 的原始錯誤也不再出現
+
+## Step 7: 寫入紀錄
+
+**若 NEW_LESSON**：
+- 建立 LESSON-xxx（含 id, fix_ref, category, root_cause, guard, skill_updated, timestamp）
+- 寫入對應 ADR 的「根因分析與教訓」區段
+
+**若 GUARD_STRENGTHENING**：
+- 更新既有 LESSON（附加強化紀錄：trigger, why_guard_failed, guard_before, guard_after, timestamp）
+- 寫入對應 ADR 的「根因分析與教訓」區段
 
 ---
 
@@ -111,7 +86,7 @@ root_cause_leftshift(change_record):
 ```
 ### LESSON-xxx
 
-- **變更來源**: IMP-xxx
+- **變更來源**: ADR-{CAT}-xxx 變更 #N
 - **變更類型**: CREATE | MODIFY | FIX
 - **根因分類**: [category]
 - **5 Whys 結果**: [why_5]

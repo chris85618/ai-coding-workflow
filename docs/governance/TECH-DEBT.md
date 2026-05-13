@@ -146,7 +146,7 @@ Effort:    修復所需人天 (0.25-20)
 **追溯**:
 - 相關需求: [FR-xxx]
 - 相關測試: [TC-xxx]
-- 相關影響分析: [IMP-xxx]
+- 相關影響分析: [ADR-{CAT}-xxx 變更 #N]
 
 **狀態**: Open / In Progress / Fixed / Won't Fix
 **目標 Sprint**: [Sprint N]
