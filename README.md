@@ -45,7 +45,7 @@ Phase 10  /retro → /understand → /evolve
 ## Quick Start
 
 ```bash
-# 1. Clone（從 repo 根目錄 .setup/）: `git submodule update --init --recursive`
+# 1. Clone（從 repo 根目錄 .setup）: `git submodule update --init --recursive`
 # 2. 建立 symlink
 # 3. 驗證環境
 ```
