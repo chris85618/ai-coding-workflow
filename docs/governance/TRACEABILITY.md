@@ -60,6 +60,18 @@ UC-xxx → CLS-xxx → EVT-xxx
 ALG-xxx → CLS-xxx → INV-xxx
 ```
 
+### 全方向連結追溯（FR-022）
+
+```
+任意變更 ID → 全方向走訪：
+  ↓ 縱向下游（derives/decomposes/realizes/validates）
+  ↑ 縱向上游（反向追溯）
+  ↔ 橫向（justifies/constrains/mitigates/formalizes/emitted-by）
+  ↺ LESSON 守衛（guards）
+
+每個受影響 ID → 讀取完整文件 → 驗證語意一致性
+```
+
 ---
 
 ## 左移微驗證協議
@@ -79,7 +91,7 @@ ALG-xxx → CLS-xxx → INV-xxx
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  MICRO-VALIDATION LOOP（每次微動作後自動執行）           │
-│  8 步驗證迴圈（Step 0-7）                               │
+│  驗證迴圈（Step 0-7 + Step 5.5/5.7）                     │
 │                                                         │
 │  Step 0: 格式驗證 (PGVG)                                │
 │  → Markdown 格式正確（backtick、表格、標題層次）        │
@@ -110,16 +122,32 @@ ALG-xxx → CLS-xxx → INV-xxx
 │  → 是否存在任何 ID 無上游也無下游連結？                 │
 │  → 是否存在任何斷裂的追溯鏈？                           │
 │                                                         │
+│  Step 5.5: 全方向連結追溯（FR-022）                     │
+│  → 從變更 ID 查找所有 justifies/constrains 關係的 ADR  │
+│  → 從變更 ID 查找所有 constrains 關係的 NFR             │
+│  → 從變更 ID 查找所有 mitigates 關係的 RISK             │
+│  → 從變更 ID 查找所有 formalizes/emitted-by 關係       │
+│  → 從變更 ID 查找所有 guards 關係的 LESSON             │
+│  → 對每個受影響 ID：讀取完整文件驗證語意一致         │
+│  → 標記所有方向的受影響 ID                             │
+│                                                         │
+│  Step 5.7: LESSON 重用檢查（FR-023）                      │
+│  → 若本次變更類型為 FIX：                               │
+│    → 先掃描已存在的 LESSON-xxx                         │
+│    → 若有相同根因類別的過往記錄：                     │
+│      → 左移守衛不足，對守衛本身執行 RCA 並強化         │
+│    → 若無相同根因：標準 RCA 流程                      │
+│                                                         │
 │  Step 6: 影響分析觸發                                   │
 │  → 對修改的 ID 執行 IMPACT-ANALYSIS.md 協議             │
-│  → 計算爆炸半徑                                         │
+│  → 計算爆炸半徑（含縱向+橫向+守衛方向）                 │
 │  → 標記受影響的下游 ID                                  │
 │                                                         │
 │  Step 7: 變更紀錄 + 根因左移                            │
 │  → 寫入 IMP-xxx 至 docs/change-log.md                   │
 │  → 若變更類型為 FIX：                                   │
-│    → 執行 root-cause-leftshift.md                       │
-│    → 產出 LESSON-xxx                                    │
+│    → 執行 root-cause-leftshift.md（含 LESSON 重用檢查）  │
+│    → 產出 LESSON-xxx 或強化既有 LESSON                  │
 │    → 更新觸發錯誤的 skill/prompt/governance 文件        │
 │                                                         │
 │  Result:                                                │
@@ -145,6 +173,8 @@ ALG-xxx → CLS-xxx → INV-xxx
 - [ ] 語意一致性：所有追溯鏈的語意方向一致，無漂移
 - [ ] 跨 Stage 連結：本 Stage 的輸入 ID 皆可追溯至前一 Stage 的輸出 ID
 - [ ] 影響分析：所有修改過的已核准產出物皆已完成影響分析
+- [ ] 全方向追溯（FR-022）：所有變更已驗證 ADR/NFR/RISK/LESSON 連結
+- [ ] LESSON 重用（FR-023）：所有 FIX 類變更已檢查過往 LESSON 是否可重用
 - [ ] 追溯矩陣文件已更新並寫入 docs/ 資料夾
 ```
 
@@ -201,6 +231,10 @@ ALG-xxx → CLS-xxx → INV-xxx
 | `constrains` | 上游約束下游 | NFR-001 constrains ALG-001 |
 | `decides` | 決策影響設計 | ADR-STR-001 decides CLS-001 |
 | `mitigates` | 下游緩解上游風險 | TC-005 mitigates RISK-001 |
+| `justifies` | ADR 證成 FR/NFR | ADR-GOV-001 justifies FR-001 |
+| `formalizes` | 下游形式化上游 | INV-001 formalizes CLS-001 |
+| `emitted-by` | 事件由上游發射 | EVT-001 emitted-by CLS-001 |
+| `guards` | LESSON 守衛 skill | LESSON-001 guards s2c-*.md |
 
 ---
 

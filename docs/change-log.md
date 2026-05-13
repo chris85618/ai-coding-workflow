@@ -162,5 +162,66 @@
   3. 為什麼 impact-log.md 幽靈引用存在？→ 改名為 change-log.md 時未全庫 grep
   4. 為什麼 6 步/8 步不一致？→ ALG-002 升級時只改了 CHANGE-MANAGEMENT.md
   5. 結構性修正？→ **每次增量演化後，強制執行跨檔案 grep 掃描 + policy 一致性檢查**
-- **左移守衛**: 自我檢驗流程已驗證此模式；未來所有 FIX 類型變更需包含全庫 grep 驗證步驟
-- **更新 Skill**: micro-validation.md Step 0 已涵蓋交叉覆蓋驗證 ✅
+- **左移守衛**: ~~自我檢驗流程已驗證此模式~~ → **守衛不足，已觸發 GUARD_STRENGTHENING（見 IMP-007）**
+- **更新 Skill**: micro-validation.md Step 0 ← 不足（僅格式檢查，不含跨檔案 grep）
+- **守衛強化歷程**:
+  - 2026-05-13 初版守衛: micro-validation.md Step 0（僅格式 lint）
+  - 2026-05-14 GUARD_STRENGTHENING: 根因重現 → 守衛升級至 CHANGE-MANAGEMENT Step 5（跨切面一致性驗證）+ Step 2f（FR/NFR 合規驗證）+ micro-validation.md Step 5.5（全方向連結追溯）
+
+---
+
+## IMP-007: 全鏈影響追溯 + 跨切面一致性驗證制度化
+
+- **日期**: 2026-05-14T00:35+08:00
+- **類型**: mixed (CREATE + MODIFY + FIX)
+- **觸發**: HITL 需求（FR-022/023/024/025 制度化 + 自我驗證修正）
+- **嚴重度**: MAJOR (blast_radius=14 issues across 9 files, cross_stage=ALL)
+- **微驗證**: PASS（Step 0-7 + 5.5/5.7 全數通過）
+- **PGVG**: PASS（2a-2f 全數通過，計數驗證 120 ID 確認）
+- **跨切面驗證**: PASS（Step 5 首次執行，發現 14 issues 全數修正）
+
+### 變更明細
+
+**CREATE（新增 ID）**:
+| ID | 描述 | 追溯 |
+|----|------|------|
+| FR-024 | 跨切面一致性驗證 | FEA-002, FEA-003 |
+| FR-025 | 治理文件 FR/NFR 合規驗證 | FEA-002, FEA-003 |
+
+**MODIFY（功能增強）**:
+| 檔案 | 變更 |
+|------|------|
+| micro-validation.md | +Step 5.5（全方向追溯）、+Step 5.7（LESSON 重用） |
+| CHANGE-MANAGEMENT.md | +Step 2f（FR/NFR 合規）、+Step 5（跨切面驗證）、Step 3 更新 |
+| WORKFLOW.md | 出口閘門擴充（FR-022/023/跨切面）、核心原則 #3 步數更新 |
+| algorithm-specs.md | ALG-002 +lateral/lesson checks、ALG-003 +lateral blast |
+| TRACEABILITY.md | 驗證迴圈步數更新 |
+
+**FIX（過期引用修正，14 items）**:
+| 檔案 | 修正 | 根因 |
+|------|------|------|
+| requirements.md | FEA 範圍、FR-007 步數、FR-018 文件數 | COVERAGE_GAP |
+| use-cases.md | FR 範圍 | COVERAGE_GAP |
+| scope-definition.md | FEA 計數 | COVERAGE_GAP |
+| traceability-matrix.md | 時間戳、UC 覆蓋率、ID 總數 | COVERAGE_GAP |
+| algorithm-specs.md | 輸入範圍、步數、理論表 | COVERAGE_GAP |
+| CHANGE-MANAGEMENT.md | 步數描述 | COVERAGE_GAP |
+| TRACEABILITY.md | 步數描述 | COVERAGE_GAP |
+| WORKFLOW.md | 出口閘門描述、步數 | COVERAGE_GAP |
+
+### LESSON-007: 守衛宣稱與實際實作不符
+
+- **根因分類**: PROCESS_GAP
+- **根因描述**: LESSON-006 宣稱「micro-validation.md Step 0 已涵蓋交叉覆蓋驗證」，但 Step 0 實際只有格式 lint（backtick、表格、外來殘留），不包含跨檔案 grep 掃描。守衛宣稱與實際守衛能力不符。
+- **5 Whys**:
+  1. 為什麼 LESSON-006 守衛失敗？→ 宣稱 Step 0 涵蓋但實際不涵蓋
+  2. 為什麼宣稱不準確？→ 記錄 LESSON 時未驗證守衛實際能力
+  3. 為什麼沒有驗證機制？→ LESSON 記錄流程不包含「守衛能力驗證」步驟
+  4. 為什麼流程有這個缺口？→ root-cause-leftshift.md 只要求「更新 skill」，不要求「驗證更新後的 skill 能攔截重現」
+  5. 結構性修正？→ **root-cause-leftshift.md 已有「驗證左移後的規則可防止重現」步驟（Step 3.5），但需在 LESSON 記錄格式中加入「守衛驗證證據」欄位**
+- **左移守衛**:
+  - FR-023 LESSON 重用機制 → Step 5.7 在 FIX 時掃描既有 LESSON，防止重複
+  - FR-025 治理文件合規驗證 → Step 2f 在修改治理文件時驗證 FR/NFR 滿足度
+  - CHANGE-MANAGEMENT Step 5 → 跨切面變更時全矩陣重驗證
+- **更新 Skill**: CHANGE-MANAGEMENT.md ✅ (Step 2f + Step 5), micro-validation.md ✅ (Step 5.5/5.7)
+

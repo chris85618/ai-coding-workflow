@@ -51,6 +51,11 @@
 **描述**：所有產出物記錄至 docs/ 資料夾的結構化層次：governance/、phases/、stages/。
 **追溯**：BG-001 (derives)
 
+### FEA-010: 狀態持久化與恢復
+
+**描述**：工作流狀態機持久化（WBS）、結構化迭代紀錄、中斷恢復協議、LESSON 重用機制，確保任何中斷（含更換無記憶 AI）後皆可從斷點恢復。
+**追溯**：BG-001, BG-003 (derives)
+
 ---
 
 ## Out-of-Scope
@@ -80,7 +85,7 @@
 - FEA-008 (S2C 技能) 常伴隨「自訂 LLM prompt template engine」→ **已排除**（使用 Markdown 即可）
 
 ### 挑戰 2: 約束衝突偵測
-- 9 個 FEA × 中等複雜度 = 可管理範圍 → **無衝突**
+- 10 個 FEA × 中等複雜度 = 可管理範圍 → **無衝突**
 
 ### 挑戰 3: 隱性依賴偵測
 - FEA-006 (SonarCloud) 依賴外部服務帳號 → **記錄為 RISK-001**
@@ -100,4 +105,5 @@
 | FEA-007 | BG-004 | derives |
 | FEA-008 | BG-004 | derives |
 | FEA-009 | BG-001 | derives |
+| FEA-010 | BG-001, BG-003 | derives |
 | RISK-001 | FEA-006 | mitigates |

@@ -31,10 +31,16 @@
 │  → 2e: 交叉引用掃描（rename/prefix 變更時強制）      │
 │       對 docs/ + WORKFLOW.md 全域 grep               │
 │       殘留舊 ID/前綴數量必須 = 0                     │
+│  → 2f: FR/NFR 合規驗證（修改治理/流程文件時強制）   │
+│       從追溯矩陣反向查找此文件實作的 FR/NFR        │
+│       逐一驗證修改後的文件是否仍滿足每個 FR/NFR   │
+│       若新增 FR/NFR 被此文件實作，追溯矩陣必須已更新 │
 ├─────────────────────────────────────────────────────┤
-│  Step 3: 微驗證 8 步（原 6 步 + 新增 Step 0/7）      │
+│  Step 3: 微驗證（Step 0-7 + Step 5.5/5.7）            │
 │  → Step 0: 格式驗證                                  │
 │  → Step 1-5: 結構/正向/反向/語意/孤兒                │
+│  → Step 5.5: 全方向連結追溯（FR-022）              │
+│  → Step 5.7: LESSON 重用檢查（FR-023，若 FIX）   │
 │  → Step 6: 影響分析                                  │
 │  → Step 7: 變更紀錄 → IMP-xxx 寫入 change-log.md     │
 ├─────────────────────────────────────────────────────┤
@@ -56,7 +62,54 @@
 │  → 完整對話歷程零 Q&A（全部直接 approve）           │
 │  → PGVG + 微驗證一次通過無修復                      │
 └─────────────────────────────────────────────────────┘
+
+### Step 5: 跨切面一致性驗證（Cross-Cutting Consistency）
+
+> 觸發條件：變更橫跨 2+ Stage/Phase 或變更 3+ 文件時強制執行。
+
 ```
+cross_cutting_verify():
+  # 1. 變更總覽
+  all_changes = collect_all_session_changes()
+  affected_files = unique(all_changes.files)
+  affected_stages = unique(all_changes.stages)
+
+  # 2. 全矩陣重驗證
+  FOR each ID_prefix IN traceability-matrix:
+    verify_forward_links()
+    verify_backward_links()
+    verify_orphan_free()
+    verify_semantic_consistency()
+
+  # 3. 跨文件交叉檢查
+  FOR each file IN affected_files:
+    cross_ref = grep_all_ids(file)
+    FOR each id IN cross_ref:
+      verify_id_exists_in_source_file(id)
+      verify_id_description_consistent(id)
+
+  # 4. 覆蓋統計重算
+  recount_all_coverage_stats()
+  compare_with_claimed_stats()
+  IF mismatch: FIX + 記錄
+
+  # 5. 過期引用掃描
+  FOR each file IN affected_files:
+    scan_stale_references():
+      - 舊 ID 範圍（e.g. "FEA-001..FEA-009" 應為 FEA-010）
+      - 舊計數（e.g. "8 步" 應為 "Step 0-7 + 5.5/5.7"）
+      - 舊時間戳
+    IF stale_found: FIX + 記錄
+```
+
+### Step 6: 收尾協議（Session-End Hook）
+
+> 每次回覆使用者前強制執行。詳見 WORKFLOW.md「收尾協議」章節。
+
+1. 讀取 `docs/workflow-state.md` 當前記錄狀態
+2. 比對本次 session 實際工作 vs 記錄狀態
+3. 更新 `docs/workflow-state.md`（Pipeline Position, WBS, Gates, Next Actions, Session Summary）
+4. 在回覆末尾附加「📍 當前狀態 & 下一步」區塊
 
 ---
 
@@ -75,6 +128,7 @@
   - 根因分類: LLM_HALLUCINATION | PROCESS_GAP | COVERAGE_GAP | FORMAT_ERROR
   - 根因描述: [description]
   - 左移動作: [skill updated]
+  - 守衛驗證證據: [guard_name] 能攔截 [scenario] 的證據（grep 結果/測試輸出/步驟引用）
   - LESSON-xxx: [reference]
 ```
 

@@ -140,6 +140,32 @@ This configuration is managed from a monorepo with four git submodules:
 
 ---
 
+## Session-End Hook（收尾協議）
+
+> **強制等級**：每次回覆使用者前必須執行，無例外。
+> **完整定義**：WORKFLOW.md「收尾協議」章節。
+
+**每次回覆使用者前，執行以下 4 步：**
+
+1. **讀取狀態**：讀 `docs/workflow-state.md` → Pipeline Position + WBS Tree + Gate Status + Pending Escalations
+2. **比對差異**：本次 session 實際做了什麼 vs 記錄的狀態 → 列出差異
+3. **更新狀態**：寫入 `docs/workflow-state.md` → 更新 Pipeline Position、WBS leaf 狀態、Gate Status、Last Updated
+4. **報告下一步**：在回覆末尾附加以下區塊：
+
+```
+## 📍 當前狀態 & 下一步
+
+**Pipeline Position**: [Phase/Stage]
+**本次完成**: [摘要]
+**狀態差異**: [recorded vs actual, 或 "一致"]
+**下一步行動**:
+1. [具體行動 + 觸發條件]
+2. [具體行動 + 觸發條件]
+**Pending**: [未完成項 / 待 HITL 決策項 / 無]
+```
+
+---
+
 ## Voice & Style
 
 Direct, concrete, builder-to-builder. Name the file, function, command, and user-visible impact. No filler.

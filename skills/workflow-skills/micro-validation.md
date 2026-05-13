@@ -1,4 +1,4 @@
-# Skill: 左移微驗證迴圈（8 步）
+# Skill: 左移微驗證迴圈（Step 0-7 + Step 5.5/5.7）
 
 > **觸發條件**：每次檔案寫入操作後自動執行（CREATE / MODIFY / FIX）
 > **輸入**：變更的 ID 和內容 + 變更類型
@@ -18,7 +18,7 @@
 
 ---
 
-## 執行協議（8 步）
+## 執行協議（Step 0-7 + Step 5.5/5.7）
 
 ```
 Step 0: 格式驗證（Post-Generation Validation Gate）
@@ -51,6 +51,21 @@ Step 4: 語意一致性
 Step 5: 孤兒偵測
 → 是否有 ID 無上游也無下游？
 → 是否有斷裂追溯鏈？
+
+Step 5.5: 全方向連結追溯（FR-022）
+→ 從變更 ID 查找所有 justifies/constrains 關係的 ADR
+→ 從變更 ID 查找所有 constrains 關係的 NFR
+→ 從變更 ID 查找所有 mitigates 關係的 RISK
+→ 從變更 ID 查找所有 formalizes/emitted-by/guards 關係
+→ 對每個受影響 ID：讀取完整文件驗證語意一致性
+→ ADR 不再成立 → 標記 SUPERSEDED
+→ NFR 被違反 → 嚴重度升至 MAJOR
+
+Step 5.7: LESSON 重用檢查（FR-023，僅 FIX 類型）
+→ 若變更類型 = FIX：
+   → 掃描已存在的 LESSON-xxx
+   → 若有相同根因類別 → 左移守衛不足，強化既有守衛
+   → 若無相同根因 → 標準 RCA 流程
 
 Step 6: 影響分析觸發
 → 觸發 skills/workflow-skills/impact-analysis-exec.md
@@ -89,7 +104,7 @@ Step 7: 變更紀錄 + 根因左移
 ## 結果判定
 
 ```
-8 步全數通過 ✅ → 繼續下一個微動作
+Step 0-7 + 5.5/5.7 全數通過 ✅ → 繼續下一個微動作
 任一失敗 ❌ → 自主修復 → 重新執行（從失敗步驟開始）
 修復 3 次仍失敗 → 上報 HITL
 FIX 類型 → 額外執行 Step 7 根因左移，產出 LESSON-xxx

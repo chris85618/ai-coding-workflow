@@ -235,8 +235,12 @@ ADR-{CATEGORY}-{NNN}
 
 | ID | 類型 | 進入點 | 觸發條件 | 人類輸入內容 | 產出 ADR |
 |----|------|--------|---------|-------------|---------|
-| HITL-P0-01 | ⚖️ | 路徑決策 | Session 開始 | 是否有既有程式碼庫？(Yes/No) | ADR-GATE-P0-xxx |
-| HITL-P0-02 | 💬 | gstack 首次引導 | 首次使用 | Telemetry/Proactive/Style 偏好 | ADR-GOV-xxx |
+| HITL-P0-01 | 💬 | gstack 首次引導 | 首次使用 | Telemetry/Proactive/Style 偏好 | ADR-GOV-xxx |
+| HITL-P0-02 | ⚖️ | 恢復協議確認 | workflow-state.md 存在且有進行中工作 | [1] 從斷點繼續 [2] 有其他指令 [3] 重置 | ADR-GATE-P0-xxx |
+
+> **HITL-P0-01 説明**：舊版「是否有既有程式碼庫？」已替換為 `pipeline-completeness-check.md`。
+> AI 透過掃描 docs/ 資料夾判定 Pipeline 完備度，不需人類介入。
+> **HITL-P0-02 説明**：僅在偵測到既有工作流狀態時觸發。使用者可能下無關的 prompt，因此必須確認。
 
 ### Phase 1：程式碼理解
 
@@ -260,13 +264,14 @@ ADR-{CATEGORY}-{NNN}
 
 ### Stage 3-8：迭代管線（每個 Stage 皆有）
 
-> ADR-GATE 頻率由 Decision Unit 理論決定，非固定「每輪一個」或「每 Stage 一個」。
-> 見上方「ADR-GATE 頻率的具體判定」。
+> **AI 自主收斂優先**：AI 持續迭代至不動點後，才觸發 HITL。
+> 人類不在每一輪迭代中介入，僅在 AI 收斂後做最終判定。
+> ADR-GATE 頻率由 Decision Unit 理論決定。
 
 | ID 模式 | 類型 | 進入點 | 觸發條件 | 人類輸入內容 | ADR 行為 |
 |---------|------|--------|---------|-------------|---------|
-| HITL-S{N}-ITER-{M} | 🚪 | Step C 迭代閘門 | Agent α→β→微驗證後 | [1] 繼續迭代 [2] 加入新需求 [3] 通過 | [1] 追加至現有 ADR-GATE；[2] 依 RIT 判定：同 DU 則追加，新 DU 則新建 ADR-GATE；[3] 關閉現有 ADR-GATE → Accepted |
-| HITL-S{N}-EXIT | 🚪 | Stage 出口閘門 | 迭代通過 + 追溯驗證 | 使用者確認 ✅ | 若迭代期間未產出 ADR-GATE（純確認通過），則產出一個彙總 ADR-GATE |
+| HITL-S{N}-CONVERGE | 🚪 | Step C 收斂確認 | AI 自主迭代達不動點或發散 | [1] 加入需求後繼續 [2] 通過 | [1] 依 RIT 判定；[2] 關閉 ADR-GATE → Accepted |
+| HITL-S{N}-EXIT | 🚪 | Stage 出口閘門 | 收斂通過 + 追溯驗證 | 使用者確認 ✅ | 產出彙總 ADR-GATE |
 
 **Stage 3 特有**：
 
@@ -286,7 +291,7 @@ ADR-{CATEGORY}-{NNN}
 
 | ID | 類型 | 進入點 | 觸發條件 | 人類輸入內容 | 產出 ADR |
 |----|------|--------|---------|-------------|---------|
-| HITL-GOV-MAJOR | 🚨 | 影響分析 MAJOR 上報 | blast_radius > 10 或跨 2+ Stage | 核准影響範圍、決定修復策略 | ADR-{CAT}-xxx |
+| HITL-GOV-MAJOR | 🚪 | 影響分析 MAJOR 確認 | AI 完成 M1-M3（全貌映射+自主修正+驗證）後 | 確認修正完整性和正確性 | ADR-{CAT}-xxx |
 | HITL-GOV-MICRO | 🚨 | 微驗證 3 次失敗上報 | 自主修復 3 次仍失敗 | 決定修復方向 | ADR-GATE-xxx |
 | HITL-GOV-RISK | 🚨 | 高風險標記 | risk_level >= 10 | 確認風險處理策略 | ADR-SEC-xxx |
 
@@ -303,11 +308,15 @@ ADR-{CATEGORY}-{NNN}
 | ID | 類型 | 進入點 | 觸發條件 | 人類輸入內容 | 產出 ADR |
 |----|------|--------|---------|-------------|---------|
 | HITL-P10-RETRO | 💬 | /retro 互動 | Sprint 結束 | 回顧意見、改善建議 | ADR-GOV-xxx |
+| HITL-P10-RCA | 🚪 | 全對話 RCA 掃描結果確認 | 10.2 完成 | 確認左移守衛和 skill 更新 | ADR-GOV-xxx |
 | HITL-P10-EVOLVE | 💬 | /evolve 互動 | 學習萃取 | 確認 instinct 聚類為 skill | ADR-GOV-xxx |
 
 ---
 
 ## HITL 進入點統計
+
+> 更新後統計：Stage 3-8 從「每輪 HITL」改為「收斂後 HITL」，HITL 點數減少。
+> HITL-GOV-MAJOR 從 ESCALATION 改為 GATE（AI 先自主修正，人類確認完成品）。
 
 | 階段 | 必經閘門 (🚪) | 互動會話 (💬) | 條件決策 (⚖️) | 失敗上報 (🚨) | 合計 |
 |------|:------------:|:------------:|:------------:|:------------:|:----:|
@@ -320,10 +329,10 @@ ADR-{CATEGORY}-{NNN}
 | Stage 6 | 2 | 0 | 0 | 0 | 2 |
 | Stage 7 | 2 | 0 | 0 | 0 | 2 |
 | Stage 8 | 2 | 1 | 0 | 2 | 5 |
-| 治理層 | 0 | 0 | 0 | 3 | 3 |
+| 治理層 | 1 | 0 | 0 | 2 | 3 |
 | Phase 9 | 0 | 3 | 0 | 0 | 3 |
-| Phase 10 | 0 | 2 | 0 | 0 | 2 |
-| **合計** | **14** | **12** | **4** | **5** | **35** |
+| Phase 10 | 1 | 2 | 0 | 0 | 3 |
+| **合計** | **16** | **12** | **4** | **4** | **36** |
 
 ---
 

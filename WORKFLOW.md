@@ -11,7 +11,7 @@
 
 1. **文件驅動**：所有產出物記錄至 `docs/` 資料夾
 2. **ID 系統強制**：所有產出物指派追溯 ID（見 `docs/governance/TRACEABILITY.md`）
-3. **左移微驗證**：每次檔案寫入（CREATE/MODIFY/FIX）後立即執行 8 步驗證迴圈
+3. **左移微驗證**：每次檔案寫入（CREATE/MODIFY/FIX）後立即執行驗證迴圈（Step 0-7 + Step 5.5/5.7）
 4. **影響分析強制**：每次修改自主執行影響分析（見 `docs/governance/IMPACT-ANALYSIS.md`）
 5. **雙 Agent 迭代**：Stage 3-8 皆使用 Agent α/β 發散-收斂迴圈
 6. **HITL 閘門**：每個 Stage 出口皆需人在迴路確認
@@ -109,10 +109,12 @@ WORKFLOW.md (本文件 — 頂層指揮器)
 │   └── ADR-GOVERNANCE.md        ← ADR 治理框架 + HITL 進入點登記
 │
 ├── skills/workflow-skills/ (可執行協議，從 docs 獨立)
-│   ├── iter-loop.md             ← 通用雙 Agent 迭代迴圈
+│   ├── iter-loop.md             ← 通用雙 Agent 迭代迴圈（AI 自主收斂）
 │   ├── micro-validation.md      ← 左移微驗證迴圈
 │   ├── impact-analysis-exec.md  ← 影響分析執行協議
 │   ├── root-cause-leftshift.md  ← FIX 類型根因左移
+│   ├── workflow-resume.md       ← 工作流恢復協議
+│   ├── pipeline-completeness-check.md ← Pipeline 完備性檢查
 │   ├── s2c-charter.md           ← S2C 專案章程生成
 │   ├── s2c-stakeholder.md       ← S2C 利害關係人分析
 │   ├── s2c-scope-redteam.md     ← S2C 範圍定義 + Red Team
@@ -127,7 +129,7 @@ WORKFLOW.md (本文件 — 頂層指揮器)
 └── docs/ (自舉產出 — 本專案的文件驅動內容)
     ├── project-charter.md       ← BG-001..BG-004
     ├── stakeholder-analysis.md  ← S-001..S-003
-    ├── scope-definition.md      ← FEA-001..FEA-009
+    ├── scope-definition.md      ← FEA-001..FEA-010
     └── traceability-matrix.md   ← Phase 2 追溯矩陣
 ```
 
@@ -136,37 +138,50 @@ WORKFLOW.md (本文件 — 頂層指揮器)
 ## 雙 Agent 迭代協議（通用定義）
 
 > 以下 6 個 Stage 皆遵循此協議。每個 Stage 僅需定義自己的**審查維度**。
-> 完整迭代定義在各 Stage 文件中。
+> 完整迭代定義在 `skills/workflow-skills/iter-loop.md`。
+> **核心原則：AI 自主收斂至不動點後，才呈報 HITL 做最終判定。**
 
 ```
 每個 Stage 內部的迭代迴圈：
 
    ┌──────────────────────────────────────────────┐
+   │  AI 自主收斂迴圈（持續迭代至不動點）         │
+   │                                              │
    │  Step A: Agent α（破綻發掘者）               │
    │  → 依該 Stage 的審查維度，窮盡式批判         │
    │  → 產出：問題清單 + 方向建議                 │
+   │  → 寫入 docs/iteration-log.md                │
    ├──────────────────────────────────────────────┤
    │  Step B: Agent β（收斂整合者）               │
    │  → 對每個破綻執行決策流：                    │
    │    分類 → 奧卡姆剃刀 → 前提窮盡             │
    │    → 併吞分析 → 循環依賴破解 → 邊界內化     │
    │  → 產出：完整自包含改善文件                  │
+   │  → 寫入 docs/iteration-log.md                │
    ├──────────────────────────────────────────────┤
    │  Step M: 微驗證迴圈（每個改善後立即執行）    │
    │  → 執行 TRACEABILITY.md 微動作驗證           │
+   │  → 執行全方向連結追溯（FR-022）              │
+   │  → 執行 LESSON 重用檢查（FR-023，若 FIX）   │
    │  → 執行 IMPACT-ANALYSIS.md 影響分析          │
-   │  → 全數通過才進入 Step C                     │
+   │  → 全數通過才進入 Step F                     │
    ├──────────────────────────────────────────────┤
-   │  Step C: 👤 HITL 迭代閘門                    │
-   │  → 使用者審查本輪摘要                        │
-   │  → [1] 繼續迭代  [2] 加入新需求後繼續        │
-   │  → [3] 通過 ✅ → 進入出口閘門驗證           │
+   │  Step F: 不動點判定                          │
+   │  → 所有發現皆 YAGNI → REACHED → Step C      │
+   │  → CRITICAL+HIGH 未收斂 → DIVERGING → Step C│
+   │  → 否則 → NOT_REACHED → 回到 Step A         │
    └──────────────────────────────────────────────┘
 
-   出口閘門 = 原有檢查 + 追溯矩陣驗證（見各 Stage 文件）
+   ┌──────────────────────────────────────────────┐
+   │  Step C: 👤 HITL 收斂確認                    │
+   │  → 呈現完整收斂報告（全部迭代輪次摘要）      │
+   │  → [1] 加入需求後繼續 → 回到 Step A         │
+   │  → [2] 通過 ✅ → 進入出口閘門驗證           │
+   └──────────────────────────────────────────────┘
 
-   不動點偵測：當 Agent α 僅剩 YAGNI 級質疑
-   → 自動建議終止迭代
+   出口閘門 = 原有檢查 + 追溯矩陣驗證（含 FR-022 全方向追溯）
+              + LESSON 重用檢查（FR-023） + workflow-state.md 更新
+              + 跨切面一致性驗證（若變更跨 2+ Stage）
 ```
 
 ---
@@ -252,8 +267,84 @@ Phase 9   /ship → /land-and-deploy → /canary → /document-release
 Phase 10  /retro → 技術債更新 → /understand → /evolve
 ```
 
-**每個 Stage 的迭代迴圈**：Agent α → Agent β → 微驗證 → HITL
-**跨切面治理**：TRACEABILITY.md + IMPACT-ANALYSIS.md + TECH-DEBT.md
+**每個 Stage 的迭代迴圈**：Agent α → Agent β → 微驗證 → 不動點判定 →（收斂後）→ HITL
+**跨切面治理**：TRACEABILITY.md + IMPACT-ANALYSIS.md + TECH-DEBT.md + CHANGE-MANAGEMENT.md
+**狀態持久化**：workflow-state.md + iteration-log.md
+
+---
+
+## 收尾協議（Session-End Hook）
+
+> **強制等級**：每次回覆使用者前必須執行，無例外。
+> **GEMINI.md 有交叉引用此節。兩處必須保持同步。**
+
+### 觸發條件
+
+AI 即將回覆使用者時（無論是完成任務、回答問題、或請求 HITL 決策），必須先執行此協議。
+
+### 執行協議
+
+```
+session_end_hook():
+  # Step 1: 讀取狀態
+  state = read("docs/workflow-state.md")
+  recorded_position = state.pipeline_position
+  recorded_wbs = state.wbs_tree
+  recorded_gates = state.gate_status
+
+  # Step 2: 比對差異
+  actual_work = summarize_session_actions()  # 本次 session 實際完成的工作
+  diff = compare(recorded_state, actual_work):
+    - 哪些 WBS leaf 狀態需變更？
+    - Pipeline Position 是否前進？
+    - 有無新的 Pending Escalation？
+    - 有無 Gate 狀態變更？
+
+  # Step 3: 更新狀態
+  IF diff is not empty:
+    update("docs/workflow-state.md"):
+      - WBS leaf 狀態（⏳→🔄→✅）
+      - Pipeline Position
+      - Gate Status（若有閘門通過）
+      - Pending Escalations（若有新上報）
+      - Last Updated = now()
+      - 完成項移除前確認產出物已持久化
+
+  # Step 4: 報告下一步
+  next_actions = determine_next():
+    - 從 WBS Tree 找出所有 LRM 已到達的 pending leaf
+    - 從 Pending Escalations 找出需 HITL 決策的項目
+    - 從 Gate Status 判定下一個閘門檢查點
+    - 從 CHANGE-MANAGEMENT Step 5 判定是否需跨切面驗證
+
+  append_to_response(format_status_block(
+    pipeline_position,
+    session_summary,
+    state_diff,
+    next_actions,
+    pending_items
+  ))
+```
+
+### 報告格式
+
+每次回覆末尾必須附加以下區塊（使用者可見）：
+
+```markdown
+## 📍 當前狀態 & 下一步
+
+**Pipeline Position**: [Phase/Stage + 具體位置]
+**本次完成**: [1-3 句摘要]
+**狀態差異**: [recorded vs actual 差異, 或 "一致"]
+**下一步行動**:
+1. [具體行動] — [觸發條件/LRM 判定]
+2. [具體行動] — [觸發條件/LRM 判定]
+**Pending**: [未完成項 / 待 HITL 決策項 / 無]
+```
+
+### 免除條件
+
+無。即使是簡單問答，也必須執行。若 workflow-state.md 不存在（首次 session），報告 "workflow-state.md 尚未建立" 並建議執行 Phase 0。
 
 ---
 
@@ -273,6 +364,8 @@ docs/
 │   ├── ADR-STR-001.md           # 三層分離架構
 │   ├── ADR-GOV-001.md           # DU 理論 + 新穎性門檻
 │   └── ADR-GOV-002.md           # ADR 治理框架決策
+├── workflow-state.md            # 工作流狀態機（目標導向 WBS）
+├── iteration-log.md             # 結構化迭代紀錄
 ├── phases/
 │   ├── phase-0-environment.md
 │   ├── phase-1-code-understanding.md

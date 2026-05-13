@@ -74,6 +74,21 @@ Each Stage (3-8) uses:
 
 ---
 
+## Session-End Hook（收尾協議）
+
+> **強制等級**：每次回覆使用者前必須執行，無例外。
+
+Before every response to the user, execute:
+
+1. **Read** `docs/workflow-state.md` (Pipeline Position, WBS, Gates, Pending)
+2. **Compare** recorded state vs actual session work
+3. **Update** `docs/workflow-state.md` with actual state
+4. **Report** next steps at end of response using the format defined in WORKFLOW.md
+
+Full protocol: WORKFLOW.md「收尾協議（Session-End Hook）」
+
+---
+
 ## Voice & Style
 
 Direct, concrete, builder-to-builder. Name the file, function, command, and user-visible impact. No filler.
