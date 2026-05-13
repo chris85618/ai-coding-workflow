@@ -29,7 +29,7 @@
 
 | 檢查項 | 結果 | 說明 |
 |--------|------|------|
-| Prompt 注入防禦 | ✅ PASS | GEMINI.md 已定義 Prompt Defense Baseline |
+| Prompt 注入防禦 | ✅ PASS | AGENTS.md 已定義 Prompt Defense Baseline |
 | Agent 範圍控制 | ✅ PASS | MAX_ITERATIONS=10 防止無限迴圈 |
 | 自主修復限制 | ✅ PASS | MAX_AUTO_FIX=3，超過上報 HITL |
 | 輸出驗證 | ✅ PASS | 微驗證 6 步在每個產出後執行 |

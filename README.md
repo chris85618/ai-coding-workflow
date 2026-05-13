@@ -8,10 +8,7 @@
 
 ```
 ai_coding/
-├── GEMINI.md        # Antigravity agent 配置（symlink → ~/.gemini/GEMINI.md）
-├── CLAUDE.md        # Claude Code / ECC 編排規則
-├── AGENTS.md        # 跨工具共用 agent 指令
-├── WORKFLOW.md      # 6 階段迭代管線定義
+├── AGENTS.md        # 統一配置：workflow + agent instructions + skill routing
 ├── .gitignore       # 排除生成物
 └── skills/
     ├── everything-claude-code/   # ECC — 開發護欄、hooks、agents
@@ -22,7 +19,7 @@ ai_coding/
 
 ## Workflow Pipeline
 
-所有開發任務遵循 6 階段序列式迭代管線（完整定義見 [WORKFLOW.md](./WORKFLOW.md)）：
+所有開發任務遵循 6 階段序列式迭代管線（完整定義見 [AGENTS.md](./AGENTS.md)）：
 
 ```
 Phase 0   [自動] 環境啟動
@@ -42,11 +39,22 @@ Phase 10  /retro → /understand → /evolve
 
 所有開發任務遵循完整管線，**無簡化路徑**。
 
+## Symlink Setup
+
+```bash
+# Antigravity (Gemini)
+# Windows: mklink "C:\Users\<user>\.gemini\GEMINI.md" "C:\Users\<user>\.setup\ai_coding\AGENTS.md"
+# Linux:   ln -sf ~/.setup/ai_coding/AGENTS.md ~/.gemini/GEMINI.md
+
+# Claude Code (按需)
+# ln -sf ~/.setup/ai_coding/AGENTS.md <project>/CLAUDE.md
+```
+
 ## Quick Start
 
 ```bash
 # 1. Clone（從 repo 根目錄 .setup）: `git submodule update --init --recursive`
-# 2. 建立 symlink
+# 2. 建立 symlink（見上方）
 # 3. 驗證環境
 ```
 
@@ -54,7 +62,4 @@ Phase 10  /retro → /understand → /evolve
 
 | File | Purpose |
 |------|---------|
-| [WORKFLOW.md](./WORKFLOW.md) | 完整管線定義、審查維度、HITL 閘門 |
-| [GEMINI.md](./GEMINI.md) | Antigravity 專用配置、skill routing |
-| [CLAUDE.md](./CLAUDE.md) | Claude Code 編排、測試指令 |
-| [AGENTS.md](./AGENTS.md) | 跨工具共用安全基線、架構摘要 |
+| [AGENTS.md](./AGENTS.md) | 統一配置：完整管線定義、審查維度、HITL 閘門、skill routing、agent instructions |

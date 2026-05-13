@@ -197,7 +197,7 @@ FOR each pending WBS leaf L:
 
 ## Next Actions
 
-> 由 Session-End Hook（WORKFLOW.md「收尾協議」）自動維護。
+> 由 Session-End Hook（AGENTS.md「收尾協議」）自動維護。
 > 列出所有 LRM 已到達的 pending WBS leaf + HITL 待決項。
 > 每次 session 結束時覆寫此區塊。
 

@@ -10,7 +10,7 @@
 
 | 分類 | 數量 | 內容 |
 |------|------|------|
-| 設定檔 | 5 | WORKFLOW.md, GEMINI.md, AGENTS.md, CLAUDE.md, README.md |
+| 設定檔 | 2 | AGENTS.md, README.md |
 | 文件 | 14 | docs/governance/ (5), docs/phases/ (5), docs/stages/ (6) |
 | Skills | 14 | skills/workflow-skills/*.md |
 | 子模組 | 4 | ECC, gstack, Understand Anything, SkillFortify |
@@ -25,7 +25,7 @@
 
 **描述**：將所有代理式開發工作流配置、技能路由和治理規則集中管理在一個版控倉庫中，消除跨工具的配置碎片化。
 
-**成功指標**：所有 AI Agent（Antigravity, Claude Code, Cursor）皆從同一份 WORKFLOW.md 讀取管線定義。
+**成功指標**：所有 AI Agent（Antigravity, Claude Code, Cursor）皆從同一份 AGENTS.md 讀取管線定義。
 
 **風險等級**：Impact(4) × Probability(2) = 8（中等）
 

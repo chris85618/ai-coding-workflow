@@ -9,7 +9,7 @@
 
 ### FR-001: 頂層指揮器文件結構
 
-**描述**：WORKFLOW.md 必須作為唯一進入點，以呼叫鏈方式引用所有 phase/stage 文件和 skill 文件。
+**描述**：AGENTS.md 必須作為唯一進入點，以呼叫鏈方式引用所有 phase/stage 文件和 skill 文件。
 **追溯**：FEA-001 (decomposes)
 
 ### FR-002: Phase/Stage 文件分離
@@ -148,7 +148,7 @@
 
 ### NFR-003: 向下相容
 
-**描述**：GEMINI.md/AGENTS.md/CLAUDE.md 格式變更不得破壞既有 symlink 和工具讀取。
+**描述**：AGENTS.md 格式變更不得破壞既有 symlink 和工具讀取。
 **追溯**：FEA-001 (constrains)
 
 ### NFR-004: 追溯矩陣驗證效率

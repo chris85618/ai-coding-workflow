@@ -24,12 +24,12 @@ TEST: 子模組存在性檢查
   ASSERT exists("skills/understand-anything/")
   ASSERT exists("skills/skillfortify/")
 
-TEST: WORKFLOW.md 進入點完整性
-  ASSERT WORKFLOW.md contains "Phase 0"
-  ASSERT WORKFLOW.md contains "Phase 1"
-  ASSERT WORKFLOW.md contains "Stage 3" through "Stage 8"
-  ASSERT WORKFLOW.md contains "Phase 9"
-  ASSERT WORKFLOW.md contains "Phase 10"
+TEST: AGENTS.md 進入點完整性
+  ASSERT AGENTS.md contains "Phase 0"
+  ASSERT AGENTS.md contains "Phase 1"
+  ASSERT AGENTS.md contains "Stage 3" through "Stage 8"
+  ASSERT AGENTS.md contains "Phase 9"
+  ASSERT AGENTS.md contains "Phase 10"
 ```
 
 ---
@@ -90,7 +90,7 @@ TEST: 迭代上限定義 [INV-004]
 ```
 TEST: 16 前綴完備性
   prefixes = {BG, S, FEA, FR, NFR, UC, ADR, ALG, CLS, EVT, INV, SC, TC, DEBT, RISK, IMP}
-  ASSERT WORKFLOW.md or governance docs define all 16 prefixes
+  ASSERT AGENTS.md or governance docs define all 16 prefixes
 
 TEST: ID 格式一致性 [INV-006]
   FOR each ID in traceability-matrix.md:

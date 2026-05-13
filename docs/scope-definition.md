@@ -8,7 +8,7 @@
 
 ### FEA-001: 階層式工作流編排
 
-**描述**：WORKFLOW.md 作為頂層指揮器，呼叫 docs/phases/ 和 docs/stages/ 的階段文件，每個階段文件觸發 skills/workflow-skills/ 的技能。
+**描述**：AGENTS.md 作為頂層指揮器，呼叫 docs/phases/ 和 docs/stages/ 的階段文件，每個階段文件觸發 skills/workflow-skills/ 的技能。
 **追溯**：BG-001 (derives)
 
 ### FEA-002: ID 系統追溯
@@ -75,7 +75,7 @@
 |------|------|------|
 | 純 Markdown | 技術 | 不使用可執行程式碼 |
 | 子模組為唯讀 | 技術 | 不修改 ECC/gstack/UA/SF 子模組 |
-| 向下相容 | 技術 | GEMINI.md/AGENTS.md/CLAUDE.md 格式不破壞既有 symlink |
+| 向下相容 | 技術 | AGENTS.md 格式不破壞既有 symlink |
 
 ---
 

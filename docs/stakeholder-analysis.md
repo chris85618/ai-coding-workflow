@@ -18,7 +18,7 @@
 **角色**：Technical Consumer
 **利益**：清晰的工作流定義、明確的觸發條件、結構化的輸入/輸出規格
 **影響力象限**：High Power + Low Interest → **Keep Satisfied**
-**溝通**：透過 WORKFLOW.md + docs/ 結構化文件
+**溝通**：透過 AGENTS.md + docs/ 結構化文件
 
 ### S-003: 未來團隊成員
 

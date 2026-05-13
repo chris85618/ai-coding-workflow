@@ -27,7 +27,7 @@ Stage 8 最終安全審計涵蓋全部 docs/ 和 skills/ 文件。
 
 | 檢查項 | 結果 | 說明 |
 |--------|------|------|
-| Prompt 注入防禦 | ✅ PASS | GEMINI.md Prompt Defense Baseline |
+| Prompt 注入防禦 | ✅ PASS | AGENTS.md Prompt Defense Baseline |
 | Agent 範圍控制 | ✅ PASS | MAX_ITERATIONS=10, MAX_AUTO_FIX=3 |
 | 自主修復限制 | ✅ PASS | 超過上報 HITL |
 | 輸出驗證 | ✅ PASS | 微驗證 6 步 |

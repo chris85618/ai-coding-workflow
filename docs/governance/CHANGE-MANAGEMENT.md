@@ -29,7 +29,7 @@
 │  → 2c: 計數驗證（從實際內容 grep 計數，非自我報告）   │
 │  → 2d: 語意驗證（宣稱覆蓋 vs 實際覆蓋）             │
 │  → 2e: 交叉引用掃描（rename/prefix 變更時強制）      │
-│       對 docs/ + WORKFLOW.md 全域 grep               │
+│       對 docs/ + AGENTS.md 全域 grep               │
 │       殘留舊 ID/前綴數量必須 = 0                     │
 │  → 2f: FR/NFR 合規驗證（修改治理/流程文件時強制）   │
 │       從追溯矩陣反向查找此文件實作的 FR/NFR        │
@@ -104,7 +104,7 @@ cross_cutting_verify():
 
 ### Step 6: 收尾協議（Session-End Hook）
 
-> 每次回覆使用者前強制執行。詳見 WORKFLOW.md「收尾協議」章節。
+> 每次回覆使用者前強制執行。詳見 AGENTS.md「收尾協議」章節。
 
 1. 讀取 `docs/workflow-state.md` 當前記錄狀態
 2. 比對本次 session 實際工作 vs 記錄狀態

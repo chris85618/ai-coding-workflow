@@ -61,7 +61,7 @@
 - **爆炸半徑**: 4 個治理文件 + 12 個 Stage/Phase 文件的出口閘門描述
 - **跨 Stage 影響**: 全部（跨切面）
 - **嚴重度**: MAJOR（跨切面治理變更）
-- **受影響 ID**: TRACEABILITY.md ID 前綴表、WORKFLOW.md ID 系統概要、所有 Stage 出口閘門的 ADR 追溯欄位
+- **受影響 ID**: TRACEABILITY.md ID 前綴表、AGENTS.md ID 系統概要、所有 Stage 出口閘門的 ADR 追溯欄位
 - **關聯 IMP-xxx**: 初始建立，無前序影響分析
 
 ## 流程變更
