@@ -33,6 +33,10 @@
          [INV-002] 必須 HITL ✅
 ```
 
+**前置條件（Precondition）**：Pipeline 已建立（currentPosition 已初始化）；呼叫方已取得 HITL ✅（choice = PASS）
+**不變量（Invariant）**：currentPosition 單向前進 [INV-001]；每次 advance() 必先 HITL ✅ [INV-002]
+**後置條件（Postcondition）**：`status = COMPLETED`（最後 Stage 時）或 `status = IN_PROGRESS`（未到最後時）；currentPosition' > currentPosition
+
 **覆蓋 CLS**: CLS-001
 **覆蓋 INV**: INV-001, INV-002
 
@@ -72,6 +76,10 @@
          [INV-003] PENDING → ITERATING → PASSED (不可逆)
          [INV-004] iterationCount ≤ 10
 ```
+
+**前置條件（Precondition）**：Stage 已存在且 status = PENDING；前一 Stage 已 PASSED
+**不變量（Invariant）**：status 單向前進，不可逆轉 [INV-003]；`iterationCount ≤ 10` [INV-004]；Step M 必在 hitlGate 前完成 [INV-005]
+**後置條件（Postcondition）**：status = PASSED 且部 HITL ✅；或述行 HITL 介入（MAX_ITER 達限）；所有此 Stage 產出物已寫入 docs/
 
 **覆蓋 CLS**: CLS-002, CLS-003
 **覆蓋 INV**: INV-003, INV-004, INV-005
@@ -125,6 +133,10 @@
          [INV-011] MAX_AUTO_FIX = 3
 ```
 
+**前置條件（Precondition）**：change 物件已建立，change.type 已分類；MicroValidator 已載入 valid_link_types 查找表
+**不變量（Invariant）**：6 步嚴格依序，不可跳過 [INV-010]；每步 auto-fix ≤ 3 次 [INV-011]
+**後置條件（Postcondition）**：status = VALIDATED（全步通過）或 ESCALATED（某步 3 次修復失敗）；IMP-xxx 已寫入 change-log.md
+
 **覆蓋 CLS**: CLS-006
 **覆蓋 INV**: INV-010, INV-011
 
@@ -153,6 +165,10 @@
          [INV-012] 單調性
          [INV-013] MAJOR → 強制 HITL
 ```
+
+**前置條件（Precondition）**：change.id 已存在於 Registry；追溯圖可查詢；visited = {} 已初始化
+**不變量（Invariant）**：severity 隨 blast_radius 單調遞增 [INV-012]；cross_stage 可獨立升級 severity
+**後置條件（Postcondition）**：status = RECORDED；IMP-xxx 已寫入 change-log.md；若 MAJOR 則 `hitl_notified = true` [INV-013]
 
 **覆蓋 CLS**: CLS-007
 **覆蓋 INV**: INV-012, INV-013

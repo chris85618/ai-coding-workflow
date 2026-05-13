@@ -68,9 +68,21 @@ workflow_resume():
 
 ---
 
-## 恢復安全不變量
+## 恢復安全契約（DbC）
 
+**前置條件（Precondition）**：
+1. `docs/workflow-state.md` 存在且可讀取
+2. `docs/adr/` 目錄可存取
+3. Session 尚未執行任何 Stage 推進動作
+
+**不變量（Invariant）**：
 1. **已通過的 HITL 閘門不可重做**：ADR-GATE Accepted 的決策不重新要求確認
 2. **未通過的 HITL 閘門不可跳過**：必須從當前 Stage 繼續
 3. **進行中的迭代安全重啟**：從 Step A 重啟，人類決策已持久化為 ADR
 4. **ESCALATION 優先**：有未處理的上報必須先解決
+
+**後置條件（Postcondition）**：
+1. Pipeline 從正確斷點恢復，position 未倒退 [INV-001]
+2. 所有已通過的 Gate 狀態保持不變
+3. 使用者已確認恢復方式（[1]/[2]/[3]）
+4. 恢復摘要已呈現，進行中的上報已標記

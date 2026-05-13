@@ -1,27 +1,34 @@
 # Root Cause Left-Shift Skill
 
-> **觸發條件**：任何 FIX 類型變更
-> **輸出**：LESSON-xxx + 更新觸發錯誤的 skill
+> **觸發條件**：**所有變更，無例外。全面強制執行。**
+> **禁止 N/A 判定**：AI 不得以「非 FIX」「本次無問題」「變更太小」等任何理由跳過此步驟。每次變更都有原因，找出「為什麼需要這個變更」本身就是左移的核心。
+> **強制等級**：與 INV-CM-005（Session-End Hook 後置不變量）同級。未執行 RCA 即執行 Session-End Hook 構成治理違規。
+> **輸出**：LESSON-xxx + 更新觸發問題的 skill（若為 MODIFY/CREATE 且無問題，仍須產出「變更動機紀錄」寫入 change-log.md）
 
 ---
 
 ## 執行流程
 
 ```
-root_cause_leftshift(fix_record):
-  # Step 1: 根因分類
-  category = classify(fix_record):
-    IF fix involves format/syntax → FORMAT_ERROR
-    IF fix involves coverage claim vs actual → COVERAGE_GAP
-    IF fix involves LLM output inconsistency → LLM_HALLUCINATION
-    IF fix involves missing process step → PROCESS_GAP
-    IF fix involves upstream/downstream mismatch → SEMANTIC_DRIFT
+root_cause_leftshift(change_record):
+  # Step 1: 根因分類（所有變更類型皆適用）
+  category = classify(change_record):
+    IF change involves format/syntax → FORMAT_ERROR
+    IF change involves coverage claim vs actual → COVERAGE_GAP
+    IF change involves LLM output inconsistency → LLM_HALLUCINATION
+    IF change involves missing process step → PROCESS_GAP
+    IF change involves upstream/downstream mismatch → SEMANTIC_DRIFT
+    IF change involves naming rule exception → NAMING_INCONSISTENCY
+    IF change involves skipped governance step → GOVERNANCE_BYPASS
+    IF change involves incomplete scan/audit → SCAN_INCOMPLETENESS
+    IF change is CREATE with no prior gap → NEW_CAPABILITY (仍須記錄動機)
+    IF change is MODIFY improving existing → IMPROVEMENT (仍須記錄「為什麼原先不完整」)
 
   # Step 1.5: LESSON 重用檢查（FR-023）
   existing_lessons = search("docs/change-log.md", LESSON-xxx)
   matching = [L for L in existing_lessons
               if L.category == category
-              AND L.root_cause_pattern ~= fix_record.pattern]
+              AND L.root_cause_pattern ~= change_record.pattern]
 
   IF matching is not empty:
     # 過去已處理過相同根因 → 左移守衛不足
@@ -35,7 +42,7 @@ root_cause_leftshift(fix_record):
     # 標準 RCA 流程
 
   # Step 2: 根因鑽取（5 Whys）
-  root = five_whys(fix_record):
+  root = five_whys(change_record):
     why_1: 為什麼這個錯誤出現？
     why_2: 為什麼沒有被阻止？
     why_3: 為什麼驗證沒有偵測到？
@@ -48,7 +55,7 @@ root_cause_leftshift(fix_record):
   IF mode == GUARD_STRENGTHENING:
     source_skill = target_skill  # 直接定位到有缺陷的守衛
   ELSE:
-    source_skill = trace_back(fix_record.file, fix_record.stage)
+    source_skill = trace_back(change_record.file, change_record.stage)
 
   # Step 4: 設計/強化左移守衛
   IF mode == GUARD_STRENGTHENING:
@@ -77,7 +84,7 @@ root_cause_leftshift(fix_record):
   IF mode == NEW_LESSON:
     lesson = LESSON(
       id = next_lesson_id(),
-      fix_ref = fix_record.id,
+      fix_ref = change_record.id,
       category = category,
       root_cause = root.why_5,
       guard = guard,
@@ -88,7 +95,7 @@ root_cause_leftshift(fix_record):
   ELSE:  # GUARD_STRENGTHENING
     update_lesson(prior.id):
       append_strengthening_record(
-        trigger = fix_record.id,
+        trigger = change_record.id,
         why_guard_failed = root.why_extra,
         guard_before = target_guard,
         guard_after = guard,
@@ -104,11 +111,13 @@ root_cause_leftshift(fix_record):
 ```
 ### LESSON-xxx
 
-- **FIX 來源**: IMP-xxx
+- **變更來源**: IMP-xxx
+- **變更類型**: CREATE | MODIFY | FIX
 - **根因分類**: [category]
 - **5 Whys 結果**: [why_5]
+- **變更動機**: [為什麼需要這個變更？原先缺了什麼？]
 - **左移守衛**: [guard description]
 - **守衛驗證證據**: [guard_name] 能攔截 [scenario] 的證據（grep 結果/測試輸出/步驟引用）
 - **更新的 Skill**: [skill file path]
-- **驗證**: 模擬原始輸入，確認錯誤不再出現
+- **驗證**: 模擬原始輸入，確認問題不再出現
 ```

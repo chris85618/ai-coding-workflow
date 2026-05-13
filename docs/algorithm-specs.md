@@ -10,6 +10,21 @@
 **描述**：Agent α/β 迭代迴圈的收斂判定邏輯。
 **追溯**：FR-012, FR-013 (implements)
 
+**前置條件（Precondition）**：
+- `stage` 已進入 ITERATING 狀態
+- `dimensions[]` 非空，每個維度有合法的批判指引
+- `iteration = 0`，`MAX_ITERATIONS = 10`
+
+**不變量（Invariant）**：
+- 每輪迴圈結束時 `iteration ≤ MAX_ITERATIONS`
+- hitlGate 僅在 Step M（微驗證）完成後才可呼叫（[INV-005]）
+- 微驗證 auto-fix 次數 ≤ 3（[INV-011]）
+
+**後置條件（Postcondition）**：
+- 函式返回時 `stage.status = PASSED`（choice=3）或 HITL 已介入（MAX_ITER 達上限）
+- 所有 MAJOR 影響已上報（[INV-013]）
+- docs/workflow-state.md 已更新
+
 ```
 converge(stage, dimensions[]):
   iteration = 0
@@ -61,6 +76,20 @@ converge(stage, dimensions[]):
 **描述**：左移微驗證的執行序列和判定邏輯（Step 0-7 + Step 5.5/5.7）。
 **追溯**：FR-005, FR-006, FR-007 (implements)
 
+**前置條件（Precondition）**：
+- `change` 物件已建立，`change.type ∈ {CREATE, MODIFY, FIX}`
+- `change.id` 格式合法（符合 TraceableID 規格）
+- MicroValidator 已載入 `valid_link_types` 查找表
+
+**不變量（Invariant）**：
+- 六步（checkStructure → checkForwardTrace → checkBackwardTrace → checkSemantic → checkOrphan → triggerImpactAnalysis）嚴格依序執行，不可跳過（[INV-010]）
+- 每步 auto-fix 最多 3 次，超過則 `escalate_to_hitl()`（[INV-011]）
+- Step 5.7 對所有變更類型執行（CREATE/MODIFY/FIX），無例外
+
+**後置條件（Postcondition）**：
+- 返回 `PASS(impact, imp)`：所有步驟通過，IMP-xxx 已寫入 change-log.md，LESSON-xxx 已建立（所有變更類型皆觸發）
+- 返回 `FAIL(escalate=True)`：某步驟 3 次修復失敗，HITL 已上報，驗證流程終止
+
 ```
 micro_validate(change):
   MAX_AUTO_FIX = 3
@@ -73,7 +102,7 @@ micro_validate(change):
     check_semantic(change.id),         # Step 4: 語意一致 + 交叉覆蓋驗證
     check_orphan(change.id),           # Step 5: 孤兒偵測
     check_lateral_links(change.id),    # Step 5.5: 全方向連結追溯 (FR-022)
-    check_lesson_reuse(change),        # Step 5.7: LESSON 重用檢查 (FR-023, 僅 FIX)
+    check_lesson_reuse(change),        # Step 5.7: LESSON 重用檢查 (FR-023, 所有類型)
   ]
   
   FOR each check IN checks:
@@ -107,6 +136,21 @@ micro_validate(change):
 
 **描述**：計算修改的影響範圍和嚴重度分類。
 **追溯**：FR-008, FR-009 (implements)
+
+**前置條件（Precondition）**：
+- `change.id` 已存在於 TraceableID Registry
+- 追溯圖（downstream/upstream links）可查詢
+- `visited = {}` 已初始化，防止循環
+
+**不變量（Invariant）**：
+- `blast_radius = len(downstream) + len(upstream_inconsistent) + len(lateral)` 計算不可捷徑
+- severity 分類嚴格單調：blast_radius 越大嚴重度越高（[INV-012]）
+- `cross_stage` 計算橫跨的獨立 Stage 數目，可獨立升級 severity
+
+**後置條件（Postcondition）**：
+- IMP-xxx record 已寫入 `docs/change-log.md`（[INV-013]）
+- 若 `severity = MAJOR`：`hitl_notified = true` 且工作流暫停
+- 返回完整 `ImpactRecord`，包含 blast_radius、severity、downstream 列表、timestamp
 
 ```
 impact_analysis(change):
@@ -154,6 +198,20 @@ impact_analysis(change):
 **描述**：技術債的 RICE 分數計算和四象限分類。
 **追溯**：FR-010, FR-011 (implements)
 
+**前置條件（Precondition）**：
+- `debt_item` 已建立且欄位齊全
+- `effort > 0`（除數不得為零）（[INV-015]）
+- reach ∈ [1,100], impact ∈ {0.5,1.0,2.0,3.0}, confidence ∈ [0.5,1.0], effort ∈ [0.25,20]
+
+**不變量（Invariant）**：
+- `rice = (reach × impact × confidence) / effort`，公式不可替換（[INV-015]）
+- 四象限分類窮盡所有 (impact, effort) 組合，無空白域
+
+**後置條件（Postcondition）**：
+- 返回 `(rice, quadrant)` pair，rice 為正有理數
+- `quadrant ∈ {QUICK_WIN, STRATEGIC, INCREMENTAL, AVOID}`
+- DEBT-xxx 已更新 riceScore 欄位，docs/tech-debt-register.md 反映最新排序
+
 ```
 rice_score(debt_item):
   reach = count_affected_components(debt_item)  # 1-100
@@ -185,6 +243,21 @@ rice_score(debt_item):
 
 **描述**：正向和反向追溯鏈的遍歷演算法。
 **追溯**：FR-005 (implements)
+
+**前置條件（Precondition）**：
+- `id` 已存在於 TraceableID Registry
+- `visited = {}` 傳入前已初始化（防止循環遞迴）
+- TraceLink 圖已載入（downstream/upstream 可查詢）
+
+**不變量（Invariant）**：
+- 每個 id 至多被 visited 一次（`visited set` 保證循環安全）
+- `expand_forward` 只走 downstreamLinks；`expand_backward` 只走 upstreamLinks
+- 遞迴深度有限（有限圖 + visited 防循環）
+
+**後置條件（Postcondition）**：
+- `expand_forward(id)` 返回所有正向可達節點清單（含深度標記）
+- `expand_backward(id)` 返回所有反向可達節點清單（含深度標記）
+- `verify_chain(id)` 返回 PASS 或拋出追溯錯誤：BG 需有正向路徑，TC 需有反向路徑；孤兒 ID 則 FAIL
 
 ```
 expand_forward(id, depth, visited):

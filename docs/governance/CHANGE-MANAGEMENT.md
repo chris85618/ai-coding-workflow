@@ -17,7 +17,7 @@
 ┌─────────────────────────────────────────────────────┐
 │  Step 0: 變更分類                                    │
 │  → 類型: CREATE | MODIFY | FIX                       │
-│  → 若 FIX: 必須觸發 root-cause-leftshift.md          │
+│  → 所有類型皆觸發 root-cause-leftshift.md，無例外  │
 ├─────────────────────────────────────────────────────┤
 │  Step 1: 產出生成（S2C skill 或手動修改）             │
 │  → 執行對應 S2C skill                                │
@@ -40,7 +40,7 @@
 │  → Step 0: 格式驗證                                  │
 │  → Step 1-5: 結構/正向/反向/語意/孤兒                │
 │  → Step 5.5: 全方向連結追溯（FR-022）              │
-│  → Step 5.7: LESSON 重用檢查（FR-023，若 FIX）   │
+│  → Step 5.7: LESSON 重用檢查（FR-023，所有變更類型）   │
 │  → Step 6: 影響分析                                  │
 │  → Step 7: 變更紀錄 → IMP-xxx 寫入 change-log.md     │
 ├─────────────────────────────────────────────────────┤
@@ -51,16 +51,13 @@
 │  → 更新觸發錯誤的 skill/prompt/governance 文件      │
 │  → 驗證左移後的規則可防止重現                       │
 │                                                      │
-│  Step 4 觸發條件（滿足任一即觸發）：                │
-│  → 對話中任何 user Q&A（非直接 approve）            │
-│  → 對話中任何 mid-execution 修正                    │
-│  → PGVG 發現任何需修復的不一致                      │
-│  → 微驗證發現任何 FAIL                              │
+│  Step 4 觸發條件：所有變更，無例外。                    │
+│  CREATE、MODIFY、FIX、... 每一種類型皆強制執行。                │
+│  AI 不得以任何理由判定此步驟「不適用」或「N/A」。        │
+│  每次變更都有原因，找出「為什麼需要這個變更」本身   │
+│  就是左移的核心。                                          │
 │                                                      │
-│  Step 4 唯一免除條件（必須全部滿足）：              │
-│  → 完整對話歷程零疑慮                               │
-│  → 完整對話歷程零 Q&A（全部直接 approve）           │
-│  → PGVG + 微驗證一次通過無修復                      │
+│  Step 4 免除條件：無。不存在任何免除情境。               │
 └─────────────────────────────────────────────────────┘
 
 ### Step 5: 跨切面一致性驗證（Cross-Cutting Consistency）
@@ -110,7 +107,7 @@ cross_cutting_verify():
 > **前置斷言（Precondition Gate）— 必須在 Step 6 任何子步驟前自我確認：**
 > ```
 > precondition_check():
->   FOR each FIX/MODIFY change made this session:
+>   FOR each change made this session:
 >     ASSERT step_0_classified    = TRUE  # 變更類型已分類
 >     ASSERT step_1_generated     = TRUE  # 產出已完成
 >     ASSERT step_2_pgvg          = TRUE  # PGVG 2a-2f 已執行且 PASS
@@ -140,12 +137,11 @@ cross_cutting_verify():
 - **爆炸半徑**: [blast_radius]
 - **嚴重度**: COSMETIC | MINOR | MODERATE | MAJOR
 - **微驗證**: PASS | FAIL (step N)
-- **若 FIX**:
-  - 根因分類: LLM_HALLUCINATION | PROCESS_GAP | COVERAGE_GAP | FORMAT_ERROR
-  - 根因描述: [description]
-  - 左移動作: [skill updated]
-  - 守衛驗證證據: [guard_name] 能攔截 [scenario] 的證據（grep 結果/測試輸出/步驟引用）
-  - LESSON-xxx: [reference]
+- **根因分類**: [強制填寫，所有變更類型皆需]
+- **根因描述 / 變更動機**: [強制填寫，「為什麼需要這個變更？原先缺了什麼？」]
+- **左移動作**: [skill updated 或 「無需左移」的完整理由]
+- **守衛驗證證據**: [guard_name] 能攔截 [scenario] 的證據（grep 結果/測試輸出/步驟引用）
+- **LESSON-xxx**: [reference]
 ```
 
 ---
@@ -161,6 +157,10 @@ cross_cutting_verify():
 | SEMANTIC_DRIFT | 語意漂移，上下游 ID 描述不一致 | 微驗證 Step 4 強化交叉比對 |
 | NAMING_INCONSISTENCY | 命名不一致，ID 格式規則有例外 | 零例外不變量 + PGVG 2e 全域掃描 |
 | FIRST_PRINCIPLES_SKIP | 未從第一性原則推導，直接套用啟發法 | 強制「公理 → 定理 → 規則」推導鏈 |
+| GOVERNANCE_BYPASS | 跳過治理步驟，利用分類或免除條件迴避 | 消除免除條件 + 強制前置斷言 |
+| SCAN_INCOMPLETENESS | 掃描/審計未窮盡，用記憶替代 Registry | 強制 Registry 列舉 + checklist 驗證 |
+| NEW_CAPABILITY | 新功能新增，無先前缺口 | 記錄動機 + 確認不是過度設計 |
+| IMPROVEMENT | 改善既有產出物的完整性/品質 | 記錄「為什麼原先不完整」+ 根因左移 |
 
 ---
 
@@ -170,31 +170,46 @@ cross_cutting_verify():
 
 ### INV-CM-001：範本先行不變量
 
-> 任何模板化產出物的實例，不得在範本完成且定稿之前建立或修改。若範本尚不存在，必須先建立範本、再建立實例。已存在的實例在範本建立後必須立即進行合規性追溯檢查。
+**不變量（Invariant）**：任何模板化產出物的實例，不得在範本完成且定稿之前建立或修改。若範本尚不存在，必須先建立範本、再建立實例。已存在的實例在範本建立後必須立即進行合規性追溯檢查。
+
+**前置條件（Precondition）**：要建立實例前，對應範本（ADR-TEMPLATE、CLS-TEMPLATE 等）已存在且定稿
+**後置條件（Postcondition）**：實例建立後，實例的所有必填欄位均存在且個別符合範本規格；PGVG 2b 觀測覆蓋驗證通過
 
 **根因**: ADR-001 在 ADR-TEMPLATE.md 存在前已建立，導致缺少 9 個必填欄位。
 
 ### INV-CM-002：禁止推測性範例
 
-> 所有治理/追溯文件中的範例，必須引用實際存在的實例。在實例尚不存在時，使用明確標記的佔位符號：`{PLACEHOLDER: ADR-GOV-xxx: 描述}`。禁止使用看似真實但實為虛構的範例。
+**不變量（Invariant）**：所有治理/追溯文件中的範例，必須引用實際存在的實例。在實例尚不存在時，使用明確標記的佔位符號：`{PLACEHOLDER: ADR-GOV-xxx: 描述}`。禁止使用看似真實但實為虛構的範例。
+
+**前置條件（Precondition）**：文件寫入前，名稱引用的每個 ID 已存在於 Registry 中
+**後置條件（Postcondition）**：文件寫入後，所有名稱引用的 ID 均可由 Registry 查詢驗證；號稱實則不可存在
 
 **根因**: TRACEABILITY.md 中「ADR-GOV-001: 微驗證步數」範例在 ADR-GOV-001 實際建立前已寫入，建立後內容不符（實為 DU 理論），產生語意不一致。
 
 ### INV-CM-003：零例外命名不變量
 
-> 任何命名、格式或結構規則一旦定義，適用於所有實例，無例外。「向下相容」不構成例外理由；應遷移所有既有實例至新規則。
+**不變量（Invariant）**：任何命名、格式或結構規則一旦定義，適用於所有實例，無例外。「向下相容」不構成例外理由；應遷移所有既有實例至新規則。
+
+**前置條件（Precondition）**：命名規則已定義且共識（ADR 通過）
+**後置條件（Postcondition）**：所有既有實例均符合新規則；PGVG 2e 全域 grep 掃描是否有殘留舊命名 = 0
 
 **根因**: ADR-001 以「向下相容」豁免 `ADR-{CATEGORY}-{NNN}` 前綴規則，導致 STRUCTURAL 類別使用 `ADR-xxx` 而其他 5 類使用帶前綴格式，命名系統不一致。
 
 ### INV-CM-004：第一性原則推導不變量
 
-> 新治理機制的決策準則，必須從第一性原則（公理 → 定理 → 規則）推導。禁止直接提出啟發法。啟發法僅作為推導結論的實務落地手段。
+**不變量（Invariant）**：新治理機制的決策準則，必須從第一性原則（公理 → 定理 → 規則）推導。禁止直接提出啟發法。啟發法僅作為推導結論的實務落地手段。
+
+**前置條件（Precondition）**：新治理機制提案前，相關公理（如 SOLID/SRP）已識別
+**後置條件（Postcondition）**：治理機制建立後，導入 ADR 的「公理 → 定理 → 規則」推導鏈已寫入 ADR 正文
 
 **根因**: ADR-GATE 頻率最初以「每個 Stage HITL 至少 1 個」的啟發法提出，未從 SOLID/SRP 原則推導。後由 HITL 修正為 Decision Unit 理論。
 
 ### INV-CM-005：Session-End Hook 後置不變量
 
-> Session-End Hook（CM Step 6）的執行，必須後置於本 session 所有 FIX/MODIFY 變更的 CM Steps 0-5 全數完成之後。若任一 Step 尚未執行，AI 必須先完成該 Step，再執行 Step 6。禁止在 CM Steps 0-5 未完成的情況下輸出「📍 當前狀態 & 下一步」區塊。
+**不變量（Invariant）**：Session-End Hook（CM Step 6）的執行，必須後置於本 session 所有 FIX/MODIFY 變更的 CM Steps 0-5 全數完成之後。若任一 Step 尚未執行，AI 必須先完成該 Step，再執行 Step 6。禁止在 CM Steps 0-5 未完成的情況下輸出「📍 當前狀態 & 下一步」區塊。
+
+**前置條件（Precondition）**：本 session 所有 FIX/MODIFY 變更的 CM Steps 0-5 已全數完成；`precondition_check()` 所有 ASSERT 通過
+**後置條件（Postcondition）**：docs/workflow-state.md 已更新；「📍 當前狀態 & 下一步」區塊已輸出；屬還未完成的 CM Step 則 STOP 並禁止輸出區塊
 
 **根因**: AI 將「完成本輪檔案修改」誤等同於「CM 流程完成」，在 Steps 2-5 未執行的情況下直接觸發 Step 6（Session-End Hook），導致使用者需額外 re-prompt 才能繼續 CM 流程。See LESSON-009。
 

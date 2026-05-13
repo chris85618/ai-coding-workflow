@@ -2,7 +2,7 @@
 
 > **觸發條件**：每次檔案寫入操作後自動執行（CREATE / MODIFY / FIX）
 > **輸入**：變更的 ID 和內容 + 變更類型
-> **輸出**：PASS / FAIL + IMP-xxx 紀錄 + 若 FIX 觸發 LESSON-xxx
+> **輸出**：PASS / FAIL + IMP-xxx 紀錄 + LESSON-xxx（所有變更類型皆觸發）
 
 ---
 
@@ -61,23 +61,21 @@ Step 5.5: 全方向連結追溯（FR-022）
 → ADR 不再成立 → 標記 SUPERSEDED
 → NFR 被違反 → 嚴重度升至 MAJOR
 
-Step 5.7: LESSON 重用檢查（FR-023，僅 FIX 類型）
-→ 若變更類型 = FIX：
-   → 掃描已存在的 LESSON-xxx
-   → 若有相同根因類別 → 左移守衛不足，強化既有守衛
-   → 若無相同根因 → 標準 RCA 流程
+Step 5.7: LESSON 重用檢查（FR-023，所有變更類型皆執行）
+→ 掃描已存在的 LESSON-xxx
+→ 若有相同根因類別 → 左移守衛不足，強化既有守衛
+→ 若無相同根因 → 標準 RCA 流程
 
 Step 6: 影響分析觸發
 → 觸發 skills/workflow-skills/impact-analysis-exec.md
 → 標記受影響下游 ID
 
-Step 7: 變更紀錄 + 根因左移
+Step 7: 變更紀錄 + 根因左移（所有變更類型皆執行）
 → 寫入 IMP-xxx 至 docs/change-log.md
-→ 若變更類型 = FIX：
-   → 觸發 skills/workflow-skills/root-cause-leftshift.md
-   → 產出 LESSON-xxx
-   → 更新觸發錯誤的 skill/prompt
-   → 驗證更新後 skill 可防止重現
+→ 觸發 skills/workflow-skills/root-cause-leftshift.md
+→ 產出 LESSON-xxx
+→ 更新觸發問題的 skill/prompt
+→ 驗證更新後 skill 可防止重現
 ```
 
 ---
@@ -107,5 +105,5 @@ Step 7: 變更紀錄 + 根因左移
 Step 0-7 + 5.5/5.7 全數通過 ✅ → 繼續下一個微動作
 任一失敗 ❌ → 自主修復 → 重新執行（從失敗步驟開始）
 修復 3 次仍失敗 → 上報 HITL
-FIX 類型 → 額外執行 Step 7 根因左移，產出 LESSON-xxx
+所有變更類型 → 執行 Step 7 根因左移，產出 LESSON-xxx（無例外）
 ```

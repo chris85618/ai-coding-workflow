@@ -18,9 +18,9 @@
 
 ## 10.2 全對話 RCA 掃描 + 左移
 
-> **為什麼需要**：Stage 3-8 的 root-cause-leftshift 僅針對 FIX 類型變更觸發。
-> 但對話中可能有未觸發 FIX 的隱性問題：人類修正了 AI 方向、AI 自主回退了某個嘗試、
-> 微妙的溝通不一致未達到 FIX 門檻。這些都是流程改善的素材，Phase 10 是最後的安全網。
+> **為什麼需要**：Stage 3-8 的 root-cause-leftshift 已對所有變更類型觸發（CREATE/MODIFY/FIX）。
+> 但對話中可能有未觸發變更的隱性問題：人類修正了 AI 方向、AI 自主回退了某個嘗試、
+> 微妙的溝通不一致未達到變更門檻。這些都是流程改善的素材，Phase 10 是最後的安全網。
 
 ### 執行協議
 
@@ -74,10 +74,10 @@ conversation_rca_sweep():
 
 | 面向 | Stage 3-8 RCA | Phase 10 RCA |
 |------|--------------|--------------|
-| 觸發 | FIX 類型變更 | Sprint 結束 |
-| 範圍 | 單一 FIX | 全部對話 |
-| 目標 | 防止特定錯誤重現 | 系統性流程改善 |
-| 輸出 | LESSON-xxx（per FIX） | LESSON-xxx（per pattern） |
+| 觸發 | 所有變更類型（CREATE/MODIFY/FIX） | Sprint 結束 |
+| 範圍 | 單一變更 | 全部對話 |
+| 目標 | 防止特定問題重現 + 記錄變更動機 | 系統性流程改善 |
+| 輸出 | LESSON-xxx（per 變更） | LESSON-xxx（per pattern） |
 
 ## 10.3 技術債登記冊更新
 

@@ -14,7 +14,9 @@ FOR each UC-xxx:
   identify_transaction_boundary()
   extract_entities_and_value_objects()
   define_aggregate_root() → CLS-xxx
+  document_preconditions()  → CLS-xxx 方法的 [PRE] 標記
   document_invariants() → INV-xxx（預留至 Stage 6）
+  document_postconditions() → CLS-xxx 方法的 [POST] 標記
 
 Track 2: 限界上下文
 FOR each functional_domain:

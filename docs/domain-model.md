@@ -35,8 +35,12 @@ Pipeline
   + start(): void
   + advance(hitlConfirmation: HitlChoice): void
   + getCurrentPosition(): PhaseOrStage
-  [INV] phases 和 stages 序列不可重排
-  [INV] advance() 僅在 HITL ✅ 後可呼叫
+  [PRE]  start(): status = NOT_STARTED
+  [PRE]  advance(): hitlConfirmation = PASS
+  [INV]  phases 和 stages 序列不可重排
+  [INV]  advance() 僅在 HITL ✅ 後可呼叫
+  [POST] start(): status = IN_PROGRESS ∧ currentPosition = P0
+  [POST] advance(): currentPosition' > currentPosition
 ```
 
 ### CLS-002: Stage（值物件）
@@ -53,8 +57,12 @@ Stage
   - status: StageStatus {PENDING, ITERATING, PASSED}
   + runIteration(artifacts: Artifact[]): IterationResult
   + checkFixedPoint(findings: Finding[]): bool
-  [INV] number ∈ {3, 4, 5, 6, 7, 8}
-  [INV] status 只能單向轉換: PENDING → ITERATING → PASSED
+  [PRE]  runIteration(): status = ITERATING ∧ iterationCount < MAX_ITERATIONS
+  [PRE]  checkFixedPoint(): findings[] 已收集完成
+  [INV]  number ∈ {3, 4, 5, 6, 7, 8}
+  [INV]  status 只能單向轉換: PENDING → ITERATING → PASSED
+  [POST] runIteration(): iterationCount' = iterationCount + 1
+  [POST] checkFixedPoint(): returns true（all YAGNI）→ 建議終止 | false → 繼續
 ```
 
 ### CLS-003: IterationLoop（領域服務）
@@ -70,8 +78,12 @@ IterationLoop
   - agentBeta(findings: Finding[]): Improvement[]
   - stepM(improvements: Improvement[]): ValidationResult
   - hitlGate(): HitlChoice {CONTINUE, ADD_REQUIREMENTS, PASS}
-  [INV] stepM 必須在 hitlGate 之前執行
-  [INV] MAX_ITERATIONS = 10
+  [PRE]  execute(): stage.status = ITERATING ∧ dimensions[] 非空
+  [PRE]  hitlGate(): stepM 已完成且結果已記錄
+  [INV]  stepM 必須在 hitlGate 之前執行
+  [INV]  MAX_ITERATIONS = 10
+  [POST] execute(): stage.status = PASSED（choice=PASS）∨ HITL 已介入
+  [POST] hitlGate(): HitlChoice 已記入 iteration-log.md
 ```
 
 ### CLS-004: TraceableID（聚合根）
@@ -91,9 +103,13 @@ TraceableID
   + addDownstream(target: TraceableID, type: LinkType): void
   + isOrphan(): bool
   + verifySemanticConsistency(): ValidationResult
-  [INV] prefix + sequence 全域唯一
-  [INV] BG-xxx 無上游（源頭）
-  [INV] TC-xxx 無下游（末端）
+  [PRE]  addUpstream(): target 已存在於 Registry ∧ self.prefix ≠ BG
+  [PRE]  addDownstream(): target 已存在於 Registry ∧ self.prefix ≠ TC
+  [INV]  prefix + sequence 全域唯一
+  [INV]  BG-xxx 無上游（源頭）
+  [INV]  TC-xxx 無下游（末端）
+  [POST] addUpstream(): upstreamLinks 含新 TraceLink ∧ target.downstreamLinks 含對稱連結
+  [POST] addDownstream(): downstreamLinks 含新 TraceLink ∧ target.upstreamLinks 含對稱連結
 ```
 
 ### CLS-005: TraceLink（值物件）
@@ -109,8 +125,10 @@ TraceLink
   - linkType: LinkType {derives, decomposes, implements, realizes, constrains, justifies, mitigates, stakeholder-of}
   - semanticValid: bool
   - lastVerified: timestamp
-  [INV] source ≠ target
-  [INV] linkType 必須語意合理（例如 BG 不能 realizes TC）
+  [PRE]  建構時: source 已存在 ∧ target 已存在 ∧ source ≠ target
+  [INV]  source ≠ target
+  [INV]  linkType 必須語意合理（例如 BG 不能 realizes TC）
+  [POST] 建構後: semanticValid 已計算 ∧ lastVerified = now()
 ```
 
 ### CLS-006: MicroValidator（領域服務）
@@ -128,8 +146,12 @@ MicroValidator
   - checkSemantic(id: TraceableID): StepResult
   - checkOrphan(id: TraceableID): StepResult
   - triggerImpactAnalysis(change: Change): ImpactRecord
-  [INV] 6 步依序執行，不可跳過
-  [INV] MAX_AUTO_FIX = 3
+  [PRE]  validate(): change.type ∈ {CREATE,MODIFY,FIX} ∧ change.id 格式合法
+  [PRE]  checkStructure(): validate() 已被呼叫（首步）
+  [INV]  6 步依序執行，不可跳過
+  [INV]  MAX_AUTO_FIX = 3
+  [POST] validate(): PASS（IMP-xxx 已寫入）∨ FAIL（HITL 已上報）
+  [POST] triggerImpactAnalysis(): ImpactRecord 已持久化至 change-log.md
 ```
 
 ### CLS-007: ImpactAnalyzer（領域服務）
@@ -145,8 +167,10 @@ ImpactAnalyzer
   - checkUpstreamSemantic(id: TraceableID): TraceableID[]
   - calculateBlastRadius(downstream: int, upstream: int): int
   - classifySeverity(blastRadius: int, crossStage: int): Severity
-  [INV] severity ∈ {COSMETIC, MINOR, MODERATE, MAJOR}
-  [INV] MAJOR → 強制上報 HITL
+  [PRE]  analyze(): change.id 已存在於 Registry ∧ 追溯圖可查詢
+  [INV]  severity ∈ {COSMETIC, MINOR, MODERATE, MAJOR}
+  [INV]  MAJOR → 強制上報 HITL
+  [POST] analyze(): ImpactRecord 已寫入 change-log.md ∧ (若 MAJOR 則 hitl_notified = true)
 ```
 
 ### CLS-008: QualityGate（值物件）
@@ -160,8 +184,10 @@ QualityGate
   - thresholds: Threshold[]
   - auditLayers: AuditLayer[3]
   + evaluate(scanResult: ScanResult): GateResult {PASS, FAIL}
-  [INV] 三層審計全 PASS 才放行
-  [INV] 覆蓋率 ≥ 80%，零 Critical 漏洞
+  [PRE]  evaluate(): scanResult 已包含三層審計結果
+  [INV]  三層審計全 PASS 才放行
+  [INV]  覆蓋率 ≥ 80%，零 Critical 漏洞
+  [POST] evaluate(): GateResult 已產出 ∧ (若 FAIL 則列出失敗層和原因)
 ```
 
 ### CLS-009: DebtItem（實體）
@@ -179,7 +205,9 @@ DebtItem
   - priority: Priority {P0, P1, P2, P3}
   + calculateRICE(): float    // ALG-004
   + classifyQuadrant(): Quadrant
-  [INV] riceScore = (reach × impact × confidence) / effort
+  [PRE]  calculateRICE(): effort > 0 ∧ reach/impact/confidence 在合法範圍
+  [INV]  riceScore = (reach × impact × confidence) / effort
+  [POST] calculateRICE(): riceScore 已更新 ∧ quadrant 已分類
 ```
 
 ### CLS-010: SecurityAuditor（領域服務）
@@ -195,8 +223,10 @@ SecurityAuditor
   - layer2_agentShield(): AuditResult    // Red/Blue team
   - layer3_skillFortify(): AuditResult   // Supply chain
   + isAllPass(): bool
-  [INV] 三層依序執行
-  [INV] 任一層 HIGH+ → isAllPass() = false
+  [PRE]  auditAll(): 設計或實作已完成（Stage 5 或 Stage 8）
+  [INV]  三層依序執行
+  [INV]  任一層 HIGH+ → isAllPass() = false
+  [POST] auditAll(): AuditReport 已產出 ∧ 結果已寫入 security-audit-stageN.md
 ```
 
 ### CLS-011: CompletionChecker（領域服務）
@@ -212,8 +242,10 @@ CompletionChecker
   - verifyQualityGate(): bool
   - verifySecurityAudit(): bool
   - verifyTechDebt(): bool
-  [INV] 全部 PASS 才放行 /ship
-  [INV] 任一 FAIL → 阻塞並列出缺失
+  [PRE]  checkReadiness(): Stage 8 HITL ✅ 已確認
+  [INV]  全部 PASS 才放行 /ship
+  [INV]  任一 FAIL → 阻塞並列出缺失
+  [POST] checkReadiness(): CompletionResult 已產出 ∧ (若 READY 則 /ship 可執行)
 ```
 
 ### CLS-012: ScopeAnalyzer（領域服務）
@@ -228,8 +260,12 @@ ScopeAnalyzer
   + analyzeStakeholders(): S[]
   + defineScope(): FEA[]
   + redTeamChallenge(scope: FEA[]): ChallengeResult
-  [INV] 每個 BG 至少有一個 FEA
-  [INV] Red Team 結果必須 HITL 審查
+  [PRE]  analyzeCharter(): Phase 0/1 已完成
+  [PRE]  redTeamChallenge(): FEA[] 已定義
+  [INV]  每個 BG 至少有一個 FEA
+  [INV]  Red Team 結果必須 HITL 審查
+  [POST] analyzeCharter(): BG-xxx ID 已指派 ∧ 寫入 project-charter.md
+  [POST] defineScope(): FEA-xxx 已指派 ∧ 寫入 scope-definition.md ∧ 追溯矩陣已更新
 ```
 
 ---

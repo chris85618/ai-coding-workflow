@@ -11,6 +11,7 @@
 **追溯**：FR-001, FR-002 (realizes)
 
 **前置條件**：四個子模組已初始化
+**不變量**：管線位置單向前進 [INV-001]；每次 advance() 需 HITL ✅ [INV-002]
 **後置條件**：Session 就緒，路徑已決定
 **主要流程**：ECC SessionStart → gstack Preamble → 路徑判斷 → Phase 1 或 Phase 2
 **例外流程**：子模組未安裝 → 提示安裝指令
@@ -23,6 +24,7 @@
 **追溯**：FR-004, FR-018 (realizes)
 
 **前置條件**：Phase 0/1 完成
+**不變量**：每個 BG 至少有一個 FEA 下游連結 [INV-017]；ID 全域唯一 [INV-006]
 **後置條件**：BG/S/FEA ID 已指派，追溯矩陣已初始化
 **主要流程**：s2c-charter → s2c-stakeholder → s2c-scope-redteam → /plan-ceo-review → HITL ✅
 **替代流程**：Red Team 挑戰發現衝突 → HITL 決策 → 調整範圍
@@ -35,6 +37,7 @@
 **追溯**：FR-012, FR-013, FR-014 (realizes)
 
 **前置條件**：前一 Stage HITL ✅ 通過
+**不變量**：Stage 狀態單向轉換 PENDING→ITERATING→PASSED [INV-003]；iterationCount ≤ 10 [INV-004]；Step M 先於 hitlGate [INV-005]
 **後置條件**：本 Stage 產出物完整，追溯矩陣更新
 **主要流程**：Agent α(維度) → Agent β(決策流) → micro-validation → impact-analysis → HITL
 **替代流程**：HITL 選擇 [1] 繼續 → 重新 Agent α
@@ -48,6 +51,7 @@
 **追溯**：FR-005, FR-006, FR-007 (realizes)
 
 **前置條件**：微動作已完成（新增/修改/刪除 ID）
+**不變量**：六步嚴格依序執行，不可跳過 [INV-010]；每步 auto-fix ≤ 3 次 [INV-011]；自連結禁止 [INV-008]；linkType 語意合理 [INV-009]
 **後置條件**：驗證通過或自主修復
 **主要流程**：結構檢查 → 正向追溯 → 反向追溯 → 語意一致 → 孤兒偵測 → 影響觸發
 
@@ -59,6 +63,7 @@
 **追溯**：FR-008, FR-009 (realizes)
 
 **前置條件**：ID 被修改
+**不變量**：severity 隨 blast_radius 單調遞增 [INV-012]；MAJOR 必觸發 HITL [INV-013]
 **後置條件**：IMP-xxx 紀錄已寫入 docs/change-log.md
 **主要流程**：識別 → 正向追溯 → 反向追溯 → 爆炸半徑 → 分類 → 紀錄
 **例外流程**：MAJOR (blast_radius >10 或跨 2+ Stage) → 暫停 → 上報 HITL
@@ -71,6 +76,7 @@
 **追溯**：FR-016 (realizes)
 
 **前置條件**：OOAD 設計完成（Stage 5）或實作完成（Stage 8）
+**不變量**：三層全 PASS 才放行，任一 FAIL 則整體 FAIL [INV-014]
 **後置條件**：三層全 PASS
 **主要流程**：/cso → AgentShield → SkillFortify → 全 PASS
 **例外流程**：HIGH+ 發現 → 回修設計 → 重新審計
@@ -83,6 +89,7 @@
 **追溯**：FR-015 (realizes)
 
 **前置條件**：所有測試通過
+**不變量**：auto-fix ≤ 3 次 [INV-011]；品質門檻（覆蓋率≥80%、零 Critical、技術債≤5%）在整個驗證期間不可降低
 **後置條件**：品質閘門全 PASS，TODO/FIXME 已轉 DEBT-xxx
 **主要流程**：掃描 → 驗證門檻 → PASS
 **例外流程**：FAIL → 自主修復(最多3次) → 仍 FAIL → 上報 HITL
@@ -95,6 +102,7 @@
 **追溯**：FR-010, FR-011 (realizes)
 
 **前置條件**：SonarCloud 掃描完成 或 /retro 執行完成
+**不變量**：RICE 公式嚴格按 (reach×impact×confidence)/effort 計算，effort > 0 [INV-015]
 **後置條件**：DEBT-xxx 已寫入 docs/tech-debt-register.md，RICE 已計算
 **主要流程**：收集 → RICE 計算 → 四象限分類 → Sprint 容量規劃
 
@@ -106,6 +114,7 @@
 **追溯**：FR-005, FR-015, FR-016 (realizes)
 
 **前置條件**：Stage 8 HITL ✅ 通過
+**不變量**：四子驗證全 true 才 READY，任一 false 則 BLOCKED [INV-016]
 **後置條件**：完成檢查全 PASS → /ship 放行
 **主要流程**：追溯完整性 → 品質閘門 → 安全審計 → 技術債檢查 → PASS
 **例外流程**：任一 FAIL → 阻塞，列出缺失
@@ -118,6 +127,7 @@
 **追溯**：FR-019, FR-021 (realizes)
 
 **前置條件**：workflow-state.md 存在且 Pipeline Position ≠ 完成
+**不變量**：管線位置單向前進 [INV-001]；已通過的閘門不可重置
 **後置條件**：工作流從正確斷點恢復，已通過閘門不重做
 **主要流程**：載入 state → 組裝摘要 → 使用者確認 → [1] 從斷點繼續 / [2] 執行其他 / [3] 重置
 **替代流程**：有 pending ESCALATION → 優先處理上報
@@ -131,6 +141,7 @@
 **追溯**：FR-022 (realizes)
 
 **前置條件**：ID 被修改且影響分析已計算縱向 blast_radius
+**不變量**：linkType 語意合理 [INV-009]；BG 無上游/TC 無下游 [INV-007]；自連結禁止 [INV-008]
 **後置條件**：所有方向連結已驗證，違反的 ADR/NFR 已標記
 **主要流程**：縱向追溯 → 橫向追溯（ADR/NFR/RISK/EVT/INV） → 讀取完整文件 → 語意驗證 → 標記
 **例外流程**：ADR 不再成立 → 標記 SUPERSEDED → 需新 ADR；NFR 被違反 → 嚴重度升至 MAJOR

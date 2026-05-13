@@ -206,7 +206,7 @@ FOR each pending WBS leaf L:
 | 1 | 執行目標專案的 Phase 0 (環境啟動) | 使用者啟動新專案時 | HIGH |
 | 2 | UC-010/011 展開 Stage 5-8 下游 ID (CLS/INV/SC/TC) | 進入目標專案 Stage 5 時 | MEDIUM |
 | 3 | 恢復測試：驗證 workflow-state.md 恢復協議 | 下次 session 開始時 | MEDIUM |
-| 4 | LESSON-007 守衛驗證：確認「守衛驗證證據」欄位在下次 FIX 時被填寫 | 下次 FIX 類型變更時 | LOW |
+| 4 | LESSON-007 守衛驗證：確認「守衛驗證證據」欄位在下次變更時被填寫 | 下次任何變更時 | LOW |
 
 ---
 
@@ -215,9 +215,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T01:48+08:00
+- **Last Session Date**: 2026-05-14T02:54+08:00
 - **Pipeline Position (recorded)**: Stage 3 (self-bootstrap, 治理架構)
-- **Actual Work Done**: 系統性分析 + RCA 左移（IMP-009 / LESSON-009）。識別 Session-End Hook 提前觸發的根因：CM Step 6 缺少前置斷言。已更新三個守衛：(1) AGENTS.md session_end_hook Step 0 precondition_check()；(2) CHANGE-MANAGEMENT.md Step 6 Precondition Gate；(3) INV-CM-005 結構不變量。
-- **State Diff**: 一致（Pipeline Position 未變，Gate Status 未變）
+- **Actual Work Done**: AGENTS.md 首尾 hook 新增：(1) 最開頭加入「⚠️ 強制啟動閘門」(L11-23)，強制 AI 先走 Session-Start Hook；(2) 最結尾加入「⚠️ 強制收尾閘門」(L675-704)，含 4 大驗證：CM 驗證 / 追溯矩陣 / Workflow 生命週期 / 輸出狀態區塊。
+- **State Diff**: AGENTS.md 從 656 行增至 705 行
 - **Pending Escalations Carried Over**: 無
-

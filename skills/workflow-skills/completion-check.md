@@ -16,6 +16,13 @@ FOR each UC-xxx:
   ASSERT has_at_least_one(SC-xxx) → "UC-xxx 缺少 BDD 場景"
 FOR each INV-xxx:
   ASSERT has_at_least_one(TC-xxx OR property_test) → "INV-xxx 缺少驗證"
+FOR each INV-xxx in docs/invariants.md:
+  ASSERT has_precondition(INV-xxx)  → "INV-xxx 缺少前置條件（DbC 不完整）"
+  ASSERT has_postcondition(INV-xxx) → "INV-xxx 缺少後置條件（DbC 不完整）"
+FOR each CLS-xxx in docs/domain-model.md:
+  ASSERT has_tag("[PRE]")  → "CLS-xxx 缺少 [PRE]（DbC 不完整）"
+  ASSERT has_tag("[INV]")  → "CLS-xxx 缺少 [INV]（DbC 不完整）"
+  ASSERT has_tag("[POST]") → "CLS-xxx 缺少 [POST]（DbC 不完整）"
 
 Step 2: 追溯矩陣完整性
 ASSERT no_orphan_ids()

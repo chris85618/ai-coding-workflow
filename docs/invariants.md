@@ -5,6 +5,13 @@
 
 ---
 
+> **DbC 慣例**：每個 INV 包含完整三元組：
+> - **前置條件（Precondition）**：呼叫或觸發該不變量驗證前，系統必須滿足的狀態
+> - **不變量（Invariant）**：在合法操作前後必須恆真的命題
+> - **後置條件（Postcondition）**：操作完成後，系統必須進入的狀態
+
+---
+
 ## 系統不變量
 
 ### INV-001: 管線序列不變量
@@ -13,11 +20,16 @@
 **追溯**：CLS-001 (formalizes)
 **可驗證性**：Property test — 隨機生成 advance() 序列，驗證 position 單調遞增
 
+**前置條件**：Pipeline 物件已初始化（currentPosition 合法），呼叫方已取得 HITL ✅ 確認（choice = PASS）
+**後置條件**：`pipeline.currentPosition' > pipeline.currentPosition`，且 `currentPosition' ∈ {P0,P1,P2,S3,S4,S5,S6,S7,S8,P9,P10}`
+
 ```
 ∀ pipeline: Pipeline
   pipeline.advance(choice) ⟹ pipeline.currentPosition' > pipeline.currentPosition
   ∧ pipeline.currentPosition ∈ {P0, P1, P2, S3, S4, S5, S6, S7, S8, P9, P10}
 ```
+
+---
 
 ### INV-002: HITL 必經不變量
 
@@ -25,17 +37,25 @@
 **追溯**：CLS-001 (formalizes)
 **可驗證性**：Contract precondition — advance() 前置條件
 
+**前置條件**：`choice ∈ {PASS}`；`choice ∈ {CONTINUE, ADD_REQUIREMENTS}` 時禁止呼叫 advance()
+**後置條件**：Pipeline 推進至下一 Stage/Phase；HITL 確認事件已記入 workflow-state.md
+
 ```
 ∀ pipeline: Pipeline
   pipeline.advance(choice) ⟹ choice ∈ {PASS}
   // choice = CONTINUE 或 ADD_REQUIREMENTS 不觸發 advance
 ```
 
+---
+
 ### INV-003: Stage 狀態單向轉換
 
 **描述**：Stage 狀態只能 PENDING → ITERATING → PASSED，不可逆轉。
 **追溯**：CLS-002 (formalizes)
 **可驗證性**：State machine model check
+
+**前置條件**：Stage 已存在且 status 合法（PENDING ∨ ITERATING ∨ PASSED）
+**後置條件**：狀態轉換後 status 嚴格前進，不可回退；PASSED 為終態（next(stage.status) = ⊥）
 
 ```
 ∀ stage: Stage
@@ -44,16 +64,23 @@
   stage.status = PASSED   ⟹ next(stage.status) = ⊥ (terminal)
 ```
 
+---
+
 ### INV-004: 迭代上限不變量
 
 **描述**：每個 Stage 的迭代次數不超過 MAX_ITERATIONS=10。
 **追溯**：CLS-003, ALG-001 (formalizes)
 **可驗證性**：Loop bound check
 
+**前置條件**：Stage 進入 ITERATING 狀態，iterationCount 已初始化為 0
+**後置條件**：每次 loop 執行後 `iterationCount ≤ 10`；若 `iterationCount = 10` 則強制觸發 HITL 並停止自動迭代
+
 ```
 ∀ stage: Stage, loop: IterationLoop
   loop.execute(stage, _) ⟹ stage.iterationCount ≤ 10
 ```
+
+---
 
 ### INV-005: Step M 前置不變量
 
@@ -61,10 +88,15 @@
 **追溯**：CLS-003 (formalizes)
 **可驗證性**：Execution order assertion
 
+**前置條件**：Agent β 已完成至少一個 improvement 的產出
+**後置條件**：`iteration.stepM_completed = true`，hitlGate 方可被呼叫；若 stepM 失敗則 hitlGate 被阻塞
+
 ```
 ∀ iteration: IterationLoop
   iteration.hitlGate() ⟹ iteration.stepM_completed = true
 ```
+
+---
 
 ### INV-006: ID 全域唯一不變量
 
@@ -72,10 +104,15 @@
 **追溯**：CLS-004 (formalizes)
 **可驗證性**：Property test — 隨機生成 ID 序列，驗證無重複
 
+**前置條件**：新 ID 指派前，Registry 可查詢現有所有 ID
+**後置條件**：新 ID 寫入後，Registry 中不存在兩個 (prefix, sequence) 完全相同的 ID
+
 ```
 ∀ id1, id2: TraceableID
   (id1.prefix = id2.prefix ∧ id1.sequence = id2.sequence) ⟹ id1 = id2
 ```
+
+---
 
 ### INV-007: 源頭/末端邊界不變量
 
@@ -83,11 +120,16 @@
 **追溯**：CLS-004 (formalizes)
 **可驗證性**：Exhaustive scan
 
+**前置條件**：TraceLink 建立操作執行前，source/target ID 已存在於 Registry
+**後置條件**：建立後，BG-xxx 的 upstreamLinks 仍為 ∅；TC-xxx 的 downstreamLinks 仍為 ∅；違反者拒絕操作
+
 ```
 ∀ id: TraceableID
   id.prefix = BG ⟹ id.upstreamLinks = ∅
   id.prefix = TC ⟹ id.downstreamLinks = ∅
 ```
+
+---
 
 ### INV-008: 自連結禁止不變量
 
@@ -95,10 +137,15 @@
 **追溯**：CLS-005 (formalizes)
 **可驗證性**：Contract precondition
 
+**前置條件**：TraceLink 建立時，source 和 target 皆已存在且格式合法
+**後置條件**：若 `source = target` 則拒絕建立並拋出驗證錯誤；否則 TraceLink 成功寫入
+
 ```
 ∀ link: TraceLink
   link.source ≠ link.target
 ```
+
+---
 
 ### INV-009: 語意合理性不變量
 
@@ -106,17 +153,25 @@
 **追溯**：CLS-005 (formalizes)
 **可驗證性**：Lookup table validation
 
+**前置條件**：`valid_link_types` 查找表已載入；source.prefix 和 target.prefix 皆為合法前綴
+**後置條件**：建立後，`link.linkType ∈ valid_link_types[(source.prefix, target.prefix)]`；違反者拒絕建立
+
 ```
 valid_link_types: Map<(Prefix, Prefix), Set<LinkType>>
 ∀ link: TraceLink
   link.linkType ∈ valid_link_types[(link.source.prefix, link.target.prefix)]
 ```
 
+---
+
 ### INV-010: 微驗證六步序列不變量
 
 **描述**：6 步依序執行，不可跳過。
 **追溯**：CLS-006, ALG-002 (formalizes)
 **可驗證性**：Execution trace assertion
+
+**前置條件**：change 物件已建立且 type ∈ {CREATE, MODIFY, FIX}；MicroValidator 已初始化
+**後置條件**：execution_order 嚴格依序完成 [checkStructure → checkForwardTrace → checkBackwardTrace → checkSemantic → checkOrphan → triggerImpactAnalysis]，未通過步驟不得跳過
 
 ```
 ∀ validation: MicroValidator.validate(change)
@@ -125,16 +180,23 @@ valid_link_types: Map<(Prefix, Prefix), Set<LinkType>>
   ∧ no step skipped
 ```
 
+---
+
 ### INV-011: 自主修復上限不變量
 
 **描述**：自主修復最多 3 次，超過強制上報 HITL。
 **追溯**：CLS-006, ALG-002 (formalizes)
 **可驗證性**：Counter bound check
 
+**前置條件**：某驗證步驟已失敗，retryCount 從 0 開始計數
+**後置條件**：`retryCount > 3` 時，`escalate_to_hitl()` 被呼叫，自主修復停止；`retryCount ≤ 3` 時每次修復後重新驗證
+
 ```
 ∀ step: MicroValidator.check*(id)
   step.retryCount > 3 ⟹ escalate_to_hitl()
 ```
+
+---
 
 ### INV-012: 爆炸半徑單調性不變量
 
@@ -142,11 +204,16 @@ valid_link_types: Map<(Prefix, Prefix), Set<LinkType>>
 **追溯**：CLS-007, ALG-003 (formalizes)
 **可驗證性**：Property test
 
+**前置條件**：兩個 ImpactRecord a, b 已計算完 blast_radius 和 cross_stage
+**後置條件**：`a.blastRadius > b.blastRadius ⟹ a.severity ≥ b.severity`（cross_stage 獨立升級例外已明文化）
+
 ```
 ∀ a, b: ImpactRecord
   a.blastRadius > b.blastRadius ⟹ a.severity ≥ b.severity
   (except cross_stage effect which can escalate independently)
 ```
+
+---
 
 ### INV-013: MAJOR 強制上報不變量
 
@@ -154,16 +221,24 @@ valid_link_types: Map<(Prefix, Prefix), Set<LinkType>>
 **追溯**：CLS-007 (formalizes)
 **可驗證性**：Contract postcondition
 
+**前置條件**：ImpactRecord 已建立，severity 已計算完成
+**後置條件**：`record.severity = MAJOR ⟹ hitl_notified = true ∧ 工作流暫停直至 HITL 回應`
+
 ```
 ∀ record: ImpactRecord
   record.severity = MAJOR ⟹ hitl_notified = true
 ```
+
+---
 
 ### INV-014: 三層全 PASS 不變量
 
 **描述**：安全審計三層全部 PASS 才放行。
 **追溯**：CLS-008, CLS-010 (formalizes)
 **可驗證性**：Conjunction check
+
+**前置條件**：Layer 1 (/cso)、Layer 2 (AgentShield)、Layer 3 (SkillFortify) 皆已執行完畢並產出結果
+**後置條件**：`gate.evaluate(_) = PASS` 若且唯若三層全 PASS；任一層 FAIL 則整體 FAIL，進入修復迴圈
 
 ```
 ∀ gate: QualityGate
@@ -173,11 +248,16 @@ valid_link_types: Map<(Prefix, Prefix), Set<LinkType>>
     ∧ gate.auditLayers[3].result = PASS
 ```
 
+---
+
 ### INV-015: RICE 公式不變量
 
 **描述**：riceScore 嚴格按公式計算。
 **追溯**：CLS-009, ALG-004 (formalizes)
 **可驗證性**：Algebraic property test
+
+**前置條件**：`debt.effort > 0`；reach, impact, confidence 皆在合法範圍（reach 1-100, impact ∈ {0.5,1.0,2.0,3.0}, confidence 0.5-1.0）
+**後置條件**：`debt.riceScore = (debt.reach × debt.impact × debt.confidence) / debt.effort`，結果為正有理數
 
 ```
 ∀ debt: DebtItem
@@ -185,11 +265,16 @@ valid_link_types: Map<(Prefix, Prefix), Set<LinkType>>
   ∧ debt.effort > 0
 ```
 
+---
+
 ### INV-016: 完成檢查全 PASS 不變量
 
 **描述**：/ship 僅在所有子檢查全通過時放行。
 **追溯**：CLS-011 (formalizes)
 **可驗證性**：Conjunction check
+
+**前置條件**：Stage 8 HITL ✅ 已確認；CompletionChecker 的四個子驗證（追溯完整性、品質閘門、安全審計、技術債）皆已執行
+**後置條件**：`checkReadiness() = READY` 若且唯若四個子驗證全 true；任一 false 則 BLOCKED，列出缺失項
 
 ```
 ∀ checker: CompletionChecker
@@ -200,11 +285,16 @@ valid_link_types: Map<(Prefix, Prefix), Set<LinkType>>
     ∧ checker.verifyTechDebt() = true
 ```
 
+---
+
 ### INV-017: BG→FEA 完備不變量
 
 **描述**：每個 BG 至少有一個 FEA 追溯。
 **追溯**：CLS-012 (formalizes)
 **可驗證性**：Exhaustive scan
+
+**前置條件**：BG-xxx 已建立；Phase 2 範圍定義已執行
+**後置條件**：`|bg.downstreamLinks.filter(type=derives)| ≥ 1`；若 BG 無 FEA 下游連結則 Phase 2 完成檢查失敗
 
 ```
 ∀ bg: TraceableID WHERE bg.prefix = BG

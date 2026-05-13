@@ -20,6 +20,7 @@ FOR each FEA-xxx IN in_scope:
 
 FOR each UC-xxx:
   define_preconditions()      # 前置條件（系統狀態要求）
+  define_invariants()         # 不變量（執行期間必須恆真的命題；引用相關 INV-xxx）
   define_postconditions()     # 後置條件（成功/失敗後系統狀態）
   define_main_flow()          # 主流程（步驟編號清單）
   define_alternative_flows()  # 替代流程（命名為 Alt-N）

@@ -131,24 +131,22 @@ ALG-xxx → CLS-xxx → INV-xxx
 │  → 對每個受影響 ID：讀取完整文件驗證語意一致         │
 │  → 標記所有方向的受影響 ID                             │
 │                                                         │
-│  Step 5.7: LESSON 重用檢查（FR-023）                      │
-│  → 若本次變更類型為 FIX：                               │
-│    → 先掃描已存在的 LESSON-xxx                         │
-│    → 若有相同根因類別的過往記錄：                     │
-│      → 左移守衛不足，對守衛本身執行 RCA 並強化         │
-│    → 若無相同根因：標準 RCA 流程                      │
+│  Step 5.7: LESSON 重用檢查（FR-023，所有變更類型）        │
+│  → 掃描已存在的 LESSON-xxx                               │
+│  → 若有相同根因類別的過往記錄：                       │
+│    → 左移守衛不足，對守衛本身執行 RCA 並強化           │
+│  → 若無相同根因：標準 RCA 流程                        │
 │                                                         │
 │  Step 6: 影響分析觸發                                   │
 │  → 對修改的 ID 執行 IMPACT-ANALYSIS.md 協議             │
 │  → 計算爆炸半徑（含縱向+橫向+守衛方向）                 │
 │  → 標記受影響的下游 ID                                  │
 │                                                         │
-│  Step 7: 變更紀錄 + 根因左移                            │
+│  Step 7: 變更紀錄 + 根因左移（所有變更類型皆執行）      │
 │  → 寫入 IMP-xxx 至 docs/change-log.md                   │
-│  → 若變更類型為 FIX：                                   │
-│    → 執行 root-cause-leftshift.md（含 LESSON 重用檢查）  │
-│    → 產出 LESSON-xxx 或強化既有 LESSON                  │
-│    → 更新觸發錯誤的 skill/prompt/governance 文件        │
+│  → 執行 root-cause-leftshift.md（含 LESSON 重用檢查）    │
+│  → 產出 LESSON-xxx 或強化既有 LESSON                    │
+│  → 更新觸發問題的 skill/prompt/governance 文件          │
 │                                                         │
 │  Result:                                                │
 │  → 全數通過 ✅ → 繼續下一個微動作                      │
@@ -174,7 +172,7 @@ ALG-xxx → CLS-xxx → INV-xxx
 - [ ] 跨 Stage 連結：本 Stage 的輸入 ID 皆可追溯至前一 Stage 的輸出 ID
 - [ ] 影響分析：所有修改過的已核准產出物皆已完成影響分析
 - [ ] 全方向追溯（FR-022）：所有變更已驗證 ADR/NFR/RISK/LESSON 連結
-- [ ] LESSON 重用（FR-023）：所有 FIX 類變更已檢查過往 LESSON 是否可重用
+- [ ] LESSON 重用（FR-023）：所有變更已檢查過往 LESSON 是否可重用（無例外）
 - [ ] 追溯矩陣文件已更新並寫入 docs/ 資料夾
 ```
 
