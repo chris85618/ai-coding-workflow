@@ -78,6 +78,13 @@
   3. 為什麼 Step 6 沒有 precondition？→ 設計時假設「線性流程自然前進」
   4. 為什麼 AI 可能跳步？→ Step 4 有免除條件出口，AI 誤判可用此出口
   5. 結構性修正？→ Step 6 加入顯式前置斷言清單
+- **瓶頸識別**:
+  - 問題發生點: Session 回覆前 / CM Step 6 觸發時
+  - 逃逸路徑: CM Step 6 只寫「每次回覆前執行」→ 無 precondition 要求 Steps 0-5 已完成 → AI 從 Step 1 跳到 Step 6
+  - 最早可偵測點: CM Step 6 入口
+  - 瓶頸位置: `change-management-protocol.md` Step 6 缺少 precondition_check()
+  - 介入類型: STEP_ADDITION
+  - 預期覆蓋: 所有 CM 跳步行為
 - **左移守衛**:
   1. AGENTS.md session_end_hook Step 0：precondition_check()（已實施 ✅）
   2. CHANGE-MANAGEMENT.md Step 6 Precondition Gate（已實施 ✅）

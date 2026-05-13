@@ -72,6 +72,13 @@
   3. 為什麼驗證沒偵測？→ 微驗證依賴 LLM 自我報告
   4. 為什麼流程允許？→ completion-check.md 無自動化計數步驟
   5. 結構性修正？→ **completion-check.md 強制從文件 grep 計數 + 微驗證 Step 1 不接受泛稱覆蓋**
+- **瓶頸識別**:
+  - 問題發生點: 每個 Stage 轉換 / 覆蓋統計計數時
+  - 逃逸路徑: 微驗證依賴 LLM 自我報告 → completion-check.md 無自動化計數
+  - 最早可偵測點: micro-validation.md Step 1（結構完整性）
+  - 瓶頸位置: `micro-validation.md` Step 1 + `completion-check.md`
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: 所有 LLM 自我報告的計數錯誤
 - **左移守衛**: micro-validation.md Step 1 LLM Guard 已更新 ✅, completion-check.md ✅
 - **更新 Skill**: micro-validation.md ✅, completion-check.md ✅
 

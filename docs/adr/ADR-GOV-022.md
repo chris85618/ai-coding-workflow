@@ -122,6 +122,13 @@
   3. 為什麼方法論寫在 docs/？→ 初始設計時 docs/ 是自然的文件位置
   4. 為什麼沒有在 ADR-GOV-020 時一併遷移？→ 當時專注於 AGENTS.md 結構化，未意識到 docs/ 路徑依賴
   5. 結構性修正？→ 建立「執行邏輯 = skills/」「歷史紀錄 = docs/」的明確分界
+- **瓶頸識別**:
+  - 問題發生點: 框架初始設計時 / docs/ 路徑選擇時
+  - 逃逸路徑: 初始設計將執行方法論寫入 docs/ → ADR-GOV-020 時未識別路徑依賴
+  - 最早可偵測點: AGENTS.md 的 Repository Scope Rules 定義時
+  - 瓶頸位置: `AGENTS.md` Repository Scope Rules 缺少執行/參照分界規則
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: 執行邏輯與參考文件混合導致的跨 repo 部署摩擦
 - **左移守衛**: AGENTS.md Repository Scope Rules 新增「關鍵原則」段落 ✅
 - **更新 Skill**: 所有 15 個新 skill 均以 `skills/workflow-skills/` 為路徑
 - **守衛驗證證據**: AGENTS.md 中零個 READ $FRAMEWORK_ROOT/docs/ 指令
@@ -138,6 +145,13 @@
   3. 為什麼沒有前置阻擋？→ change-management-protocol.md 僅定義「觸發條件：任何寫入」但無強制宣告格式
   4. 為什麼 Step 12 沒攔截？→ Step 12 也在同一 session 被跳過（整個 session 的治理流程都缺失）
   5. 結構性修正？→ 將 CM 從後置改為前置：寫入前強制輸出 CM-GATE 宣告，使跳過行為可觀測
+- **瓶頸識別**:
+  - 問題發生點: 批次檔案產出時
+  - 逃逸路徑: CM 是後置步驟 → AI 在產出模式下注意力全在產出 → Step 12 也被跳過
+  - 最早可偵測點: 每次寫入前
+  - 瓶頸位置: `change-management-protocol.md` CM 為後置設計，無前置宣告機制
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: 所有批次產出時的 CM 跳過
 - **左移守衛**: Inline CM-GATE 宣告機制
 - **更新的 Skill**:
   - `change-management-protocol.md` 新增「Inline CM-GATE」段落和「Batch Mode」段落（本 session 修改，新增約 52 行）
@@ -157,9 +171,16 @@
   3. 為什麼產出模式不包含治理？→ 治理和產出是分離的流程，沒有結構性耦合
   4. 為什麼沒有結構性耦合？→ 初始設計假設 AI 有完美記憶和自律
   5. 結構性修正？→ CM-GATE 作為寫入的前置條件，將治理嵌入產出行為本身
+- **瓶頸識別**:
+  - 問題發生點: CM 設計時
+  - 逃逸路徑: CM 為後置觸發 → AI 延遲至「永遠不做」
+  - 最早可偵測點: 寫入行為前
+  - 瓶頸位置: `change-management-protocol.md` 缺少前置 CM-GATE 宣告格式
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: CM 後置設計導致的系統性跳過
 - **左移守衛**: `CM-GATE: [file] | Type | Class | ADR` 宣告格式
 - **更新的 Skill**: `change-management-protocol.md` 新增 Inline CM-GATE 段落
-- **守衛驗證證據**: 未來每次寫入前 AI 必須先輸出 CM-GATE 行，若未輸出，Step 12.1 步驟 B 的逐一檢查會偵測到缺失
+- **守衛驗證證據**: Step 12.1 步驟 B 的逐一檢查偵測 CM-GATE 缺失
 
 ### LESSON-025: RCA 始終由使用者要求才執行（Meta-RCA 失敗）
 
@@ -173,6 +194,13 @@
   3. 為什麼沒有自檢機制？→ 假設宣告等於執行（DECLARATION_IMPLEMENTATION_GAP）
   4. 為什麼會有這個假設？→ 治理系統用文字指令控制 AI 行為，但文字指令本質上是建議而非強制
   5. 結構性修正？→ 在 root-cause-leftshift.md 加入 Meta-RCA 觸發器：執行 RCA 時先自檢「這是 AI 自主觸發還是使用者要求的？」
+- **瓶頸識別**:
+  - 問題發生點: RCA 執行時
+  - 逃逸路徑: root-cause-leftshift.md 宣稱「無例外」但無自檢機制 → AI 將 RCA 視為可選
+  - 最早可偵測點: root-cause-leftshift.md 觸發時
+  - 瓶頸位置: `root-cause-leftshift.md` 缺少 Meta-RCA 觸發器
+  - 介入類型: STEP_ADDITION
+  - 預期覆蓋: 所有 RCA 未自主觸發的情況
 - **左移守衛**: Meta-RCA 觸發器 + 窮舉式 Session 掃描協議
 - **更新的 Skill**:
   - `root-cause-leftshift.md` 新增「Meta-RCA 觸發器」段落和「窮舉式 Session 掃描協議」（本 session 修改，新增約 33 行，位於 Step 1 前）
@@ -191,6 +219,13 @@
   3. 為什麼 LESSON 格式不要求？→ 初始設計假設守衛的存在等於守衛的有效性
   4. 為什麼存在不等於有效？→ 守衛可能被 AI 自身跳過，使其形同虛設
   5. 結構性修正？→ 在 micro-validation.md Step 7 和 change-management-protocol.md 加入「LESSON-to-Skill 驗證閘門」和「宣告-實施缺口偵測」
+- **瓶頸識別**:
+  - 問題發生點: LESSON 記錄時
+  - 逃逸路徑: LESSON 格式不要求驗證守衛有效性 → AI 假設存在 = 有效
+  - 最早可偵測點: micro-validation.md Step 7
+  - 瓶頸位置: `micro-validation.md` Step 7 缺少 LESSON-to-Skill 驗證閘門
+  - 介入類型: STEP_ADDITION
+  - 預期覆蓋: 所有守衛宣稱有效但實際已失敗的情況
 - **左移守衛**: DECLARATION_IMPLEMENTATION_GAP Guard + LESSON-to-Skill 驗證閘門
 - **更新的 Skill**:
   - `micro-validation.md` Step 7 新增第 6 點「LESSON-to-Skill 驗證閘門」（本 session 修改）

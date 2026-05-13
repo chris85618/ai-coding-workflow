@@ -90,6 +90,13 @@
   3. 為什麼 impact-log.md 幽靈引用存在？→ 改名為 change-log.md 時未全庫 grep
   4. 為什麼 6 步/8 步不一致？→ ALG-002 升級時只改了 CHANGE-MANAGEMENT.md
   5. 結構性修正？→ **每次增量演化後，強制執行跨檔案 grep 掃描 + policy 一致性檢查**
+- **瓶頸識別**:
+  - 問題發生點: 治理文件增量演化時（多次 session 跨越）
+  - 逃逸路徑: 微驗證 Step 0-7 僅驗證 ID 追溯 → 不驗證跨檔案 policy 一致性
+  - 最早可偵測點: 變更管理流程（每次修改後）
+  - 瓶頸位置: `change-management-protocol.md` 缺少跨切面驗證步驟 + `micro-validation.md` 缺少 Step 5.5
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: 跨檔案 policy 漂移、幽靈引用、步數不一致
 - **左移守衛**: CHANGE-MANAGEMENT Step 5（跨切面一致性驗證）+ Step 2f（FR/NFR 合規驗證）+ micro-validation.md Step 5.5（全方向連結追溯）
 - **更新 Skill**: micro-validation.md ✅
 - **守衛強化歷程**:

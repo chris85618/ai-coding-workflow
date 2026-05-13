@@ -19,7 +19,7 @@
 | 5 | requirements | Stage 3 | `docs/requirements.md` 存在 且 含 FR- |
 | 6 | use_cases | Stage 3 | `docs/use-cases.md` 存在 且 含 UC- |
 | 7 | traceability | 跨切面 | `docs/traceability-matrix.md` 存在 |
-| 8 | adr_index | 跨切面 | `docs/adr/ADR-INDEX.md` 存在 |
+| 8 | adr_registry | 跨切面 | `docs/traceability-matrix.md` 含 `ADR 登記簿` 段落 |
 | 9 | iteration_log | Stage 3-8 | `docs/iteration-log.md` 存在 |
 | 10 | gate_adrs | Stage 3-8 | `docs/adr/ADR-GATE-*.md` 數量 > 0 |
 

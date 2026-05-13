@@ -102,6 +102,13 @@
   3. 為什麼沒有統一格式？→ 無「skill 格式規範」
   4. 為什麼無格式規範？→ 初版未考慮 LLM 解析效率
   5. 結構性修正？→ **全部 skill 統一為 `## Step N` 格式**
+- **瓶頸識別**:
+  - 問題發生點: Skill 建立時（各 session 獨立建立）
+  - 逃逸路徑: 無「skill 格式規範」→ 各 skill 在不同 session 建立 → 格式不統一
+  - 最早可偵測點: Skill CREATE 時
+  - 瓶頸位置: 所有 `workflow-skills/*.md`（無統一格式規範）
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: Skill 格式不一致導致的 LLM 解析效率問題
 - **左移守衛**: 新建 skill 時必須使用 `## Step N` 格式
 - **更新 Skill**: 16 個 workflow-skills/*.md 全部 ✅
 

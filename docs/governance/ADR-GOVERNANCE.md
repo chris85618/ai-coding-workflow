@@ -386,7 +386,6 @@ Proposed → Accepted → Superseded
 
 ```
 docs/adr/
-├── ADR-INDEX.md              # 活文件：所有 ADR 索引
 ├── ADR-TEMPLATE.md           # LLM 撰寫範本
 ├── ADR-STR-001.md            # 三層分離架構
 ├── ADR-GOV-001.md            # DU 理論 + 新穎性門檻

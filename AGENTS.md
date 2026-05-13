@@ -32,6 +32,7 @@
 12. **Skill 統一格式**：所有 `skills/workflow-skills/*.md` 使用 `## Step N` 順序格式。
 13. **內容判定**：新增至 AGENTS.md 的內容必須為「AI 執行時必須立即看到的指令」；參考資料放 README.md 或獨立 skill/doc。(LESSON-020, ADR-GOV-020)
 14. **Inline CM-GATE**：每次寫入前必須先輸出 `CM-GATE: [file] | Type | Class | ADR` 宣告。無宣告即寫入 = GOVERNANCE_BYPASS。批次 3+ 檔案需先輸出 `BATCH-CM` 範圍宣告。→ INVOKE `change-management-protocol.md`。(LESSON-024, ADR-GOV-022)
+15. **強制循序輸出**：回覆中必須依序輸出 Step 0-12 的標題行。已完成的 Step 輸出 `⏭️ SKIP (Gate ✅)`；無內容的 Step 輸出 `⏭️ N/A (reason)`；正在執行的 Step 輸出完整內容。禁止靜默跳過任何 Step。(LESSON-028, ADR-GOV-024)
 
 ### Repository Scope Rules
 
@@ -199,10 +200,35 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ---
 
+### Step 輸出協議（強制）
+
+> **ADR**: ADR-GOV-024 (強制循序輸出)
+> **LESSON**: LESSON-028
+
+每次回覆必須依序輸出 Step 0-12 的標題行。格式：
+
+```
+### Step N: [Name] — [STATUS]
+```
+
+STATUS 值：
+
+| STATUS | 含義 | 輸出內容 |
+|--------|------|----------|
+| `🔄 EXECUTING` | 正在執行此 Step | 完整執行內容 |
+| `⏭️ SKIP (Gate ✅)` | 此 Step 的 Gate 已通過（self-bootstrap 或前次 session） | 僅標題行 |
+| `⏭️ N/A (reason)` | 此 Step 不適用於本次任務 | 僅標題行 + 一句理由 |
+| `✅ DONE` | 本 session 已在先前回覆中完成 | 僅標題行 |
+
+**禁止靜默跳過任何 Step。未輸出的 Step = GOVERNANCE_BYPASS。**
+
+---
+
 ### Step 0: Session Gate — 啟動
 
 > **強制等級**：每個 session 的第一個動作，無例外。禁止跳過。
 > **ADR**: ADR-GOV-012 (Session-Start Hard Gate)
+> **輸出**: 強制（STATUS = 🔄 EXECUTING）
 
 1. **讀取工作流狀態**
    - IF exists(`{target_repo}/docs/workflow-state.md`) → read → 取得 pipeline_position, pending_escalations, gate_status
@@ -229,6 +255,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 1: Phase 0 — 環境啟動
 
+> **輸出**: 強制
+
 → **INVOKE**: `phase-0-orchestration.md`
 
 **路徑判定**:
@@ -245,6 +273,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 2: Phase 1 — 程式碼理解
 
+> **輸出**: 強制
+
 → **INVOKE**: `phase-1-understanding.md`
 
 **產出**: 知識圖譜、架構理解、元件關係
@@ -254,6 +284,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 ---
 
 ### Step 3: Phase 2 — 專案分析
+
+> **輸出**: 強制
 
 → **INVOKE**: `phase-2-orchestration.md`
 → **TOOLS**: `/office-hours`, `/plan-ceo-review`
@@ -266,6 +298,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 4: Stage 3 — 技術規劃
 
+> **輸出**: 強制
+
 → **INVOKE**: `stage-3-dimensions.md` + `iter-loop.md` (T1-T7) + `s2c-requirements.md`
 → **TOOLS**: `/autoplan`, `/plan-eng-review`, `/plan-design-review`
 
@@ -277,6 +311,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 5: Stage 4 — 演算法設計
 
+> **輸出**: 強制
+
 → **INVOKE**: `stage-4-dimensions.md` + `iter-loop.md` (A-V)
 → **TOOLS**: `skillfortify scan`
 
@@ -287,6 +323,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 ---
 
 ### Step 6: Stage 5 — OOAD + 安全審計
+
+> **輸出**: 強制
 
 → **INVOKE**: `stage-5-dimensions.md` + `iter-loop.md` (OA-OD) + `s2c-domain-model.md`
 → **INVOKE**: `security-audit-3layer.md` (三層安全審計)
@@ -300,6 +338,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 7: Stage 6 — 形式化驗證設計
 
+> **輸出**: 強制
+
 → **INVOKE**: `stage-6-dimensions.md` + `iter-loop.md` (F1-F6)
 
 **產出**: INV-xxx → `{target_repo}/docs/invariants.md`
@@ -309,6 +349,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 ---
 
 ### Step 8: Stage 7 — BDD/ATDD
+
+> **輸出**: 強制
 
 → **INVOKE**: `stage-7-dimensions.md` + `iter-loop.md` (B1-B5, V1-V4) + `s2c-bdd-scenarios.md`
 → **TOOLS**: `tdd-workflow` skill, ECC hooks
@@ -320,6 +362,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 ---
 
 ### Step 9: Stage 8 — TDD + 測試 + 修復
+
+> **輸出**: 強制
 
 → **INVOKE**: `stage-8-dimensions.md` + `iter-loop.md` (D1-D5)
 → **INVOKE**: `security-audit-3layer.md` (最終安全審計)
@@ -334,6 +378,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 10: Phase 9 — Ship & Deploy
 
+> **輸出**: 強制
+
 → **INVOKE**: `phase-9-orchestration.md`
 → **TOOLS**: `/ship`, `/land-and-deploy`, `/canary`, `/document-release`
 
@@ -344,6 +390,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 ---
 
 ### Step 11: Phase 10 — 反思 & 學習
+
+> **輸出**: 強制
 
 → **INVOKE**: `phase-10-orchestration.md`
 → **TOOLS**: `/retro`, `/understand` (增量更新), `/evolve`
@@ -358,6 +406,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 > **強制等級**：每次回覆使用者前必須執行，無例外。
 > **ADR**: ADR-GOV-010 (Session-End Hook Precondition Gate)
+> **輸出**: 強制（STATUS = 🔄 EXECUTING）
 
 #### 12.1: CM 前置斷言（窮舉式檔案列舉）
 

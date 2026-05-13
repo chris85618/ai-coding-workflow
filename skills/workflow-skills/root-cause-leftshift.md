@@ -62,9 +62,12 @@ SESSION-SWEEP:
 
 ## Step 1.5: LESSON 重用檢查（FR-023）
 
-1. 搜尋 `docs/adr/` 中各 ADR 已存在的 LESSON-xxx
-2. 若有相同根因類別 + 相似模式 → `mode = GUARD_STRENGTHENING`（強化既有守衛，不建新 LESSON）
-3. 若無相同根因 → `mode = NEW_LESSON`（標準 RCA 流程）
+1. 查追溯矩陣「LESSON → Skill 守衛映射」段落，篩選相同根因分類的 LESSON
+2. 若找到匹配 → 載入對應 ADR（透過矩陣的 ADR 來源欄位定位）→ `mode = GUARD_STRENGTHENING`
+3. 若未找到 → `mode = NEW_LESSON`
+
+> 框架變更：查 `$FRAMEWORK_ROOT/docs/traceability-matrix.md`
+> 專案變更：查 `{target_repo}/docs/traceability-matrix.md`
 
 ## Step 2: 根因鑽取（5 Whys）
 
@@ -75,24 +78,58 @@ SESSION-SWEEP:
 5. Why 5: 什麼結構性改變可以消除它？
 6. 若 `mode == GUARD_STRENGTHENING`：Why Extra: 為什麼既有守衛沒有攔截？
 
-## Step 3: 定位觸發源 Skill
+## Step 3a: 因果鏈建構
 
-- 若 `mode == GUARD_STRENGTHENING` → 直接定位到有缺陷的既有守衛
-- 否則 → 從 `change_record.file` 和 `change_record.stage` 反向追溯至來源 skill
+從 Why 5（結構性修正）出發，建構完整因果鏈：
+
+1. **問題發生點**（Occurrence Point）：錯誤第一次出現在哪個 Stage/Step/檔案？
+2. **逃逸路徑**（Escape Path）：錯誤經過了哪些驗證點？逐一列出每個驗證點及未攔截原因。
+3. **最早可偵測點**（Earliest Detection Point）：因果鏈上最上游可偵測此問題的位置。
+4. **FR/NFR 對應**：查追溯矩陣「FR → Skill」映射，找出實作受影響 FR/NFR 的 Skill。
+
+## Step 3b: 瓶頸識別（Theory of Constraints）
+
+在因果鏈上找最有效的單一介入點：
+
+| 優先序 | 條件 | 瓶頸 | 介入類型 |
+|--------|------|------|----------|
+| 1 | 最早可偵測點已有守衛但失敗 | 該守衛 | `GUARD_STRENGTHENING` |
+| 2 | 最早可偵測點無守衛 | 該位置 | `NEW_GUARD` |
+| 3 | 多位置同時缺守衛 | 最上游者 | `NEW_GUARD`（最大左移） |
+| 4 | 成本差異大 | 成本最低 + 覆蓋最大 | 按情況判定（Ockham's Razor） |
+
+輸出：
+- `bottleneck_location`: Skill 檔案 + Step/行號
+- `intervention_type`: GUARD_STRENGTHENING | NEW_GUARD | STEP_ADDITION
+- `expected_coverage`: 此介入能阻擋的失敗模式列表
+
+## Step 3c: 追溯矩陣交叉驗證
+
+1. 確認 `bottleneck_location` 的 Skill 在追溯矩陣「FR → Skill」映射中對應了受影響的 FR
+2. 若不一致 → 重新執行 Step 3a（因果鏈可能有錯）
+3. 確認 `mode`（來自 Step 1.5）與 `intervention_type` 一致：
+   - `mode == GUARD_STRENGTHENING` 但 `intervention_type == NEW_GUARD` → 矛盾，重新檢查
+   - `mode == NEW_LESSON` 但 `intervention_type == GUARD_STRENGTHENING` → 矛盾，重新檢查
 
 ## Step 4: 設計/強化左移守衛
 
-**若 GUARD_STRENGTHENING**：
-1. 分析原始守衛為何未攔截
-2. 擴展守衛覆蓋範圍或收緊匹配條件
-3. 記錄守衛演進歷史
+**使用 Step 3b 的 `bottleneck_location` 和 `intervention_type`。**
 
-**若 NEW_LESSON**：
-1. FORMAT_ERROR → 在 source_skill 加入格式 lint 指令
-2. COVERAGE_GAP → 在 source_skill 加入自動化計數斷言
-3. LLM_HALLUCINATION → 在 source_skill 加入二次驗證 + 結構化約束
-4. PROCESS_GAP → 在 stage doc 加入強制步驟
-5. SEMANTIC_DRIFT → 在 micro-validation 強化 Step 4
+**若 GUARD_STRENGTHENING**：
+1. 定位 `bottleneck_location` 的既有守衛
+2. 分析原始守衛為何未攔截（對照 Step 3a 逃逸路徑）
+3. 擴展守衛覆蓋範圍或收緊匹配條件
+4. 記錄守衛演進歷史
+
+**若 NEW_GUARD / STEP_ADDITION**：
+1. 在 `bottleneck_location` 設計新守衛
+2. 守衛類型依根因分類：
+   - FORMAT_ERROR → 格式 lint 指令
+   - COVERAGE_GAP → 自動化計數斷言
+   - LLM_HALLUCINATION → 二次驗證 + 結構化約束
+   - PROCESS_GAP → 強制步驟
+   - SEMANTIC_DRIFT → 語意一致性檢查
+3. 守衛必須覆蓋 `expected_coverage` 中列出的所有失敗模式
 
 ## Step 5: 更新 Skill
 
@@ -126,6 +163,13 @@ SESSION-SWEEP:
 - **根因分類**: [category]
 - **5 Whys 結果**: [why_5]
 - **變更動機**: [為什麼需要這個變更？原先缺了什麼？]
+- **瓶頸識別**:
+  - 問題發生點: [Stage/Step/檔案]
+  - 逃逸路徑: [驗證點1 → 未攔截原因; 驗證點2 → 未攔截原因]
+  - 最早可偵測點: [位置]
+  - 瓶頸位置: [Skill 檔案 + Step/行號]
+  - 介入類型: GUARD_STRENGTHENING | NEW_GUARD | STEP_ADDITION
+  - 預期覆蓋: [此介入能阻擋的失敗模式]
 - **左移守衛**: [guard description]
 - **守衛驗證證據**: [guard_name] 能攔截 [scenario] 的證據（grep 結果/測試輸出/步驟引用）
 - **更新的 Skill**: [skill file path]

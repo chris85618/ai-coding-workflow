@@ -103,6 +103,13 @@
   3. {Why 3} → {Answer}
   4. {Why 4} → {Answer}
   5. {Why 5 / 結構性修正} → {Answer}
+- **瓶頸識別**:
+  - 問題發生點: {Stage/Step/檔案}
+  - 逃逸路徑: {驗證點 → 未攔截原因; ...}
+  - 最早可偵測點: {位置}
+  - 瓶頸位置: {Skill 檔案 + Step/行號}
+  - 介入類型: GUARD_STRENGTHENING | NEW_GUARD | STEP_ADDITION
+  - 預期覆蓋: {此介入能阻擋的失敗模式}
 - **左移守衛**: {更新的 skill / governance 文件 + 具體規則}
 - **更新 Skill**: {skill names ✅}
 - **守衛驗證證據**: {guard_name 能攔截 scenario 的證據}

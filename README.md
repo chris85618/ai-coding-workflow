@@ -18,9 +18,8 @@ ai_coding/
 │   │   ├── CHANGE-MANAGEMENT.md
 │   │   └── ADR-GOVERNANCE.md
 │   ├── adr/               # ADR 決策紀錄（含變更紀錄 + LESSON）
-│   │   ├── ADR-INDEX.md
 │   │   ├── ADR-TEMPLATE.md
-│   │   └── ADR-GOV-001..021, ADR-STR-001
+│   │   └── ADR-GOV-001..023, ADR-STR-001
 │   ├── phases/            # Phase 0-2, 9-10 定義
 │   ├── stages/            # Stage 3-8 完整定義 + 審查維度
 │   ├── workflow-state.md  # 工作流狀態機
@@ -203,8 +202,7 @@ cd skills/skillfortify && python -m pytest
 | File | Purpose |
 |------|---------|
 | [AGENTS.md](./AGENTS.md) | 統一執行協議：Step 0-12 結構化步驟 + skill routing + core directives |
-| [docs/traceability-matrix.md](./docs/traceability-matrix.md) | 追溯矩陣 |
-| [docs/adr/ADR-INDEX.md](./docs/adr/ADR-INDEX.md) | ADR 活索引 |
+| [docs/traceability-matrix.md](./docs/traceability-matrix.md) | 追溯矩陣 + ADR 登記簿 |
 | [docs/governance/](./docs/governance/) | 跨切面治理規則 |
 | [docs/phases/](./docs/phases/) | Phase 0-2, 9-10 定義 |
 | [docs/stages/](./docs/stages/) | Stage 3-8 定義 + 審查維度 |

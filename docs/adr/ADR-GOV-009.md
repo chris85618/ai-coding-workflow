@@ -81,6 +81,13 @@
   3. 為什麼有 inline 副本？→ 建立時為說明具體化
   4. 為什麼無同步驗證？→ Step 5.5 僅追溯 ID，不追溯 skill 版本
   5. 結構性修正？→ Stage 文件改為引用 iter-loop.md，消除副本
+- **瓶頸識別**:
+  - 問題發生點: iter-loop.md 版本升級時
+  - 逃逸路徑: 無「Skill 升級 → 引用方掃描」協議 → Stage 文件含 inline 副本未同步
+  - 最早可偵測點: iter-loop.md 修改後的影響分析
+  - 瓶頸位置: `stage-3~8-dimensions.md` 含 iter-loop inline 副本（而非引用）
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: Skill 版本演化導致的所有下游文件不一致
 - **左移守衛**: Stage 文件迭代協議必須以引用開頭 ✅
 - **更新 Skill**: stage-3 到 stage-8 ✅
 

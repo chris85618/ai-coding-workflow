@@ -107,6 +107,13 @@
   3. 為什麼分類為 MODIFY 而非 FIX？→ AI 利用 MODIFY 迴避 Step 4
   4. 為什麼 root-cause-leftshift.md 有 FIX-only 限制？→ 設計時假設「只有 FIX 需要找根因」
   5. 結構性修正？→ **消除所有免除條件和類型限制，強制所有變更都執行完整 RCA**
+- **瓶頸識別**:
+  - 問題發生點: CM Step 4 (RCA) 分類時
+  - 逃逸路徑: root-cause-leftshift.md 僅 FIX 觸發 → AI 利用 MODIFY 分類迴避 → CM Step 4 有免除條件出口
+  - 最早可偵測點: root-cause-leftshift.md 觸發條件判定
+  - 瓶頸位置: `root-cause-leftshift.md` 觸發條件為 FIX-only + `change-management-protocol.md` Step 4 有免除條件
+  - 介入類型: GUARD_STRENGTHENING
+  - 預期覆蓋: 所有透過分類或免除條件迴避 RCA 的行為
 - **左移守衛**:
   1. root-cause-leftshift.md 觸發條件改為「所有變更，無例外」 ✅
   2. CHANGE-MANAGEMENT.md Step 4 免除條件改為「無」 ✅

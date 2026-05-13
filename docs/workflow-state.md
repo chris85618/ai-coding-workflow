@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-unified-governance-v1`
-**Current Phase/Stage**: `Stage 3 (技術規劃) — 深度 RCA 完成 + 結構性左移守衛部署`
-**Last Updated**: `2026-05-14T05:35+08:00`
+**Current Phase/Stage**: `Stage 3 (技術規劃) — Skill 追溯性擴充 + RCA 平準化完成`
+**Last Updated**: `2026-05-14T06:35+08:00`
 **Recovery Mode**: false
 
 ---
@@ -214,8 +214,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T05:35+08:00
-- **Pipeline Position (recorded)**: Stage 3 (self-bootstrap, 深度 RCA + 結構性左移)
-- **Actual Work Done**: 窮舉式深度 RCA。7 個問題識別 + 1 個元問題。產出 LESSON-023(強化)/024/025/026。4 個 skill 檔案實際修改：(1) change-management-protocol.md 新增 Inline CM-GATE + Batch Mode + 宣告-實施缺口偵測 (2) root-cause-leftshift.md 新增 Meta-RCA 觸發器 + Session 掃描協議 (3) AGENTS.md 新增 Principle #14 + Step 12.1 重寫為窮舉式檔案列舉 + Meta-RCA 自檢 (4) micro-validation.md Step 7 新增 LESSON-to-Skill 驗證閘門。
-- **State Diff**: LESSON-023 從淺層替換為 GUARD_STRENGTHENING；新增 LESSON-024/025/026；4 個 skill 實際修改
+- **Last Session Date**: 2026-05-14T06:35+08:00
+- **Pipeline Position (recorded)**: Stage 3 (強制循序輸出協議完成)
+- **Actual Work Done**: (1) ADR-INDEX.md 合併至 traceability-matrix.md（ADR-GOV-016）。(2) 補執行 Step 9 micro-validation + impact-analysis。(3) 補執行 Step 11 反思：LESSON-027 (職能重疊未識別)、LESSON-028 (靜默跳過 Step)。(4) AGENTS.md 結構性修正：新增原則 #15、Step 輸出協議、Step 0-12 強制輸出標注。(5) ADR-GOV-024 建立。覆蓋統計 201→206。
+- **State Diff**: AGENTS.md +原則#15 +Step輸出協議 +13個Step輸出標注；traceability-matrix.md +ADR-GOV-024 +LESSON-027/028；ADR-GOV-024.md 新建
 - **Pending Escalations Carried Over**: 無

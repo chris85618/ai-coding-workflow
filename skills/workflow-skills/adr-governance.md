@@ -124,3 +124,6 @@ Proposed → Accepted → Superseded
 - 每個 DEBT-xxx 追溯至 ADR
 - MAJOR 影響分析 → 產出新 ADR
 - 所有 LESSON-xxx 追溯至 ADR
+- 每個 LESSON 必須包含「瓶頸識別推論」欄位（因果鏈 + 瓶頸位置 + 介入類型）
+- 每個 LESSON 的「更新的 Skill」必須在追溯矩陣「LESSON → Skill」段落登記
+

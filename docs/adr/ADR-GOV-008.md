@@ -118,6 +118,13 @@
   3. 為什麼沒有驗證機制？→ LESSON 記錄流程不包含「守衛能力驗證」步驟
   4. 為什麼流程有這個缺口？→ root-cause-leftshift.md 只要求「更新 skill」，不要求「驗證更新後的 skill 能攔截重現」
   5. 結構性修正？→ **root-cause-leftshift.md 已有「驗證左移後的規則可防止重現」步驟（Step 3.5），但需在 LESSON 記錄格式中加入「守衛驗證證據」欄位**
+- **瓶頸識別**:
+  - 問題發生點: LESSON-006 守衛宣稱「Step 0 已涵蓋」但實際未涵蓋
+  - 逃逸路徑: root-cause-leftshift.md 只要求「更新 skill」不要求「驗證 skill 能攔截」 → LESSON 格式無「守衛驗證證據」欄位
+  - 最早可偵測點: root-cause-leftshift.md Step 5（更新 Skill）
+  - 瓶頸位置: `root-cause-leftshift.md` Step 5 缺少守衛能力驗證 + LESSON 格式缺少「守衛驗證證據」欄位
+  - 介入類型: STEP_ADDITION
+  - 預期覆蓋: 所有守衛宣稱與實際能力不符的情況
 - **左移守衛**:
   - FR-023 LESSON 重用機制 → Step 5.7 在 FIX 時掃描既有 LESSON，防止重複
   - FR-025 治理文件合規驗證 → Step 2f 在修改治理文件時驗證 FR/NFR 滿足度
@@ -134,6 +141,13 @@
   3. 為什麼 ADR-GOV-002 建立後未級聯更新 CM 格式？→ LESSON-008 已識別此模式但未擴展檢查至 ADR 連結
   4. 為什麼宣告性規則無對應強制閘門？→ 系統設計偏重「宣告規則」而非「嵌入強制驗證」
   5. 結構性修正？→ **每個宣告性規則必須有對應的格式欄位 + 驗證步驟（DECLARE-ENFORCE pairing）**
+- **瓶頸識別**:
+  - 問題發生點: ADR-GOVERNANCE.md Rule 1 宣告時 / CM 流程設計時
+  - 逃逸路徑: CHANGE-MANAGEMENT.md 建立早於 ADR-GOVERNANCE.md → ADR-GOV-002 建立後未級聯更新 CM 格式
+  - 最早可偵測點: ADR-GOVERNANCE.md 建立時應同時更新 CM 格式
+  - 瓶頸位置: `change-management-protocol.md` 變更紀錄格式缺少「授權 ADR」欄位
+  - 介入類型: STEP_ADDITION
+  - 預期覆蓋: 所有宣告性規則無對應強制驗證的情況
 - **左移守衛**: ADR 變更紀錄區段必填（已實施 ✅）
 - **更新 Skill**: CHANGE-MANAGEMENT.md ✅
 - **守衛驗證證據**: ADR TEMPLATE 「變更紀錄」區段為必填 ✅

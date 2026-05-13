@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-14T03:55:00+08:00 (B2: 16 Skills 順序化 + B3: AGENTS.md/README.md 重構)
-**Validation Status**: ✅ Stage 3 complete; 17 ADRs restored; 16 skills sequentialized; AGENTS.md/README.md restructured
+**Last Validated**: 2026-05-14T06:21:00+08:00 (ADR-INDEX.md 合併至本檔)
+**Validation Status**: ✅ ADR-INDEX 合併完成；24 ADR 登記簿統一管理；201 條追溯紀錄
 
 ---
 
@@ -76,31 +76,39 @@
 | S-002 | BG-001, BG-003 | stakeholder-of | ✅ |
 | S-003 | BG-001 | stakeholder-of | ✅ |
 
-### ADR → FR
+### ADR 登記簿 & FR 追溯
 
-| ADR | FR | 連結 | 語意 |
-|-----|-----|------|------|
-| ADR-STR-001 | FR-001, FR-002, FR-003 | justifies | ✅ |
-| ADR-GOV-001 | FR-001, NFR-001 | justifies | ✅ |
-| ADR-GOV-002 | FR-001, FR-002, FR-003, NFR-001 | justifies | ✅ |
-| ADR-GOV-002 | FR-022, FR-023 | justifies | ✅ |
-| ADR-GOV-003 | FR-005, FR-007 | justifies | ✅ |
-| ADR-GOV-004 | FR-005, FR-017 | justifies | ✅ |
-| ADR-GOV-005 | FR-016 | justifies | ✅ |
-| ADR-GOV-006 | FR-005, FR-007 | justifies | ✅ |
-| ADR-GOV-007 | FR-024 | justifies | ✅ |
-| ADR-GOV-008 | FR-022, FR-023, FR-024, FR-025 | justifies | ✅ |
-| ADR-GOV-009 | FR-024 | justifies | ✅ |
-| ADR-GOV-010 | FR-007 | justifies | ✅ |
-| ADR-GOV-011 | FR-005, FR-006, FR-007 | justifies | ✅ |
-| ADR-GOV-012 | FR-019 | justifies | ✅ |
-| ADR-GOV-013 | FR-005 | justifies | ✅ |
-| ADR-GOV-014 | NFR-001 | justifies | ✅ |
-| ADR-GOV-015 | NFR-001 | justifies | ✅ |
-| ADR-GOV-016 | NFR-001, FR-014 | justifies | ✅ |
-| ADR-GOV-017 | NFR-001, NFR-003 | justifies | ✅ |
-| ADR-GOV-018 | FR-019 | justifies | ✅ |
-| ADR-GOV-019 | FR-005, FR-007 | justifies | ✅ |
+> 原 `docs/adr/ADR-INDEX.md` 已合併至此。導航、分類、追溯統一管理。
+
+| ADR | 標題 | 類別 | 狀態 | FR/NFR | 連結 |
+|-----|------|------|------|--------|------|
+| [ADR-STR-001](adr/ADR-STR-001.md) | 三層分離架構（Docs / Skills / Tools） | STR | Accepted | FR-001, FR-002, FR-003 | justifies |
+| [ADR-GOV-001](adr/ADR-GOV-001.md) | Decision Unit 理論 + 資訊新穎性門檻 | GOV | Accepted | FR-001, NFR-001 | justifies |
+| [ADR-GOV-002](adr/ADR-GOV-002.md) | ADR 治理框架 — 全決策記錄制度 | GOV | Accepted | FR-001, FR-002, FR-003, NFR-001, FR-022, FR-023 | justifies |
+| [ADR-GOV-003](adr/ADR-GOV-003.md) | 格式驗證閘門 (Step 0) + 外來殘留掃描 | GOV | Accepted | FR-005, FR-007 | justifies |
+| [ADR-GOV-004](adr/ADR-GOV-004.md) | UC↔CLS 覆蓋斷言強制化 | GOV | Accepted | FR-005, FR-017 | justifies |
+| [ADR-GOV-005](adr/ADR-GOV-005.md) | TC 斷言設計指引 | GOV | Accepted | FR-016 | justifies |
+| [ADR-GOV-006](adr/ADR-GOV-006.md) | 自動化計數驗證強制化 | GOV | Accepted | FR-005, FR-007 | justifies |
+| [ADR-GOV-007](adr/ADR-GOV-007.md) | 跨檔案增量演化同步治理 | GOV | Accepted | FR-024 | justifies |
+| [ADR-GOV-008](adr/ADR-GOV-008.md) | 全鏈影響追溯制度化 (FR-022/023/024/025) | GOV | Accepted | FR-022, FR-023, FR-024, FR-025 | justifies |
+| [ADR-GOV-009](adr/ADR-GOV-009.md) | Skill 版本升級級聯協議 | GOV | Accepted | FR-024 | justifies |
+| [ADR-GOV-010](adr/ADR-GOV-010.md) | Session-End Hook Precondition Gate | GOV | Accepted | FR-007 | justifies |
+| [ADR-GOV-011](adr/ADR-GOV-011.md) | 全變更類型 RCA — 消除逃生門 | GOV | Accepted | FR-005, FR-006, FR-007 | justifies |
+| [ADR-GOV-012](adr/ADR-GOV-012.md) | Session-Start Hard Gate | GOV | Accepted | FR-019 | justifies |
+| [ADR-GOV-013](adr/ADR-GOV-013.md) | 全域搜尋協議 | GOV | Accepted | FR-005 | justifies |
+| [ADR-GOV-014](adr/ADR-GOV-014.md) | 事實優先失敗報告 | GOV | Accepted | NFR-001 | justifies |
+| [ADR-GOV-015](adr/ADR-GOV-015.md) | 顧問式風險緩解 | GOV | Accepted | NFR-001 | justifies |
+| [ADR-GOV-016](adr/ADR-GOV-016.md) | 務實簡潔性 (Ockham's Razor) | GOV | Accepted | NFR-001, FR-014 | justifies |
+| [ADR-GOV-017](adr/ADR-GOV-017.md) | LLM 原生與優雅降級 | GOV | Accepted | NFR-001, NFR-003 | justifies |
+| [ADR-GOV-018](adr/ADR-GOV-018.md) | 雙軸意圖框架 (DAIF) | GOV | Accepted | FR-019 | justifies |
+| [ADR-GOV-019](adr/ADR-GOV-019.md) | ADG + PAG 驗證增強 | GOV | Accepted | FR-005, FR-007 | justifies |
+| [ADR-GOV-020](adr/ADR-GOV-020.md) | AGENTS.md 結構化步驟協議重塑 | GOV | Accepted | FR-001, FR-002, FR-003, FR-005, FR-019, NFR-001 | justifies |
+| [ADR-GOV-021](adr/ADR-GOV-021.md) | 雙 Agent 迭代協議 — 設計決策記錄 | GOV | Accepted | FR-001, FR-005, FR-007, NFR-001 | justifies |
+| [ADR-GOV-022](adr/ADR-GOV-022.md) | docs/ 執行邏輯吸收至 skills/ 實現 Skill 自足性 | GOV | Accepted | FR-001, FR-002, FR-003, FR-005, FR-019, FR-022, FR-023 | justifies |
+| [ADR-GOV-023](adr/ADR-GOV-023.md) | Skill 追溯性擴充 + RCA 推論平準化 | GOV | Accepted | FR-004, FR-005, FR-007, FR-022, FR-023 | justifies |
+| [ADR-GOV-024](adr/ADR-GOV-024.md) | 強制循序輸出協議 | GOV | Accepted | FR-001, FR-005, FR-019 | justifies |
+
+> 類別統計：STR=1, GOV=24, SEC=0, SCP=0, GATE=0, OPS=0, **合計=25**
 
 ### ALG → FR
 
@@ -195,6 +203,96 @@
 | TC-008 | SC-008 | validates | ✅ |
 | TC-009 | SC-009 | validates | ✅ |
 
+### FR → Skill 實作映射
+
+| FR | 實作 Skill | 連結 |
+|----|-----------|------|
+| FR-001 | `pipeline-completeness-check.md`, `AGENTS.md` (Step 0-12) | implemented-by |
+| FR-002 | `phase-0~10-orchestration.md`, `stage-3~8-dimensions.md` | implemented-by |
+| FR-003 | `iter-loop.md`, `s2c-*.md` | implemented-by |
+| FR-004 | `traceability-system.md` | implemented-by |
+| FR-005 | `micro-validation.md`, `traceability-system.md` | implemented-by |
+| FR-006 | `micro-validation.md` (Step 4) | implemented-by |
+| FR-007 | `micro-validation.md`, `root-cause-leftshift.md` | implemented-by |
+| FR-008 | `impact-analysis-exec.md` | implemented-by |
+| FR-009 | `impact-analysis-exec.md`, `adr-governance.md` | implemented-by |
+| FR-010 | `tech-debt-collect.md`, `tech-debt-framework.md` | implemented-by |
+| FR-011 | `tech-debt-framework.md` | implemented-by |
+| FR-012 | `iter-loop.md` | implemented-by |
+| FR-013 | `iter-loop.md` (Step F) | implemented-by |
+| FR-014 | `iter-loop.md` (HITL section) | implemented-by |
+| FR-015 | `sonarcloud-gate.md` | implemented-by |
+| FR-016 | `security-audit-3layer.md` | implemented-by |
+| FR-017 | `s2c-*.md` (6 files) | implemented-by |
+| FR-018 | `phase-0~10-orchestration.md` | implemented-by |
+| FR-019 | `workflow-resume.md`, `AGENTS.md` (Step 0) | implemented-by |
+| FR-020 | `iter-loop.md` | implemented-by |
+| FR-021 | `workflow-resume.md` | implemented-by |
+| FR-022 | `impact-analysis-exec.md`, `micro-validation.md` (Step 5.5) | implemented-by |
+| FR-023 | `root-cause-leftshift.md` (Step 1.5/3c), `micro-validation.md` (Step 5.7) | implemented-by |
+| FR-024 | `change-management-protocol.md`, `micro-validation.md` | implemented-by |
+| FR-025 | `change-management-protocol.md` (PGVG) | implemented-by |
+
+### LESSON → Skill 守衛映射
+
+| LESSON | 根因分類 | 守衛所在 Skill | ADR 來源 | 連結 |
+|--------|---------|---------------|----------|------|
+| LESSON-001 | FORMAT_ERROR | `micro-validation.md` (Step 0) | ADR-GOV-003 | guards |
+| LESSON-002 | COVERAGE_GAP | `micro-validation.md` (Step 4), `s2c-domain-model.md`, `completion-check.md` | ADR-GOV-004 | guards |
+| LESSON-003 | LLM_HALLUCINATION | `s2c-bdd-scenarios.md` | ADR-GOV-005 | guards |
+| LESSON-004 | PROCESS_GAP | `micro-validation.md` (Step 0) | ADR-GOV-003 | guards |
+| LESSON-005 | LLM_HALLUCINATION | `micro-validation.md` (Step 1), `completion-check.md` | ADR-GOV-006 | guards |
+| LESSON-006 | PROCESS_GAP | `micro-validation.md` (Step 5.5), `change-management-protocol.md` (Step 5) | ADR-GOV-007 | guards |
+| LESSON-007 | DECLARATION_IMPLEMENTATION_GAP | `change-management-protocol.md` (Step 2f/5), `micro-validation.md` (Step 5.5/5.7) | ADR-GOV-008 | guards |
+| LESSON-008 | PROCESS_GAP | `stage-3~8-dimensions.md` | ADR-GOV-009 | guards |
+| LESSON-009 | PROCESS_GAP | `change-management-protocol.md` (Precondition Gate) | ADR-GOV-010 | guards |
+| LESSON-010 | GOVERNANCE_BYPASS | `root-cause-leftshift.md` (觸發條件) | ADR-GOV-011 | guards |
+| LESSON-011 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 0 Hard Gate) | ADR-GOV-012 | guards |
+| LESSON-012 | SCAN_INCOMPLETENESS | `exhaustive-search.md` | ADR-GOV-013 | guards |
+| LESSON-013 | DECLARATION_IMPLEMENTATION_GAP | `change-management-protocol.md` (ADR 變更紀錄區段) | ADR-GOV-008 | guards |
+| LESSON-014 | IMPROVEMENT | 16 個 `workflow-skills/*.md` (Step N 格式) | ADR-GOV-016 | guards |
+| LESSON-020 | ARCHITECTURE_EROSION | `AGENTS.md` (Principle #13) | ADR-GOV-020 | guards |
+| LESSON-022 | ARCHITECTURE_EROSION | `AGENTS.md` (Scope Rules) | ADR-GOV-022 | guards |
+| LESSON-023 | GOVERNANCE_BYPASS | `change-management-protocol.md` (Inline CM-GATE), `AGENTS.md` (#14) | ADR-GOV-022 | guards |
+| LESSON-024 | PROCESS_GAP | `change-management-protocol.md` (CM-GATE 宣告) | ADR-GOV-022 | guards |
+| LESSON-025 | DECLARATION_IMPLEMENTATION_GAP | `root-cause-leftshift.md` (Meta-RCA) | ADR-GOV-022 | guards |
+| LESSON-026 | DECLARATION_IMPLEMENTATION_GAP | `micro-validation.md` (Step 7.6) | ADR-GOV-022 | guards |
+| LESSON-027 | ARCHITECTURE_EROSION | `impact-analysis-exec.md` | — (ADR-INDEX 合併) | guards |
+| LESSON-028 | GOVERNANCE_BYPASS | `AGENTS.md` (#15 + Step 輸出協議) | ADR-GOV-024 | guards |
+
+> LESSON-015~019, LESSON-021 不存在（ID 跳號或已合併）
+
+### ADR → Skill 修改映射
+
+| ADR | 修改的 Skill | 連結 |
+|-----|-------------|------|
+| ADR-GOV-003 | `micro-validation.md` | modified-by |
+| ADR-GOV-004 | `micro-validation.md`, `s2c-domain-model.md`, `completion-check.md` | modified-by |
+| ADR-GOV-005 | `s2c-bdd-scenarios.md` | modified-by |
+| ADR-GOV-006 | `micro-validation.md`, `completion-check.md` | modified-by |
+| ADR-GOV-007 | `micro-validation.md` | modified-by |
+| ADR-GOV-008 | `change-management-protocol.md`, `micro-validation.md` | modified-by |
+| ADR-GOV-009 | `stage-3~8-dimensions.md` | modified-by |
+| ADR-GOV-010 | `change-management-protocol.md` | modified-by |
+| ADR-GOV-011 | `root-cause-leftshift.md`, `change-management-protocol.md` | modified-by |
+| ADR-GOV-012 | `AGENTS.md` (Step 0) | modified-by |
+| ADR-GOV-013 | `exhaustive-search.md` | modified-by |
+| ADR-GOV-016 | 16 個 `workflow-skills/*.md` | modified-by |
+| ADR-GOV-020 | `AGENTS.md`, `exhaustive-search.md` | modified-by |
+| ADR-GOV-022 | 15 CREATE + `impact-analysis-exec.md` + `AGENTS.md` | modified-by |
+| ADR-GOV-023 | `traceability-system.md`, `root-cause-leftshift.md`, `adr-governance.md` | modified-by |
+| ADR-GOV-024 | `AGENTS.md` (#15 + Step 輸出協議 + Step 0-12 輸出標注) | modified-by |
+
+> ADR-GOV-001/002/014/015/017/018/019/021, ADR-STR-001 為治理原則定義，嵌入 AGENTS.md Core Directives
+
+### ADR 取代關係圖
+
+```
+（目前無取代關係）
+```
+
+> 當 ADR 狀態變更為 Superseded 時，在此記錄取代鏈：`ADR-xxx → Superseded by → ADR-yyy`
+
 ---
 
 ## 孤兒報告
@@ -217,14 +315,17 @@
 | Stage 3 | NFR-xxx | 6 | 6/6 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 11 | 11/11 | 9/11 (UC-010/011 待 Stage 5-8) | 82% |
 | Stage 3 | ADR-STR-xxx | 1 | 1/1 | — | 100% |
-| 治理層 | ADR-GOV-xxx | 19 | 19/19 | — (治理) | 100% |
+| 治理層 | ADR-GOV-xxx | 24 | 24/24 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 5 | 5/5 | 5/5 | 100% |
 | Stage 5 | CLS-xxx | 12 | 12/12 | 12/12 | 100% |
 | Stage 5 | EVT-xxx | 5 | 5/5 | — | 100% |
 | Stage 6 | INV-xxx | 17 | 17/17 | 17/17 | 100% |
 | Stage 7 | SC-xxx | 9 | 9/9 | 9/9 | 100% |
 | Stage 8 | TC-xxx | 9 | 9/9 | — (末端) | 100% |
-| **合計** | — | **137** | — | — | **100%** |
+| Skill 實作 | FR→Skill | 25 | 25/25 | — (映射) | 100% |
+| Skill 守衛 | LESSON→Skill | 22 | 22/22 | — (映射) | 100% |
+| Skill 修改 | ADR→Skill | 16 | 16/16 | — (映射) | 100% |
+| **合計** | — | **206** | — | — | **100%** |
 
-> **Status**: Stage 3-8 迭代管線自舉完成 + ADR 治理層微驗證完成 + FR-019~025/NFR-005~006/UC-010~011 擴充完成。所有 IMP/LESSON 內容已遷移至對應 ADR（ADR-GOV-003~019）。change-log.md 已廢棄。全鏈雙向驗證通過。137 個 ID，零孤兒。
+> **Status**: ADR-GOV-024 (強制循序輸出) 新增。LESSON-027/028 登記。ADR 登記簿含 25 筆 ADR（STR=1, GOV=24）。206 條追溯紀錄，零孤兒。
 

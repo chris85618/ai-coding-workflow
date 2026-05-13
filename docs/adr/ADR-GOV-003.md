@@ -92,6 +92,13 @@
   3. 為什麼驗證沒偵測？→ 微驗證無 Step 0 格式驗證
   4. 為什麼流程允許？→ 初次建立不被視為「變更」
   5. 結構性修正？→ **每次寫入（含 CREATE）觸發格式 lint**
+- **瓶頸識別**:
+  - 問題發生點: Stage 5 入口自驗 / project-charter.md 生成時
+  - 逃逸路徑: s2c-charter.md 無格式檢查 → 微驗證無 Step 0
+  - 最早可偵測點: 微驗證迴圈入口
+  - 瓶頸位置: `micro-validation.md` 缺少 Step 0
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: 所有 Markdown 格式錯誤（backtick 配對、表格對齊、標題層級）
 - **左移守衛**: micro-validation.md 新增 Step 0（格式驗證）
 - **更新 Skill**: micro-validation.md ✅
 
@@ -105,6 +112,13 @@
   3. 為什麼驗證沒偵測？→ 微驗證不檢查 inline code 的來源
   4. 為什麼流程允許？→ 整合作業未經 Stage 3-8 管線
   5. 結構性修正？→ **micro-validation Step 0 加入外來殘留掃描（grep "from vibe", inline code blocks）**
+- **瓶頸識別**:
+  - 問題發生點: 初始整合階段 / 外部內容複製時
+  - 逃逸路徑: 整合作業未經 Stage 3-8 管線 → 微驗證不檢查 inline code 來源
+  - 最早可偵測點: 微驗證 Step 0
+  - 瓶頸位置: `micro-validation.md` Step 0 缺少外來殘留掃描
+  - 介入類型: STEP_ADDITION
+  - 預期覆蓋: 所有外部整合的殘留內容
 - **左移守衛**: micro-validation.md Step 0 已更新 ✅
 - **更新 Skill**: micro-validation.md ✅
 

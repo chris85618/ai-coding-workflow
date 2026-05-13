@@ -77,6 +77,8 @@ ALG-xxx → CLS-xxx → INV-xxx
 | `formalizes` | 下游形式化上游 | INV-001 formalizes CLS-001 |
 | `emitted-by` | 事件由上游發射 | EVT-001 emitted-by CLS-001 |
 | `guards` | LESSON 守衛 skill | LESSON-001 guards s2c-*.md |
+| `implemented-by` | FR/NFR 由 Skill 實作 | FR-001 implemented-by pipeline-completeness-check.md |
+| `modified-by` | ADR 修改 Skill | ADR-GOV-003 modified-by micro-validation.md |
 
 ## Step 4: 語意一致性判定規則
 
@@ -98,6 +100,7 @@ ALG-xxx → CLS-xxx → INV-xxx
 - [ ] 影響分析：所有修改過的已核准產出物皆已完成影響分析
 - [ ] 全方向追溯（FR-022）：所有變更已驗證 ADR/NFR/RISK/LESSON 連結
 - [ ] LESSON 重用（FR-023）：所有變更已檢查過往 LESSON 是否可重用
+- [ ] Skill 追溯：所有新增/修改的 FR/LESSON 已更新 Skill 實作映射
 - [ ] 追溯矩陣文件已更新並寫入 docs/
 ```
 

@@ -79,6 +79,13 @@
   3. 為什麼沒有 hard gate？→ workflow-resume.md 是被動觸發的 skill
   4. 為什麼收尾有但啟動沒有？→ Session-End precondition 是 ADR-GOV-010 後才加入的
   5. Root Cause → Session-Start 沒有等價於 Session-End 的 hard gate
+- **瓶頸識別**:
+  - 問題發生點: Session 開始時 / AI 收到指令後
+  - 逃逸路徑: Phase 0 描述為「自動」無 hard gate → workflow-resume.md 是被動觸發 → AI 直接開始工作
+  - 最早可偵測點: AGENTS.md Session-Start 入口
+  - 瓶頸位置: `AGENTS.md` 缺少 Session-Start Hard Gate
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: 所有跳過 Phase 0 / 未讀取 workflow-state.md 的情況
 - **左移守衛**:
   1. AGENTS.md 核心原則新增 #8「啟動閘門」 ✅
   2. AGENTS.md 新增「啟動協議」含 Hard Gate ✅

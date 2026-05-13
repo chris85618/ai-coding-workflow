@@ -73,6 +73,13 @@
   3. 為什麼驗證沒偵測？→ 完成報告用泛稱 "9/9 UC 覆蓋" 未逐一列出
   4. 為什麼流程允許？→ LLM 將「限界上下文涵蓋」等同於「CLS 建模完成」
   5. 結構性修正？→ **s2c-domain-model.md 加入逐一 UC→CLS 映射驗證 + 覆蓋斷言必須從實際內容 grep**
+- **瓶頸識別**:
+  - 問題發生點: Stage 5 / CLS 建模時
+  - 逃逸路徑: s2c-domain-model.md 無覆蓋斷言 → 完成報告用泛稱 "9/9"
+  - 最早可偵測點: s2c-domain-model.md 的 UC→CLS 映射步驟
+  - 瓶頸位置: `s2c-domain-model.md` 缺少覆蓋斷言 + `micro-validation.md` Step 4 缺少交叉覆蓋驗證
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: 所有泛稱覆蓋宣告（"N/N 覆蓋"未逐一列出的情況）
 - **左移守衛**:
   - s2c-domain-model.md: 加入 "FOR each UC-xxx: ASSERT exists CLS with trace to UC-xxx"
   - micro-validation.md Step 4: 加入交叉覆蓋驗證

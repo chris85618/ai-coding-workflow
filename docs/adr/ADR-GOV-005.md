@@ -72,6 +72,13 @@
   3. 為什麼驗證沒偵測？→ TC 未在生成後立即執行
   4. 為什麼流程允許？→ LLM 未考慮目標文件的多行佈局
   5. 結構性修正？→ **TC 斷言規範: 每個斷言測試一個關鍵字，不合併多關鍵字 + TC 生成後立即執行一遍**
+- **瓶頸識別**:
+  - 問題發生點: Stage 8 / TC 生成時
+  - 逃逸路徑: TC 生成無測試模式指引 → TC 未在生成後立即執行
+  - 最早可偵測點: s2c-bdd-scenarios.md 的 TC 生成步驟
+  - 瓶頸位置: `s2c-bdd-scenarios.md` 缺少斷言模式指引
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: multi-keyword regex 錯誤、多行佈局不匹配
 - **左移守衛**: s2c-bdd-scenarios.md 加入斷言模式指引
 - **更新 Skill**: s2c-bdd-scenarios.md ✅
 
