@@ -32,3 +32,23 @@ Step 4: 產出
 → 寫入 docs/project-charter.md
 → 初始化追溯矩陣
 ```
+
+---
+
+## Post-Generation Validation Gate (PGVG) [LESSON-001]
+
+```
+PGVG-1: 格式驗證
+  ASSERT all backtick pairs matched (opening ` has closing `)
+  ASSERT all markdown heading levels sequential (h1 → h2 → h3)
+  ASSERT no hardcoded absolute paths
+  ASSERT metadata block (blockquote) properly formatted
+
+PGVG-2: BG ID 完備性
+  ASSERT BG-xxx count >= 1
+  ASSERT each BG-xxx has: 描述, 成功指標, 優先順序
+
+PGVG-3: 風險交叉驗證
+  FOR each BG-xxx with risk_level >= 10:
+    ASSERT flagged_for_hitl == true
+```

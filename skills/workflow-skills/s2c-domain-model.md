@@ -29,4 +29,33 @@ FOR each cross_aggregate_operation:
   map_consumers()
 ```
 
-產出 → `docs/domain-model.md` + `docs/class-diagram.puml` + 更新追溯矩陣
+產出 → `docs/domain-model.md` + 更新追溯矩陣
+
+---
+
+## Post-Generation Validation Gate (PGVG) [LESSON-002]
+
+```
+PGVG-1: UC↔CLS 逐一覆蓋斷言
+  FOR each UC-xxx in input:
+    ASSERT exists at least one CLS-xxx with trace "UC-xxx (models)"
+    IF missing: FAIL → 補建 CLS 再重驗
+  覆蓋報告格式: "UC-001→CLS-001 ✅, UC-002→CLS-012 ✅, ..." （逐一列出）
+
+PGVG-2: 限界上下文 ↔ CLS 一致性
+  FOR each bounded_context:
+    FOR each UC in context:
+      ASSERT context's UC has matching CLS
+  不接受泛稱 "N/N 覆蓋"，必須逐一列出
+
+PGVG-3: 自動化計數
+  actual_cls = grep -c "### CLS-" domain-model.md
+  actual_evt = grep -c "### EVT-" domain-model.md
+  ASSERT actual_cls matches claimed count
+  ASSERT actual_evt matches claimed count
+
+PGVG-4: 格式驗證
+  ASSERT all backtick pairs matched
+  ASSERT all markdown tables properly aligned
+  ASSERT no hardcoded absolute paths
+```

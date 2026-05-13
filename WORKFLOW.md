@@ -11,10 +11,11 @@
 
 1. **文件驅動**：所有產出物記錄至 `docs/` 資料夾
 2. **ID 系統強制**：所有產出物指派追溯 ID（見 `docs/governance/TRACEABILITY.md`）
-3. **左移微驗證**：每個微動作後立即執行追溯驗證迴圈
+3. **左移微驗證**：每次檔案寫入（CREATE/MODIFY/FIX）後立即執行 8 步驗證迴圈
 4. **影響分析強制**：每次修改自主執行影響分析（見 `docs/governance/IMPACT-ANALYSIS.md`）
 5. **雙 Agent 迭代**：Stage 3-8 皆使用 Agent α/β 發散-收斂迴圈
 6. **HITL 閘門**：每個 Stage 出口皆需人在迴路確認
+7. **變更管理**：每次寫入皆為變更，FIX 類型強制根因左移（見 `docs/governance/CHANGE-MANAGEMENT.md`）
 
 ---
 

@@ -32,4 +32,18 @@ ASSERT three_layer_security_passed()
 
 全部 PASS → /ship 放行
 任一 FAIL → 阻塞，列出缺失清單
+
+Step 6: 自動化 ID 計數驗證 [LESSON-005]
+FOR each prefix IN {BG,S,FEA,RISK,FR,NFR,UC,ADR,ALG,CLS,EVT,INV,SC,TC}:
+  actual = grep -c "{prefix}-\d{3}" 來源文件
+  claimed = traceability-matrix.md 覆蓋統計表數字
+  ASSERT actual == claimed → "{prefix} 計數不一致: actual={actual} claimed={claimed}"
+不接受 LLM 自我報告數字，必須從文件 grep
+
+Step 7: 變更紀錄完整性
+ASSERT docs/change-log.md exists
+FOR each FIX in change-log.md:
+  ASSERT has LESSON-xxx
+  ASSERT LESSON references updated skill
+  ASSERT updated skill contains left-shift guard
 ```

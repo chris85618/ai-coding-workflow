@@ -58,7 +58,7 @@ converge(stage, dimensions[]):
 
 ## ALG-002: 微驗證序列
 
-**描述**：左移微驗證的 6 步執行序列和判定邏輯。
+**描述**：左移微驗證的 8 步執行序列和判定邏輯。
 **追溯**：FR-005, FR-006, FR-007 (implements)
 
 ```
@@ -66,11 +66,12 @@ micro_validate(change):
   MAX_AUTO_FIX = 3
   
   checks = [
-    check_structure(change.id),      # Step 1: ID 格式
-    check_forward_trace(change.id),   # Step 2: 正向追溯
-    check_backward_trace(change.id),  # Step 3: 反向追溯
-    check_semantic(change.id),        # Step 4: 語意一致
-    check_orphan(change.id),          # Step 5: 孤兒偵測
+    check_format(change),              # Step 0: 格式驗證 (PGVG)
+    check_structure(change.id),        # Step 1: ID 格式 + 自動化計數
+    check_forward_trace(change.id),    # Step 2: 正向追溯 + 覆蓋斷言
+    check_backward_trace(change.id),   # Step 3: 反向追溯
+    check_semantic(change.id),         # Step 4: 語意一致 + 交叉覆蓋驗證
+    check_orphan(change.id),           # Step 5: 孤兒偵測
   ]
   
   FOR each check IN checks:
@@ -82,13 +83,19 @@ micro_validate(change):
   
   # Step 6: 觸發影響分析
   impact = impact_analysis(change)
-  RETURN PASS(impact=impact)
+  
+  # Step 7: 變更紀錄 + 根因左移
+  imp = record_change(change, impact) → IMP-xxx
+  IF change.type == FIX:
+    lesson = root_cause_leftshift(change, imp) → LESSON-xxx
+  
+  RETURN PASS(impact=impact, imp=imp)
 ```
 
 **理論保證**：
 | 屬性 | 等級 | 說明 |
 |------|------|------|
-| 完備性 | 🅐 | 6 步涵蓋結構、雙向追溯、語意、孤兒、影響 |
+| 完備性 | 🅐 | 8 步涵蓋格式、結構、雙向追溯、語意、孤兒、影響、變更紀錄、根因左移 |
 | 自主修復 | 🅑 | 最多 3 次，超過強制人工介入 |
 | 副作用隔離 | 🅐 | 每步驟獨立，失敗不影響後續 |
 
