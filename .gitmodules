@@ -1,0 +1,12 @@
+[submodule "skills/everything-claude-code"]
+	path = skills/everything-claude-code
+	url = https://github.com/affaan-m/everything-claude-code.git
+[submodule "skills/gstack"]
+	path = skills/gstack
+	url = https://github.com/garrytan/gstack.git
+[submodule "skills/understand-anything"]
+	path = skills/understand-anything
+	url = https://github.com/Lum1104/Understand-Anything.git
+[submodule "skills/skillfortify"]
+	path = skills/skillfortify
+	url = https://github.com/qualixar/skillfortify.git
