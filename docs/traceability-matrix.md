@@ -1,7 +1,7 @@
 # Traceability Matrix — Antigravity Integrated Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-13T21:31:00+08:00 (Stage 3 complete)
+**Last Validated**: 2026-05-13T23:07:00+08:00 (Step 3 微驗證)
 **Validation Status**: ✅ All checks passed
 
 ---
@@ -69,7 +69,9 @@
 
 | ADR | FR | 連結 | 語意 |
 |-----|-----|------|------|
-| ADR-001 | FR-001, FR-002, FR-003 | justifies | ✅ |
+| ADR-STR-001 | FR-001, FR-002, FR-003 | justifies | ✅ |
+| ADR-GOV-001 | FR-001, NFR-001 | justifies | ✅ |
+| ADR-GOV-002 | FR-001, FR-002, FR-003, NFR-001 | justifies | ✅ |
 
 ### ALG → FR
 
@@ -185,14 +187,15 @@
 | Stage 3 | FR-xxx | 18 | 18/18 | 18/18 | 100% |
 | Stage 3 | NFR-xxx | 4 | 4/4 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 9 | 9/9 | 9/9 | 100% |
-| Stage 3 | ADR-xxx | 1 | 1/1 | — | 100% |
+| Stage 3 | ADR-STR-xxx | 1 | 1/1 | — | 100% |
+| 治理層 | ADR-GOV-xxx | 2 | 2/2 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 5 | 5/5 | 5/5 | 100% |
 | Stage 5 | CLS-xxx | 12 | 12/12 | 12/12 | 100% |
 | Stage 5 | EVT-xxx | 5 | 5/5 | — | 100% |
 | Stage 6 | INV-xxx | 17 | 17/17 | 17/17 | 100% |
 | Stage 7 | SC-xxx | 9 | 9/9 | 9/9 | 100% |
 | Stage 8 | TC-xxx | 9 | 9/9 | — (末端) | 100% |
-| **合計** | — | **106** | — | — | **100%** |
+| **合計** | — | **108** | — | — | **100%** |
 
-> **Status**: Stage 3-8 迭代管線自舉完成。全鏈 BG→FEA→FR→UC→CLS→INV→SC→TC 八層雙向驗證通過。106 個 ID，零孤兒，100% 覆蓋。
+> **Status**: Stage 3-8 迭代管線自舉完成 + ADR 治理層微驗證完成。全鏈 BG→FEA→FR→UC→CLS→INV→SC→TC 八層雙向驗證通過。108 個 ID，零孤兒，100% 覆蓋。
 

@@ -9,7 +9,7 @@
 | 來源 | 內容 | ID 前綴 |
 |------|------|---------|
 | Stage 3 | 使用案例 | UC-xxx |
-| Stage 3 | 架構決策 | ADR-xxx |
+| Stage 3 | 架構決策 | ADR-STR-xxx |
 | Stage 4 | 演算法規格 | ALG-xxx |
 
 ---

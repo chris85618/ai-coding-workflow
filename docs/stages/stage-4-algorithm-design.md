@@ -11,7 +11,7 @@
 | Stage 3 | 功能需求 | FR-xxx |
 | Stage 3 | 非功能需求 | NFR-xxx |
 | Stage 3 | 使用案例 | UC-xxx |
-| Stage 3 | 架構決策 | ADR-xxx |
+| Stage 3 | 架構決策 | ADR-STR-xxx |
 
 ---
 

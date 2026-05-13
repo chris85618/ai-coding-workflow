@@ -15,16 +15,24 @@
 | `FR-xxx` | 功能需求 | Stage 3 | FR-001: 使用者認證 | FEA | UC, ADR |
 | `NFR-xxx` | 非功能需求 | Stage 3 | NFR-001: 回應時間 < 200ms | FEA | UC, ALG |
 | `UC-xxx` | 使用案例 | Stage 3 | UC-001: 憑證登入 | FR | SC, CLS |
-| `ADR-xxx` | 架構決策紀錄 | Stage 3 | ADR-001: 選擇 PostgreSQL | FR | CLS, INV |
+| `ADR-STR-xxx` | 架構決策（結構類） | Stage 3 | ADR-STR-001: 三層分離架構 | FR | CLS, INV |
+| `ADR-GOV-xxx` | 治理決策 | 任意 | ADR-GOV-001: DU 理論+新穎性門檻 | FR, NFR | — |
+| `ADR-SEC-xxx` | 安全決策 | Stage 5/8 | ADR-SEC-001: 加密選型 | FR | CLS |
+| `ADR-SCP-xxx` | 範圍決策 | Phase 2 | ADR-SCP-001: 功能排除 | BG, S, FEA | — |
+| `ADR-GATE-xxx` | 閘門決策 | 任意 Stage | ADR-GATE-S3-001: 通過 | 任意 | — |
+| `ADR-OPS-xxx` | 營運決策 | Phase 9 | ADR-OPS-001: 部署策略 | FR | — |
 | `ALG-xxx` | 演算法規格 | Stage 4 | ALG-001: LSTM 需求預測器 | NFR, UC | CLS, INV |
 | `CLS-xxx` | 類別/聚合 | Stage 5 | CLS-001: UserAggregate | UC, ALG | INV, EVT |
 | `EVT-xxx` | 領域事件 | Stage 5 | EVT-001: OrderPaidEvent | CLS | SC, TC |
 | `INV-xxx` | 不變量 | Stage 6 | INV-001: Stock >= 0 | CLS, ALG | SC, TC |
 | `SC-xxx` | BDD 場景 | Stage 7 | SC-001: 登入成功路徑 | UC, INV | TC |
 | `TC-xxx` | 測試案例 | Stage 7/8 | TC-001: test_login_success | SC, INV | — |
-| `DEBT-xxx` | 技術債項目 | Phase 10 | DEBT-001: 缺少錯誤處理 | 任意 | — |
-| `RISK-xxx` | 風險 | 任意階段 | RISK-001: 第三方 API 中斷 | 任意 | 任意 |
-| `IMP-xxx` | 影響分析紀錄 | 任意階段 | IMP-001: FR-003 變更影響 | 任意 | 任意 |
+| `DEBT-xxx` | 技術債項目 | Phase 10 | DEBT-001: 缺少錯誤處理 | 任意 | ADR |
+| `RISK-xxx` | 風險 | 任意階段 | RISK-001: 第三方 API 中斷 | 任意 | ADR |
+| `IMP-xxx` | 影響分析紀錄 | 任意階段 | IMP-001: FR-003 變更影響 | ADR | 任意 |
+
+> **ADR 整合**：所有 IMP-xxx 必須追溯至授權 ADR。所有 DEBT-xxx 可追溯至產生原因 ADR。
+> 完整 ADR 治理規則見 `docs/governance/ADR-GOVERNANCE.md`。
 
 ---
 
@@ -48,7 +56,7 @@ TC-xxx → SC-xxx → UC-xxx → FR-xxx → FEA-xxx → BG-xxx
 
 ```
 UC-xxx → CLS-xxx → EVT-xxx
-       → ADR-xxx
+       → ADR-STR-xxx
 ALG-xxx → CLS-xxx → INV-xxx
 ```
 
@@ -175,7 +183,7 @@ ALG-xxx → CLS-xxx → INV-xxx
 | `realizes` | 下游實現上游 | UC-001 realizes FR-001 |
 | `validates` | 下游驗證上游 | TC-001 validates SC-001 |
 | `constrains` | 上游約束下游 | NFR-001 constrains ALG-001 |
-| `decides` | 決策影響設計 | ADR-001 decides CLS-001 |
+| `decides` | 決策影響設計 | ADR-STR-001 decides CLS-001 |
 | `mitigates` | 下游緩解上游風險 | TC-005 mitigates RISK-001 |
 
 ---

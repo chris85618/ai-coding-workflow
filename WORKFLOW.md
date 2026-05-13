@@ -104,7 +104,9 @@ WORKFLOW.md (本文件 — 頂層指揮器)
 ├── docs/governance/ (跨切面，所有 Stage 皆引用)
 │   ├── TRACEABILITY.md          ← ID 系統規格
 │   ├── IMPACT-ANALYSIS.md       ← 影響分析規則
-│   └── TECH-DEBT.md             ← 技術債範本
+│   ├── TECH-DEBT.md             ← 技術債範本
+│   ├── CHANGE-MANAGEMENT.md     ← 變更管理協議
+│   └── ADR-GOVERNANCE.md        ← ADR 治理框架 + HITL 進入點登記
 │
 ├── skills/workflow-skills/ (可執行協議，從 docs 獨立)
 │   ├── iter-loop.md             ← 通用雙 Agent 迭代迴圈
@@ -180,7 +182,12 @@ WORKFLOW.md (本文件 — 頂層指揮器)
 | `FR-xxx` | 功能需求 | Stage 3 |
 | `NFR-xxx` | 非功能需求 | Stage 3 |
 | `UC-xxx` | 使用案例 | Stage 3 |
-| `ADR-xxx` | 架構決策 | Stage 3 |
+| `ADR-STR-xxx` | 架構決策（結構類） | Stage 3 |
+| `ADR-GOV-xxx` | 治理決策 | 任意 |
+| `ADR-SEC-xxx` | 安全決策 | Stage 5/8 |
+| `ADR-SCP-xxx` | 範圍決策 | Phase 2 |
+| `ADR-GATE-xxx` | 閘門決策 | 任意 Stage |
+| `ADR-OPS-xxx` | 營運決策 | Phase 9 |
 | `ALG-xxx` | 演算法規格 | Stage 4 |
 | `CLS-xxx` | 類別/聚合 | Stage 5 |
 | `EVT-xxx` | 領域事件 | Stage 5 |
@@ -256,7 +263,14 @@ docs/
 ├── governance/
 │   ├── TRACEABILITY.md          # ID 系統 + 微驗證協議
 │   ├── IMPACT-ANALYSIS.md       # 強制影響分析閘門
-│   └── TECH-DEBT.md             # 技術債登記冊範本
+│   ├── TECH-DEBT.md             # 技術債登記冊範本
+│   ├── CHANGE-MANAGEMENT.md     # 變更管理協議
+│   └── ADR-GOVERNANCE.md        # ADR 治理框架 + HITL 進入點登記
+├── adr/
+│   ├── ADR-INDEX.md             # ADR 活索引
+│   ├── ADR-TEMPLATE.md          # LLM 撰寫範本（6 類別）
+│   ├── ADR-STR-001.md            # 三層分離架構
+│   └── ADR-GOV-002.md            # ADR 治理框架決策
 ├── phases/
 │   ├── phase-0-environment.md
 │   ├── phase-1-code-understanding.md

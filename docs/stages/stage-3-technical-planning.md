@@ -99,7 +99,7 @@
 | 功能需求登記 | `FR-xxx` | `docs/requirements.md` |
 | 非功能需求登記 | `NFR-xxx` | `docs/requirements.md` |
 | 使用案例登記 | `UC-xxx` | `docs/use-cases.md` |
-| 架構決策紀錄 | `ADR-xxx` | `docs/adr/ADR-xxx.md` |
+| 架構決策紀錄 | `ADR-STR-xxx` | `docs/adr/ADR-STR-xxx.md` |
 | 測試矩陣 | — | `docs/test-matrix.md` |
 | 設計評分報告 | — | gstack 管理 |
 | 迭代決策日誌 | — | `docs/iteration-log.md` |
@@ -117,7 +117,7 @@
 ### 追溯矩陣驗證
 - [ ] 所有 FEA-xxx 已分解為 FR-xxx 和/或 NFR-xxx
 - [ ] 所有 FR-xxx 已對應至少一個 UC-xxx
-- [ ] 所有 ADR-xxx 可追溯至 FR-xxx
+- [ ] 所有 ADR-STR-xxx 可追溯至 FR-xxx
 - [ ] 正向追溯完整：FEA → FR → UC
 - [ ] 反向追溯完整：UC → FR → FEA → BG
 - [ ] 零孤兒 ID
