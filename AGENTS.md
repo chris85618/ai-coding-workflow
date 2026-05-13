@@ -20,10 +20,10 @@
 
 1. **無簡化路徑**：所有專案、所有任務皆執行完整管線 (Step 0-12)，無例外。
 2. **文件驅動**：所有產出物記錄至目標 repository 的 `docs/`。
-3. **ID 系統**：所有產出物指派追溯 ID。→ READ `$FRAMEWORK_ROOT/docs/governance/TRACEABILITY.md`。Prefixes: BG/S/FEA (Phase 2), FR/NFR/UC/ADR-STR (Stage 3), ALG (Stage 4), CLS/EVT (Stage 5), INV (Stage 6), SC (Stage 7), TC (Stage 8), DEBT/RISK (any). 追溯鏈: `BG → FEA → FR → UC → SC → TC`。
+3. **ID 系統**：所有產出物指派追溯 ID。→ INVOKE `traceability-system.md`。Prefixes: BG/S/FEA (Phase 2), FR/NFR/UC/ADR-STR (Stage 3), ALG (Stage 4), CLS/EVT (Stage 5), INV (Stage 6), SC (Stage 7), TC (Stage 8), DEBT/RISK (any). 追溯鏈: `BG → FEA → FR → UC → SC → TC`。
 4. **左移微驗證**：每次 CREATE/MODIFY/FIX 後立即執行 `micro-validation.md`。
-5. **影響分析**：每次修改自主執行 → READ `$FRAMEWORK_ROOT/docs/governance/IMPACT-ANALYSIS.md`。
-6. **變更管理**：每次寫入皆為變更 → READ `$FRAMEWORK_ROOT/docs/governance/CHANGE-MANAGEMENT.md` + `root-cause-leftshift.md`。
+5. **影響分析**：每次修改自主執行 → INVOKE `impact-analysis-exec.md`。
+6. **變更管理**：每次寫入皆為變更 → INVOKE `change-management-protocol.md` + `root-cause-leftshift.md`。
 7. **雙 Agent 迭代**：Stage 3-8 使用 Agent α/β 發散-收斂迴圈 → READ `iter-loop.md`。(ADR-GOV-021)
 8. **HITL 閘門**：每個 Stage 出口需人在迴路確認。
 9. **全域搜尋協議**：涉及搜尋/掃描/尋找/審計/盤點時 → READ `exhaustive-search.md`。(ADR-GOV-013)
@@ -31,17 +31,21 @@
 11. **LLM 原生與優雅降級**：外部工具僅為加速器，核心流程具備純 LLM 降級路徑。(ADR-GOV-017)
 12. **Skill 統一格式**：所有 `skills/workflow-skills/*.md` 使用 `## Step N` 順序格式。
 13. **內容判定**：新增至 AGENTS.md 的內容必須為「AI 執行時必須立即看到的指令」；參考資料放 README.md 或獨立 skill/doc。(LESSON-020, ADR-GOV-020)
+14. **Inline CM-GATE**：每次寫入前必須先輸出 `CM-GATE: [file] | Type | Class | ADR` 宣告。無宣告即寫入 = GOVERNANCE_BYPASS。批次 3+ 檔案需先輸出 `BATCH-CM` 範圍宣告。→ INVOKE `change-management-protocol.md`。(LESSON-024, ADR-GOV-022)
 
 ### Repository Scope Rules
 
-兩個 docs/ 範圍共存：
+兩個範圍共存：
 
 | 範圍 | 路徑 | 內容 | 修改時機 |
 |------|------|------|----------|
-| **Framework** | `$FRAMEWORK_ROOT/docs/` (`~/.setup/ai_coding/docs/`) | 流程定義 (phases/, stages/)、治理規則 (governance/)、框架 ADR (ADR-GOV-*) | 僅改善工作流框架本身時 |
+| **Framework** | `$FRAMEWORK_ROOT/skills/workflow-skills/` | 執行邏輯（所有 Phase/Stage 編排、治理規則、審查維度） | 僅改善工作流框架本身時 |
+| **Framework (Reference)** | `$FRAMEWORK_ROOT/docs/` | 框架 ADR 歷史紀錄 (ADR-GOV-*)、框架自身的 self-bootstrap 產出物 | 僅回溯檢驗框架決策時 |
 | **Project** | `{target_repo}/docs/` | 專案產出物 (requirements, use-cases, traceability-matrix, workflow-state)、專案 ADR (ADR-STR/SEC/SCP/OPS-*) | 所有 CREATE/MODIFY/FIX 產出物預設寫入此處 |
 
-**判定規則**：流程/治理改善 → Framework；專案產出物 → Project；ADR-GOV → Framework，其餘 ADR → Project；模糊 → 預設 Project + escalate HITL。
+**判定規則**：執行邏輯 → skills/workflow-skills/（唯一執行來源）；框架決策回溯 → $FRAMEWORK_ROOT/docs/adr/；專案產出物 → {target_repo}/docs/；模糊 → 預設 Project + escalate HITL。
+
+**關鍵原則**：執行其他 repository 時，AI 僅需讀取 `skills/workflow-skills/` 即可完整執行全套邏輯。不需要讀取 `$FRAMEWORK_ROOT/docs/` 中的 phases/、stages/、governance/ 檔案。
 
 ### Voice & Style
 
@@ -72,9 +76,8 @@ Direct, concrete, builder-to-builder. Name the file, function, command, and user
 | `skills/skillfortify/` | SkillFortify | Supply chain security: SBOM, trust chain, verification |
 
 **$FRAMEWORK_ROOT** = `~/.setup/ai_coding`（本文件所在位置）。
-流程定義檔案位於 `$FRAMEWORK_ROOT/docs/phases/` 和 `$FRAMEWORK_ROOT/docs/stages/`。
-治理規則位於 `$FRAMEWORK_ROOT/docs/governance/`。
-ADR 決策紀錄位於 `$FRAMEWORK_ROOT/docs/adr/`（框架級）或 `{target_repo}/docs/adr/`（專案級）。
+執行邏輯位於 `$FRAMEWORK_ROOT/skills/workflow-skills/`（唯一執行來源）。
+ADR 決策紀錄位於 `$FRAMEWORK_ROOT/docs/adr/`（框架級歷史參照）或 `{target_repo}/docs/adr/`（專案級）。
 
 ---
 
@@ -82,11 +85,11 @@ ADR 決策紀錄位於 `$FRAMEWORK_ROOT/docs/adr/`（框架級）或 `{target_re
 
 When the user's request matches an available skill, invoke it. When in doubt, invoke the skill.
 
-### Workflow Skills (搜尋/掃描/驗證)
+### Workflow Skills (搜尋/掃描/驗證/治理)
 
 | Pattern | Skill |
 |---------|-------|
-| 搜尋/掃描/尋找/查找/盤點/審計/窮舉*/search/scan/find/grep/locate/audit/enumerate | `exhaustive-search.md` |
+| 搜尋/掃描/尋找/查找/盤點/審計/窮舉* | `exhaustive-search.md` |
 | 微驗證 / validation loop | `micro-validation.md` |
 | 影響分析 / impact analysis | `impact-analysis-exec.md` |
 | 根因左移 / root cause | `root-cause-leftshift.md` |
@@ -97,8 +100,28 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 | 工作流恢復 | `workflow-resume.md` |
 | 預發布檢查 | `completion-check.md` |
 | 技術債收集 | `tech-debt-collect.md` |
+| 變更管理協議 | `change-management-protocol.md` |
+| 追溯系統規格 | `traceability-system.md` |
+| ADR 治理框架 | `adr-governance.md` |
+| 技術債管理框架 | `tech-debt-framework.md` |
 
 > *「窮舉」需 Step 0 適用性判定 — 見 exhaustive-search.md
+
+### Phase/Stage 編排 Skills
+
+| Pattern | Skill |
+|---------|-------|
+| Phase 0 環境啟動 | `phase-0-orchestration.md` |
+| Phase 1 程式碼理解 | `phase-1-understanding.md` |
+| Phase 2 專案分析 | `phase-2-orchestration.md` |
+| Stage 3 技術規劃 (T1-T7) | `stage-3-dimensions.md` |
+| Stage 4 演算法設計 (A-V) | `stage-4-dimensions.md` |
+| Stage 5 OOAD + 安全 (OA-OD) | `stage-5-dimensions.md` |
+| Stage 6 形式化驗證 (F1-F6) | `stage-6-dimensions.md` |
+| Stage 7 BDD/ATDD (B1-B5,V1-V4) | `stage-7-dimensions.md` |
+| Stage 8 TDD + 品質閘門 (D1-D5) | `stage-8-dimensions.md` |
+| Phase 9 Ship & Deploy | `phase-9-orchestration.md` |
+| Phase 10 反思與學習 | `phase-10-orchestration.md` |
 
 ### S2C Skills (Spec-to-Code)
 
@@ -171,7 +194,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 ## § Execution Protocol
 
 > **全流程 Step 0-12。每個 Step 附 flow hooks。AI 依序執行。**
-> 每個 Step 中的 `→ READ:` 指令要求 AI 讀取該檔案以取得完整執行定義。
+> 每個 Step 中的 `→ INVOKE:` 指令要求 AI 讀取該 skill 以取得完整執行定義。
 > 每個 Step 的 `→ NEXT:` 指令指明下一步。
 
 ---
@@ -206,8 +229,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 1: Phase 0 — 環境啟動
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/phases/phase-0-environment.md`
-→ **INVOKE**: `pipeline-completeness-check.md`
+→ **INVOKE**: `phase-0-orchestration.md`
 
 **路徑判定**:
 - 100% completeness + 有中斷工作 → Resume at recorded position
@@ -223,8 +245,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 2: Phase 1 — 程式碼理解
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/phases/phase-1-code-understanding.md`
-→ **INVOKE**: `/understand`
+→ **INVOKE**: `phase-1-understanding.md`
 
 **產出**: 知識圖譜、架構理解、元件關係
 
@@ -234,8 +255,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 3: Phase 2 — 專案分析
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/phases/phase-2-project-analysis.md`
-→ **INVOKE**: `s2c-charter.md` → `s2c-stakeholder.md` → `s2c-scope-redteam.md`
+→ **INVOKE**: `phase-2-orchestration.md`
 → **TOOLS**: `/office-hours`, `/plan-ceo-review`
 
 **產出**: BG-xxx, S-xxx, FEA-xxx → `{target_repo}/docs/`
@@ -246,8 +266,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 4: Stage 3 — 技術規劃
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/stages/stage-3-technical-planning.md`
-→ **INVOKE**: `iter-loop.md` (審查維度 T1-T7), `s2c-requirements.md`
+→ **INVOKE**: `stage-3-dimensions.md` + `iter-loop.md` (T1-T7) + `s2c-requirements.md`
 → **TOOLS**: `/autoplan`, `/plan-eng-review`, `/plan-design-review`
 
 **產出**: FR-xxx, NFR-xxx, UC-xxx, ADR-STR-xxx → `{target_repo}/docs/`
@@ -258,8 +277,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 5: Stage 4 — 演算法設計
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/stages/stage-4-algorithm-design.md`
-→ **INVOKE**: `iter-loop.md` (審查維度 A1-A22)
+→ **INVOKE**: `stage-4-dimensions.md` + `iter-loop.md` (A-V)
 → **TOOLS**: `skillfortify scan`
 
 **產出**: ALG-xxx → `{target_repo}/docs/algorithm-specs.md`
@@ -270,9 +288,8 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 6: Stage 5 — OOAD + 安全審計
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/stages/stage-5-ooad-security.md`
-→ **INVOKE**: `iter-loop.md` (審查維度 O1-O4), `s2c-domain-model.md`
-→ **INVOKE**: `security-audit-3layer.md` (三層安全審計 — Layer 1: /cso, Layer 2: AgentShield, Layer 3: skillfortify)
+→ **INVOKE**: `stage-5-dimensions.md` + `iter-loop.md` (OA-OD) + `s2c-domain-model.md`
+→ **INVOKE**: `security-audit-3layer.md` (三層安全審計)
 → **TOOLS**: `/cso`, `npx ecc-agentshield scan --opus --stream`, `skillfortify scan`
 
 **產出**: CLS-xxx, EVT-xxx, ADR-SEC-xxx → `{target_repo}/docs/`
@@ -283,8 +300,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 7: Stage 6 — 形式化驗證設計
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/stages/stage-6-formal-verification.md`
-→ **INVOKE**: `iter-loop.md` (審查維度 V1-V6)
+→ **INVOKE**: `stage-6-dimensions.md` + `iter-loop.md` (F1-F6)
 
 **產出**: INV-xxx → `{target_repo}/docs/invariants.md`
 
@@ -294,8 +310,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 8: Stage 7 — BDD/ATDD
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/stages/stage-7-bdd-atdd.md`
-→ **INVOKE**: `iter-loop.md` (審查維度 B1-B9), `s2c-bdd-scenarios.md`
+→ **INVOKE**: `stage-7-dimensions.md` + `iter-loop.md` (B1-B5, V1-V4) + `s2c-bdd-scenarios.md`
 → **TOOLS**: `tdd-workflow` skill, ECC hooks
 
 **產出**: SC-xxx → `{target_repo}/docs/bdd-scenarios.md`
@@ -306,8 +321,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 9: Stage 8 — TDD + 測試 + 修復
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/stages/stage-8-tdd-test-fix.md`
-→ **INVOKE**: `iter-loop.md` (審查維度 D1-D5)
+→ **INVOKE**: `stage-8-dimensions.md` + `iter-loop.md` (D1-D5)
 → **INVOKE**: `security-audit-3layer.md` (最終安全審計)
 → **INVOKE**: `sonarcloud-gate.md`
 → **TOOLS**: `/qa`, `/review`, `/investigate`
@@ -320,8 +334,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 10: Phase 9 — Ship & Deploy
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/phases/phase-9-ship-deploy.md`
-→ **INVOKE**: `completion-check.md`
+→ **INVOKE**: `phase-9-orchestration.md`
 → **TOOLS**: `/ship`, `/land-and-deploy`, `/canary`, `/document-release`
 
 **產出**: 部署紀錄, ADR-OPS-xxx
@@ -332,8 +345,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 
 ### Step 11: Phase 10 — 反思 & 學習
 
-→ **READ**: `$FRAMEWORK_ROOT/docs/phases/phase-10-reflect-learn.md`
-→ **INVOKE**: `tech-debt-collect.md`
+→ **INVOKE**: `phase-10-orchestration.md`
 → **TOOLS**: `/retro`, `/understand` (增量更新), `/evolve`
 
 **產出**: DEBT-xxx, LESSON-xxx, 知識圖譜更新
@@ -347,15 +359,29 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 > **強制等級**：每次回覆使用者前必須執行，無例外。
 > **ADR**: ADR-GOV-010 (Session-End Hook Precondition Gate)
 
-#### 12.1: CM 前置斷言
+#### 12.1: CM 前置斷言（窮舉式檔案列舉）
 
-FOR each change IN session_changes WHERE type IN [CREATE, MODIFY, FIX]：
+**步驟 A: 窮舉本 session 所有寫入操作**
+
+回顯本 session 每一次 write_to_file / replace_file_content / multi_replace_file_content 呼叫，列出檔案清單。
+
+**步驟 B: 逐一檢查 CM-GATE**
+
+FOR each file IN exhaustive_file_list：
+- ASSERT CM-GATE 宣告存在（或 BATCH-CM 覆蓋）
 - ASSERT CM Step 0 classified
 - ASSERT CM Step 1 generated
 - ASSERT PGVG 2a-2f passed
 - ASSERT micro-validation passed
 - ASSERT root-cause-leftshift done
 - IF cross_cutting_triggered → ASSERT cross-cutting done
+
+**步驟 C: Meta-RCA 自檢**
+
+- 本 session 是否有任何使用者要求才執行的治理步驟？
+  - 若有 → 該事件本身 = GOVERNANCE_BYPASS，產出額外 LESSON
+- 本 session 是否有任何 LESSON 宣稱「守衛已更新」但實際未修改 skill 檔案？
+  - 若有 → DECLARATION_IMPLEMENTATION_GAP，必須補修 skill
 
 若任一 ASSERT 失敗 → STOP，完成缺失的 CM step 後重試。
 
@@ -422,7 +448,7 @@ IF diff is not empty → 更新 `{target_repo}/docs/workflow-state.md`：
 ## § Cross-Cutting: Change Management
 
 > **適用範圍**: 所有 Step 中的 CREATE/MODIFY/FIX 操作
-> **完整定義**: `$FRAMEWORK_ROOT/docs/governance/CHANGE-MANAGEMENT.md`
+> **完整定義**: `skills/workflow-skills/change-management-protocol.md`
 > **ADR**: ADR-GOV-011
 
 每次寫入皆為變更。所有變更類型強制執行 CM Steps 0-5 + root-cause-leftshift.md。

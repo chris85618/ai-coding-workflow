@@ -7,6 +7,41 @@
 
 ---
 
+## Meta-RCA 觸發器（LESSON-025 左移守衛）
+
+> **根因**: DECLARATION_IMPLEMENTATION_GAP — RCA 始終由使用者要求才執行，AI 未自主觸發
+> **ADR**: ADR-GOV-022
+
+**自檢規則**：在執行 RCA 時，先回答以下問題：
+
+1. **本次 RCA 是 AI 自主觸發的，還是使用者要求的？**
+   - 若使用者要求 → 本身就是 GOVERNANCE_BYPASS，必須追加一條 LESSON 記錄「為什麼 AI 沒有自主觸發」
+   - 若 AI 自主觸發 → 正常流程
+
+2. **本次 RCA 窮舉了本對話中所有問題嗎？**
+   - 若未窮舉 → SCAN_INCOMPLETENESS，必須先窮舉再逐一 RCA
+   - 窮舉方法：回顧本 session 每一次工具呼叫和回應，識別所有偏離協議的點
+
+3. **每個 LESSON 是否有對應的 skill 檔案實際修改？**
+   - 若 LESSON 宣稱「守衛已存在」但守衛明顯失敗 → GUARD_STRENGTHENING，不是 NEW_LESSON
+   - 禁止宣稱「Step 12 會攔截」— 如果 Step 12 沒有攔截到，它就不是有效守衛
+
+## 窮舉式 Session 掃描協議
+
+在 Step 12 執行 RCA 前，強制執行：
+
+```
+SESSION-SWEEP:
+  FOR each tool_call IN session_history:
+    IF tool_call.type IN [write_to_file, replace_file_content, multi_replace_file_content]:
+      CHECK: was CM-GATE declared before this call?
+      CHECK: was the write tracked in session_changes?
+    IF tool_call.result contains error or retry:
+      RECORD: potential LESSON candidate
+    IF user_message contains correction or dissatisfaction:
+      RECORD: governance gap → mandatory LESSON
+```
+
 ## Step 1: 根因分類
 
 對當前變更進行分類（所有變更類型皆適用）：

@@ -70,6 +70,10 @@
 3. 產出 LESSON-xxx
 4. 更新觸發問題的 skill/prompt
 5. 驗證更新後 skill 可防止重現
+6. **LESSON-to-Skill 驗證閘門（LESSON-025 守衛）**：
+   - LESSON 的「更新的 Skill」欄位是否有對應的實際 skill 檔案修改？
+   - 若宣稱「守衛已存在」→ 該守衛是否在本 session 有效攔截過問題？若未攔截 → GUARD_STRENGTHENING
+   - 禁止模式：「左移守衛: [既有機制] ✅」而該機制在本 session 已失敗
 
 ---
 

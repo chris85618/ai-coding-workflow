@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-unified-governance-v1`
-**Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成 + AGENTS.md 結構化步驟協議重塑完成`
-**Last Updated**: `2026-05-14T05:00+08:00`
+**Current Phase/Stage**: `Stage 3 (技術規劃) — 深度 RCA 完成 + 結構性左移守衛部署`
+**Last Updated**: `2026-05-14T05:35+08:00`
 **Recovery Mode**: false
 
 ---
@@ -203,8 +203,8 @@ FOR each pending WBS leaf L:
 
 | # | 行動 | 觸發條件 / LRM 判定 | 優先級 |
 |---|------|---------------------|--------|
-| 1 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
-| 2 | 驗證新 AGENTS.md Step 0-12 結構在其他 repository 的執行效果 | 下次在非 ai_coding repo 工作時 | HIGH |
+| 1 | 驗證 skills 自足性：在其他 repo 執行全套工作流，確認不需讀取 ai_coding/docs/ | 下次在非 ai_coding repo 工作時 | CRITICAL |
+| 2 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
 | 3 | UC-010/011 展開 Stage 5-8 下游 ID (CLS/INV/SC/TC) | 進入目標專案 Step 6 時 | MEDIUM |
 
 ---
@@ -214,8 +214,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T05:00+08:00
-- **Pipeline Position (recorded)**: Stage 3 (self-bootstrap, 治理架構)
-- **Actual Work Done**: AGENTS.md 結構化步驟協議重塑 (ADR-GOV-020)。645→437 行 (-32%)。全域搜尋協議抽取為 exhaustive-search.md skill；流程圖/工具矩陣/安裝步驟遷至 README.md；核心原則/Prompt Defense/Voice 整合為 § Core Directives；雙 docs/ 範圍規則建立；Step 0-12 sequential protocol 建立；安全審計三層縱深整合至 Step 6/9；ADR-GOV-021 (雙 Agent 迭代協議) 建立。
-- **State Diff**: AGENTS.md 從混合參考文件轉為結構化步驟執行協議；新增 exhaustive-search.md skill；ADR-GOV-020/021 建立
+- **Last Session Date**: 2026-05-14T05:35+08:00
+- **Pipeline Position (recorded)**: Stage 3 (self-bootstrap, 深度 RCA + 結構性左移)
+- **Actual Work Done**: 窮舉式深度 RCA。7 個問題識別 + 1 個元問題。產出 LESSON-023(強化)/024/025/026。4 個 skill 檔案實際修改：(1) change-management-protocol.md 新增 Inline CM-GATE + Batch Mode + 宣告-實施缺口偵測 (2) root-cause-leftshift.md 新增 Meta-RCA 觸發器 + Session 掃描協議 (3) AGENTS.md 新增 Principle #14 + Step 12.1 重寫為窮舉式檔案列舉 + Meta-RCA 自檢 (4) micro-validation.md Step 7 新增 LESSON-to-Skill 驗證閘門。
+- **State Diff**: LESSON-023 從淺層替換為 GUARD_STRENGTHENING；新增 LESSON-024/025/026；4 個 skill 實際修改
 - **Pending Escalations Carried Over**: 無
