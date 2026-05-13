@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-unified-governance-v1`
-**Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成 + 17 ADRs 還原 + 18 files 順序化重構 (全 B1-B3 完成)`
-**Last Updated**: `2026-05-14T03:56+08:00`
+**Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成 + 17 ADRs 還原 + IMP-xxx/change-log.md 完整遷移至 ADR 系統`
+**Last Updated**: `2026-05-14T04:32+08:00`
 **Recovery Mode**: false
 
 ---
@@ -206,7 +206,6 @@ FOR each pending WBS leaf L:
 | 1 | 執行目標專案的 Phase 0 (環境啟動) | 使用者啟動新專案時 | HIGH |
 | 2 | UC-010/011 展開 Stage 5-8 下游 ID (CLS/INV/SC/TC) | 進入目標專案 Stage 5 時 | MEDIUM |
 | 3 | 恢復測試：驗證 workflow-state.md 恢復協議 | 下次 session 開始時 | MEDIUM |
-| 4 | LESSON-007 守衛驗證：確認「守衛驗證證據」欄位在下次變更時被填寫 | 下次任何變更時 | LOW |
 
 ---
 
@@ -215,8 +214,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T02:56+08:00
+- **Last Session Date**: 2026-05-14T04:32+08:00
 - **Pipeline Position (recorded)**: Stage 3 (self-bootstrap, 治理架構)
-- **Actual Work Done**: 全面移除專案文件中的「Antigravity」品牌詞彙。docs/ 下 16 個 .md 的標題「Antigravity Integrated Workflow System」→「Unified Agentic Workflow System」；workflow-state.md Pipeline ID 去除 antigravity；project-charter.md BG-001 成功指標 Agent 列表改為通用表述。
-- **State Diff**: docs/ 16 檔更新；submodule 內上游文件（skills/everything-claude-code, skills/understand-anything）不在修改範圍
+- **Actual Work Done**: 完整 IMP-xxx/change-log.md → ADR 系統遷移。14 個 IMP + 14 個 LESSON 記錄遷移至 ADR-GOV-003~016；ADR-TEMPLATE 新增「變更紀錄」和「根因分析與教訓」兩個新區段；28+ 個檔案移除 change-log.md/IMP-xxx 引用（AGENTS.md、README.md、docs/governance/*、docs/adr/*、skills/workflow-skills/*、各業務文件）；docs/change-log.md 確認完全冗餘後刪除。commit 062caeb push 成功（58 files changed）。
+- **State Diff**: ADR 系統成為所有決策與變更紀錄的唯一 SSOT；change-log.md 已廢棄並刪除
 - **Pending Escalations Carried Over**: 無
