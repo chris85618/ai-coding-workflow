@@ -79,10 +79,18 @@ ALG-xxx → CLS-xxx → INV-xxx
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  MICRO-VALIDATION LOOP（每次微動作後自動執行）           │
+│  8 步驗證迴圈（Step 0-7）                               │
+│                                                         │
+│  Step 0: 格式驗證 (PGVG)                                │
+│  → Markdown 格式正確（backtick、表格、標題層次）        │
+│  → 覆蓋斷言（輸入 ID ↔ 輸出 ID 交叉驗證）              │
+│  → 計數驗證（從實際內容 grep 計數，非自我報告）          │
+│  → 外來殘留掃描（inline code blocks 來源檢查）          │
 │                                                         │
 │  Step 1: 結構完整性檢查                                 │
 │  → 新/改 ID 格式是否符合前綴規格？                      │
 │  → ID 序號是否連續且無重複？                            │
+│  → 自動化計數：不接受泛稱覆蓋，列出每個 N              │
 │                                                         │
 │  Step 2: 正向追溯檢查                                   │
 │  → 該 ID 是否有至少一條正向連結到下游？                 │
@@ -96,6 +104,7 @@ ALG-xxx → CLS-xxx → INV-xxx
 │  → 該 ID 的描述是否與上游 ID 的語意相容？               │
 │  → 下游 ID 的描述是否仍與該 ID 的語意相容？             │
 │  → 檢測語意漂移：修改後的意圖是否偏離原始商業目標？     │
+│  → 交叉覆蓋驗證：逐一比對上下游映射                    │
 │                                                         │
 │  Step 5: 孤兒偵測                                       │
 │  → 是否存在任何 ID 無上游也無下游連結？                 │
@@ -105,6 +114,13 @@ ALG-xxx → CLS-xxx → INV-xxx
 │  → 對修改的 ID 執行 IMPACT-ANALYSIS.md 協議             │
 │  → 計算爆炸半徑                                         │
 │  → 標記受影響的下游 ID                                  │
+│                                                         │
+│  Step 7: 變更紀錄 + 根因左移                            │
+│  → 寫入 IMP-xxx 至 docs/change-log.md                   │
+│  → 若變更類型為 FIX：                                   │
+│    → 執行 root-cause-leftshift.md                       │
+│    → 產出 LESSON-xxx                                    │
+│    → 更新觸發錯誤的 skill/prompt/governance 文件        │
 │                                                         │
 │  Result:                                                │
 │  → 全數通過 ✅ → 繼續下一個微動作                      │

@@ -147,7 +147,7 @@
                 │
                 ▼
          ┌──────────────┐
-         │ RECORDED     │ → IMP-xxx 寫入 docs/impact-log.md
+         │ RECORDED     │ → IMP-xxx 寫入 docs/change-log.md
          └──────────────┘
 
          [INV-012] 單調性

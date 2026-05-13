@@ -112,6 +112,7 @@ WORKFLOW.md (本文件 — 頂層指揮器)
 │   ├── iter-loop.md             ← 通用雙 Agent 迭代迴圈
 │   ├── micro-validation.md      ← 左移微驗證迴圈
 │   ├── impact-analysis-exec.md  ← 影響分析執行協議
+│   ├── root-cause-leftshift.md  ← FIX 類型根因左移
 │   ├── s2c-charter.md           ← S2C 專案章程生成
 │   ├── s2c-stakeholder.md       ← S2C 利害關係人分析
 │   ├── s2c-scope-redteam.md     ← S2C 範圍定義 + Red Team
@@ -269,8 +270,9 @@ docs/
 ├── adr/
 │   ├── ADR-INDEX.md             # ADR 活索引
 │   ├── ADR-TEMPLATE.md          # LLM 撰寫範本（6 類別）
-│   ├── ADR-STR-001.md            # 三層分離架構
-│   └── ADR-GOV-002.md            # ADR 治理框架決策
+│   ├── ADR-STR-001.md           # 三層分離架構
+│   ├── ADR-GOV-001.md           # DU 理論 + 新穎性門檻
+│   └── ADR-GOV-002.md           # ADR 治理框架決策
 ├── phases/
 │   ├── phase-0-environment.md
 │   ├── phase-1-code-understanding.md

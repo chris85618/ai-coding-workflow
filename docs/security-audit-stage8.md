@@ -39,7 +39,7 @@ Stage 8 最終安全審計涵蓋全部 docs/ 和 skills/ 文件。
 |--------|------|------|
 | 子模組來源 | ✅ PASS | 4 已知可信來源 |
 | 子模組唯讀 | ✅ PASS | NFR-002 約束 |
-| 技能檔案完整性 | ✅ PASS | 13 skill 檔案驗證 |
+| 技能檔案完整性 | ✅ PASS | 14 skill 檔案驗證 |
 | 外部工具引用 | ✅ PASS | SonarCloud/SkillFortify 已知 |
 
 ---

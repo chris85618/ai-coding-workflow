@@ -131,7 +131,7 @@ impact_analysis(change):
     downstream=downstream,
     timestamp=now()
   )
-  persist(record, "docs/impact-log.md")
+  persist(record, "docs/change-log.md")
   RETURN record
 ```
 
@@ -140,7 +140,7 @@ impact_analysis(change):
 |------|------|------|
 | 遍歷完備性 | 🅐 | visited set 防止循環，遞迴展開至末端 |
 | 分類單調性 | 🅐 | blast_radius 越大嚴重度越高，無逆轉 |
-| 持久性 | 🅐 | 每次皆寫入 docs/impact-log.md |
+| 持久性 | 🅐 | 每次皆寫入 docs/change-log.md |
 
 ---
 

@@ -180,6 +180,8 @@ DebtItem
   + calculateRICE(): float    // ALG-004
   + classifyQuadrant(): Quadrant
   [INV] riceScore = (reach × impact × confidence) / effort
+```
+
 ### CLS-010: SecurityAuditor（領域服務）
 
 **描述**：三層安全審計的執行引擎。

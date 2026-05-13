@@ -138,7 +138,7 @@ Scenario: COSMETIC 級修改
   When 影響分析計算
   Then blast_radius = 0
   And severity = COSMETIC
-  And IMP-xxx 寫入 impact-log.md
+  And IMP-xxx 寫入 change-log.md
 
 Scenario: MINOR 級修改
   Given 修改一個 ID 且下游 ≤ 3 且同 Stage
@@ -150,7 +150,7 @@ Scenario: MAJOR 級修改觸發 HITL
   When 影響分析計算
   Then severity = MAJOR
   And 系統自動上報 HITL [INV-013]
-  And IMP-xxx 寫入 impact-log.md
+  And IMP-xxx 寫入 change-log.md
 
 Scenario: 嚴重度單調性
   Given 兩個修改 A (blast=5) 和 B (blast=15)

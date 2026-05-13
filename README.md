@@ -11,7 +11,7 @@ ai_coding/
 ├── GEMINI.md        # Antigravity agent 配置（symlink → ~/.gemini/GEMINI.md）
 ├── CLAUDE.md        # Claude Code / ECC 編排規則
 ├── AGENTS.md        # 跨工具共用 agent 指令
-├── WORKFLOW.md      # 6 階段迭代管線定義（825 行）
+├── WORKFLOW.md      # 6 階段迭代管線定義
 ├── .gitignore       # 排除生成物
 └── skills/
     ├── everything-claude-code/   # ECC — 開發護欄、hooks、agents
@@ -40,7 +40,7 @@ Phase 9   /ship → /land-and-deploy → /canary
 Phase 10  /retro → /understand → /evolve
 ```
 
-**精簡路徑（小型任務）：** Phase 0 → Phase 1 → Phase 2 → Stage 3 → Stage 8 → Phase 9 → Phase 10
+所有開發任務遵循完整管線，**無簡化路徑**。
 
 ## Quick Start
 

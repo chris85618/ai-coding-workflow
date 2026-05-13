@@ -59,7 +59,7 @@
 **追溯**：FR-008, FR-009 (realizes)
 
 **前置條件**：ID 被修改
-**後置條件**：IMP-xxx 紀錄已寫入 docs/impact-log.md
+**後置條件**：IMP-xxx 紀錄已寫入 docs/change-log.md
 **主要流程**：識別 → 正向追溯 → 反向追溯 → 爆炸半徑 → 分類 → 紀錄
 **例外流程**：MAJOR (blast_radius >10 或跨 2+ Stage) → 暫停 → 上報 HITL
 

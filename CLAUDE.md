@@ -16,27 +16,27 @@
 
 **本 repo 的核心工作流定義在 [WORKFLOW.md](./WORKFLOW.md)。**
 
-所有開發任務必須遵循 WORKFLOW.md 中定義的 6 階段序列式迭代管線：
+所有開發任務遵循完整管線，**無簡化路徑**：
 
 ```
 Phase 0   [自動] 環境啟動
 Phase 1   /understand (Path B: 既有 codebase)
-Phase 2   /office-hours → /plan-ceo-review
+Phase 2   專案章程 → /office-hours → 範圍定義 → /plan-ceo-review   → HITL ✅
 ─── 迭代管線 ───
-Stage 3   [技術規劃]          /autoplan + 雙Agent迭代
-Stage 4   [演算法+安全審計]    22維審查 + skillfortify
-Stage 5   [OOAD+安全審計]      4維審查 + 三層安全審計
-Stage 6   [形式化驗證設計]     不變量/Contract/狀態機
-Stage 7   [BDD/ATDD+驗證開發]  場景覆蓋+Property test
-Stage 8   [TDD+測試+修復]      紅綠重構+/review+/qa
+Stage 3   [技術規劃]          /autoplan + 7維 + 雙Agent迭代         → HITL ✅
+Stage 4   [演算法+安全審計]    22維審查 + skillfortify              → HITL ✅
+Stage 5   [OOAD+安全審計]      4維審查 + DDD + 三層安全審計         → HITL ✅
+Stage 6   [形式化驗證設計]     6維 + 不變量/Contract/狀態機         → HITL ✅
+Stage 7   [BDD/ATDD+驗證開發]  9維 + 場景覆蓋 + Property test      → HITL ✅
+Stage 8   [TDD+測試+修復]      5維 + SonarCloud + /review + /qa    → HITL ✅
 ─── 管線結束 ───
-Phase 9   /ship → /land-and-deploy → /canary
-Phase 10  /retro → /understand → /evolve
+Phase 9   /ship → /land-and-deploy → /canary → /document-release
+Phase 10  /retro → 技術債更新 → /understand → /evolve
 ```
 
-**精簡路徑（小型任務）：** Phase 0 → Phase 1（若有） → Phase 2 → Stage 3 → Stage 8 → Phase 9 → Phase 10
+**治理層（跨切面）**：`docs/governance/TRACEABILITY.md` + `docs/governance/IMPACT-ANALYSIS.md` + `docs/governance/TECH-DEBT.md`
 
-每個 Stage 的審查維度、Agent α/β 迭代協議、HITL 閘門細節，請讀取 WORKFLOW.md 的對應章節。
+每個 Stage 的完整定義在 `docs/stages/` 和 `docs/phases/` 對應文件中。
 
 ---
 
@@ -107,8 +107,9 @@ skillfortify dashboard --output report.html    # 安全報告
 
 1. **Agent α（破綻發掘者）**：依該 Stage 的審查維度，窮盡式批判
 2. **Agent β（收斂整合者）**：對每個破綻執行決策流（分類 → 奧卡姆剃刀 → 前提窮盡 → 併吞分析 → 循環依賴破解 → 邊界內化）
-3. **HITL 迭代閘門**：[1] 繼續迭代 [2] 加入新需求 [3] 通過 → 下一 Stage
-4. **不動點偵測**：Agent α 僅剩 YAGNI 級質疑 → 建議終止
+3. **Step M（微驗證）**：每個改善後立即執行追溯驗證 + 影響分析，全數通過才進入 HITL
+4. **HITL 迭代閘門**：[1] 繼續迭代 [2] 加入新需求 [3] 通過 → 下一 Stage
+5. **不動點偵測**：Agent α 僅剩 YAGNI 級質疑 → 建議終止
 
 ---
 

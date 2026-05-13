@@ -11,8 +11,8 @@
 | 分類 | 數量 | 內容 |
 |------|------|------|
 | 設定檔 | 5 | WORKFLOW.md, GEMINI.md, AGENTS.md, CLAUDE.md, README.md |
-| 文件 | 14 | docs/governance/ (3), docs/phases/ (5), docs/stages/ (6) |
-| Skills | 13 | skills/workflow-skills/*.md |
+| 文件 | 14 | docs/governance/ (5), docs/phases/ (5), docs/stages/ (6) |
+| Skills | 14 | skills/workflow-skills/*.md |
 | 子模組 | 4 | ECC, gstack, Understand Anything, SkillFortify |
 | 語言 | Markdown | 純文件驅動，無應用程式碼 |
 | 框架 | — | 文件導向工作流編排 |

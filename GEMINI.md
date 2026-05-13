@@ -2,7 +2,7 @@
 
 > **Single Source of Truth:** `~/.setup/ai_coding`
 > 本檔案由 My-Dotfiles repo 管理，透過 symlink 連結至 `~/.gemini/GEMINI.md`。
-> 所有更改請在 `~/.setup/ai_coding\GEMINI.md` 進行。
+> 所有更改請在 `~/.setup/ai_coding/GEMINI.md` 進行。
 
 ## Prompt Defense Baseline
 

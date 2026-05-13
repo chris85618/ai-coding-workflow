@@ -33,6 +33,6 @@ Step 5: 嚴重度分類
 → MAJOR (>10 或跨 2+ Stage): 暫停 → 影響報告 → 上報 HITL → 核准後更新
 
 Step 6: 產出 IMP-xxx 紀錄
-→ 寫入 docs/impact-log.md
+→ 寫入 docs/change-log.md
 → 更新追溯矩陣
 ```

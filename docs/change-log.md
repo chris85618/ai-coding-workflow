@@ -125,3 +125,42 @@
   5. 結構性修正？→ **completion-check.md 強制從文件 grep 計數 + 微驗證 Step 1 不接受泛稱覆蓋**
 - **左移守衛**: micro-validation.md Step 1 LLM Guard 已更新 ✅, completion-check.md (待更新)
 - **更新 Skill**: micro-validation.md ✅, completion-check.md ✅
+
+---
+
+## IMP-006: 全庫自我檢驗批次修正
+
+- **日期**: 2026-05-13T23:27+08:00
+- **觸發**: Phase 10 /retro 自我檢驗
+- **嚴重度**: MODERATE (blast_radius=14, cross_stage=ALL)
+- **修正檔案** (12 個):
+
+| # | 檔案 | 修正內容 | 嚴重度 |
+|---|------|----------|--------|
+| 1 | CLAUDE.md | 移除「精簡路徑」，改為「無簡化路徑」 | CRITICAL |
+| 2 | CLAUDE.md | 雙Agent協議補 Step M（4步→5步） | CRITICAL |
+| 3 | CLAUDE.md | Phase 9 補 /document-release | MAJOR |
+| 4 | CLAUDE.md | Phase 10 補 技術債更新 | MAJOR |
+| 5 | WORKFLOW.md | adr/ listing 補 ADR-GOV-001.md | MAJOR |
+| 6 | WORKFLOW.md | 呼叫鏈補 root-cause-leftshift.md | MAJOR |
+| 7 | README.md | 移除「825 行」過期數字 | MODERATE |
+| 8 | README.md | 移除「精簡路徑」 | MODERATE |
+| 9 | requirements.md | FR-007「6 步」→「8 步」 | MODERATE |
+| 10 | TRACEABILITY.md | 微驗證迴圈 6 步→8 步 | MODERATE |
+| 11 | project-charter.md | governance/ (3)→(5), Skills 13→14 | MODERATE |
+| 12 | domain-model.md | CLS-009 補缺失 ``` | MINOR |
+| 13 | GEMINI.md | 路徑反斜線→正斜線 | MINOR |
+| 14 | 6 個檔案 | docs/impact-log.md→docs/change-log.md | MINOR |
+| 15 | security-audit-stage8.md | 技能檔案 13→14 | MINOR |
+
+### LESSON-006: 跨檔案增量演化同步斷裂
+
+- **根因**: 治理文件在多次迭代中增量演化（新增 Step 0/7、新增 ADR-GOV-001、新增 root-cause-leftshift.md），但每次演化僅更新了直接相關文件，未觸發全庫交叉引用掃描
+- **5 Whys**:
+  1. 為什麼 CLAUDE.md 有精簡路徑？→ 建立時從較早版本複製，之後 WORKFLOW.md 才移除
+  2. 為什麼沒被偵測？→ 微驗證僅驗證 ID 追溯，不驗證跨檔案 policy 一致性
+  3. 為什麼 impact-log.md 幽靈引用存在？→ 改名為 change-log.md 時未全庫 grep
+  4. 為什麼 6 步/8 步不一致？→ ALG-002 升級時只改了 CHANGE-MANAGEMENT.md
+  5. 結構性修正？→ **每次增量演化後，強制執行跨檔案 grep 掃描 + policy 一致性檢查**
+- **左移守衛**: 自我檢驗流程已驗證此模式；未來所有 FIX 類型變更需包含全庫 grep 驗證步驟
+- **更新 Skill**: micro-validation.md Step 0 已涵蓋交叉覆蓋驗證 ✅
