@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-unified-governance-v1`
-**Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成 + 17 ADRs 還原 + IMP-xxx/change-log.md 完整遷移至 ADR 系統`
-**Last Updated**: `2026-05-14T04:32+08:00`
+**Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成 + AGENTS.md 結構化步驟協議重塑完成`
+**Last Updated**: `2026-05-14T05:00+08:00`
 **Recovery Mode**: false
 
 ---
@@ -197,15 +197,15 @@ FOR each pending WBS leaf L:
 
 ## Next Actions
 
-> 由 Session-End Hook（AGENTS.md「收尾協議」）自動維護。
+> 由 Session-End Hook（AGENTS.md Step 12）自動維護。
 > 列出所有 LRM 已到達的 pending WBS leaf + HITL 待決項。
 > 每次 session 結束時覆寫此區塊。
 
 | # | 行動 | 觸發條件 / LRM 判定 | 優先級 |
 |---|------|---------------------|--------|
-| 1 | 執行目標專案的 Phase 0 (環境啟動) | 使用者啟動新專案時 | HIGH |
-| 2 | UC-010/011 展開 Stage 5-8 下游 ID (CLS/INV/SC/TC) | 進入目標專案 Stage 5 時 | MEDIUM |
-| 3 | 恢復測試：驗證 workflow-state.md 恢復協議 | 下次 session 開始時 | MEDIUM |
+| 1 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
+| 2 | 驗證新 AGENTS.md Step 0-12 結構在其他 repository 的執行效果 | 下次在非 ai_coding repo 工作時 | HIGH |
+| 3 | UC-010/011 展開 Stage 5-8 下游 ID (CLS/INV/SC/TC) | 進入目標專案 Step 6 時 | MEDIUM |
 
 ---
 
@@ -214,8 +214,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T04:32+08:00
+- **Last Session Date**: 2026-05-14T05:00+08:00
 - **Pipeline Position (recorded)**: Stage 3 (self-bootstrap, 治理架構)
-- **Actual Work Done**: 完整 IMP-xxx/change-log.md → ADR 系統遷移。14 個 IMP + 14 個 LESSON 記錄遷移至 ADR-GOV-003~016；ADR-TEMPLATE 新增「變更紀錄」和「根因分析與教訓」兩個新區段；28+ 個檔案移除 change-log.md/IMP-xxx 引用（AGENTS.md、README.md、docs/governance/*、docs/adr/*、skills/workflow-skills/*、各業務文件）；docs/change-log.md 確認完全冗餘後刪除。commit 062caeb push 成功（58 files changed）。
-- **State Diff**: ADR 系統成為所有決策與變更紀錄的唯一 SSOT；change-log.md 已廢棄並刪除
+- **Actual Work Done**: AGENTS.md 結構化步驟協議重塑 (ADR-GOV-020)。645→437 行 (-32%)。全域搜尋協議抽取為 exhaustive-search.md skill；流程圖/工具矩陣/安裝步驟遷至 README.md；核心原則/Prompt Defense/Voice 整合為 § Core Directives；雙 docs/ 範圍規則建立；Step 0-12 sequential protocol 建立；安全審計三層縱深整合至 Step 6/9；ADR-GOV-021 (雙 Agent 迭代協議) 建立。
+- **State Diff**: AGENTS.md 從混合參考文件轉為結構化步驟執行協議；新增 exhaustive-search.md skill；ADR-GOV-020/021 建立
 - **Pending Escalations Carried Over**: 無

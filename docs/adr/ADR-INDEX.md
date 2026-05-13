@@ -10,12 +10,12 @@
 | 類別 | 數量 | 最新 ID |
 |------|:----:|---------:|
 | STRUCTURAL | 1 | ADR-STR-001 |
-| GOVERNANCE | 19 | ADR-GOV-019 |
+| GOVERNANCE | 21 | ADR-GOV-021 |
 | SECURITY | 0 | — |
 | SCOPE | 0 | — |
 | GATE | 0 | — |
 | OPERATIONAL | 0 | — |
-| **合計** | **20** | |
+| **合計** | **22** | |
 
 ---
 
@@ -48,6 +48,8 @@
 | [ADR-GOV-017](ADR-GOV-017.md) | LLM 原生與優雅降級 | Accepted | 2026-05-14 | NFR-001, NFR-003 |
 | [ADR-GOV-018](ADR-GOV-018.md) | 雙軸意圖框架 (DAIF) | Accepted | 2026-05-14 | FR-019 |
 | [ADR-GOV-019](ADR-GOV-019.md) | ADG + PAG 驗證增強 | Accepted | 2026-05-14 | FR-005, FR-007 |
+| [ADR-GOV-020](ADR-GOV-020.md) | AGENTS.md 結構化步驟協議重塑 | Accepted | 2026-05-14 | FR-001, FR-002, FR-003, FR-005, FR-019, NFR-001 |
+| [ADR-GOV-021](ADR-GOV-021.md) | 雙 Agent 迭代協議 — 設計決策記錄 | Accepted | 2026-05-14 | FR-001, FR-005, FR-007, NFR-001 |
 
 ## SECURITY（安全）
 
