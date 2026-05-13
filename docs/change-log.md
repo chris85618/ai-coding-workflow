@@ -1,4 +1,4 @@
-# Change Log — Antigravity Integrated Workflow System
+﻿# Change Log — Unified Agentic Workflow System
 
 > **格式**：IMP-xxx (變更紀錄) + LESSON-xxx (根因左移)
 > **治理**：docs/governance/CHANGE-MANAGEMENT.md

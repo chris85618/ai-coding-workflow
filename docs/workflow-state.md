@@ -8,9 +8,9 @@
 
 ## Pipeline Position
 
-**Pipeline ID**: `pipe-antigravity-governance-v1`
+**Pipeline ID**: `pipe-unified-governance-v1`
 **Current Phase/Stage**: `Stage 3 (技術規劃) — 治理架構自舉完成，尚未開始目標專案的 Stage 3`
-**Last Updated**: `2026-05-14T01:48+08:00`
+**Last Updated**: `2026-05-14T02:56+08:00`
 **Recovery Mode**: false
 
 ---
@@ -215,8 +215,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T02:54+08:00
+- **Last Session Date**: 2026-05-14T02:56+08:00
 - **Pipeline Position (recorded)**: Stage 3 (self-bootstrap, 治理架構)
-- **Actual Work Done**: AGENTS.md 首尾 hook 新增：(1) 最開頭加入「⚠️ 強制啟動閘門」(L11-23)，強制 AI 先走 Session-Start Hook；(2) 最結尾加入「⚠️ 強制收尾閘門」(L675-704)，含 4 大驗證：CM 驗證 / 追溯矩陣 / Workflow 生命週期 / 輸出狀態區塊。
-- **State Diff**: AGENTS.md 從 656 行增至 705 行
+- **Actual Work Done**: 全面移除專案文件中的「Antigravity」品牌詞彙。docs/ 下 16 個 .md 的標題「Antigravity Integrated Workflow System」→「Unified Agentic Workflow System」；workflow-state.md Pipeline ID 去除 antigravity；project-charter.md BG-001 成功指標 Agent 列表改為通用表述。
+- **State Diff**: docs/ 16 檔更新；submodule 內上游文件（skills/everything-claude-code, skills/understand-anything）不在修改範圍
 - **Pending Escalations Carried Over**: 無
