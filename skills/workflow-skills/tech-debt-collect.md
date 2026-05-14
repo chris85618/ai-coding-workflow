@@ -20,6 +20,8 @@
 | 6 | 文件債 | 追溯矩陣孤兒 |
 | 7 | 流程債 | 追溯缺口 + 影響分析紀錄 |
 
+> **ID 指派前置條件 (LESSON-030 守衛)**：指派 DEBT-xxx ID 前，**必須**讀取 `{target_repo}/docs/traceability-matrix.md` § DEBT→FR 節，掃描最大序號後遞增。若矩陣不存在則窮舉搜尋全 repo（grep -rn "DEBT-"）。禁止「假設從 DEBT-001 開始」。
+
 ## Step 2: RICE 計算
 
 對每個 debt_item 計算：
@@ -40,3 +42,19 @@
 
 1. 20% Sprint 容量用於債務償還
 2. 依 RICE 降序貪心選取
+3. P0（Critical）不受容量限制，立即處理
+4. 每季度全面重新評估 RICE 分數
+
+## Step 5: 更新登錄表 & 追溯矩陣（強制）
+
+> **每次識別或更新 DEBT-xxx 後必須執行**：
+
+1. 打開 `{target_repo}/docs/tech-debt-register.md`
+   - 新增/更新對應 DEBT-xxx 完整記錄（含所有必填欄位）
+   - 更新 `Total Active Items` 計數
+2. 打開 `{target_repo}/docs/traceability-matrix.md`
+   - 在「DEBT → FR」節新增/更新對應行
+   - 在覆蓋統計更新 DEBT-xxx 計數
+3. 若 DEBT 狀態變 resolved/cancelled → 移至 `Closed Debt` 節，更新計數
+4. DEBT-xxx 若有對應 RISK-xxx → 同步呼叫 `risk-management.md` (Step 5) 更新風險登錄
+

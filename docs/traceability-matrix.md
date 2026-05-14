@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-14T06:21:00+08:00 (ADR-INDEX.md 合併至本檔)
-**Validation Status**: ✅ ADR-INDEX 合併完成；24 ADR 登記簿統一管理；201 條追溯紀錄
+**Last Validated**: 2026-05-14T07:03:00+08:00 (ADR-GOV-025：ISO31000風險管理框架+DEBT/RISK完整追溯)
+**Validation Status**: ✅ ADR-GOV-025 新增；25 ADR 登記簿統一管理；RISK/DEBT 完整欄位；214 條追溯紀錄
 
 ---
 
@@ -107,8 +107,9 @@
 | [ADR-GOV-022](adr/ADR-GOV-022.md) | docs/ 執行邏輯吸收至 skills/ 實現 Skill 自足性 | GOV | Accepted | FR-001, FR-002, FR-003, FR-005, FR-019, FR-022, FR-023 | justifies |
 | [ADR-GOV-023](adr/ADR-GOV-023.md) | Skill 追溯性擴充 + RCA 推論平準化 | GOV | Accepted | FR-004, FR-005, FR-007, FR-022, FR-023 | justifies |
 | [ADR-GOV-024](adr/ADR-GOV-024.md) | 強制循序輸出協議 | GOV | Accepted | FR-001, FR-005, FR-019 | justifies |
+| [ADR-GOV-025](adr/ADR-GOV-025.md) | ISO 31000 風險管理框架 + DEBT/RISK 完整追溯制度 | GOV | Accepted | FR-010, FR-011, FR-022, FR-023 | justifies |
 
-> 類別統計：STR=1, GOV=24, SEC=0, SCP=0, GATE=0, OPS=0, **合計=25**
+> 類別統計：STR=1, GOV=25, SEC=0, SCP=0, GATE=0, OPS=0, **合計=26**
 
 ### ALG → FR
 
@@ -120,11 +121,23 @@
 | ALG-004 | FR-010, FR-011 | implements | ✅ |
 | ALG-005 | FR-005 | implements | ✅ |
 
-### RISK → FEA
+### RISK → FEA (ISO 31000 完整屬性)
 
-| RISK | FEA | 連結 | 語意 |
-|------|------|------|------|
-| RISK-001 | FEA-006 | mitigates | ✅ |
+| RISK | 標題 | 狀態 | 機率 | 影響 | 強度 | 策略 | FEA | 對應LESSON | 對應ADR | 連結 |
+|------|------|------|------|------|------|------|-----|-----------|---------|------|
+| RISK-001 | SonarCloud依賴外部服務帳號 | open | 2 | 3 | 6(MEDIUM) | MT | FEA-006 | N/A | N/A | mitigates |
+| RISK-002 | ADR數量膨脹導致管理困難 | open | 3 | 2 | 6(MEDIUM) | MT | FEA-009 | N/A | ADR-GOV-002 | mitigates |
+| RISK-003 | docs/與skills/版本漂移 | open | 3 | 3 | 9(MEDIUM) | MT | FEA-001,009 | LESSON-022 | ADR-GOV-022 | mitigates |
+| RISK-004 | Session結束前未執行完整CM協議 | open | 3 | 4 | 12(HIGH) | MT | FEA-006 | LESSON-009,011,030 | ADR-GOV-010,011 | mitigates |
+| RISK-005 | ADR-TEMPLATE欄位過長導致LLM省略 | open | 3 | 3 | 9(MEDIUM) | MT | FEA-006,007 | LESSON-029 | ADR-GOV-025 | mitigates |
+
+> **未應對風險計數公式**：status=`open` AND 強度>=MEDIUM 的 RISK-xxx 數量。當前值 = **5**
+
+### DEBT → FR
+
+| DEBT | 標題 | 狀態 | 來源 | 優先 | RICE | 象限 | FR 追溯 | 對應RISK | 對應LESSON | 連結 |
+|------|------|------|------|------|------|------|---------|---------|-----------|------|
+| DEBT-001 | docs/下原始方法論檔案未標記為Reference Only | open | 文件債 | P2 | 6.0 | Fill In | FR-001,002 | RISK-003 | LESSON-022 | derives |
 
 ### CLS → UC / ALG
 
@@ -216,8 +229,8 @@
 | FR-007 | `micro-validation.md`, `root-cause-leftshift.md` | implemented-by |
 | FR-008 | `impact-analysis-exec.md` | implemented-by |
 | FR-009 | `impact-analysis-exec.md`, `adr-governance.md` | implemented-by |
-| FR-010 | `tech-debt-collect.md`, `tech-debt-framework.md` | implemented-by |
-| FR-011 | `tech-debt-framework.md` | implemented-by |
+| FR-010 | `tech-debt-collect.md`, `tech-debt-framework.md`, `risk-management.md` | implemented-by |
+| FR-011 | `tech-debt-framework.md`, `risk-management.md` | implemented-by |
 | FR-012 | `iter-loop.md` | implemented-by |
 | FR-013 | `iter-loop.md` (Step F) | implemented-by |
 | FR-014 | `iter-loop.md` (HITL section) | implemented-by |
@@ -259,6 +272,12 @@
 | LESSON-026 | DECLARATION_IMPLEMENTATION_GAP | `micro-validation.md` (Step 7.6) | ADR-GOV-022 | guards |
 | LESSON-027 | ARCHITECTURE_EROSION | `impact-analysis-exec.md` | — (ADR-INDEX 合併) | guards |
 | LESSON-028 | GOVERNANCE_BYPASS | `AGENTS.md` (#15 + Step 輸出協議) | ADR-GOV-024 | guards |
+| LESSON-029 | PROCESS_GAP | `risk-management.md` (Step 5), `tech-debt-collect.md` (Step 5), `ADR-TEMPLATE.md` (關聯產出物) | ADR-GOV-025 | guards |
+| LESSON-030 | SCAN_INCOMPLETENESS | `risk-management.md` (Step 1 SSOT), `tech-debt-collect.md` (Step 1 SSOT), `exhaustive-search.md` | ADR-GOV-025 (追加) | guards |
+| LESSON-031 | ARCHITECTURE_EROSION | `traceability-system.md` (Step 0 通用 ID 指派協議), `root-cause-leftshift.md` (Step 7 LESSON ID 守衞) | ADR-GOV-025 (追加) | guards |
+| LESSON-032 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 12.2 Pipeline Position 客觀判定守衛) | ADR-GOV-025 (追加) | guards |
+| LESSON-033 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 輸出協議 — 每個 prompt = 完整協議觸發) | ADR-GOV-025 (追加) | guards |
+| LESSON-034 | ASSUMPTION_OVERRIDE | `AGENTS.md` (Factual Reporting — 範圍限定詞保護) | ADR-GOV-025 (追加) | guards |
 
 > LESSON-015~019, LESSON-021 不存在（ID 跳號或已合併）
 
@@ -282,6 +301,7 @@
 | ADR-GOV-022 | 15 CREATE + `impact-analysis-exec.md` + `AGENTS.md` | modified-by |
 | ADR-GOV-023 | `traceability-system.md`, `root-cause-leftshift.md`, `adr-governance.md` | modified-by |
 | ADR-GOV-024 | `AGENTS.md` (#15 + Step 輸出協議 + Step 0-12 輸出標注) | modified-by |
+| ADR-GOV-025 | `risk-management.md` (CREATE), `risk-register.md` (CREATE), `tech-debt-register.md` (CREATE), `tech-debt-collect.md` (Step 5), `ADR-TEMPLATE.md` (關聯產出物), `AGENTS.md` (Routing+12.5), `security-audit-3layer.md` (Step 5), `phase-10-orchestration.md` (Step 3.5), `stage-8-dimensions.md` (Step 5.5), `root-cause-leftshift.md` (Step 7.5), `phase-2-orchestration.md` (Step 4.5) | modified-by |
 
 > ADR-GOV-001/002/014/015/017/018/019/021, ADR-STR-001 為治理原則定義，嵌入 AGENTS.md Core Directives
 
@@ -310,12 +330,13 @@
 | Phase 2.0 | BG-xxx | 4 | — (源頭) | 4/4 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
 | Phase 2.2 | FEA-xxx | 10 | 10/10 | 10/10 | 100% |
-| Phase 2.2 | RISK-xxx | 1 | 1/1 | — | 100% |
+| Phase 2.2 | RISK-xxx | 2 | 2/2 | — (ISO 31000 完整欄位) | 100% |
+| Phase 2.2 | DEBT-xxx | 0 | — (待目標專案) | — | N/A |
 | Stage 3 | FR-xxx | 25 | 25/25 | 25/25 | 100% |
 | Stage 3 | NFR-xxx | 6 | 6/6 | — (約束) | 100% |
-| Stage 3 | UC-xxx | 11 | 11/11 | 9/11 (UC-010/011 待 Stage 5-8) | 82% |
+| Stage 3 | UC-xxx | 11 | 11/11 | 9/11 (UC-010/011 未被 CLS/SC 覆蓋，Stage 5-8 已執行) | 82% |
 | Stage 3 | ADR-STR-xxx | 1 | 1/1 | — | 100% |
-| 治理層 | ADR-GOV-xxx | 24 | 24/24 | — (治理) | 100% |
+| 治理層 | ADR-GOV-xxx | 25 | 25/25 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 5 | 5/5 | 5/5 | 100% |
 | Stage 5 | CLS-xxx | 12 | 12/12 | 12/12 | 100% |
 | Stage 5 | EVT-xxx | 5 | 5/5 | — | 100% |
@@ -323,9 +344,12 @@
 | Stage 7 | SC-xxx | 9 | 9/9 | 9/9 | 100% |
 | Stage 8 | TC-xxx | 9 | 9/9 | — (末端) | 100% |
 | Skill 實作 | FR→Skill | 25 | 25/25 | — (映射) | 100% |
-| Skill 守衛 | LESSON→Skill | 22 | 22/22 | — (映射) | 100% |
-| Skill 修改 | ADR→Skill | 16 | 16/16 | — (映射) | 100% |
-| **合計** | — | **206** | — | — | **100%** |
+| Skill 守衛 | LESSON→Skill | 28 | 28/28 | — (映射) | 100% |
+| Skill 修改 | ADR→Skill | 17 | 17/17 | — (映射) | 100% |
+| 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
+| 技術債追溯 | DEBT→FR | 1 | 1/1 | — (治理) | 100% |
+| **合計** | — | **225** | — | — | **100%** |
 
-> **Status**: ADR-GOV-024 (強制循序輸出) 新增。LESSON-027/028 登記。ADR 登記簿含 25 筆 ADR（STR=1, GOV=24）。206 條追溯紀錄，零孤兒。
-
+> **Status**: +LESSON-033 (協議執行繞道 RCA), +LESSON-034 (範圍限定詞保護)。225 條追溯紀錄，零孤兒。
+> **未應對風險**: 5 (RISK-004 HIGH; RISK-001/002/003/005 MEDIUM)
+> **技術債**: 1 (DEBT-001 P2)

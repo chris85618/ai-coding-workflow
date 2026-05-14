@@ -39,6 +39,15 @@
 - 挑戰假設、市場定位、商業模式
 - 產出：策略驗證報告
 
+## Step 4.5: 初始風險識別
+
+> Phase 2 是風險首次識別的階段。範圍定義和策略審查中識別的風險在此登錄。
+
+1. 回顧 Step 3 (範圍定義 + Red Team) 和 Step 4 (策略審查) 中識別的風險
+2. 每個風險 → 呼叫 `skills/workflow-skills/risk-management.md` Step 1-5
+3. 建立 `{target_repo}/docs/risk-register.md`（若不存在）
+4. 更新追溯矩陣 RISK→FEA 節
+
 ## Step 5: 出口閘門（HITL）
 
 ### 原有檢查

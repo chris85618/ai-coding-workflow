@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-unified-governance-v1`
-**Current Phase/Stage**: `Stage 3 (技術規劃) — Skill 追溯性擴充 + RCA 平準化完成`
-**Last Updated**: `2026-05-14T06:35+08:00`
+**Current Phase/Stage**: `Phase 10 (反思與學習) — 框架 self-bootstrap Stage 3-8 全部完成，當前為治理強化迭代`
+**Last Updated**: `2026-05-14T07:48+08:00`
 **Recovery Mode**: false
 
 ---
@@ -204,8 +204,11 @@ FOR each pending WBS leaf L:
 | # | 行動 | 觸發條件 / LRM 判定 | 優先級 |
 |---|------|---------------------|--------|
 | 1 | 驗證 skills 自足性：在其他 repo 執行全套工作流，確認不需讀取 ai_coding/docs/ | 下次在非 ai_coding repo 工作時 | CRITICAL |
-| 2 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
-| 3 | UC-010/011 展開 Stage 5-8 下游 ID (CLS/INV/SC/TC) | 進入目標專案 Step 6 時 | MEDIUM |
+| 2 | 持續監控 RISK-004 (Session結束前未執行完整CM) — HIGH, 策略 MT | 持續監控 | HIGH |
+| 3 | 處理 DEBT-001 (docs/原始檔未標記Reference Only) — P2 | 下次維護 docs/ 時 | MEDIUM |
+| 4 | 監控 RISK-003/005 (docs/版本漂移 + ADR-TEMPLATE省略) — MEDIUM, 策略 MT | 下次撰寫 ADR 時驗證 | MEDIUM |
+| 5 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
+| 6 | 補完 UC-010/011 的 CLS/SC 覆蓋缺口 (Stage 5-8 已執行但未覆蓋這兩個 UC) | 下次治理審計時 | MEDIUM |
 
 ---
 
@@ -214,8 +217,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T06:35+08:00
-- **Pipeline Position (recorded)**: Stage 3 (強制循序輸出協議完成)
-- **Actual Work Done**: (1) ADR-INDEX.md 合併至 traceability-matrix.md（ADR-GOV-016）。(2) 補執行 Step 9 micro-validation + impact-analysis。(3) 補執行 Step 11 反思：LESSON-027 (職能重疊未識別)、LESSON-028 (靜默跳過 Step)。(4) AGENTS.md 結構性修正：新增原則 #15、Step 輸出協議、Step 0-12 強制輸出標注。(5) ADR-GOV-024 建立。覆蓋統計 201→206。
-- **State Diff**: AGENTS.md +原則#15 +Step輸出協議 +13個Step輸出標注；traceability-matrix.md +ADR-GOV-024 +LESSON-027/028；ADR-GOV-024.md 新建
+- **Last Session Date**: 2026-05-14T08:10+08:00
+- **Pipeline Position (recorded)**: Phase 10 (框架 self-bootstrap 完成，治理強化迭代)
+- **Actual Work Done**: (1) RISK-001~005 重新編號。(2) DEBT-001 登錄。(3) 通用 ID 指派協議 (SSOT)。(4) Step 0 風險左移掃描。(5) Step 12.2 Pipeline Position 客觀判定守衛 (LESSON-032)。(6) Step 12.4 表格模板窮舉語意修正。(7) Step 輸出協議加入「每個 prompt = 完整協議觸發」(LESSON-033)。(8) Factual Reporting 加入範圍限定詞保護 (LESSON-034)。(9) +LESSON-030~034。追溯紀錄 214→225。
+- **State Diff**: +LESSON-030~034; AGENTS.md 3 處守衛; 追溯紀錄 214→225
 - **Pending Escalations Carried Over**: 無

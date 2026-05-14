@@ -144,14 +144,25 @@ SESSION-SWEEP:
 ## Step 7: 寫入紀錄
 
 **若 NEW_LESSON**：
-- 建立 LESSON-xxx（含 id, fix_ref, category, root_cause, guard, skill_updated, timestamp）
-- 寫入對應 ADR 的「根因分析與教訓」區段
+1. **ID 指派 (LESSON-030 守衛)**：讀取 `{target_repo}/docs/traceability-matrix.md` § LESSON→Skill 節，取得最大序號，NEW_ID = MAX + 1。禁止假設序號。
+2. 建立 LESSON-{NEW_ID}（含 id, fix_ref, category, root_cause, guard, skill_updated, timestamp）
+3. 寫入對應 ADR 的「根因分析與教訓」區段
+4. 立即更新 `traceability-matrix.md` § LESSON→Skill 節
 
 **若 GUARD_STRENGTHENING**：
 - 更新既有 LESSON（附加強化紀錄：trigger, why_guard_failed, guard_before, guard_after, timestamp）
 - 寫入對應 ADR 的「根因分析與教訓」區段
 
----
+## Step 7.5: 風險識別（RCA 副產品）
+
+> RCA 過程中可能發現新風險。每次 RCA 完成後檢查：
+
+1. 本次根因是否揭示了系統性風險（可能再次發生、影響其他元件）？
+   - 若是 → 呼叫 `skills/workflow-skills/risk-management.md` Step 1-5
+   - 類別依根因分類映射（PROCESS_GAP → PROCESS, LLM_HALLUCINATION → TECHNICAL, GOVERNANCE_BYPASS → COMPLIANCE）
+2. 本次修復是否引入了技術債（workaround、暫時性方案）？
+   - 若是 → 呼叫 `skills/workflow-skills/tech-debt-collect.md` Step 1-5
+3. 更新 `{target_repo}/docs/risk-register.md` 和 `{target_repo}/docs/tech-debt-register.md`
 
 ## LESSON-xxx 格式
 

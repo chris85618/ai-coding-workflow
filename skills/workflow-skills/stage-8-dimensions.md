@@ -3,7 +3,7 @@
 > **觸發條件**：Stage 8（TDD + 測試 + 修復）迭代迴圈中
 > **輸入**：CLS-xxx (Stage 5), INV-xxx (Stage 6), SC-xxx (Stage 7), 測試結構
 > **輸出**：TC-xxx, 實作程式碼, DEBT-xxx → `{target_repo}/`
-> **依賴 skill**：`iter-loop.md`、`sonarcloud-gate.md`、`security-audit-3layer.md`、`tech-debt-collect.md`
+> **依賴 skill**：`iter-loop.md`、`sonarcloud-gate.md`、`security-audit-3layer.md`、`tech-debt-collect.md`、`risk-management.md`
 
 ---
 
@@ -63,6 +63,20 @@ Path B 專屬：大量修改後 `/understand` 增量更新知識圖譜。
 
 觸發 `skills/workflow-skills/sonarcloud-gate.md`。
 
+## Step 5.5: 技術債/風險登錄（SonarCloud 後強制）
+
+> SonarCloud 完成後，強制登錄技術債與風險：
+
+1. **技術債 → DEBT-xxx**：
+   - Code Smells / 覆蓋率缺口 / TODO/FIXME → 呼叫 `skills/workflow-skills/tech-debt-collect.md` Step 1-5
+   - 包含 RICE 計算、四象限分類、追溯矩陣更新
+
+2. **技術風險 → RISK-xxx**：
+   - 架構債/效能債可能變成風險 → 呼叫 `skills/workflow-skills/risk-management.md` Step 1-5
+   - 類別固定為 `TECHNICAL`
+
+3. 更新 `{target_repo}/docs/tech-debt-register.md` 和 `{target_repo}/docs/risk-register.md`
+
 ## Step 6: 子步驟 8d — 調查修復迴圈
 
 測試失敗時：
@@ -80,7 +94,7 @@ Path B 專屬：大量修改後 `/understand` 增量更新知識圖譜。
 
 ## Step 7: 最終安全審計
 
-觸發 `skills/workflow-skills/security-audit-3layer.md`（Ship 前最後防線）。
+觸發 `skills/workflow-skills/security-audit-3layer.md`（Ship 前最後防線，含 Step 5 風險/債務登錄）。
 
 ## Step 8: 產出物
 
@@ -92,6 +106,7 @@ Path B 專屬：大量修改後 `/understand` 增量更新知識圖譜。
 | SonarCloud 報告 | — | `docs/sonarcloud-report.md` |
 | 安全審計報告 | — | `docs/security-audit-stage8.md` |
 | 技術債項目 | `DEBT-xxx` | `docs/tech-debt-register.md` |
+| 風險項目 | `RISK-xxx` | `docs/risk-register.md` |
 
 ## Step 9: HITL 出口閘門
 

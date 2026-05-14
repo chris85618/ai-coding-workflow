@@ -58,6 +58,7 @@ Direct, concrete, builder-to-builder. Name the file, function, command, and user
 
 - **事實優先**：報告失敗/錯誤時僅陳述可觀測事實、技術根因、修正措施。禁止擬人化藉口。(ADR-GOV-014)
 - **顧問式緩解**：遇風險透明呈現風險與替代方案，禁止暗中修改使用者意圖。(ADR-GOV-015)
+- **範圍限定詞保護 (LESSON-034)**：當使用者使用「窮舉」「全面」「端對端」「所有」等範圍限定詞時，AI 禁止在不報告的情況下縮小範圍。若 AI 判斷完整執行不可行，必須透明呈現替代方案並等待 HITL 決策。暗中縮小範圍 = ASSUMPTION_OVERRIDE = GOVERNANCE_BYPASS。
 
 ### README.md Sync
 
@@ -101,6 +102,7 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 | 工作流恢復 | `workflow-resume.md` |
 | 預發布檢查 | `completion-check.md` |
 | 技術債收集 | `tech-debt-collect.md` |
+| 風險管理 (ISO 31000) | `risk-management.md` |
 | 變更管理協議 | `change-management-protocol.md` |
 | 追溯系統規格 | `traceability-system.md` |
 | ADR 治理框架 | `adr-governance.md` |
@@ -222,6 +224,8 @@ STATUS 值：
 
 **禁止靜默跳過任何 Step。未輸出的 Step = GOVERNANCE_BYPASS。**
 
+> **LESSON-033 守衛**：使用者的每一個 prompt 視為一個完整的變更請求。每次回覆必須完整執行 Execution Protocol（Step 0-12 標題行全部輸出）。不存在「同一 session 內已做過 Step 0 所以跳過」的例外。已完成的 Step 使用 `⏭️ SKIP` 或 `✅ DONE` 標記，但標題行必須出現。
+
 ---
 
 ### Step 0: Session Gate — 啟動
@@ -242,10 +246,21 @@ STATUS 值：
    - 評估使用者請求的 Clarity 與 Risk
    - IF risk > THRESHOLD AND clarity < THRESHOLD → 呈現風險簡報 → 暫停等待澄清
 
-4. **報告當前位置**
-   - 向使用者報告：Pipeline Position, Pending Escalations, 上次 Session Summary, DAIF 結果（若觸發）
+4. **風險登錄表左移掃描**
+   - IF exists(`{target_repo}/docs/risk-register.md`) → 讀取並輸出 open 風險表格：
+   ```
+   ### 🚨 Open Risks (Session Start)
+   | RISK | 標題 | 強度 | 策略 | 受影響 FEA |
+   |------|------|------|------|----------|
+   [FOR each RISK WHERE status=open AND 強度>=MEDIUM]
+   ```
+   - IF exists(`{target_repo}/docs/tech-debt-register.md`) → 讀取並輸出 P0/P1 債務
+   - 目的：確保後續每一步驟都能及早考量風險
 
-5. **Hard Gate**
+5. **報告當前位置**
+   - 向使用者報告：Pipeline Position, Pending Escalations, 上次 Session Summary, DAIF 結果（若觸發）, Open Risks 表格
+
+6. **Hard Gate**
    - ASSERT session_start_completed = TRUE
    - 在本 Step 完成前，禁止任何 CREATE/MODIFY/FIX
 
@@ -438,7 +453,8 @@ FOR each file IN exhaustive_file_list：
 
 1. 讀取 `{target_repo}/docs/workflow-state.md`
 2. 摘要本 session 實際完成的工作
-3. 比對：WBS leaf 變更？Pipeline Position 前進？新 Escalation？Gate 變更？
+3. **Pipeline Position 客觀判定 (LESSON-032 守衛)**：讀取 `{target_repo}/docs/traceability-matrix.md` 覆蓋統計，依實際存在的最高層級產出物判定 Pipeline Position（有 TC → Stage 8 完成；有 SC → Stage 7 完成；有 INV → Stage 6 完成；以此類推）。禁止僅依「本次在做什麼」主觀設定 Position。
+4. 比對：WBS leaf 變更？Pipeline Position 前進？新 Escalation？Gate 變更？
 
 #### 12.3: 更新狀態
 
@@ -450,12 +466,50 @@ IF diff is not empty → 更新 `{target_repo}/docs/workflow-state.md`：
 - Last Updated = now()
 - 完成項移除前確認產出物已持久化
 
-#### 12.4: 追溯矩陣驗證
+#### 12.4: 追溯矩陣驗證（強制表格輸出）
 
-- [ ] 所有新建/修改的 ID 已寫入 `{target_repo}/docs/traceability-matrix.md`
-- [ ] 追溯鏈 BG → FEA → FR → UC → SC → TC 無斷鏈
-- [ ] 全方向連結追溯 (FR-022)：ADR/NFR/RISK/LESSON 連結已驗證
-- [ ] LESSON 重用檢查 (FR-023) 已執行
+> 禁止僅用 checkbox。必須輸出完整歷程表格。
+> 表格必須**窮舉列出所有掃描過的 ID**，而非僅列本次新建的 ID。目的是證明端對端全面掃描。
+
+**表格 A: 新建/修改 ID 登錄驗證**
+
+> 僅列本次 session 新建或修改的 ID。同類項用 `~` (範圍) 或 `,` (列舉) 合併，但必須明述數量。
+
+```
+| # | ID (數量) | 操作 | 寫入矩陣節 | 寫入註冊表 | SSOT 源 |
+|---|-----------|------|----------|----------|--------|
+[FOR each new/modified ID in this session]
+```
+
+**表格 B: 追溯鏈完整性驗證**
+
+> 端對端全面掃描：從 BG 到 TC 的完整追溯鏈，窮舉列出 traceability-matrix.md 中**所有 ID**（非僅新建）及其上下游連結狀態。同類項用 `~` 合併但明述數量。目的是證明全面掃描。
+
+```
+| ID (數量) | 上游連結 | 下游連結 | 鏈狀態 | 缺失項 |
+|-----------|----------|----------|--------|--------|
+[FOR each ID in traceability-matrix.md: 列出其上下游連結狀態]
+```
+
+**表格 C: 全方向連結追溯 (FR-022)**
+
+> 窮舉列出 traceability-matrix.md 中**所有 ID**的 ADR/NFR/RISK/LESSON 交叉連結。同類項合併但明述數量。
+
+```
+| ID (數量) | ADR 連結 | NFR 連結 | RISK 連結 | LESSON 連結 | 狀態 |
+|-----------|----------|----------|----------|-----------|------|
+[FOR each ID in traceability-matrix.md: 驗證全方向連結]
+```
+
+**表格 D: LESSON 重用檢查 (FR-023)**
+
+```
+| 本次變更 | 相關過往 LESSON | 是否重用 | 說明 |
+|----------|---------------|----------|------|
+[FOR each change: 檢查過往 LESSON 是否可重用]
+```
+
+**判定**：四張表格全部填寫且無「缺失項」才得通過。任一缺失 → STOP，補完後重試。
 
 #### 12.5: 輸出報告
 
@@ -467,11 +521,18 @@ IF diff is not empty → 更新 `{target_repo}/docs/workflow-state.md`：
 **Pipeline Position**: [Phase/Stage + 具體位置]
 **本次完成**: [1-3 句摘要]
 **狀態差異**: [recorded vs actual, 或 "一致"]
+**技術債數量**: [N] 筆 active (P0=[n] P1=[n] P2=[n] P3=[n]) — 來源: `docs/tech-debt-register.md`
+**未應對風險數量**: [N] 筆 (CRITICAL=[n] HIGH=[n] MEDIUM=[n]) — 來源: `docs/risk-register.md` (status=open AND 強度>=MEDIUM)
 **下一步行動**:
 1. [具體行動] — [觸發條件/LRM 判定]
 2. [具體行動] — [觸發條件/LRM 判定]
+[IF 未應對風險 > 0]: N. 處理 RISK-xxx ({標題}) — 強度 {等級}，策略 {AV/TF/MT/AC}
+[IF 技術債 P0 > 0]: N. 立即處理 DEBT-xxx ({標題}) — P0 不受容量限制
 **Pending**: [未完成項 / 待 HITL 決策項 / 無]
 ```
+
+> **計數來源**：讀取 `{target_repo}/docs/risk-register.md` 和 `{target_repo}/docs/tech-debt-register.md`。
+> 若檔案不存在，報告 `N/A (登錄表未建立)` 並建議執行 `risk-management.md` Step 5 / `tech-debt-collect.md` Step 5。
 
 **免除條件**：無。即使簡單問答也必須執行。若 workflow-state.md 不存在，報告建議執行 Phase 0。
 

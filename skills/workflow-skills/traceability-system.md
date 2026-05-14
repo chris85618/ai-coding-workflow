@@ -6,18 +6,59 @@
 
 ---
 
+## Step 0: 通用 ID 指派協議 (Universal ID Assignment Protocol)
+
+> **ADR**: ADR-GOV-025 (LESSON-030 守衛)
+> **強制等級**: 所有 ID 指派前必須執行，無例外
+
+### 0.1: 單一事實來源 (SSOT) 判定
+
+| ID 前綴 | 編號 SSOT | 詳細資料 SSOT | 理由 |
+|---------|-----------|-------------|------|
+| BG/S/FEA | `traceability-matrix.md` § BG→FEA→FR | 源文件 (`project-charter.md`, `scope-definition.md`) | 矩陣為索引 |
+| FR/NFR/UC | `traceability-matrix.md` § FR→UC→SC→TC | 源文件 (`requirements.md`, `use-cases.md`) | 矩陣為索引 |
+| ADR-*-xxx | `traceability-matrix.md` § ADR 登記簿 | 各 `docs/adr/ADR-*.md` | 矩陣含完整登記簿 |
+| ALG | `traceability-matrix.md` § ALG→FR | `docs/algorithm-specs.md` | 矩陣為索引 |
+| CLS/EVT | `traceability-matrix.md` § CLS→UC/ALG | `docs/class-design.md` | 矩陣為索引 |
+| INV | `traceability-matrix.md` § INV→CLS/ALG | `docs/invariants.md` | 矩陣為索引 |
+| SC | `traceability-matrix.md` § SC→UC/INV | `docs/bdd-scenarios.md` | 矩陣為索引 |
+| TC | `traceability-matrix.md` § TC→SC | 測試程式碼 | 矩陣為索引 |
+| RISK-xxx | `traceability-matrix.md` § RISK→FEA | `docs/risk-register.md` | 矩陣為編號索引，登錄表為詳細 |
+| DEBT-xxx | `traceability-matrix.md` § DEBT→FR | `docs/tech-debt-register.md` | 矩陣為編號索引，登錄表為詳細 |
+| LESSON-xxx | `traceability-matrix.md` § LESSON→Skill | 各 ADR 的「根因分析與教訓」節 | 矩陣為編號索引 |
+
+### 0.2: ID 指派步驟（強制）
+
+```
+BEFORE assigning ANY new ID (BG/S/FEA/FR/NFR/UC/ADR/ALG/CLS/EVT/INV/SC/TC/DEBT/RISK/LESSON):
+
+1. READ {target_repo}/docs/traceability-matrix.md
+2. SCAN 對應 ID 前綴的最大序號 (grep -n "{PREFIX}-" traceability-matrix.md)
+3. NEW_ID = MAX_EXISTING + 1
+4. IF traceability-matrix.md 不存在 → 同時窮舉搜尋全 repo (grep -rn "{PREFIX}-")
+5. ASSIGN NEW_ID
+6. IMMEDIATELY register NEW_ID in traceability-matrix.md 對應節
+
+禁止行為:
+- 禁止「假設從 {PREFIX}-001 開始」
+- 禁止「僅參考單一源文件」— traceability-matrix.md 是唯一 SSOT
+- 禁止「延遲寫入矩陣」— 指派即寫入
+```
+
+---
+
 ## Step 1: ID 前綴規格表
 
 | 前綴 | 領域 | 指派階段 | 上游 | 下游 |
 |------|------|---------|------|------|
 | `BG-xxx` | 商業目標 | Phase 2.0 | — | FEA, FR |
 | `S-xxx` | 利害關係人 | Phase 2.1 | BG | FEA |
-| `FEA-xxx` | 功能特性（範圍） | Phase 2.2 | BG, S | FR, NFR |
-| `FR-xxx` | 功能需求 | Stage 3 | FEA | UC, ADR |
+| `FEA-xxx` | 功能特性（範圍） | Phase 2.2 | BG, S | FR, NFR, RISK |
+| `FR-xxx` | 功能需求 | Stage 3 | FEA | UC, ADR, DEBT |
 | `NFR-xxx` | 非功能需求 | Stage 3 | FEA | UC, ALG |
 | `UC-xxx` | 使用案例 | Stage 3 | FR | SC, CLS |
 | `ADR-STR-xxx` | 架構決策（結構類） | Stage 3 | FR | CLS, INV |
-| `ADR-GOV-xxx` | 治理決策 | 任意 | FR, NFR | — |
+| `ADR-GOV-xxx` | 治理決策 | 任意 | FR, NFR | LESSON, RISK, DEBT |
 | `ADR-SEC-xxx` | 安全決策 | Stage 5/8 | FR | CLS |
 | `ADR-SCP-xxx` | 範圍決策 | Phase 2 | BG, S, FEA | — |
 | `ADR-GATE-xxx` | 閘門決策 | 任意 Stage | 任意 | — |
@@ -28,9 +69,9 @@
 | `INV-xxx` | 不變量 | Stage 6 | CLS, ALG | SC, TC |
 | `SC-xxx` | BDD 場景 | Stage 7 | UC, INV | TC |
 | `TC-xxx` | 測試案例 | Stage 7/8 | SC, INV | — |
-| `DEBT-xxx` | 技術債項目 | Phase 10 | 任意 | ADR |
-| `RISK-xxx` | 風險 | 任意階段 | 任意 | ADR |
-| `LESSON-xxx` | 教訓紀錄 | 任意 | 任意 | skill |
+| `DEBT-xxx` | 技術債項目 | 任意 | FR | RISK, LESSON |
+| `RISK-xxx` | 風險 | 任意 | FEA | LESSON, ADR |
+| `LESSON-xxx` | 教訓紀錄 | 任意 | ADR | skill |
 
 ## Step 2: 雙向追溯鏈
 

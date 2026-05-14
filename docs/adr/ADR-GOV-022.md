@@ -241,5 +241,5 @@
 | 教訓 | LESSON-024 | CM 後置設計導致系統性跳過 → Inline CM-GATE |
 | 教訓 | LESSON-025 | RCA 始終由使用者驅動 → Meta-RCA 觸發器 |
 | 教訓 | LESSON-026 | LESSON 宣稱守衛有效但守衛已失敗 → 宣告-實施缺口偵測 |
-| 風險 | RISK-001 | docs/ 與 skills/ 版本漂移 |
+| 風險 | RISK-003 | docs/ 與 skills/ 版本漂移 |
 | 技術債 | DEBT-001 | docs/ 下原始方法論檔案未標記為 Reference Only |

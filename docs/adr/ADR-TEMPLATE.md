@@ -117,10 +117,75 @@
 
 ## 關聯產出物
 
-| 類型 | ID | 說明 |
-|------|----|------|
-| 技術債 | DEBT-xxx | {摘要} (optional) |
-| 風險 | RISK-xxx | {摘要} (optional) |
+> 本區塊直接內嵌完整的 RISK/DEBT 登錄表記錄。
+> 填寫後同步更新 `docs/risk-register.md` / `docs/tech-debt-register.md` 及追溯矩陣。
+> 若無對應項目，填 `N/A`。
+
+### 技術債 (DEBT-xxx)
+
+> 若有新增技術債，每筆填寫以下完整欄位。無技術債填「N/A」。
+
+```markdown
+#### DEBT-{NNN}: {標題}
+
+| 欄位 | 值 |
+|------|-----|
+| **ID** | DEBT-{NNN} |
+| **狀態** | open | in-progress | resolved | cancelled |
+| **來源** | 程式碼品質 | 測試缺口 | 架構債 | 效能債 | 安全債 | 文件債 | 流程債 |
+| **影響元件** | {CLS-xxx 或 模組名} |
+| **優先等級** | P0 | P1 | P2 | P3 |
+| **象限** | Quick Win | Major Project | Fill In | Thankless Task |
+| **RICE Score** | {(Reach × Impact × Confidence) / Effort} |
+| **Reach** | {1-100} |
+| **Impact** | {0.5 | 1.0 | 2.0 | 3.0} |
+| **Confidence** | {0.5-1.0} |
+| **Effort** | {N} person-days |
+| **ADR 追溯** | {本 ADR ID} |
+| **FR 追溯** | {FR-xxx 列表} |
+| **對應 RISK** | {RISK-xxx 或 N/A} |
+| **對應 LESSON** | {LESSON-xxx 或 N/A} |
+| **建立日期** | {ISO 8601} |
+| **預計處理 Sprint** | {Sprint N | Backlog | 立即} |
+
+**債務描述**：{詳細描述債務內容、形成原因、影響範圍、解決方向}
+```
+
+### 風險 (RISK-xxx)
+
+> 若有新增風險，每筆填寫以下完整欄位（ISO 31000:2018）。無風險填「N/A」。
+
+```markdown
+#### RISK-{NNN}: {標題}
+
+| 欄位 | 值 |
+|------|-----|
+| **ID** | RISK-{NNN} |
+| **狀態** | open | in-progress | closed | rejected |
+| **類別** | TECHNICAL | SECURITY | PROCESS | COMPLIANCE | STRATEGIC | OPERATIONAL |
+| **機率** | 1-5 ({百分比範圍}) |
+| **影響** | 1-5 ({影響描述}) |
+| **風險強度** | {機率×影響} ({LOW|MEDIUM|HIGH|CRITICAL}) |
+| **應對策略** | AV (規避) | TF (轉移) | MT (緩解) | AC (接受) |
+| **應對動作** | {具體措施} |
+| **預期殘餘風險** | {強度等級} (必填) |
+| **觸發來源** | {識別此風險的 Skill / Stage / Phase} |
+| **受影響 FEA** | {FEA-xxx 列表} |
+| **對應 LESSON** | {LESSON-xxx 或 N/A} |
+| **對應 ADR** | {本 ADR ID} |
+| **建立日期** | {ISO 8601} |
+| **最後更新** | {ISO 8601} |
+| **負責人** | AI | HITL |
+
+**風險描述**：{詳細描述風險場景、觸發條件、潛在後果}
+```
+
+> **強制步驟**：填寫完本區塊後，必須同步更新：
+> 1. `docs/risk-register.md` — 新增/更新對應 RISK-xxx 節
+> 2. `docs/tech-debt-register.md` — 新增/更新對應 DEBT-xxx 節
+> 3. `docs/traceability-matrix.md` — 更新 RISK→FEA、DEBT→FR 節及覆蓋統計
+> → 呼叫 `skills/workflow-skills/risk-management.md` (Step 5)
+> → 呼叫 `skills/workflow-skills/tech-debt-collect.md` (Step 5)
 ```
 
 ---

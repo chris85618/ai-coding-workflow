@@ -3,7 +3,7 @@
 > **觸發條件**：AGENTS.md Step 11
 > **輸入**：完整部署後的專案
 > **輸出**：DEBT-xxx, LESSON-xxx, 知識圖譜更新
-> **依賴 skill**：`tech-debt-collect.md`、`root-cause-leftshift.md`
+> **依賴 skill**：`tech-debt-collect.md`、`root-cause-leftshift.md`、`risk-management.md`
 
 ---
 
@@ -44,7 +44,17 @@ for each exchange in conversation_history:
 
 ## Step 3: 技術債收集
 
-觸發 `skills/workflow-skills/tech-debt-collect.md`。
+觸發 `skills/workflow-skills/tech-debt-collect.md`（含 Step 5 追溯矩陣更新）。
+
+## Step 3.5: 風險登錄表審查（ISO 31000 監控）
+
+> 每次 Retro 強制執行風險審查。
+
+1. 讀取 `{target_repo}/docs/risk-register.md`
+2. 對所有 `status: open` 的 RISK-xxx 重新評估機率/影響
+3. 識別本次開發週期新增的風險 → 呼叫 `skills/workflow-skills/risk-management.md` Step 1-5
+4. 更新 RISK 狀態：open → in-progress → closed | rejected
+5. 將已關閉的 RISK 移至 `Closed / Rejected Risks` 節
 
 ## Step 4: 知識圖譜增量更新（Path B）
 
