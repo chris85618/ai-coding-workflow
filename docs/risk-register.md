@@ -1,9 +1,9 @@
 # Risk Register — Unified Agentic Workflow System
 
 > **標準**: ISO 31000:2018
-> **Last Updated**: 2026-05-14T07:17+08:00
-> **Total Active (Open/In-Progress)**: 5
-> **Total Closed/Rejected**: 0
+> **Last Updated**: 2026-05-15T00:47+08:00
+> **Total Active (Open/In-Progress)**: 3 (RISK-001, RISK-004, RISK-005)
+> **Total Closed/Rejected**: 2 (RISK-002, RISK-003)
 > **維護 Skill**: `skills/workflow-skills/risk-management.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § RISK → FEA
 
@@ -36,75 +36,65 @@
 
 ---
 
-### RISK-002: ADR 數量膨脹導致管理困難
+### RISK-002: ADR 數量膨潲導致管理困難 — **CLOSED**
 
-| 欄位 | 值 |
+| 欄位 | 値 |
 |------|-----|
 | **ID** | RISK-002 |
-| **狀態** | open |
+| **狀態** | **closed** |
 | **類別** | PROCESS |
-| **機率** | 3 (25-50%) |
+| **機率** | 2 (5-25%) ↓ 降評 |
 | **影響** | 2 (小 — 管理負擔增加但不阻塞) |
-| **風險強度** | 6 (MEDIUM) |
-| **應對策略** | MT (緩解) |
-| **應對動作** | ADR 登記簿已合併至 traceability-matrix.md 統一管理（ADR-GOV-016）；定期審查是否需要 Supersede 舊 ADR |
-| **預期殘餘風險** | 2 (LOW) |
-| **觸發來源** | ADR-GOV-002 — ADR 治理框架建立時 |
-| **受影響 FEA** | FEA-009 |
-| **對應 LESSON** | N/A |
-| **對應 ADR** | ADR-GOV-002 |
-| **建立日期** | 2026-05-13T00:00+08:00 |
-| **最後更新** | 2026-05-14T07:17+08:00 |
-| **負責人** | AI |
-
-**風險描述**：治理框架演進過程中 ADR 數量持續增加（目前 26 筆），可能導致 LLM context 壓力和人類審閱負擔。ADR-INDEX 已合併至追溯矩陣以緩解。
+| **風險強度** | 4 (LOW) ↓ |
+| **應對策略** | MT (緩解) → **已完成** |
+| **應對動作** | ADR 登記簿已合併至 traceability-matrix.md 統一管理（ADR-GOV-016）；ADR 數量穩定在 ~30 筆 |
+| **殖餘風險** | 2 (LOW) |
+| **至 FEA** | FEA-009 |
+| **對應 ADR** | ADR-GOV-002, ADR-GOV-016 |
+| **關閉日期** | 2026-05-15T00:47+08:00 |
+| **關閉理由** | ADR 數量穩定，traceability-matrix 統一管理有效。Phase 10 確認緩解完成 |
 
 ---
 
-### RISK-003: docs/ 與 skills/ 版本漂移
+### RISK-003: docs/ 與 skills/ 版本漂移 — **CLOSED**
 
-| 欄位 | 值 |
+| 欄位 | 値 |
 |------|-----|
 | **ID** | RISK-003 |
-| **狀態** | open |
+| **狀態** | **closed** |
 | **類別** | PROCESS |
-| **機率** | 3 (25-50%) |
-| **影響** | 3 (中等 — 執行邏輯與歷史參照不一致) |
-| **風險強度** | 9 (MEDIUM) |
-| **應對策略** | MT (緩解) |
-| **應對動作** | AGENTS.md Repository Scope Rules 明確定義 skills/ 為唯一執行來源、docs/ 為歷史參照（ADR-GOV-022）；Phase 10 增量更新知識圖譜 |
-| **預期殘餘風險** | 3 (LOW) |
-| **觸發來源** | ADR-GOV-022 — docs/ 執行邏輯吸收至 skills/ |
-| **受影響 FEA** | FEA-001, FEA-009 |
+| **機率** | 2 (5-25%) ↓ 降評 |
+| **影響** | 2 (小 — 執行逻輯已全部在 skills/) |
+| **風險強度** | 3 (LOW) ↓ |
+| **應對策略** | MT (緩解) → **已完成** |
+| **應對動作** | skills/workflow-skills/ 為唯一執行來源（AGENTS.md 型別规則）；docs/ 全部標記 Reference Only |
+| **殖餘風險** | 2 (LOW) |
+| **至 FEA** | FEA-001, FEA-009 |
 | **對應 LESSON** | LESSON-022 |
 | **對應 ADR** | ADR-GOV-022 |
-| **建立日期** | 2026-05-14T05:15+08:00 |
-| **最後更新** | 2026-05-14T07:17+08:00 |
-| **負責人** | AI |
-
-**風險描述**：ADR-GOV-022 將執行邏輯從 docs/ 遷移至 skills/ 後，docs/ 中的原始方法論檔案（phases/、stages/、governance/）可能隨時間與 skills/ 中的對應 skill 產生版本漂移，導致混淆。
+| **關閉日期** | 2026-05-15T00:47+08:00 |
+| **關閉理由** | Phase 10 完成確認，skills/ 為唯一執行來源，docs/ Reference Only 標記 16 個檔案已完成 |
 
 ---
 
 ### RISK-004: Session 結束前未執行完整 CM 協議
 
-| 欄位 | 值 |
+| 欄位 | 値 |
 |------|-----|
 | **ID** | RISK-004 |
 | **狀態** | open |
 | **類別** | PROCESS |
-| **機率** | 3 (25-50%) |
+| **機率** | **2 (5-25%) ↓ 降評** |
 | **影響** | 4 (大 — 產出物未持久化，治理繞道) |
-| **風險強度** | 12 (HIGH) |
+| **風險強度** | **8 (MEDIUM) ↓** |
 | **應對策略** | MT (緩解) |
-| **應對動作** | AGENTS.md Step 12 CM 前置斷言（12.1 窮舉式檔案列舉）強制執行；ADR-GOV-010 規定 Session-End Hook 前置條件 |
-| **預期殘餘風險** | 4 (LOW) |
+| **應對動作** | AGENTS.md Step 12 CM 前置斷言（12.1 窩舆式檔案列舉）強制執行；ADR-GOV-010 規定 Session-End Hook 前置條件 |
+| **殖餘風險** | 4 (LOW) |
 | **觸發來源** | 歷史 session RCA — LESSON-009, LESSON-011 |
 | **受影響 FEA** | FEA-006 |
 | **對應 LESSON** | LESSON-009, LESSON-011, LESSON-030 |
 | **對應 ADR** | ADR-GOV-010, ADR-GOV-011 |
-| **建立日期** | 2026-05-14T07:03+08:00 |
-| **最後更新** | 2026-05-14T07:17+08:00 |
+| **最後更新** | 2026-05-15T00:47+08:00 |
 | **負責人** | AI |
 
 **風險描述**：AI Agent 在 session 結束前可能跳過 Step 12 的 Change Management 步驟，包括但不限於：未窮舉搜尋就建立 ID（如本次 RISK-001 ID 衝突事件）、未更新追溯矩陣、未登錄已知 DEBT/RISK。本 session (2026-05-14) 再次驗證此風險存在：AI 未窮舉搜尋 RISK-xxx 引用就直接從 RISK-001 開始編號，導致 ID 衝突。
@@ -113,23 +103,22 @@
 
 ### RISK-005: ADR-TEMPLATE 欄位過長導致 LLM 省略必填欄位
 
-| 欄位 | 值 |
+| 欄位 | 値 |
 |------|-----|
 | **ID** | RISK-005 |
 | **狀態** | open |
 | **類別** | PROCESS |
-| **機率** | 3 (25-50%) |
+| **機率** | **2 (5-25%) ↓ 降評** |
 | **影響** | 3 (中等 — 登錄表不完整，追溯品質下降) |
-| **風險強度** | 9 (MEDIUM) |
+| **風險強度** | **6 (MEDIUM) ↓** |
 | **應對策略** | MT (緩解) |
-| **應對動作** | ADR-TEMPLATE 欄位標記「必填」/「選填 (optional)」；micro-validation.md 加入 RISK/DEBT 欄位完整性檢查 |
-| **預期殘餘風險** | 3 (LOW) |
+| **應對動作** | ADR-TEMPLATE 欄位標記「必填」/「選填 (optional)」；micro-validation.md 已加入 RISK/DEBT 欄位完整性檢查 |
+| **殖餘風險** | 3 (LOW) |
 | **觸發來源** | ADR-GOV-025 — 本次治理擴充識別 |
 | **受影響 FEA** | FEA-006, FEA-007 |
 | **對應 LESSON** | LESSON-029 |
 | **對應 ADR** | ADR-GOV-025 |
-| **建立日期** | 2026-05-14T07:03+08:00 |
-| **最後更新** | 2026-05-14T07:17+08:00 |
+| **最後更新** | 2026-05-15T00:47+08:00 |
 | **負責人** | AI |
 
 **風險描述**：RISK/DEBT 登錄表欄位較多（ISO 31000 屬性），當 LLM 在 token 預算緊張時可能省略非明顯必填欄位。
@@ -138,7 +127,11 @@
 
 ## Closed / Rejected Risks
 
-（目前無）
+### RISK-002: ADR 數量膨潲 — **Closed 2026-05-15**
+ADR 數量穩定在 ~30 筆，traceability-matrix.md 統一管理有效，Phase 10 確認緩解完成。
+
+### RISK-003: docs/skills 版本漂移 — **Closed 2026-05-15**
+skills/workflow-skills/ 為唯一執行來源，docs/ Reference Only 標記 16 個檔案全部完成，Phase 10 確認緩解完成。
 
 ---
 

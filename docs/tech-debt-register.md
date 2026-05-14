@@ -1,7 +1,7 @@
 # Tech Debt Register — Unified Agentic Workflow System
 
-> **Last Updated**: 2026-05-15T00:35+08:00
-> **Total Active Items**: 1 (DEBT-005 deferred)
+> **Last Updated**: 2026-05-15T00:47+08:00
+> **Total Active Items**: 1 (DEBT-005 deferred; DEBT-001~004 all resolved)
 > **Sprint Allocation**: 20% capacity
 > **維護 Skill**: `skills/workflow-skills/tech-debt-collect.md`, `skills/workflow-skills/tech-debt-framework.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § DEBT → FR
@@ -68,20 +68,22 @@
 | 欄位 | 值 |
 |------|-----|
 | **ID** | DEBT-003 |
-| **狀態** | open |
+| **狀態** | resolved |
 | **來源** | 測試缺口 |
-| **影響元件** | `ALG-006 repo_map_builder.py` (L98→96, L100→96, L172→171, L183-184) |
+| **影響元件** | `ALG-006 repo_map_builder.py` (L98→96, L183-184) |
 | **優先等級** | P3 |
 | **象限** | Fill In |
 | **RICE Score** | 0.9 (R=2, I=0.5, C=0.9, E=1) |
 | **ADR 追溯** | ADR-STR-002 (確定型演算法) |
 | **FR 追溯** | FR-018 (RepoMap build) |
-| **對應 LESSON** | LESSON-037 |
+| **對應 LESSON** | LESSON-037, LESSON-042, LESSON-043 |
 | **建立日期** | 2026-05-14T19:45+08:00 |
-| **預計處理 Sprint** | Backlog (下次修改 ALG-006 時順帶) |
-| **解決日期** | N/A |
+| **預計處理 Sprint** | Resolved |
+| **解決日期** | 2026-05-15T00:45+08:00 |
 
-**債務描述**: Python stdlib `ast` 解析相對 import 時的 Windows 路徑邊界分支（`from . import x` 形式）在目前測試環境未觸發。覆蓋率 96%，不影響主要功能，但 INV-024 精確性稍打折。
+**債務描述**: Python stdlib `ast` 解析時的 OSError / 路徑邊界分支（`L98→96`, `L183-184`）已補足。覆蓋率達 99.04%，INV-024 精確性確認。
+
+**解決措施**: 2026-05-15 — 在 `test_coverage_gap_fill.py::TestFinalCoverageGaps` 新增精確的 `patched_read` mock，透過 call-counter 控制第1次 read 觸發 OSError（symbol loop path），確認 `good.py` 符號仍正確提取。
 
 ---
 
@@ -90,20 +92,21 @@
 | 欄位 | 值 |
 |------|-----|
 | **ID** | DEBT-004 |
-| **狀態** | open |
+| **狀態** | resolved |
 | **來源** | 安全債 |
-| **影響元件** | `SC-006 security_audit.feature` |
+| **影響元件** | `hook_runner.py`, `markdown_writer.py`, `file_repository.py`, `sequential_adapter.py` |
 | **優先等級** | P2 |
 | **象限** | Major Project |
 | **RICE Score** | 4.0 (R=5, I=3.0, C=0.8, E=3) |
-| **ADR 追溯** | ADR-GOV-011 (Change Management) |
+| **ADR 追溯** | ADR-SEC-001 |
 | **FR 追溯** | FR-030 (SkillFortify SBOM) |
 | **對應 RISK** | N/A |
+| **對應 LESSON** | LESSON-040 (SEC-001 test pattern) |
 | **建立日期** | 2026-05-14T19:45+08:00 |
-| **預計處理 Sprint** | DEBT-002 解決後 |
-| **解決日期** | N/A |
+| **預計處理 Sprint** | Resolved |
+| **解決日期** | 2026-05-15T00:00+08:00 |
 
-**債務描述**: AgentShield (Layer 2) 和 SkillFortify (Layer 3) 掃描均依賴 Adapter 層的供應鏈可見性。目前無法在純 domain 層執行。
+**債務描述**: AgentShield (Layer 1-3) 和 SkillFortify 掃描已執行。發現並修正 SEC-001 (shell injection), SEC-002/003 (path traversal), SEC-004 (SSRF)。SBOM `agentic-workflow.cdx.json` 與 `skill-lock.json` 已產出。
 
 ---
 
