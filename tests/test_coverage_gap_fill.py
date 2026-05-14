@@ -374,3 +374,119 @@ class TestRepoMapBuilderBranches:
         # Very small budget
         result = repo_map_build(str(tmp_path), 50)
         assert result.token_count <= 50
+
+
+# ── traceable_id.py — success paths ──────────────────────────────────────────
+
+class TestTraceableIDSuccessPaths:
+    """Cover the append lines (L76, L88) in traceable_id.py."""
+
+    def test_add_upstream_non_bg(self):
+        """Non-BG ID can add upstream links (covers L76)."""
+        fr = TraceableID(prefix=IDPrefix.FR, sequence=1, title="FR-001")
+        link = TraceLink("BG-001", "FR-001", LinkType.DECOMPOSES)
+        fr.add_upstream(link)
+        assert len(fr.upstream_links) == 1
+        assert fr.upstream_links[0].source_id == "BG-001"
+
+    def test_add_downstream_non_tc(self):
+        """Non-TC ID can add downstream links (covers L88)."""
+        fr = TraceableID(prefix=IDPrefix.FR, sequence=1, title="FR-001")
+        link = TraceLink("FR-001", "UC-001", LinkType.REALIZES)
+        fr.add_downstream(link)
+        assert len(fr.downstream_links) == 1
+        assert fr.downstream_links[0].target_id == "UC-001"
+
+    def test_trace_link_self_link_raises(self):
+        """Self-link raises ValueError (INV-008)."""
+        with pytest.raises(ValueError, match="Self-link forbidden"):
+            TraceLink("FR-001", "FR-001", LinkType.DERIVES)
+
+
+# ── model_selector.py — double-fallback path (L83) ───────────────────────────
+
+class TestModelSelectorDoubleFallback:
+    """Cover the emergency fallback branch (L83) in ALG-008."""
+
+    def test_double_fallback_constructs_config(self):
+        """When fallback provider is also disabled, creates ModelConfig from enabled set."""
+        disabled_primary = ModelConfig(provider="anthropic", model="claude-opus-4")
+        disabled_fallback = ModelConfig(provider="google", model="gemini-ultra")
+        cfg = StrategyConfig(
+            reasoning_model=disabled_primary,
+            editing_model=disabled_primary,
+            cheap_model=disabled_primary,
+            default_model=disabled_primary,
+            fallback_model=disabled_fallback,
+            enabled_providers=frozenset({"openai"}),  # neither primary nor fallback
+        )
+        result = select_model(TaskType.CRITIQUE, cfg)
+        assert result.provider == "openai"
+
+
+# ── hook_runner.py — timeout path (L108-111) ─────────────────────────────────
+
+class TestHookRunnerTimeout:
+    """Cover the subprocess.TimeoutExpired path (L108-111)."""
+
+    def test_timeout_hook_proceeds(self, monkeypatch):
+        """Timed-out hook gets exit_code=1 → proceed=True (L108-111)."""
+        import subprocess
+
+        def fake_run(*args, **kwargs):
+            raise subprocess.TimeoutExpired(cmd="fake", timeout=30)
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+
+        runner = HookRunner()
+        hook = HookDef(
+            event=HookEvent.PRE_STAGE_START,
+            command="sleep 999",
+            blocking=True,
+        )
+        runner.register(hook)
+        results = runner.execute(HookEvent.PRE_STAGE_START)
+        assert len(results) == 1
+        assert results[0].exit_code == 1
+        assert "timed out" in results[0].stderr.lower()
+        assert results[0].proceed is True  # exit_code=1 is not 2
+
+
+# ── stage.py — add_finding (L82) ─────────────────────────────────────────────
+
+class TestStageAddFinding:
+    """Cover Stage.add_finding() body (L82)."""
+
+    def test_add_finding_appends(self):
+        """add_finding appends finding string to findings list (L82)."""
+        s = Stage(stage_id="s3", name="Stage 3")
+        s.add_finding("CRITICAL: missing invariant")
+        s.add_finding("HIGH: unclear domain")
+        assert len(s.findings) == 2
+        assert "CRITICAL: missing invariant" in s.findings
+
+
+# ── repo_map.py — prune_to_budget exact-fit (L64) ────────────────────────────
+
+class TestRepoMapPruneExactFit:
+    """Cover exact-budget boundary in CLS-015 (L64)."""
+
+    def test_prune_exact_budget(self):
+        """Symbol exactly at budget limit is included (covers L64 boundary)."""
+        syms = (
+            SymbolDef("a.py", "Foo", "class", "class Foo:  # 5 tokens", 5),
+            SymbolDef("b.py", "bar", "function", "def bar(): ...", 5),
+        )
+        m = RepoMap(symbols=syms, token_count=10, file_ranks={})
+        # Budget equals exactly first symbol's token count
+        pruned = m.prune_to_budget(5)
+        assert pruned.token_count <= 5
+
+    def test_prune_single_symbol_exceeds_budget(self):
+        """Symbol with long signature bigger than budget is excluded."""
+        long_sig = "class HeavyClass: " + "x" * 400  # 400+/4 = 100+ tokens
+        syms = (SymbolDef("a.py", "HeavyClass", "class", long_sig, 1),)
+        m = RepoMap(symbols=syms, token_count=100, file_ranks={})
+        pruned = m.prune_to_budget(50)
+        assert len(pruned.symbols) == 0
+

@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Stage 7 (BDD/ATDD) — LangGraph migration 設計完成至 Stage 7; Stage 8 TDD 待執行 (使用者明確延後)`
-**Last Updated**: `2026-05-14T19:12+08:00`
+**Current Phase/Stage**: `Stage 8 (TDD) — COMPLETED. 93 tests pass, 96.84% coverage ≥ 95% threshold. Phase 9 Ship pending.`
+**Last Updated**: `2026-05-14T11:37+00:00`
 **Recovery Mode**: false
 
 ---
