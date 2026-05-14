@@ -6,6 +6,18 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.1.1] — 2026-05-15
+
+### Summary
+Post-production minor release of the LangGraph-based autonomous coding workflow system.
+234 unit tests, 97.40% test coverage, Traceability Matrix features gap filled.
+
+### Added
+- Feature `FEA-012` and associated traceabilities (FR-031/032, UC-014/015, SC-017/018) for deterministic markdown-JSON conversion and external YAML configuration.
+- Additional test cases covering MCP network timeout handling, LLM adapter provider mocking, and file repository path traversal boundary checks.
+
+---
+
 ## [0.1.0] — 2026-05-15
 
 ### Summary

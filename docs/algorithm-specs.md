@@ -300,6 +300,40 @@ verify_chain(id):
 
 ---
 
+## ALG-009: Markdown ↔ JSON 雙向轉換演算法
+
+**描述**：確定型優先的 Markdown 與結構化 JSON 解析與轉換。
+**追溯**：FR-031 (implements)
+
+**前置條件（Precondition）**：
+- Markdown 輸入文本存在。
+- 目標 JSON Schema (Pydantic model) 已定義。
+
+**不變量（Invariant）**：
+- 首先使用確定型解析器 (如 regex 或 AST parser)。
+- 只有當確定型解析器失敗或不符合 Schema 時，才啟動 LLM Fallback。
+- 寫回 Markdown 必須採用增量 AST 替換，保留無關段落與註解。
+
+**後置條件（Postcondition）**：
+- 成功返回符合 Schema 的 JSON 物件。
+- 若寫回，目標 Markdown 的指定區段已更新。
+
+```
+parse_markdown(content, schema):
+  try:
+    json_data = deterministic_parse(content, schema)
+    if validate(json_data, schema):
+       return json_data
+  except ParseError:
+    pass
+    
+  # LLM Fallback (from config.yaml fallback model)
+  json_data = llm_fallback_parse(content, schema)
+  return validate_or_raise(json_data, schema)
+```
+
+---
+
 ## 追溯矩陣更新
 
 | ALG-xxx | 追溯至 | 連結類型 |
@@ -309,3 +343,7 @@ verify_chain(id):
 | ALG-003 | FR-008, FR-009 | implements |
 | ALG-004 | FR-010, FR-011 | implements |
 | ALG-005 | FR-005 | implements |
+| ALG-006 | FR-001, FR-026 | implements |
+| ALG-007 | FR-030 | implements |
+| ALG-008 | FR-029 | implements |
+| ALG-009 | FR-031 | implements |

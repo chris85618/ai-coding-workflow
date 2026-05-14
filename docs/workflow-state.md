@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Phase 10 COMPLETE — 準備進入下一開發週期。`
-**Last Updated**: `2026-05-15T00:58+08:00`
+**Current Phase/Stage**: `Stage 8 COMPLETE — 準備進行 Phase 9 部署前測試。`
+**Last Updated**: `2026-05-15T02:01+08:00`
 **Recovery Mode**: false
 
 ---
@@ -26,9 +26,15 @@
 > - 完成項移除前，確認產出物已持久化至對應 docs/ 文件
 
 ```
-ROOT: {專案目標}
+ROOT: {完整 LangGraph 架構與外部配置整合}
 │
-└── (目前無 active WBS leaf，準備進入新開發週期)
+├── ✅ [ADR-STR-005] 確定型 Markdown 解析策略
+├── ✅ [ADR-STR-006] 外部化 YAML 配置與 Prompts
+├── ✅ [ALG-009] Markdown 雙向轉換演算法設計
+├── ✅ 建立 `config.yaml` 集中配置
+├── ✅ 建立 `src/agentic_workflow/frameworks/config.py`
+├── ✅ 建立 `src/agentic_workflow/frameworks/graph.py` 實作包含 AGENTS.md 步驟的 DAG
+└── ✅ 建立 `src/agentic_workflow/frameworks/main.py`
 ```
 
 ---
@@ -141,8 +147,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-15T00:58+08:00
-- **Pipeline Position (recorded)**: Phase 10 COMPLETE (準備進入新開發週期)
-- **Actual Work Done**: 完成 Phase 10 反思與學習，更新風險與技術債矩陣，修正 skill 守衛，完成追溯矩陣歸檔。
-- **State Diff**: Phase 10 DONE; RISK matrix updated
+- **Last Session Date**: 2026-05-15T02:22+08:00
+- **Pipeline Position (recorded)**: Phase 10 COMPLETE / Maintenance
+- **Actual Work Done**: Added missing BDD features (FEA-012, FR-031/032, etc.) to traceability matrix. Added edge case tests for LLM adapter, MCP adapter, and file repository. Achieved 97.40% total test coverage.
+- **State Diff**: Traceability gaps filled, Test coverage > 95% reached.
 - **Pending Escalations Carried Over**: 無

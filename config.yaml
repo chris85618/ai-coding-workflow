@@ -1,0 +1,50 @@
+# Unified Agentic Workflow Configuration
+# 實踐 ADR-STR-006: 外部化 YAML 配置
+
+models:
+  reasoning:
+    provider: "anthropic"
+    name: "claude-3-7-sonnet-20250219"
+    temperature: 0.7
+  editing:
+    provider: "anthropic"
+    name: "claude-3-5-haiku-20241022"
+    temperature: 0.1
+  fallback:
+    provider: "openai"
+    name: "gpt-4o-mini"
+    temperature: 0.0
+
+prompts:
+  agent_alpha:
+    system: "你是一個嚴格的架構審查員 (Agent α)。你的任務是發散尋找所有邊界條件與潛在破綻。"
+    task_template: |
+      請基於以下輸入 (FR/NFR/UC)，審查目前的產出物。
+      請確保符合 AGENTS.md 的每一項要求與 skills/ 下的所有細節。
+      輸出任何發現的缺陷，並標記嚴重度 (CRITICAL/HIGH/MEDIUM/LOW/YAGNI)。
+
+  agent_beta:
+    system: "你是一個務實的開發者 (Agent β)。你的任務是收斂 Agent α 的發現，並產出精確的程式碼或文件修改。"
+    task_template: |
+      根據以下缺陷清單，產生修復方案。
+      請遵循奧卡姆剃刀原則 (Ockham's Razor)。
+
+  micro_validation:
+    system: "你負責微驗證 (Micro-Validation)。"
+    task_template: |
+      發現以下格式或追溯鏈錯誤：{errors}
+      請根據 {schema} 提供修正後的 JSON 結構。
+
+  root_cause_leftshift:
+    system: "你負責根因左移分析 (Root-Cause Left-Shift)。"
+    task_template: |
+      剛才發生了一個錯誤或治理繞道：{issue}
+      請進行 5-Whys 分析，並產出 LESSON 守衛規則。
+
+  markdown_fallback:
+    system: "你是一個資料萃取器。嚴格按照要求將 Markdown 轉為 JSON。"
+    task_template: |
+      無法使用確定型演算法解析以下 Markdown。
+      請將其轉換為符合以下 JSON Schema 的格式：{schema}
+      Markdown 內容：
+      {content}
