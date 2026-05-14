@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Stage 8 (TDD) — COMPLETED. 93 tests pass, 96.84% coverage ≥ 95% threshold. Phase 9 Ship pending.`
-**Last Updated**: `2026-05-14T11:37+00:00`
+**Current Phase/Stage**: `Phase 9 (Ship) — Branch pushed to origin/langgraph-coding. PR pending GitHub connection. Next: Phase 10 Retro.`
+**Last Updated**: `2026-05-14T19:42+08:00`
 **Recovery Mode**: false
 
 ---
