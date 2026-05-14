@@ -125,5 +125,75 @@ Proposed → Accepted → Superseded
 - MAJOR 影響分析 → 產出新 ADR
 - 所有 LESSON-xxx 追溯至 ADR
 - 每個 LESSON 必須包含「瓶頸識別推論」欄位（因果鏈 + 瓶頸位置 + 介入類型）
-- 每個 LESSON 的「更新的 Skill」必須在追溯矩陣「LESSON → Skill」段落登記
+## Step 7: ADR 範本格式（寫入用）
 
+> 此範本供 AI 在任意 repo 撰寫 ADR 時使用，無需讀取 ai_coding/docs/adr/ADR-TEMPLATE.md。
+
+### 通用區塊（所有類別必填）
+
+```markdown
+# ADR-{CATEGORY}-{NNN}: {標題}
+
+> **狀態**: Proposed | Accepted | Superseded | Deprecated | Amended
+> **日期**: {ISO 8601}
+> **類別**: STRUCTURAL | GOVERNANCE | SECURITY | SCOPE | GATE | OPERATIONAL
+> **決策者**: HITL | AI-Proposed+HITL | AI-Autonomous
+> **追溯**: {上游 ID 列表}
+> **取代**: {被取代的 ADR ID} (optional)
+
+## 背景
+- 觸發 Stage/Phase
+- 觸發事件
+- 前置條件
+- 約束
+
+## 決策
+{使用「我們決定...」格式}
+
+## 理由
+- 支持證據、權衡取捨、風險接受
+
+## 替代方案
+| 方案 | 優點 | 缺點 | 拒絕理由 |
+
+## 後果
+正面 + 負面 + 風險（RISK-xxx）
+
+## 影響分析
+- 爆炸半徑、跨 Stage 影響、嚴重度、受影響 ID
+
+## 變更紀錄 (Implementation Records)
+### 變更 #N: {簡述}
+- 日期/類型/檔案/影響 ID/爆炸半徑/嚴重度/微驗證/根因分類/根因描述/左移動作/LESSON-xxx
+
+## 根因分析與教訓 (Root Cause & Lessons)
+### LESSON-{NNN}: {標題}
+- 根因分類/根因描述/5 Whys/瓶頸識別(問題發生點+逃逸路徑+最早可偵測點+瓶頸位置+介入類型+預期覆蓋)/左移守衛/更新 Skill/守衛驗證證據
+
+## 關聯產出物
+### 技術債 (DEBT-xxx): ID/狀態/來源/影響元件/優先等級/象限/RICE Score/ADR追溯/FR追溯
+### 風險 (RISK-xxx): ID/狀態/類別/機率/影響/風險強度/應對策略/應對動作/預期殘餘風險/受影響FEA/對應ADR
+```
+
+### 類別專屬補充
+
+| 類別 | 補充區塊 |
+|------|----------|
+| STRUCTURAL | 架構影響（受影響模組、依賴方向、API 變更、資料模型變更）+ 驗證計畫 |
+| GOVERNANCE | 流程變更（修改前規則、修改後規則、影響範圍、過渡期） |
+| SECURITY | 威脅模型（STRIDE 分類、攻擊向量、控制措施、殘餘風險、審計層） |
+| SCOPE | 範圍決策（決策類型、Red Team 挑戰、利害關係人影響）+ 人類 Prompt 紀錄 |
+| GATE | 閘門決策（Stage/Phase、迭代輪次、不動點狀態、決策）+ 閘門 checklist + 人類 Prompt |
+| OPERATIONAL | 部署資訊（部署目標、回滾策略、監控指標、Canary 門檻） |
+
+### LLM 撰寫規則
+
+1. 禁止省略必填欄位（無資料填 N/A）
+2. 追溯欄位列出所有相關上游 ID
+3. SCOPE/GATE 類別逐字記錄人類輸入
+4. 寫入前必須計算爆炸半徑
+5. 替代方案至少 2 個（GATE 類別除外）
+6. 正面和負面後果各至少 1 項
+7. 檔名格式：`ADR-{CATEGORY}-{NNN}.md`
+8. 變更紀錄和 LESSON 內嵌 ADR（非外部文件）
+9. 關聯的 DEBT/RISK 填寫後必須同步更新 `docs/risk-register.md`、`docs/tech-debt-register.md`、`docs/traceability-matrix.md`

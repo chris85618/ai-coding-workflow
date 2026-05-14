@@ -65,7 +65,7 @@
 ## Step 6: 出口閘門驗證
 
 1. 執行該 Stage 的原有檢查項
-2. 執行追溯矩陣驗證（見 `TRACEABILITY.md`）
+2. 執行追溯矩陣驗證（見 `traceability-system.md` Step 5）
 3. 執行影響分析完成確認
 4. 確認所有文件已寫入 `docs/`
 5. 更新 `docs/workflow-state.md`（移除已完成 leaf）

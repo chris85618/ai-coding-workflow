@@ -21,7 +21,34 @@
 
 **Last Updated**: [ISO 8601]
 **Total Active Items**: [N]
+**Total Estimated Effort**: [N] person-days
 **Sprint Allocation**: 20% capacity
+
+---
+
+## Executive Summary
+
+### 類型分佈
+| 類型 | 數量 | 佔比 | 總努力 (天) |
+|------|------|------|------------|
+| 程式碼品質 | [N] | [%] | [N] |
+| 測試債 | [N] | [%] | [N] |
+| 架構債 | [N] | [%] | [N] |
+| 效能債 | [N] | [%] | [N] |
+| 安全債 | [N] | [%] | [N] |
+| 文件債 | [N] | [%] | [N] |
+| 流程債 | [N] | [%] | [N] |
+| **合計** | **[N]** | **100%** | **[N]** |
+
+### 嚴重度分佈
+| 嚴重度 | 數量 | 佔比 |
+|--------|------|------|
+| CRITICAL | [N] | [%] |
+| HIGH | [N] | [%] |
+| MEDIUM | [N] | [%] |
+| LOW | [N] | [%] |
+
+---
 
 ## Active Debt
 
@@ -36,8 +63,22 @@
   - Effort: [person-days]
 - **象限**: Quick Win | Major Project | Fill In | Thankless Task
 - **ADR 追溯**: ADR-xxx
+- **FR 追溯**: FR-xxx
+- **對應 RISK**: RISK-xxx 或 N/A
+- **對應 LESSON**: LESSON-xxx 或 N/A
 - **建立日期**: [ISO 8601]
 - **預計處理 Sprint**: [Sprint N / Backlog]
+- **狀態**: Open | In Progress | Fixed | Won't Fix
+
+**債務描述**: [詳細描述]
+**修復步驟**:
+1. [步驟 1]
+2. [步驟 2]
+
+---
+
+## Closed Debt
+> 已解決的 DEBT-xxx 移至此處，保留歷史記錄。
 ```
 
 ## Step 3: 四象限分類

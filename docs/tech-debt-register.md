@@ -1,7 +1,7 @@
 # Tech Debt Register — Unified Agentic Workflow System
 
-> **Last Updated**: 2026-05-14T07:17+08:00
-> **Total Active Items**: 1
+> **Last Updated**: 2026-05-14T08:36+08:00
+> **Total Active Items**: 0
 > **Sprint Allocation**: 20% capacity
 > **維護 Skill**: `skills/workflow-skills/tech-debt-collect.md`, `skills/workflow-skills/tech-debt-framework.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § DEBT → FR
@@ -16,7 +16,7 @@
 | 欄位 | 值 |
 |------|-----|
 | **ID** | DEBT-001 |
-| **狀態** | open |
+| **狀態** | resolved |
 | **來源** | 文件債 |
 | **影響元件** | docs/phases/, docs/stages/, docs/governance/ |
 | **優先等級** | P2 |
@@ -32,15 +32,19 @@
 | **對應 LESSON** | LESSON-022 |
 | **建立日期** | 2026-05-14T05:15+08:00 |
 | **預計處理 Sprint** | Backlog |
-| **解決日期** | N/A |
+| **解決日期** | 2026-05-14T08:36+08:00 |
 
 **債務描述**：ADR-GOV-022 將 docs/ 中的執行方法論全數吸收至 skills/workflow-skills/ 後，docs/ 下的原始檔案（phases/、stages/、governance/ 目錄）未標記為「Reference Only — 執行邏輯已遷移至 skills/workflow-skills/」。這可能導致新 session 的 AI 誤讀過時的 docs/ 檔案而非 skills/ 中的最新版本，與 RISK-003 (版本漂移) 直接相關。
+
+**解決措施**：2026-05-14 session 中，已為 16 個檔案（governance/5 + phases/5 + stages/6）全部加上 `⚠️ REFERENCE ONLY` 標記，指向對應 skill 檔案。
 
 ---
 
 ## Closed / Resolved Debt
 
-（目前無）
+### DEBT-001: docs/ 下原始方法論檔案未標記為 Reference Only — **RESOLVED**
+
+> 解決於 2026-05-14。16 個檔案已標記 Reference Only。詳見 Active Debt 區段。
 
 ---
 

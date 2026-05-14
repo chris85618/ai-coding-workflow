@@ -204,5 +204,3 @@ cd skills/skillfortify && python -m pytest
 | [AGENTS.md](./AGENTS.md) | 統一執行協議：Step 0-12 結構化步驟 + skill routing + core directives |
 | [docs/traceability-matrix.md](./docs/traceability-matrix.md) | 追溯矩陣 + ADR 登記簿 |
 | [docs/governance/](./docs/governance/) | 跨切面治理規則 |
-| [docs/phases/](./docs/phases/) | Phase 0-2, 9-10 定義 |
-| [docs/stages/](./docs/stages/) | Stage 3-8 定義 + 審查維度 |

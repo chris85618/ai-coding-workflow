@@ -1,19 +1,8 @@
-# ADR Governance Framework
+# ADR Governance Framework — 設計歷史文獻
 
-> **治理層**：跨切面強制執行
-> 所有決策（人類 prompt 決策 + AI 自主決策）皆須以 ADR 形式記錄。
-> ADR 為決策的單一事實來源；CHANGE-MANAGEMENT、IMPACT-ANALYSIS、TECH-DEBT 為 ADR 的關聯產出物。
-
----
-
-## 核心原則
-
-1. **每個決策都是 ADR**：無論來自人類 HITL 輸入或 AI 自主判斷，凡影響架構、流程、範圍、安全的決策皆記錄
-2. **分層分類**：ADR 依性質分為 6 個類別，各有專屬範本
-3. **雙向追溯**：每個 ADR 連結至觸發它的上游 ID 和受它影響的下游 ID
-4. **關聯治理產出物**：變更紀錄直接寫入對應 ADR、技術債（DEBT-xxx）、風險（RISK-xxx）皆追溯至授權它的 ADR
-5. **高內聚低耦合**：每個 ADR 精確捕捉一個 Decision Unit，不多不少（見下方定義）
-6. **資訊新穎性門檻**：僅記錄無法從既有知識推導的資訊，但寧多勿漏（見下方定義）
+> **⚠️ DESIGN HISTORY DOCUMENT** — 本文件保留 ADR 治理框架的設計推導過程。
+> 執行邏輯見 `skills/workflow-skills/adr-governance.md`。
+> AI 執行其他 repository 時，僅需讀取對應 skill，不需讀取本文件。
 
 ---
 
@@ -82,41 +71,22 @@
 ### 內聚 vs 耦合：正交維度
 
 | 維度 | 定義 | 量測方式 | 優化方向 |
-|------|------|---------|---------|
+|------|------|---------|---------| 
 | **內聚 (Cohesion)** | ADR 內部元素的相關程度 | 移除任一元素對 ADR 完整性的損害程度 | 最大化：每個元素都不可或缺 |
 | **耦合 (Coupling)** | ADR 之間的依賴程度 | 修改 ADR-A 時必須連帶修改的其他 ADR 數量 | 最小化：修改一個不影響其他 |
 
 **關鍵洞察：高內聚自然降低耦合。** 當每個 ADR 精確捕捉一個 DU 時，修改一個決策只影響真正依賴它的 ADR，而非因為被綁在一起的不相關決策。
-
-**四象限分析：**
-
-```
-            高內聚
-              │
-  理想 ✅     │     可接受
-  獨立且聚焦   │     聚焦但有依賴鏈
-              │
-低耦合 ───────┼──────── 高耦合
-              │
-  問題         │     最差 ❌
-  雜亂但獨立   │     義大利麵決策
-              │
-            低內聚
-```
 
 ### ADR-GATE 頻率的具體判定
 
 ADR-GATE 頻率不是「每輪一個」或「每 Stage 一個」，而是**每個 Decision Unit 一個**：
 
 | 迭代情境 | DU 判定 | ADR 行為 |
-|---------|---------|---------|
+|---------|---------|---------| 
 | 用戶選 [1] 繼續迭代，反饋是精煉同一問題 | 同一 DU（共享關注點、後果耦合） | 追加至現有 ADR-GATE 的迭代紀錄 |
 | 用戶選 [2] 加入新需求，且新需求改變問題空間 | 新 DU（不同關注點） | 產出新 ADR-GATE |
 | 用戶選 [2] 加入新需求，但新需求是原問題的延伸 | 同一 DU（RIT 不通過：不可獨立反轉） | 追加至現有 ADR-GATE |
 | 用戶選 [3] 通過 | 關閉現有 DU | 將現有 ADR-GATE 狀態改為 Accepted |
-| 不動點偵測建議終止 | 視用戶回應 | — |
-
-**判定流程：**
 
 ```
 用戶在 HITL 閘門輸入新內容 I
@@ -175,49 +145,6 @@ ADR-GATE 頻率不是「每輪一個」或「每 Stage 一個」，而是**每�
 
 **為什麼是「15 分鐘」？** 這是一個合理的注意力窗口。超過 15 分鐘的推導鏈意味著知識已經散落到需要主動搜尋和拼湊的程度，記錄它可以為未來讀者節省這個搜尋成本。
 
-### Phase 1 記錄決策樹
-
-```
-/understand-chat 或 /understand-explain 產出資訊 I
-  │
-  ├─ Step 1: I 是否逐字存在於現有文件？ → 是 → 不記錄
-  ├─ Step 2: I 是否為現有內容的平凡改寫？ → 是 → 不記錄
-  ├─ Step 3: I 能否從單一文件經單步推論得出？ → 是 → 不記錄
-  ├─ Step 4: I 是否需要 2+ 文件 或 2+ 推論步驟？ → 是 → 記錄
-  ├─ Step 5: I 是否揭示隱性設計意圖或默會知識？ → 是 → 記錄
-  ├─ Step 6: I 是否描述湧現行為？ → 是 → 記錄
-  └─ Step 7: 仍有疑慮？ → 記錄（偽陽性偏好）
-```
-
-記錄目標位置：`docs/exploration-log.md`（非 ADR，因為是「發現」而非「決策」）。
-當發現觸發了設計決策時，才從 exploration-log 升級為 ADR。
-
----
-
-## ADR 類別層次結構
-
-| 類別 | 前綴 | 定義 | 決策者 | 範例 |
-|------|------|------|--------|------|
-| **STRUCTURAL** | `ADR-STR-xxx` | 系統架構、模組邊界、技術棧選擇 | AI 提案 + HITL 核准 | 三層分離架構、資料庫選型 |
-| **GOVERNANCE** | `ADR-GOV-xxx` | 流程規則、閘門標準、審計要求 | AI 提案 + HITL 核准 | 微驗證步數變更、SonarCloud 門檻 |
-| **SECURITY** | `ADR-SEC-xxx` | 安全控制決策、威脅模型回應 | AI 提案 + HITL 核准 | 加密演算法選擇、認證機制 |
-| **SCOPE** | `ADR-SCP-xxx` | 功能邊界、MVP 定義、排除理由 | 人類決策（Red Team 回應） | 功能納入/排除、CEO Review 模式 |
-| **GATE** | `ADR-GATE-xxx` | HITL 閘門決策紀錄 | 人類決策 | Stage 3 通過、加入新需求 |
-| **OPERATIONAL** | `ADR-OPS-xxx` | 部署、監控、事件回應 | AI 提案 + HITL 核准 | CI/CD 策略、Canary 門檻 |
-
-### 編號規則
-
-```
-ADR-{CATEGORY}-{NNN}
-例：ADR-STR-001（結構類）
-    ADR-GOV-001（治理類）
-    ADR-GOV-002（治理類）
-    ADR-SEC-001（安全類）
-    ADR-SCP-001（範圍類）
-    ADR-GATE-S3-001（Stage 3 閘門決策第 1 次）
-    ADR-OPS-001（營運類）
-```
-
 ---
 
 ## 人類輸入進入點窮舉表（HITL Entry Point Registry）
@@ -238,15 +165,11 @@ ADR-{CATEGORY}-{NNN}
 | HITL-P0-01 | 💬 | gstack 首次引導 | 首次使用 | Telemetry/Proactive/Style 偏好 | ADR-GOV-xxx |
 | HITL-P0-02 | ⚖️ | 恢復協議確認 | workflow-state.md 存在且有進行中工作 | [1] 從斷點繼續 [2] 有其他指令 [3] 重置 | ADR-GATE-P0-xxx |
 
-> **HITL-P0-01 説明**：舊版「是否有既有程式碼庫？」已替換為 `pipeline-completeness-check.md`。
-> AI 透過掃描 docs/ 資料夾判定 Pipeline 完備度，不需人類介入。
-> **HITL-P0-02 説明**：僅在偵測到既有工作流狀態時觸發。使用者可能下無關的 prompt，因此必須確認。
-
 ### Phase 1：程式碼理解
 
 | ID | 類型 | 進入點 | 觸發條件 | 人類輸入內容 | 記錄規則 |
 |----|------|--------|---------|-------------|---------|
-| HITL-P1-01 | 💬 | /understand-chat | 按需使用 | 針對程式碼庫的問題 | 適用「資訊新穎性評估框架」：L0-L1 不記錄；L2+ 記錄至 `docs/exploration-log.md`；若觸發決策 → 升級為 ADR |
+| HITL-P1-01 | 💬 | /understand-chat | 按需使用 | 針對程式碼庫的問題 | L0-L1 不記錄；L2+ 記錄至 `docs/exploration-log.md`；若觸發決策 → 升級為 ADR |
 | HITL-P1-02 | ⚖️ | 深入元件選擇 | 按需使用 | 選擇要 /understand-explain 的路徑 | 同上 |
 
 ### Phase 2：專案分析與產品思考
@@ -265,7 +188,6 @@ ADR-{CATEGORY}-{NNN}
 ### Stage 3-8：迭代管線（每個 Stage 皆有）
 
 > **AI 自主收斂優先**：AI 持續迭代至不動點後，才觸發 HITL。
-> 人類不在每一輪迭代中介入，僅在 AI 收斂後做最終判定。
 > ADR-GATE 頻率由 Decision Unit 理論決定。
 
 | ID 模式 | 類型 | 進入點 | 觸發條件 | 人類輸入內容 | ADR 行為 |
@@ -291,7 +213,7 @@ ADR-{CATEGORY}-{NNN}
 
 | ID | 類型 | 進入點 | 觸發條件 | 人類輸入內容 | 產出 ADR |
 |----|------|--------|---------|-------------|---------|
-| HITL-GOV-MAJOR | 🚪 | 影響分析 MAJOR 確認 | AI 完成 M1-M3（全貌映射+自主修正+驗證）後 | 確認修正完整性和正確性 | ADR-{CAT}-xxx |
+| HITL-GOV-MAJOR | 🚪 | 影響分析 MAJOR 確認 | AI 完成 M1-M3 後 | 確認修正完整性和正確性 | ADR-{CAT}-xxx |
 | HITL-GOV-MICRO | 🚨 | 微驗證 3 次失敗上報 | 自主修復 3 次仍失敗 | 決定修復方向 | ADR-GATE-xxx |
 | HITL-GOV-RISK | 🚨 | 高風險標記 | risk_level >= 10 | 確認風險處理策略 | ADR-SEC-xxx |
 
@@ -311,15 +233,10 @@ ADR-{CATEGORY}-{NNN}
 | HITL-P10-RCA | 🚪 | 全對話 RCA 掃描結果確認 | 10.2 完成 | 確認左移守衛和 skill 更新 | ADR-GOV-xxx |
 | HITL-P10-EVOLVE | 💬 | /evolve 互動 | 學習萃取 | 確認 instinct 聚類為 skill | ADR-GOV-xxx |
 
----
-
-## HITL 進入點統計
-
-> 更新後統計：Stage 3-8 從「每輪 HITL」改為「收斂後 HITL」，HITL 點數減少。
-> HITL-GOV-MAJOR 從 ESCALATION 改為 GATE（AI 先自主修正，人類確認完成品）。
+### HITL 進入點統計
 
 | 階段 | 必經閘門 (🚪) | 互動會話 (💬) | 條件決策 (⚖️) | 失敗上報 (🚨) | 合計 |
-|------|:------------:|:------------:|:------------:|:------------:|:----:|
+|------|:---:|:---:|:---:|:---:|:---:|
 | Phase 0 | 0 | 1 | 1 | 0 | 2 |
 | Phase 1 | 0 | 2 | 0 | 0 | 2 |
 | Phase 2 | 2 | 2 | 3 | 0 | 7 |
@@ -333,67 +250,3 @@ ADR-{CATEGORY}-{NNN}
 | Phase 9 | 0 | 3 | 0 | 0 | 3 |
 | Phase 10 | 1 | 2 | 0 | 0 | 3 |
 | **合計** | **16** | **12** | **4** | **4** | **36** |
-
----
-
-## ADR 與治理產出物的整合關係
-
-```
-ADR-{CAT}-xxx（決策記錄）
-  │
-  ├── 觸發 → ADR 變更紀錄（見 ADR-TEMPLATE.md 變更紀錄區段）
-  │          └── blast_radius, 受影響 ID, 閘門重驗證
-  │
-  ├── 產生 → DEBT-xxx（技術債項目，見 TECH-DEBT.md）
-  │          └── RICE 分數, 四象限分類, 修復計畫
-  │
-  ├── 紀錄 → ADR 變更紀錄（見 ADR-TEMPLATE.md 變更紀錄區段）
-  │          └── 變更類型, 根因分類, 左移動作
-  │
-  └── 緩解 → RISK-xxx（風險項目）
-             └── 影響 × 機率, 緩解策略
-```
-
-### 整合規則
-
-1. **每個變更必須追溯至一個 ADR**：變更紀錄直接寫入對應 ADR 的「變更紀錄」區段
-2. **每個 DEBT-xxx 可追溯至 ADR**：技術債的 `產生原因 ADR` 欄位記錄導致該債務的決策
-3. **MAJOR 影響分析結果 → 產出新 ADR**：記錄人類的處理決策
-4. **所有變更類型 → LESSON-xxx 追溯至 ADR**：根因左移的教訓連結至原始決策（CREATE/MODIFY/FIX 皆適用，無例外）
-
----
-
-## ADR 生命週期
-
-```
-Proposed → Accepted → Superseded
-              │
-              └→ Deprecated
-              └→ Amended (minor update, 不產生新 ADR)
-```
-
-| 狀態 | 定義 | 轉移條件 |
-|------|------|---------|
-| Proposed | AI 提案，等待 HITL 核准 | 自動產生 |
-| Accepted | 人類核准，生效中 | HITL 確認 ✅ |
-| Superseded | 被新 ADR 取代 | 新 ADR Accepted 且聲明取代 |
-| Deprecated | 不再適用但保留歷史 | HITL 決策 |
-| Amended | 小幅修正，不改變核心決策 | AI 自主 + 影響分析 COSMETIC/MINOR |
-
----
-
-## 檔案結構
-
-```
-docs/adr/
-├── ADR-TEMPLATE.md           # LLM 撰寫範本
-├── ADR-STR-001.md            # 三層分離架構
-├── ADR-GOV-001.md            # DU 理論 + 新穎性門檻
-├── ADR-GOV-002.md            # ADR 治理框架
-├── ADR-STR-xxx.md            # 結構類
-├── ADR-GOV-xxx.md            # 治理類
-├── ADR-SEC-xxx.md            # 安全類
-├── ADR-SCP-xxx.md            # 範圍類
-├── ADR-GATE-S{N}-xxx.md      # 閘門決策類
-└── ADR-OPS-xxx.md            # 營運類
-```
