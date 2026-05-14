@@ -2,14 +2,13 @@
 
 Traceable to: ALG-006 (RepoMapBuilder creates this)
 INV-024 ensures token_count <= budget.
-
-Condensed representation of repository structure via tree-sitter AST.
-Ranked by PageRank on import/dependency graph.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
+_CHARS_PER_TOKEN = 4
 
 
 @dataclass(frozen=True)
@@ -54,8 +53,23 @@ class RepoMap:
         Returns:
             New RepoMap with symbols trimmed to fit budget.
         """
-        # Implementation deferred to Stage 8 (TDD)
-        raise NotImplementedError
+        if budget <= 0:
+            return RepoMap(symbols=(), token_count=0, file_ranks={})
+
+        selected: list[SymbolDef] = []
+        token_count = 0
+        for sym in self.symbols:
+            cost = max(1, len(sym.signature) // _CHARS_PER_TOKEN)
+            if token_count + cost > budget:
+                break
+            selected.append(sym)
+            token_count += cost
+
+        return RepoMap(
+            symbols=tuple(selected),
+            token_count=token_count,
+            file_ranks=self.file_ranks,
+        )
 
     def get_context_string(self) -> str:
         """Render this map as a string for LLM context injection.
@@ -63,5 +77,13 @@ class RepoMap:
         Returns:
             Formatted string of symbol signatures.
         """
-        # Implementation deferred to Stage 8 (TDD)
-        raise NotImplementedError
+        if not self.symbols:
+            return ""
+        lines = [f"# Repository Map ({self.token_count} tokens)"]
+        current_file = ""
+        for sym in self.symbols:
+            if sym.file_path != current_file:
+                lines.append(f"\n## {sym.file_path}")
+                current_file = sym.file_path
+            lines.append(f"  {sym.kind}: {sym.signature}")
+        return "\n".join(lines)
