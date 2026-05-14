@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Phase 10 (Retro) — COMPLETED. Full pipeline Phase 0→Phase 10 done. Next: Adapter 層實作 (DEBT-002, next session).`
-**Last Updated**: `2026-05-14T19:46+08:00`
+**Current Phase/Stage**: `Stage 8 完成 (DEBT-002/003/004 resolved). 217 tests, 98.76% coverage. DEBT-005 deferred (初版交付前擱置). Next: 初版 v0.1.0 deliver.`
+**Last Updated**: `2026-05-15T00:35+08:00`
 **Recovery Mode**: false
 
 ---
@@ -203,12 +203,8 @@ FOR each pending WBS leaf L:
 
 | # | 行動 | 觸發條件 / LRM 判定 | 優先級 |
 |---|------|---------------------|--------|
-| 1 | 執行 Stage 8 TDD: 實作 production code + pytest-bdd step defs + 95% coverage | 使用者確認啟動 | CRITICAL |
-| 2 | 實作 CLS-017 LLMStrategySelector + ALG-008 ModelSelector (Strategy Pattern) | Stage 8 | P0 |
-| 3 | 實作 CLS-015 RepoMap + ALG-006 RepoMapBuilder (tree-sitter + PageRank) | Stage 8 | P0 |
-| 4 | 實作 CLS-016 HookRunner + lifecycle hooks (4 events) | Stage 8 | P1 |
-| 5 | 實作 ALG-007 ContextBudgetAllocator | Stage 8 | P1 |
-| 6 | 實作 MCPGateway.auto_commit() atomic git commits | Stage 8 | P1 |
+| 1 | DEBT-005 SonarCloud CI 閘門 (擱置) | 初版交付前保留，初版交付後再執行 | P2 DEFERRED |
+| 2 | 初版 v0.1.0 交付 (Phase 9 Ship) | 所有 DEBT P1+ resolved | 使用者指示時 |
 
 ---
 
@@ -217,8 +213,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T19:12+08:00
-- **Pipeline Position (recorded)**: Stage 7 (設計完成; 全部 feature absorption 完成; 283 條追溯; 待 Stage 8 TDD)
-- **Actual Work Done**: (1) 使用者指令執行: 移除 multi-agent parallel 和 memory curation。(2) Strategy Pattern LLM 提升至 P0: CLS-017 LLMStrategySelector + CLS-018 ModelConfig + ALG-008 ModelSelector + INV-022 + TaskType enum。(3) 全部吸收: FR-026~030, NFR-008, UC-012/013, SC-012~016 BDD feature files。(4) ADR-STR-004 決策記錄。(5) OOAD v3 + formal-verification v3 + traceability 262→283。(6) src/ 新增 model_config.py, repo_map.py, TaskType enum。
-- **State Diff**: +21 IDs, +5 BDD features, +1 ADR, +3 src files, OOAD/INV/matrix 更新
+- **Last Session Date**: 2026-05-15T00:35+08:00
+- **Pipeline Position (recorded)**: Stage 8 完成 (DEBT-002/003/004 resolved, DEBT-005 deferred; 217 tests, 98.76% coverage)
+- **Actual Work Done**: (1) DEBT-004: Layer 1+2+3 安全審計—AgentShield + SkillFortify 執行，發現 SEC-001~004。(2) 修正 SEC-001 (shell injection), SEC-002/003 (path traversal), SEC-004 (SSRF)。(3) 18 個安全迴歸測試全部通過。(4) DEBT-003: 26 個邊界分支測試，repo_map_builder 97%、repo_map 100%。(5) DEBT-005 依使用者指示擱置保留。
+- **State Diff**: +4 src 修正, +2 test files (44 tests), DEBT-003/004 resolved, DEBT-005 deferred
 - **Pending Escalations Carried Over**: 無

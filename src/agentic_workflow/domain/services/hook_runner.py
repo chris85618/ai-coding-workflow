@@ -6,6 +6,7 @@ INV-020: exit_code 0 → proceed=True; exit_code 2 → proceed=False (blocking o
 
 from __future__ import annotations
 
+import shlex
 import subprocess
 from dataclasses import dataclass, field
 
@@ -89,15 +90,31 @@ class HookRunner:
         Returns:
             HookResult with execution outcome.
         """
-        # Substitute context variables into command
+        # Substitute context variables into command template.
+        # Context values come from internal domain objects (stage_id, event name)
+        # — not from external user input. Substitution happens before shlex.split
+        # so the final list form prevents shell injection (SEC-001).
         cmd = hook_def.command
         for key, val in context.items():
-            cmd = cmd.replace(f"{{{key}}}", val)
+            # Strip any shell metacharacters from context values (defensive)
+            safe_val = val.replace(";", "").replace("&", "").replace("|", "").replace("`", "")
+            cmd = cmd.replace(f"{{{key}}}", safe_val)
+
+        try:
+            cmd_list = shlex.split(cmd)
+        except ValueError as exc:
+            return HookResult(
+                hook_def=hook_def,
+                exit_code=1,
+                stdout="",
+                stderr=f"Invalid hook command syntax: {exc}",
+                proceed=not hook_def.blocking,
+            )
 
         try:
             proc = subprocess.run(
-                cmd,
-                shell=True,
+                cmd_list,
+                shell=False,
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -109,6 +126,10 @@ class HookRunner:
             exit_code = 1
             stdout = ""
             stderr = "Hook timed out after 30 seconds"
+        except FileNotFoundError:
+            exit_code = 1
+            stdout = ""
+            stderr = f"Hook command not found: {cmd_list[0]!r}"
 
         # INV-020: exit_code 2 + blocking → block
         proceed = not (exit_code == 2 and hook_def.blocking)

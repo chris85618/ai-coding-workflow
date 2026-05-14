@@ -490,3 +490,122 @@ class TestRepoMapPruneExactFit:
         pruned = m.prune_to_budget(50)
         assert len(pruned.symbols) == 0
 
+
+# ── 100% coverage final fills ─────────────────────────────────────────────────
+
+class TestFinalCoverageGaps:
+    """Three targeted tests to reach 100% coverage.
+
+    convergence.py L48→54: all() True but count[-1] NOT > count[0] → NOT_REACHED
+    repo_map_builder.py L98→96: regex match with both groups None → module is falsy
+    repo_map_builder.py L183-184: OSError on Path.read_text in symbol extraction loop
+    """
+
+    # --- convergence.py L48→54 ---
+
+    def test_convergence_non_diverging_plateau(self):
+        """L48→54: findings_per_iter >= 3 but not strictly increasing → NOT_REACHED.
+
+        The divergence guard requires:
+          all(counts[i] <= counts[i+1]) AND counts[-1] > counts[0]
+        If counts are flat (e.g. [3, 3, 3]) the all() is True but counts[-1]==counts[0],
+        so the condition short-circuits and we fall through to NOT_REACHED (L54).
+        """
+        from agentic_workflow.domain.algorithms.convergence import check_convergence
+        from agentic_workflow.domain.models.enums import FixedPointResult
+
+        # Three identical-length histories → plateau, not diverging
+        history = [["A", "B", "C"], ["A", "B", "C"], ["A", "B", "C"]]
+        result = check_convergence(
+            iteration_count=3,
+            findings_per_iter=history,
+            current_findings=["CRITICAL: still here"],
+        )
+        assert result == FixedPointResult.NOT_REACHED
+
+    def test_convergence_decreasing_then_increasing_not_diverging(self):
+        """L48→54: [3,2,3] — not monotonically non-decreasing → NOT_REACHED."""
+        from agentic_workflow.domain.algorithms.convergence import check_convergence
+        from agentic_workflow.domain.models.enums import FixedPointResult
+
+        # [3, 2, 3]: all(counts[i] <= counts[i+1]) is False for i=0 (3 > 2)
+        # → all() returns False → skip DIVERGING branch → fall to NOT_REACHED
+        history = [["A", "B", "C"], ["A", "B"], ["A", "B", "C"]]
+        result = check_convergence(
+            iteration_count=3,
+            findings_per_iter=history,
+            current_findings=["CRITICAL: still here"],
+        )
+        assert result == FixedPointResult.NOT_REACHED
+
+    # --- repo_map_builder.py L98→96 ---
+
+    def test_import_graph_none_module_group(self, tmp_path):
+        """L98→96: regex match where both groups() are None — module is falsy → skip.
+
+        The import_pattern has two groups: group(1) = 'from X import' base,
+        group(2) = 'import X' base. A bare 'import' keyword with no module
+        cannot be crafted to match the pattern (it requires \\w+). So the real
+        way to trigger module='' is via a match where group(1) or group(2) is
+        an empty string. We achieve this by having no matching imports at all
+        (graph still built, just no edges), which forces the loop body where
+        base not in path_map → the if module: guard is exercised.
+        The branch L98→96 fires when the for-loop body is entered but module
+        is falsy OR when the loop doesn't run at all (no matches). The actual
+        uncovered arc is: L97 (assign module) → module is truthy but base NOT
+        in path_map → L96 (next iteration). We cover that with an import that
+        matches but whose base is not in path_map.
+        """
+        from agentic_workflow.domain.algorithms.repo_map_builder import _build_import_graph
+
+        a = tmp_path / "alpha.py"
+        # Import an external module (not in path_map)
+        a.write_text("import os\nimport sys\nfrom pathlib import Path\n")
+        result = _build_import_graph([str(a)], str(tmp_path))
+        # All imports map to external modules → no edges added, but no crash
+        assert result[str(a)] == []
+
+    # --- repo_map_builder.py L183-184 ---
+
+    def test_repo_map_build_oserror_on_second_read(self, tmp_path):
+        """L183-184: OSError during symbol-extraction read → file is skipped.
+
+        In repo_map_build:
+          L180-185: symbol extraction loop (reads each file first)
+          L188: _build_import_graph (reads each file second)
+        So to trigger L183-184, we raise OSError on the FIRST read of bad.py
+        (the symbol extraction pass), then allow the second read (import graph).
+        """
+        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        from unittest.mock import patch
+
+        good_file = tmp_path / "good.py"
+        bad_file = tmp_path / "bad.py"
+        good_file.write_text("def good_func(): pass\n")
+        bad_file.write_text("class BadClass: pass\n")
+
+        call_registry: dict[str, int] = {}
+        original_read_text = Path.read_text
+
+        def patched_read(self: Path, *args, **kwargs) -> str:
+            name = self.name
+            call_registry[name] = call_registry.get(name, 0) + 1
+            # Raise on the FIRST access to bad.py → hits L183-184 (symbol loop)
+            if name == "bad.py" and call_registry[name] == 1:
+                raise OSError("forced OSError for L183-184 coverage")
+            return original_read_text(self, *args, **kwargs)
+
+        with patch.object(Path, "read_text", patched_read):
+            result = repo_map_build(str(tmp_path), token_budget=1000)
+
+        # good.py symbols must still appear; bad.py symbols were skipped
+        good_syms = [s for s in result.symbols if "good" in s.file_path]
+        bad_syms = [s for s in result.symbols if "bad" in s.file_path]
+        assert len(good_syms) >= 1
+        assert bad_syms == []  # bad.py was skipped in symbol extraction
+        # Confirm bad.py was accessed (at least attempted)
+        assert call_registry.get("bad.py", 0) >= 1
+
+
+
+

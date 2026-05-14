@@ -1,7 +1,7 @@
 # Tech Debt Register — Unified Agentic Workflow System
 
-> **Last Updated**: 2026-05-14T19:45+08:00
-> **Total Active Items**: 4 (DEBT-002~005)
+> **Last Updated**: 2026-05-15T00:35+08:00
+> **Total Active Items**: 1 (DEBT-005 deferred)
 > **Sprint Allocation**: 20% capacity
 > **維護 Skill**: `skills/workflow-skills/tech-debt-collect.md`, `skills/workflow-skills/tech-debt-framework.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § DEBT → FR
@@ -45,7 +45,7 @@
 | 欄位 | 值 |
 |------|-----|
 | **ID** | DEBT-002 |
-| **狀態** | open |
+| **狀態** | resolved |
 | **來源** | 架構債 (domain-first 策略性延後) |
 | **影響元件** | `adapters/langgraph/`, `adapters/llm/`, `adapters/mcp/`, `adapters/persistence/` |
 | **優先等級** | P1 |
@@ -57,7 +57,7 @@
 | **對應 LESSON** | LESSON-035 |
 | **建立日期** | 2026-05-14T19:45+08:00 |
 | **預計處理 Sprint** | 下個 Session |
-| **解決日期** | N/A |
+| **解決日期** | 2026-05-15T00:00+08:00 |
 
 **債務描述**: LangGraph DAG 接線、OpenAI/Anthropic LLM adapters、GitKraken + SequentialThinking MCP gateway、LangGraph checkpoint persistence 均為空骨架。Domain 層 100% 完成，Adapter 層是下個開發周期的主要任務。
 

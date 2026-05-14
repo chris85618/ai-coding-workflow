@@ -151,7 +151,11 @@
 
 | DEBT | 標題 | 狀態 | 來源 | 優先 | RICE | 象限 | FR 追溯 | 對應RISK | 對應LESSON | 連結 |
 |------|------|------|------|------|------|------|---------|---------|-----------|------|
-| DEBT-001 | docs/下原始方法論檔案未標記為Reference Only | open | 文件債 | P2 | 6.0 | Fill In | FR-001,002 | RISK-003 | LESSON-022 | derives |
+| DEBT-001 | docs/下原始方法論檔案未標記為Reference Only | resolved | 文件債 | P2 | 6.0 | Fill In | FR-001,002 | RISK-003 | LESSON-022 | derives |
+| DEBT-002 | Adapter 層尚未實作 | **resolved** | 架構債 | P1 | 6.75 | Major Project | FR-001,015,018,026~030 | N/A | LESSON-035 | derives |
+| DEBT-003 | repo_map_builder.py 相對 import 邊界分支未覆蓋 | open | 測試缺口 | P3 | 0.9 | Fill In | FR-018 | N/A | LESSON-037 | derives |
+| DEBT-004 | Layer 2/3 安全審計尚未執行 | open | 安全債 | P2 | 4.0 | Major Project | FR-030 | N/A | N/A | derives |
+| DEBT-005 | SonarCloud CI 閘門尚未設定 | open | 流程債 | P2 | 9.0 | Quick Win | FR-004,005 | N/A | N/A | derives |
 
 ### CLS → UC / ALG
 
@@ -392,7 +396,7 @@ INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 | Skill 守衛 | LESSON→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 19 | 19/19 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
-| 技術債追溯 | DEBT→FR | 1 | 1/1 | — (治理) | 100% |
+| 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |
 | **合計** | — | **283** | — | — | **100%** |
 
 > **Status**: Feature absorption 完成。+21 IDs (FR-026~030, NFR-008, UC-012/013, CLS-017/018, ALG-008, INV-022~024, EVT-009/010, SC-012~016, ADR-STR-004)。283 條追溯紀錄，零孤兒。
