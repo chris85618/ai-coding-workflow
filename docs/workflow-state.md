@@ -10,7 +10,7 @@
 
 **Pipeline ID**: `pipe-unified-governance-v1`
 **Current Phase/Stage**: `Phase 10 (反思與學習) — 框架 self-bootstrap Stage 3-8 全部完成，當前為治理強化迭代`
-**Last Updated**: `2026-05-14T07:48+08:00`
+**Last Updated**: `2026-05-14T08:15+08:00`
 **Recovery Mode**: false
 
 ---
@@ -208,7 +208,6 @@ FOR each pending WBS leaf L:
 | 3 | 處理 DEBT-001 (docs/原始檔未標記Reference Only) — P2 | 下次維護 docs/ 時 | MEDIUM |
 | 4 | 監控 RISK-003/005 (docs/版本漂移 + ADR-TEMPLATE省略) — MEDIUM, 策略 MT | 下次撰寫 ADR 時驗證 | MEDIUM |
 | 5 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
-| 6 | 補完 UC-010/011 的 CLS/SC 覆蓋缺口 (Stage 5-8 已執行但未覆蓋這兩個 UC) | 下次治理審計時 | MEDIUM |
 
 ---
 
@@ -217,8 +216,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T08:10+08:00
+- **Last Session Date**: 2026-05-14T08:15+08:00
 - **Pipeline Position (recorded)**: Phase 10 (框架 self-bootstrap 完成，治理強化迭代)
-- **Actual Work Done**: (1) RISK-001~005 重新編號。(2) DEBT-001 登錄。(3) 通用 ID 指派協議 (SSOT)。(4) Step 0 風險左移掃描。(5) Step 12.2 Pipeline Position 客觀判定守衛 (LESSON-032)。(6) Step 12.4 表格模板窮舉語意修正。(7) Step 輸出協議加入「每個 prompt = 完整協議觸發」(LESSON-033)。(8) Factual Reporting 加入範圍限定詞保護 (LESSON-034)。(9) +LESSON-030~034。追溯紀錄 214→225。
-- **State Diff**: +LESSON-030~034; AGENTS.md 3 處守衛; 追溯紀錄 214→225
+- **Actual Work Done**: UC-010/011 CLS/SC/INV/TC 覆蓋缺口補完。新增 CLS-013 (WorkflowResumer), CLS-014 (CrossLinkTracer), EVT-006/007, INV-018/019, SC-010/011, TC-010/011。追溯紀錄 225→239，UC 覆蓋率 82%→100%。
+- **State Diff**: +14 追溯紀錄; UC-xxx 覆蓋 82%→100%; 5 檔更新 (domain-model, invariants, bdd-scenarios, test-cases, traceability-matrix)
 - **Pending Escalations Carried Over**: 無

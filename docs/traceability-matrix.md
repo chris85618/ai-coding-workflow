@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-14T07:03:00+08:00 (ADR-GOV-025：ISO31000風險管理框架+DEBT/RISK完整追溯)
-**Validation Status**: ✅ ADR-GOV-025 新增；25 ADR 登記簿統一管理；RISK/DEBT 完整欄位；214 條追溯紀錄
+**Last Validated**: 2026-05-14T08:15:00+08:00 (UC-010/011 CLS/SC/INV/TC 覆蓋缺口補完)
+**Validation Status**: ✅ +CLS-013/014, +EVT-006/007, +INV-018/019, +SC-010/011, +TC-010/011; 239 條追溯紀錄，零孤兒
 
 ---
 
@@ -155,6 +155,8 @@
 | CLS-010 | UC-006 | models | ✅ |
 | CLS-011 | UC-009 | models | ✅ |
 | CLS-012 | UC-002 | models | ✅ |
+| CLS-013 | UC-010 | models | ✅ |
+| CLS-014 | UC-011 | models | ✅ |
 
 ### EVT → CLS
 
@@ -165,6 +167,8 @@
 | EVT-003 | CLS-007 | emitted-by | ✅ |
 | EVT-004 | CLS-009 | emitted-by | ✅ |
 | EVT-005 | CLS-010 | emitted-by | ✅ |
+| EVT-006 | CLS-013 | emitted-by | ✅ |
+| EVT-007 | CLS-014 | emitted-by | ✅ |
 
 ### INV → CLS / ALG
 
@@ -187,6 +191,8 @@
 | INV-015 | CLS-009, ALG-004 | formalizes | ✅ |
 | INV-016 | CLS-011 | formalizes | ✅ |
 | INV-017 | CLS-012 | formalizes | ✅ |
+| INV-018 | CLS-013 | formalizes | ✅ |
+| INV-019 | CLS-014 | formalizes | ✅ |
 
 ### SC → UC / INV
 
@@ -201,6 +207,8 @@
 | SC-007 | UC-007 | INV-014 | covers, verifies | ✅ |
 | SC-008 | UC-008 | INV-015 | covers, verifies | ✅ |
 | SC-009 | UC-009 | INV-016 | covers, verifies | ✅ |
+| SC-010 | UC-010 | INV-001, INV-018 | covers, verifies | ✅ |
+| SC-011 | UC-011 | INV-009, INV-019 | covers, verifies | ✅ |
 
 ### TC → SC
 
@@ -215,6 +223,8 @@
 | TC-007 | SC-007 | validates | ✅ |
 | TC-008 | SC-008 | validates | ✅ |
 | TC-009 | SC-009 | validates | ✅ |
+| TC-010 | SC-010 | validates | ✅ |
+| TC-011 | SC-011 | validates | ✅ |
 
 ### FR → Skill 實作映射
 
@@ -334,22 +344,22 @@
 | Phase 2.2 | DEBT-xxx | 0 | — (待目標專案) | — | N/A |
 | Stage 3 | FR-xxx | 25 | 25/25 | 25/25 | 100% |
 | Stage 3 | NFR-xxx | 6 | 6/6 | — (約束) | 100% |
-| Stage 3 | UC-xxx | 11 | 11/11 | 9/11 (UC-010/011 未被 CLS/SC 覆蓋，Stage 5-8 已執行) | 82% |
+| Stage 3 | UC-xxx | 11 | 11/11 | 11/11 | 100% |
 | Stage 3 | ADR-STR-xxx | 1 | 1/1 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 25 | 25/25 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 5 | 5/5 | 5/5 | 100% |
-| Stage 5 | CLS-xxx | 12 | 12/12 | 12/12 | 100% |
-| Stage 5 | EVT-xxx | 5 | 5/5 | — | 100% |
-| Stage 6 | INV-xxx | 17 | 17/17 | 17/17 | 100% |
-| Stage 7 | SC-xxx | 9 | 9/9 | 9/9 | 100% |
-| Stage 8 | TC-xxx | 9 | 9/9 | — (末端) | 100% |
+| Stage 5 | CLS-xxx | 14 | 14/14 | 14/14 | 100% |
+| Stage 5 | EVT-xxx | 7 | 7/7 | — | 100% |
+| Stage 6 | INV-xxx | 19 | 19/19 | 19/19 | 100% |
+| Stage 7 | SC-xxx | 11 | 11/11 | 11/11 | 100% |
+| Stage 8 | TC-xxx | 11 | 11/11 | — (末端) | 100% |
 | Skill 實作 | FR→Skill | 25 | 25/25 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 17 | 17/17 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 1 | 1/1 | — (治理) | 100% |
-| **合計** | — | **225** | — | — | **100%** |
+| **合計** | — | **239** | — | — | **100%** |
 
-> **Status**: +LESSON-033 (協議執行繞道 RCA), +LESSON-034 (範圍限定詞保護)。225 條追溯紀錄，零孤兒。
+> **Status**: UC-010/011 CLS/SC/INV/TC 覆蓋缺口補完。239 條追溯紀錄，零孤兒。
 > **未應對風險**: 5 (RISK-004 HIGH; RISK-001/002/003/005 MEDIUM)
 > **技術債**: 1 (DEBT-001 P2)
