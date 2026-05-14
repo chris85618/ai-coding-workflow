@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Stage 8 完成 (DEBT-002/003/004 resolved). 217 tests, 98.76% coverage. DEBT-005 deferred (初版交付前擱置). Next: 初版 v0.1.0 deliver.`
-**Last Updated**: `2026-05-15T00:35+08:00`
+**Current Phase/Stage**: `Phase 9 Ship COMPLETE — v0.1.0 已交付至 langgraph-coding branch (fc8b945). 221 tests, 99.04% coverage. DEBT-005 deferred.`
+**Last Updated**: `2026-05-15T00:44+08:00`
 **Recovery Mode**: false
 
 ---
@@ -213,8 +213,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-15T00:35+08:00
-- **Pipeline Position (recorded)**: Stage 8 完成 (DEBT-002/003/004 resolved, DEBT-005 deferred; 217 tests, 98.76% coverage)
-- **Actual Work Done**: (1) DEBT-004: Layer 1+2+3 安全審計—AgentShield + SkillFortify 執行，發現 SEC-001~004。(2) 修正 SEC-001 (shell injection), SEC-002/003 (path traversal), SEC-004 (SSRF)。(3) 18 個安全迴歸測試全部通過。(4) DEBT-003: 26 個邊界分支測試，repo_map_builder 97%、repo_map 100%。(5) DEBT-005 依使用者指示擱置保留。
-- **State Diff**: +4 src 修正, +2 test files (44 tests), DEBT-003/004 resolved, DEBT-005 deferred
+- **Last Session Date**: 2026-05-15T00:44+08:00
+- **Pipeline Position (recorded)**: Phase 9 Ship COMPLETE (branch push = 交付模型; commit fc8b945, 221 tests, 99.04% coverage)
+- **Actual Work Done**: (1) 覆蓋率提升至 99.04%，補足 convergence L48→54, repo_map_builder L98→96/L183-184 邊界分支。(2) CHANGELOG.md 建立。(3) git commit fc8b945 + push langgraph-coding branch → 初版交付完成。(4) Tag v0.1.0 不需要，以 branch push 為交付模型。
+- **State Diff**: Phase 9 Ship DONE; 221 tests; DEBT-005 deferred
 - **Pending Escalations Carried Over**: 無
