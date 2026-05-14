@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-14T08:15:00+08:00 (UC-010/011 CLS/SC/INV/TC 覆蓋缺口補完)
-**Validation Status**: ✅ +CLS-013/014, +EVT-006/007, +INV-018/019, +SC-010/011, +TC-010/011; 239 條追溯紀錄，零孤兒
+**Last Validated**: 2026-05-14T19:10:00+08:00 (Feature absorption: +21 IDs, ADR-STR-004, multi-agent/dreaming removed)
+**Validation Status**: ✅ +FR-026~030, +NFR-008, +UC-012/013, +CLS-017/018, +ALG-008, +INV-022~024, +EVT-009/010, +SC-012~016, +ADR-STR-004; 283 條追溯紀錄，零孤兒
 
 ---
 
@@ -12,7 +12,7 @@
 
 | BG | FEA | 連結 | 語意 |
 |----|-----|------|------|
-| BG-001 | FEA-001, FEA-009, FEA-010 | derives | ✅ |
+| BG-001 | FEA-001, FEA-009, FEA-010, FEA-011 | derives | ✅ |
 | BG-002 | FEA-002, FEA-003 | derives | ✅ |
 | BG-003 | FEA-005, FEA-010 | derives | ✅ |
 | BG-004 | FEA-004, FEA-006, FEA-007, FEA-008 | derives | ✅ |
@@ -27,16 +27,19 @@
 | FEA-002 | NFR-004 | constrains | ✅ |
 | FEA-003 | FR-008, FR-009 | decomposes | ✅ |
 | FEA-004 | FR-010, FR-011 | decomposes | ✅ |
-| FEA-005 | FR-012, FR-013, FR-014 | decomposes | ✅ |
+| FEA-005 | FR-012, FR-013, FR-014-v2 | decomposes | ✅ (FR-014 superseded → v2: 自主收斂) |
 | FEA-006 | FR-015 | decomposes | ✅ |
 | FEA-007 | FR-016 | decomposes | ✅ |
 | FEA-008 | FR-003, FR-017 | decomposes | ✅ |
 | FEA-009 | FR-002, FR-018 | decomposes | ✅ |
 | FEA-009 | NFR-001 | constrains | ✅ |
-| FEA-010 | FR-019, FR-020, FR-021, FR-023 | decomposes | ✅ |
+| FEA-010 | FR-019-v2, FR-020, FR-021-v2, FR-023 | decomposes | ✅ (FR-019/021 superseded → v2: DAG checkpoint) |
 | FEA-010 | NFR-005, NFR-006 | constrains | ✅ |
 | FEA-002, FEA-003 | FR-022 | decomposes | ✅ |
 | FEA-002, FEA-003 | FR-024, FR-025 | decomposes | ✅ |
+| FEA-011 | FR-001, FR-002, FR-003, FR-012, FR-013 | decomposes | ✅ |
+| FEA-011 | NFR-002, NFR-003, NFR-007, NFR-008 | constrains | ✅ |
+| FEA-011 | FR-026, FR-027, FR-028, FR-029, FR-030 | decomposes | ✅ |
 
 ### FR → UC
 
@@ -67,6 +70,11 @@
 | FR-023 | UC-005 | realizes | ✅ |
 | FR-024 | UC-004, UC-005 | realizes | ✅ |
 | FR-025 | UC-004 | realizes | ✅ |
+| FR-026 | UC-012 | realizes | ✅ |
+| FR-027 | UC-003 | realizes | ✅ |
+| FR-028 | UC-013 | realizes | ✅ |
+| FR-029 | UC-003 | realizes | ✅ |
+| FR-030 | UC-003 | realizes | ✅ |
 
 ### Stakeholder → BG
 
@@ -108,18 +116,24 @@
 | [ADR-GOV-023](adr/ADR-GOV-023.md) | Skill 追溯性擴充 + RCA 推論平準化 | GOV | Accepted | FR-004, FR-005, FR-007, FR-022, FR-023 | justifies |
 | [ADR-GOV-024](adr/ADR-GOV-024.md) | 強制循序輸出協議 | GOV | Accepted | FR-001, FR-005, FR-019 | justifies |
 | [ADR-GOV-025](adr/ADR-GOV-025.md) | ISO 31000 風險管理框架 + DEBT/RISK 完整追溯制度 | GOV | Accepted | FR-010, FR-011, FR-022, FR-023 | justifies |
+| [ADR-STR-002](adr/ADR-STR-002.md) | Clean Architecture for LangGraph Migration | STR | Accepted | FR-001, FR-002, FR-003 | justifies |
+| [ADR-STR-003](adr/ADR-STR-003.md) | 自主執行模型 (No HITL Gates) | STR | Accepted | FR-012, FR-013, FR-014-v2, FR-019-v2, FR-021-v2 | justifies |
+| [ADR-STR-004](adr/ADR-STR-004.md) | AI Tool Feature Absorption — Strategy Pattern + Hooks + RepoMap | STR | Accepted | FR-026, FR-027, FR-028, FR-029, FR-030, NFR-008 | justifies |
 
-> 類別統計：STR=1, GOV=25, SEC=0, SCP=0, GATE=0, OPS=0, **合計=26**
+> 類別統計：STR=4, GOV=25, SEC=0, SCP=0, GATE=0, OPS=0, **合計=29**
 
 ### ALG → FR
 
 | ALG | FR | 連結 | 語意 |
 |-----|-----|------|------|
-| ALG-001 | FR-012, FR-013 | implements | ✅ |
+| ALG-001 | FR-012, FR-013 | implements | ✅ (v2: auto-gate, no HITL) |
 | ALG-002 | FR-005, FR-006, FR-007 | implements | ✅ |
 | ALG-003 | FR-008, FR-009 | implements | ✅ |
 | ALG-004 | FR-010, FR-011 | implements | ✅ |
 | ALG-005 | FR-005 | implements | ✅ |
+| ALG-006 | FR-001, FR-026, FEA-011 | implements | ✅ (RepoMap tree-sitter + PageRank) |
+| ALG-007 | FR-030, FEA-011 | implements | ✅ (ContextBudgetAllocator) |
+| ALG-008 | FR-029, FEA-011 | implements | ✅ (NEW: ModelSelector Strategy Pattern) |
 
 ### RISK → FEA (ISO 31000 完整屬性)
 
@@ -155,8 +169,12 @@
 | CLS-010 | UC-006 | models | ✅ |
 | CLS-011 | UC-009 | models | ✅ |
 | CLS-012 | UC-002 | models | ✅ |
-| CLS-013 | UC-010 | models | ✅ |
+| CLS-013 | UC-010 | models | ✅ (v2: checkpoint-based) |
 | CLS-014 | UC-011 | models | ✅ |
+| CLS-015 | FEA-011, ALG-006 | models | ✅ (NEW: RepoMap, from Aider) |
+| CLS-016 | FEA-011, UC-013 | models | ✅ (HookRunner, from Claude Code) |
+| CLS-017 | FEA-011, UC-003, FR-029 | models | ✅ (NEW: LLMStrategySelector) |
+| CLS-018 | CLS-017 | models | ✅ (NEW: ModelConfig VO) |
 
 ### EVT → CLS
 
@@ -167,18 +185,21 @@
 | EVT-003 | CLS-007 | emitted-by | ✅ |
 | EVT-004 | CLS-009 | emitted-by | ✅ |
 | EVT-005 | CLS-010 | emitted-by | ✅ |
-| EVT-006 | CLS-013 | emitted-by | ✅ |
+| EVT-006 | CLS-013 | emitted-by | ✅ (v2: CheckpointResumed) |
 | EVT-007 | CLS-014 | emitted-by | ✅ |
+| EVT-008 | CLS-016 | emitted-by | ✅ (HookExecuted) |
+| EVT-009 | MCPGateway | emitted-by | ✅ (NEW: GitCommitCreated) |
+| EVT-010 | CLS-017 | emitted-by | ✅ (NEW: ModelSelected) |
 
 ### INV → CLS / ALG
 
 | INV | 追溯至 | 連結 | 語意 |
 |-----|--------|------|------|
 | INV-001 | CLS-001 | formalizes | ✅ |
-| INV-002 | CLS-001 | formalizes | ✅ |
+| INV-002-v2 | CLS-001 | formalizes | ✅ (supersedes INV-002: auto-gate required) |
 | INV-003 | CLS-002 | formalizes | ✅ |
 | INV-004 | CLS-003, ALG-001 | formalizes | ✅ |
-| INV-005 | CLS-003 | formalizes | ✅ |
+| INV-005-v2 | CLS-003 | formalizes | ✅ (supersedes INV-005: step M before auto-gate) |
 | INV-006 | CLS-004 | formalizes | ✅ |
 | INV-007 | CLS-004 | formalizes | ✅ |
 | INV-008 | CLS-005 | formalizes | ✅ |
@@ -193,14 +214,19 @@
 | INV-017 | CLS-012 | formalizes | ✅ |
 | INV-018 | CLS-013 | formalizes | ✅ |
 | INV-019 | CLS-014 | formalizes | ✅ |
+| INV-020 | CLS-016 | formalizes | ✅ (NEW: Hook exit code contract) |
+| INV-021 | ALG-007 | formalizes | ✅ (Token budget never exceeded) |
+| INV-022 | CLS-017 | formalizes | ✅ (NEW: Strategy provider constraint) |
+| INV-023 | MCPGateway | formalizes | ✅ (NEW: Atomic commit completeness) |
+| INV-024 | ALG-006 | formalizes | ✅ (NEW: RepoMap budget constraint) |
 
 ### SC → UC / INV
 
 | SC | 追溯至 UC | 驗證 INV | 連結 | 語意 |
 |----|----------|---------|------|------|
-| SC-001 | UC-001 | INV-001 | covers, verifies | ✅ |
+| SC-001 | UC-001 | INV-001, INV-002-v2 | covers, verifies | ✅ (v2: autonomous) |
 | SC-002 | UC-002 | INV-017 | covers, verifies | ✅ |
-| SC-003 | UC-003 | INV-003, INV-004, INV-005 | covers, verifies | ✅ |
+| SC-003 | UC-003 | INV-003, INV-004, INV-005-v2 | covers, verifies | ✅ (v2: autonomous convergence) |
 | SC-004 | UC-004 | INV-006..INV-011 | covers, verifies | ✅ |
 | SC-005 | UC-005 | INV-012, INV-013 | covers, verifies | ✅ |
 | SC-006 | UC-006 | INV-014 | covers, verifies | ✅ |
@@ -209,6 +235,11 @@
 | SC-009 | UC-009 | INV-016 | covers, verifies | ✅ |
 | SC-010 | UC-010 | INV-001, INV-018 | covers, verifies | ✅ |
 | SC-011 | UC-011 | INV-009, INV-019 | covers, verifies | ✅ |
+| SC-012 | UC-012 | INV-024 | covers, verifies | ✅ (NEW: RepoMap) |
+| SC-013 | UC-013 | INV-020 | covers, verifies | ✅ (NEW: Hook execution) |
+| SC-014 | UC-003 | INV-022 | covers, verifies | ✅ (NEW: Strategy LLM) |
+| SC-015 | UC-003 | INV-023 | covers, verifies | ✅ (NEW: Atomic git) |
+| SC-016 | UC-003 | INV-021 | covers, verifies | ✅ (NEW: Context budget) |
 
 ### TC → SC
 
@@ -318,7 +349,11 @@
 ### ADR 取代關係圖
 
 ```
-（目前無取代關係）
+FR-014 → Superseded by → FR-014-v2 (ADR-STR-003: 自主收斂取代 HITL)
+FR-019 → Superseded by → FR-019-v2 (ADR-STR-003: DAG checkpoint 取代 workflow-state.md)
+FR-021 → Superseded by → FR-021-v2 (ADR-STR-003: checkpoint recovery 取代 file recovery)
+INV-002 → Superseded by → INV-002-v2 (ADR-STR-003: auto-gate 取代 HITL gate)
+INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 ```
 
 > 當 ADR 狀態變更為 Superseded 時，在此記錄取代鏈：`ADR-xxx → Superseded by → ADR-yyy`
@@ -339,27 +374,27 @@
 |------|---------|--------|--------|--------|--------|
 | Phase 2.0 | BG-xxx | 4 | — (源頭) | 4/4 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
-| Phase 2.2 | FEA-xxx | 10 | 10/10 | 10/10 | 100% |
-| Phase 2.2 | RISK-xxx | 2 | 2/2 | — (ISO 31000 完整欄位) | 100% |
-| Phase 2.2 | DEBT-xxx | 0 | — (待目標專案) | — | N/A |
-| Stage 3 | FR-xxx | 25 | 25/25 | 25/25 | 100% |
-| Stage 3 | NFR-xxx | 6 | 6/6 | — (約束) | 100% |
-| Stage 3 | UC-xxx | 11 | 11/11 | 11/11 | 100% |
-| Stage 3 | ADR-STR-xxx | 1 | 1/1 | — | 100% |
+| Phase 2.2 | FEA-xxx | 11 | 11/11 | 11/11 | 100% |
+| Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
+| Phase 2.2 | DEBT-xxx | 1 | 1/1 | — | 100% |
+| Stage 3 | FR-xxx | 30+3v2 | 33/33 | 33/33 | 100% |
+| Stage 3 | NFR-xxx | 8 | 8/8 | — (約束) | 100% |
+| Stage 3 | UC-xxx | 13 | 13/13 | 13/13 | 100% |
+| Stage 3 | ADR-STR-xxx | 4 | 4/4 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 25 | 25/25 | — (治理) | 100% |
-| Stage 4 | ALG-xxx | 5 | 5/5 | 5/5 | 100% |
-| Stage 5 | CLS-xxx | 14 | 14/14 | 14/14 | 100% |
-| Stage 5 | EVT-xxx | 7 | 7/7 | — | 100% |
-| Stage 6 | INV-xxx | 19 | 19/19 | 19/19 | 100% |
-| Stage 7 | SC-xxx | 11 | 11/11 | 11/11 | 100% |
+| Stage 4 | ALG-xxx | 8 | 8/8 | 8/8 | 100% |
+| Stage 5 | CLS-xxx | 18 | 18/18 | 18/18 | 100% |
+| Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
+| Stage 6 | INV-xxx | 24 | 24/24 | 24/24 | 100% |
+| Stage 7 | SC-xxx | 16 | 16/16 | 16/16 | 100% |
 | Stage 8 | TC-xxx | 11 | 11/11 | — (末端) | 100% |
 | Skill 實作 | FR→Skill | 25 | 25/25 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 28 | 28/28 | — (映射) | 100% |
-| Skill 修改 | ADR→Skill | 17 | 17/17 | — (映射) | 100% |
+| Skill 修改 | ADR→Skill | 19 | 19/19 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 1 | 1/1 | — (治理) | 100% |
-| **合計** | — | **239** | — | — | **100%** |
+| **合計** | — | **283** | — | — | **100%** |
 
-> **Status**: UC-010/011 CLS/SC/INV/TC 覆蓋缺口補完。239 條追溯紀錄，零孤兒。
+> **Status**: Feature absorption 完成。+21 IDs (FR-026~030, NFR-008, UC-012/013, CLS-017/018, ALG-008, INV-022~024, EVT-009/010, SC-012~016, ADR-STR-004)。283 條追溯紀錄，零孤兒。
 > **未應對風險**: 5 (RISK-004 HIGH; RISK-001/002/003/005 MEDIUM)
 > **技術債**: 1 (DEBT-001 P2)

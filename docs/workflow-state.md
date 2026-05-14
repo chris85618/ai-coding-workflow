@@ -8,9 +8,9 @@
 
 ## Pipeline Position
 
-**Pipeline ID**: `pipe-unified-governance-v1`
-**Current Phase/Stage**: `Phase 10 (反思與學習) — 框架 self-bootstrap Stage 3-8 全部完成，當前為治理強化迭代`
-**Last Updated**: `2026-05-14T08:46+08:00`
+**Pipeline ID**: `pipe-langgraph-migration-v1`
+**Current Phase/Stage**: `Stage 7 (BDD/ATDD) — LangGraph migration 設計完成至 Stage 7; Stage 8 TDD 待執行 (使用者明確延後)`
+**Last Updated**: `2026-05-14T19:12+08:00`
 **Recovery Mode**: false
 
 ---
@@ -203,10 +203,12 @@ FOR each pending WBS leaf L:
 
 | # | 行動 | 觸發條件 / LRM 判定 | 優先級 |
 |---|------|---------------------|--------|
-| 1 | 驗證 skills 自足性：在其他 repo 執行全套工作流，確認不需讀取 ai_coding/docs/ | 下次在非 ai_coding repo 工作時 | CRITICAL |
-| 2 | 持續監控 RISK-004 (Session結束前未執行完整CM) — HIGH, 策略 MT | 持續監控 | HIGH |
-| 3 | 監控 RISK-003/005 (docs/版本漂移 + ADR-TEMPLATE省略) — MEDIUM, 策略 MT | 下次撰寫 ADR 時驗證 | MEDIUM |
-| 4 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
+| 1 | 執行 Stage 8 TDD: 實作 production code + pytest-bdd step defs + 95% coverage | 使用者確認啟動 | CRITICAL |
+| 2 | 實作 CLS-017 LLMStrategySelector + ALG-008 ModelSelector (Strategy Pattern) | Stage 8 | P0 |
+| 3 | 實作 CLS-015 RepoMap + ALG-006 RepoMapBuilder (tree-sitter + PageRank) | Stage 8 | P0 |
+| 4 | 實作 CLS-016 HookRunner + lifecycle hooks (4 events) | Stage 8 | P1 |
+| 5 | 實作 ALG-007 ContextBudgetAllocator | Stage 8 | P1 |
+| 6 | 實作 MCPGateway.auto_commit() atomic git commits | Stage 8 | P1 |
 
 ---
 
@@ -215,8 +217,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T08:46+08:00
-- **Pipeline Position (recorded)**: Phase 10 (框架 self-bootstrap 完成，治理強化迭代)
-- **Actual Work Done**: (1) DEBT-001 resolved。(2) 15 個冗餘 docs 文件已刪除 (2,353 行)。(3) ADR-GOVERNANCE.md 精簡 403→240 行，僅保留 DU 理論推導 + HITL 進入點表 + 資訊新穎性框架。(4) phases/ 和 stages/ 空目錄已移除。(5) skills/ 和 AGENTS.md 零殘留過時引用。
-- **State Diff**: -15 files deleted, -2 empty dirs, ADR-GOVERNANCE.md trimmed 40%, Next Actions updated
+- **Last Session Date**: 2026-05-14T19:12+08:00
+- **Pipeline Position (recorded)**: Stage 7 (設計完成; 全部 feature absorption 完成; 283 條追溯; 待 Stage 8 TDD)
+- **Actual Work Done**: (1) 使用者指令執行: 移除 multi-agent parallel 和 memory curation。(2) Strategy Pattern LLM 提升至 P0: CLS-017 LLMStrategySelector + CLS-018 ModelConfig + ALG-008 ModelSelector + INV-022 + TaskType enum。(3) 全部吸收: FR-026~030, NFR-008, UC-012/013, SC-012~016 BDD feature files。(4) ADR-STR-004 決策記錄。(5) OOAD v3 + formal-verification v3 + traceability 262→283。(6) src/ 新增 model_config.py, repo_map.py, TaskType enum。
+- **State Diff**: +21 IDs, +5 BDD features, +1 ADR, +3 src files, OOAD/INV/matrix 更新
 - **Pending Escalations Carried Over**: 無
