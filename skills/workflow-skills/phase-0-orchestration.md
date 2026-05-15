@@ -16,13 +16,22 @@ gstack-config set language zh-TW    # 繁體中文
 gstack-config set checkpoint_mode continuous
 ```
 
-## Step 2: Pipeline 完備性檢查
+## Step 2: 環境衛生與忽略清單驗證 (LESSON-048)
+
+檢查專案根目錄 `.gitignore`，確保至少包含以下安全與二進位檔案排除項：
+- `.coverage` (若使用 Python 測試覆蓋率)
+- `.pytest_cache/`
+- `.env`
+
+若缺失，主動將其補入 `.gitignore`，以防止二進位或敏感資料進入 Git 追蹤。
+
+## Step 3: Pipeline 完備性檢查
 
 觸發 `skills/workflow-skills/pipeline-completeness-check.md`。
 
 取得 `completeness_score`。
 
-## Step 3: 路徑判定
+## Step 4: 路徑判定
 
 | 完備度 | 有原始碼 | 判定 |
 |--------|---------|------|
@@ -35,12 +44,12 @@ gstack-config set checkpoint_mode continuous
 
 原始碼判定：掃描專案目錄，排除 docs/、node_modules/、.git/、dist/、build/ 後，是否有程式語言檔案（.ts/.js/.py/.java/.cs/.go/.rs 等）。
 
-## Step 4: 工作流恢復
+## Step 5: 工作流恢復
 
 IF completeness_score >= 0.6 OR workflow-state.md 存在：
 - 觸發 `skills/workflow-skills/workflow-resume.md`
 
-## Step 5: 報告
+## Step 6: 報告
 
 輸出：
 - completeness_score

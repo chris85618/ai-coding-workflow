@@ -14,6 +14,9 @@
 
 ## Step 2: Ship
 
+> **交付模型守衛 (LESSON-044)**：
+> 確認專案當前的交付規範。對於快速迭代專案，`branch push` (如直接 push 至特定 branch) 即視為完成初版交付，此時不需要建立 local/remote Git Tag，Tag 僅保留給 formal release 階段使用。
+
 ```
 /ship                          # gstack: lint → test → build → PR → deploy
 ```

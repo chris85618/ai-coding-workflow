@@ -44,6 +44,12 @@ Path B 專屬：大量修改後 `/understand` 增量更新知識圖譜。
 
 ## Step 4: 子步驟 8b — 執行自動化測試
 
+> **測試設計鐵律 (LESSON-040~043)**：
+> 1. **安全驗證 (LESSON-040)**：測試安全修正時，必須驗證「機制」（如 `shell=False`, `isinstance(args, list)`），而非「副作用字串」（list 模式下的危險指令僅是字串，不會被執行）。
+> 2. **數值驗證 (LESSON-041)**：測試 PageRank 等遞迴/數值演算法前，必須先手動推算理論穩態值（如單節點 `(1-d)/n`），禁止直接套用初始值斷言。
+> 3. **分支覆蓋 (LESSON-042)**：補齊邊界分支（如 OSError）前，先用 `debug print` 或 call counter 驗證實際執行順序，避免錯誤 mock 導致反覆失敗。
+> 4. **路徑過濾 (LESSON-043)**：過濾檔案路徑時，必須明確使用 `os.path.basename()` 或 `Path.name`，絕對禁止在完整路徑上進行 `in` 子字串判斷。
+
 ```bash
 # 執行 Stage 7 寫的 BDD/ATDD 測試
 # 執行 Stage 7 寫的 Property-based 測試
