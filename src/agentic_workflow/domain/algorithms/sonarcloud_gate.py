@@ -43,24 +43,11 @@ class SonarCloudGate:
                     continue
 
                 actual_val = actual_data[scope]
-                # cast to dict to help mypy with complex nested structure
                 expected_val = threshold_data.get(scope)
 
-                # Check based on type
-                if isinstance(expected_val, (float, int)):
-                    if metric == "coverage" and actual_val < expected_val:
-                        failures.append(
-                            f"{metric} ({scope}) failed: {actual_val} < {expected_val}"
-                        )
-                    elif metric != "coverage" and actual_val > expected_val:
-                        failures.append(
-                            f"{metric} ({scope}) failed: {actual_val} > {expected_val}"
-                        )
-                elif isinstance(expected_val, str) and actual_val > expected_val:
-                    # 'B' > 'A'
-                    failures.append(
-                        f"{metric} ({scope}) failed: {actual_val} != {expected_val}"
-                    )
+                failure = cls._check_threshold(metric, scope, actual_val, expected_val)
+                if failure:
+                    failures.append(failure)
 
         passed = len(failures) == 0
         return {
@@ -71,6 +58,21 @@ class SonarCloudGate:
             if not passed
             else None,
         }
+
+    @staticmethod
+    def _check_threshold(
+        metric: str, scope: str, actual: Any, expected: Any
+    ) -> str | None:
+        """Checks a single metric value against its threshold."""
+        if isinstance(expected, (float, int)):
+            if metric == "coverage" and actual < expected:
+                return f"{metric} ({scope}) failed: {actual} < {expected}"
+            if metric != "coverage" and actual > expected:
+                return f"{metric} ({scope}) failed: {actual} > {expected}"
+        elif isinstance(expected, str) and actual > expected:
+            # Lexicographical comparison for ratings (e.g., 'B' > 'A')
+            return f"{metric} ({scope}) failed: {actual} != {expected}"
+        return None
 
     @classmethod
     def extract_tech_debt(cls, issues: list[dict[str, Any]]) -> list[dict[str, Any]]:

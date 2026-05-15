@@ -225,11 +225,7 @@ def then_artifacts_written_convergence(ctx: dict[str, Any]) -> None:
 def then_warning_logged(ctx: dict[str, Any], msg: str) -> None:
     """Step: warning logged."""
     if "warnings" in ctx:
-        assert any(msg in w for w in ctx["warnings"]) or True  # logged in system
-    # For MAX_ITERATIONS, result itself signals the warning
-    result = ctx.get("result")
-    if result == FixedPointResult.MAX_ITERATIONS:
-        assert True  # signal exists
+        assert any(msg in w for w in ctx["warnings"])
 
 
 @then("the stage auto-advances")
@@ -241,7 +237,7 @@ def then_auto_advances(ctx: dict[str, Any]) -> None:
 @then("no human intervention is requested")
 def then_no_human_intervention(ctx: dict[str, Any]) -> None:
     """Step: no HITL."""
-    assert True  # By design (ADR-STR-003)
+    pass  # By design (ADR-STR-003)
 
 
 @then("artifacts produced so far are written to docs/")
@@ -273,7 +269,7 @@ def then_iteration_increments(ctx: dict[str, Any]) -> None:
 @then("no human gate triggers")
 def then_no_human_gate(ctx: dict[str, Any]) -> None:
     """Step: no human gate."""
-    assert True
+    pass
 
 
 @then("a warning is logged with full blast radius details")
@@ -331,4 +327,4 @@ def then_continue_next_step(ctx: dict[str, Any]) -> None:
 @then("no escalation to human occurs")
 def then_no_escalation(ctx: dict[str, Any]) -> None:
     """Step: no escalation."""
-    assert True
+    pass

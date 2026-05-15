@@ -175,6 +175,7 @@
 | DEBT-003 | repo_map_builder.py 相對 import 邊界分支未覆蓋 | resolved | 測試缺口 | P3 | 0.9 | Fill In | FR-018 | N/A | LESSON-037 | derives |
 | DEBT-004 | Layer 2/3 安全審計尚未執行 | resolved | 安全債 | P2 | 4.0 | Major Project | FR-030 | N/A | N/A | derives |
 | DEBT-005 | SonarCloud CI 閘門尚未設定 | in-progress | 流程債 | P2 | 9.0 | Quick Win | FR-004,005 | N/A | N/A | derives |
+| DEBT-006 | SonarCloudGate.evaluate 認知複雜度過高 | resolved | 程式碼品質 | P2 | 9.0 | Quick Win | FR-015 | RISK-012 | LESSON-063 | derives |
 
 ### CLS → UC / ALG
 
@@ -323,6 +324,7 @@
 | FR-025 | `change_management.py` (PGVG) | implemented-by |
 | FR-033 | `warning_policy_verifier.py`, `nodes.py` (node_warning_policy_gate) | implemented-by |
 | FR-034 | `llm_adapter.py` (LangChainLLMAdapter.complete) | implemented-by |
+| FR-015 | `sonarcloud_gate.py` (Complexity Refactor) | implemented-by |
 
 ### LESSON → Skill 守衛映射
 
@@ -373,6 +375,7 @@
 | LESSON-061 | LOGIC_FLAW | `micro_validation.py` | - | guards |
 | LESSON-062 | PROCESS_GAP | `convergence.py` | - | guards |
 | LESSON-053 | PROCESS_GAP | `change_management.py` (區塊完整性檢查) | - | guards |
+| LESSON-063 | COGNITIVE_COMPLEXITY | `sonarcloud_gate.py` | - | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
@@ -433,7 +436,7 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
 | Phase 2.2 | FEA-xxx | 13 | 13/13 | 13/13 | 100% |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
-| Phase 2.2 | DEBT-xxx | 1 | 1/1 | — | 100% |
+| Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
 | Stage 3 | FR-xxx | 34+3v2 | 37/37 | 37/37 | 100% |
 | Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 13 | 13/13 | 13/13 | 100% |
@@ -445,13 +448,13 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 6 | INV-xxx | 25 | 25/25 | 25/25 | 100% |
 | Stage 7 | SC-xxx | 20 | 20/20 | 20/20 | 100% |
 | Stage 8 | TC-xxx | 15 | 15/15 | 15/15 | 100% |
-| Skill 實作 | FR→Skill | 27 | 27/27 | — (映射) | 100% |
-| Skill 守衛 | LESSON→Skill | 44 | 44/44 | — (映射) | 100% |
+| Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
+| Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 20 | 20/20 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
-| 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |
-| **合計** | — | **312** | — | — | **100%** |
+| 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
+| **合計** | — | **315** | — | — | **100%** |
 
-> **Status**: TDD/BDD 追溯修復 (TC-015/SC-020/INV-025/CLS-021)。638 測試, 100% coverage。312 條追溯紀錄，零孤兒。
+> **Status**: TDD/BDD 追溯修復 (TC-015/SC-020/INV-025/CLS-021)。638 測試, 100% coverage。315 條追溯紀錄，零孤兒。
 > **未應對風險**: 3 (RISK-001/004/005 MEDIUM)
 > **技術債**: 1 (DEBT-005 P2)

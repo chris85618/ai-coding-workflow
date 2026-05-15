@@ -11,7 +11,6 @@ Each node is a pure function: (WorkflowState) -> WorkflowState (partial).
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
@@ -29,9 +28,6 @@ from agentic_workflow.domain.models.enums import (
     StageStatus,
 )
 from agentic_workflow.domain.models.stage import MAX_ITERATIONS
-
-if TYPE_CHECKING:
-    pass
 
 
 def node_start_pipeline(state: WorkflowState) -> WorkflowState:

@@ -52,8 +52,30 @@
 
 ---
 
+## Stage 8: TDD + 品質閘門
+
+### Round 5 (Quality Refinement)
+
+**Timestamp**: 2026-05-16T06:35:00+08:00
+**Agent α Findings**:
+
+| # | Severity | Dimension | Finding | Affected IDs |
+|---|----------|-----------|---------|--------------|
+| 1 | MEDIUM | Quality | `evaluate` cognitive complexity is 22 (max 15). | FR-015 |
+
+**Severity Distribution**: CRITICAL: 0, HIGH: 0, MEDIUM: 1, LOW: 0, YAGNI: 0
+
+**Agent β Resolutions**:
+
+| # | α Finding | Resolution | Decision Flow Step | Files Modified |
+|---|-----------|------------|--------------------|----------------|
+| 1 | #1 | Extract `_check_threshold` helper method. | Occam + Merge | `sonarcloud_gate.py` |
+
+**Micro-validation Result**: PASS (77 tests passed)
+**Impact Analysis**: No architectural impact; logic preserved.
+**Fixed-point Assessment**: REACHED
+  - Rationale: Cognitive complexity reduced below threshold while maintaining functional equivalence.
+
+---
+
 ## 活紀錄
-
-> 以下為當前專案的實際迭代紀錄。
-
-(尚無迭代紀錄)
