@@ -1,24 +1,57 @@
-"""Completion Check Algorithm.
+"""Completion Check Algorithm — Final release readiness.
 
 Traceable to: Release protocols
-Replaces: skills/workflow-skills/completion-check.md
+OO Design: CompletionCheck class encapsulates all logic (ALG-010 OO mandate).
+Ensures 100% test coverage and zero High/Critical risks before ship.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List
+
 
 class CompletionCheck:
-    """Verifies that all requirements are met before a release."""
+    """Verifies that all requirements are met before a Phase 9 ship.
+
+    Mandates 100% test coverage (statement + branch) and zero unresolved risks.
+    """
+
+    COVERAGE_THRESHOLD: float = 1.00
 
     @classmethod
-    def verify_readiness(cls, test_coverage: float, open_risks: int, pending_debts: int) -> Dict[str, Any]:
-        """Runs final checks before a Phase 9 ship."""
-        failures = []
-        if test_coverage < 0.95:
-            failures.append("Test coverage below 95%.")
+    def verify_readiness(
+        cls, test_coverage: float, open_risks: int, pending_debts: int = 0
+    ) -> Dict[str, Any]:
+        """Runs final checks before allowing Phase 9 ship.
+
+        Args:
+            test_coverage: Ratio of test coverage [0.0, 1.0].
+            open_risks: Count of unresolved Critical/High risks.
+            pending_debts: Count of pending P0/P1 technical debts.
+
+        Returns:
+            Dict with 'ready' (bool) and 'failures' (List[str]).
+        """
+        failures: List[str] = []
+
+        # Check coverage
+        if test_coverage < cls.COVERAGE_THRESHOLD:
+            failures.append(f"Test coverage ({test_coverage*100:.2f}%) below 100%.")
+
+        # Check risks
         if open_risks > 0:
-            failures.append("Unresolved Critical/High risks.")
-            
-        return {
-            "ready": len(failures) == 0,
-            "failures": failures
-        }
+            failures.append(f"Unresolved risks count: {open_risks}.")
+
+        # Check critical debts (P0/P1)
+        if pending_debts > 0:
+            failures.append(f"Pending P0/P1 technical debts: {pending_debts}.")
+
+        return {"ready": len(failures) == 0, "failures": failures}
+
+
+# ── Module-level facade (backward compatibility) ───────────────────────────────
+
+
+def verify_readiness(
+    test_coverage: float, open_risks: int, pending_debts: int = 0
+) -> Dict[str, Any]:
+    """Backward-compat facade — delegates to CompletionCheck."""
+    return CompletionCheck.verify_readiness(test_coverage, open_risks, pending_debts)

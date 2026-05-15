@@ -365,12 +365,12 @@ parse_markdown(content, schema):
 **不變量（Invariant）**：
 - 禁止在 Step B（測試先行）完成前寫入任何實作邏輯（only `pass`/`...` 佔位）
 - 每個 production module 必須有對應測試模組，且測試先於實作提交
-- 覆蓋率門檻：`≥ 99%` 為目標，`≥ 95%` 為最低閘門
+- 覆蓋率門檻：`100%` 為目標，`100%` 為最低閘門
 
 **後置條件（Postcondition）**：
 - 所有 TC-xxx 已通過且追溯至 SC-xxx
-- `pytest --cov` TOTAL ≥ 95%（閘門），目標 ≥ 99%
-- 每個低覆蓋模組（< 99%）有對應的 DEBT-xxx 技術債記錄
+- `pytest --cov` TOTAL ≥ 100%（閘門），目標 ≥ 100%
+- 每個低覆蓋模組（< 100%）有對應的 DEBT-xxx 技術債記錄
 
 ```
 stage_8_tdd_skeleton_first(alg_specs, cls_specs, inv_specs, bdd_scenarios):
@@ -427,10 +427,10 @@ stage_8_tdd_skeleton_first(alg_specs, cls_specs, inv_specs, bdd_scenarios):
     
     run_coverage()  # 驗證提升
     
-    IF coverage.total < 0.95:
+    IF coverage.total < 1.00:
       # 仍未達閘門 → 繼續下一輪
       CONTINUE
-    ELIF 0.95 <= coverage.total < 0.99:
+    ELIF 1.00 <= coverage.total < 1.00:
       # 達閘門但未達目標 → 建立 DEBT-xxx 並繼續
       register_debt(current, priority="P2")
       CONTINUE

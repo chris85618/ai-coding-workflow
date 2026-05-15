@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Phase 10 COMPLETE — test coverage 100.00% statement + branch (585 tests). ALG-010 TDD協議已內化至 algorithm-specs.md。DEBT-006 CLOSED。`
-**Last Updated**: `2026-05-15T08:14+00:00`
+**Current Phase/Stage**: `Phase 10 COMPLETE — test coverage 100.00% statement + branch (638 tests). 門檻硬化：fail_under=100 嚴格執行。清理冗餘暫存檔。`
+**Last Updated**: `2026-05-15T16:45:00+08:00`
 **Recovery Mode**: false
 
 ---
@@ -142,8 +142,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-15T15:50+08:00
-- **Pipeline Position (recorded)**: Phase 10 COMPLETE (test coverage 95.66%, 400 tests passing)
-- **Actual Work Done**: 系統性逐一修補 0% 覆蓋率模組 (change_management, completion_check, exhaustive_search, iter_loop, security_audit, sonarcloud_gate, workflow_resume); 修復 frameworks/graph.py 單行 def 分支問題; 修復 node_orchestrator production bug; 正式化 ALG-010 Stage 8 TDD 骨架優先協議至 algorithm-specs.md + traceability-matrix.md。
-- **State Diff**: coverage 73.42% → 95.66%; ALG-010 新增; 400 tests (up from 371).
+- **Last Session Date**: 2026-05-15T16:30+08:00
+- **Pipeline Position (recorded)**: Phase 10 COMPLETE (test coverage 100.00%, 637 tests passing)
+- **Actual Work Done**: 全面 OO 重構：pipeline_completeness(PipelineCompletenessChecker), convergence(ConvergenceDetector), blast_radius(BlastRadiusClassifier), rice_scoring(RiceScorer), context_budget(ContextBudgetAllocator), model_selector(ModelSelector), repo_map_builder(RepoMapBuilder), frameworks/graph(MicroValidationGraphBuilder/IterationGraphBuilder/MasterGraphBuilder). 新增 test_algorithms_oo_classes.py (52 tests). 所有 class 保留 module-level backward-compat facades。
+- **State Diff**: 585 → 637 tests; 全部 OO class 化完成; coverage 維持 100.00%.
 - **Pending Escalations Carried Over**: 無

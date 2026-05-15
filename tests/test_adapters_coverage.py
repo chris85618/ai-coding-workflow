@@ -1,4 +1,4 @@
-"""Additional adapter coverage tests to reach ≥ 95% total coverage.
+"""Additional adapter coverage tests to reach ≥ 100% total coverage.
 
 Fills branches in llm_adapter, sequential_adapter, gitkraken_adapter, nodes, file_repository.
 All external I/O remains mocked.

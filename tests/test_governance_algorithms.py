@@ -16,27 +16,37 @@ from agentic_workflow.domain.algorithms.workflow_resume import WorkflowResume
 # ── CompletionCheck ────────────────────────────────────────────────────────────
 class TestCompletionCheck:
     def test_ready_when_all_green(self):
-        result = CompletionCheck.verify_readiness(0.97, 0, 0)
+        # 100% coverage, 0 risks, 0 debts
+        result = CompletionCheck.verify_readiness(1.00, 0, 0)
         assert result["ready"] is True
         assert result["failures"] == []
 
     def test_fails_on_low_coverage(self):
-        result = CompletionCheck.verify_readiness(0.80, 0, 0)
+        # 99.9% is still low for strict mode
+        result = CompletionCheck.verify_readiness(0.999, 0, 0)
         assert result["ready"] is False
         assert any("coverage" in f.lower() for f in result["failures"])
 
     def test_fails_on_open_risks(self):
-        result = CompletionCheck.verify_readiness(0.97, 2, 0)
+        result = CompletionCheck.verify_readiness(1.00, 2, 0)
         assert result["ready"] is False
         assert any("risk" in f.lower() for f in result["failures"])
 
     def test_exactly_at_threshold_is_ready(self):
-        result = CompletionCheck.verify_readiness(0.95, 0, 0)
+        # Threshold is now 1.00
+        result = CompletionCheck.verify_readiness(1.00, 0, 0)
         assert result["ready"] is True
 
-    def test_pending_debts_do_not_block_by_default(self):
-        # pending_debts param exists but the current impl only checks coverage+risks
-        result = CompletionCheck.verify_readiness(0.97, 0, 5)
+    def test_pending_debts_blocks_in_strict_mode(self):
+        # ALG-010 OO refactor added debt checking
+        result = CompletionCheck.verify_readiness(1.00, 0, 1)
+        assert result["ready"] is False
+        assert any("debt" in f.lower() for f in result["failures"])
+
+    def test_facade_backward_compatibility(self):
+        # Test the module-level function calls the class method correctly
+        from agentic_workflow.domain.algorithms.completion_check import verify_readiness
+        result = verify_readiness(1.00, 0, 0)
         assert result["ready"] is True
 
 

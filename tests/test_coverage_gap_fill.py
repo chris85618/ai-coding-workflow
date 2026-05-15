@@ -1,4 +1,4 @@
-"""Unit tests to fill coverage gaps to reach 95%+.
+"""Unit tests to fill coverage gaps to reach 100%+.
 
 Covers missing branches in:
 - convergence.py (divergence branch, max iter)

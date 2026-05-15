@@ -127,7 +127,7 @@
 
 ## Closed / Rejected Risks
 
-### RISK-002: ADR 數量膨潲 — **Closed 2026-05-15**
+### RISK-002: ADR 數量膨脹 — **Closed 2026-05-15**
 ADR 數量穩定在 ~30 筆，traceability-matrix.md 統一管理有效，Phase 10 確認緩解完成。
 
 ### RISK-003: docs/skills 版本漂移 — **Closed 2026-05-15**

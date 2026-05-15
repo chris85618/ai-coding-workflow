@@ -31,7 +31,7 @@ def ctx():
 
 @given("all tests pass")
 def given_all_tests_pass(ctx):
-    ctx.update({"coverage": 95, "critical_vulns": 0, "debt_ratio": 2.0, "retries": 0})
+    ctx.update({"coverage": 100, "critical_vulns": 0, "debt_ratio": 2.0, "retries": 0})
 
 
 @given(parsers.parse("SonarCloud scan reports coverage at {pct:d} percent"))
