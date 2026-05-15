@@ -88,14 +88,14 @@
 | **影響** | **3 (中等 — 追溯品質下降但可補救)** |
 | **風險強度** | **6 (MEDIUM) ↓ 降評** |
 | **應對策略** | MT (緩解) |
-| **應對動作** | AGENTS.md Step 12 CM 前置斷言（12.1 窩舆式檔案列舉）強制執行；ADR-GOV-010 規定 Session-End Hook 前置條件 |
-| **殖餘風險** | 4 (LOW) |
+| **應對動作** | AGENTS.md Step 12 CM 前置斷言（12.1 窮舉式檔案列舉）強制執行；ADR-GOV-010 規定 Session-End Hook 前置條件 |
+| **殘餘風險** | 4 (LOW) |
 | **觸發來源** | 歷史 session RCA — LESSON-009, LESSON-011 |
 | **受影響 FEA** | FEA-006 |
 | **對應 LESSON** | LESSON-009, LESSON-011, LESSON-030 |
 | **對應 ADR** | ADR-GOV-010, ADR-GOV-011 |
-| **最後更新** | 2026-05-15T00:47+08:00 |
-| **負責人** | AI |
+| **最後更新** | 2026-05-16T07:40+08:00 |
+| **負責人** | AI (本次 Session 驗證緩解有效) |
 
 **風險描述**：AI Agent 在 session 結束前可能跳過 Step 12 的 Change Management 步驟，包括但不限於：未窮舉搜尋就建立 ID（如本次 RISK-001 ID 衝突事件）、未更新追溯矩陣、未登錄已知 DEBT/RISK。本 session (2026-05-14) 再次驗證此風險存在：AI 未窮舉搜尋 RISK-xxx 引用就直接從 RISK-001 開始編號，導致 ID 衝突。
 

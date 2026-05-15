@@ -384,6 +384,10 @@
 | LESSON-062 | PROCESS_GAP | `convergence.py` | - | guards |
 | LESSON-053 | PROCESS_GAP | `change_management.py` (區塊完整性檢查) | - | guards |
 | LESSON-063 | COGNITIVE_COMPLEXITY | `sonarcloud_gate.py` | - | guards |
+| LESSON-071 | ARCHITECTURE_EROSION | `frameworks/config.py` | ADR-SEC-005 | guards |
+| LESSON-072 | REFACTORING_GUARD | `frameworks/config.py` | ADR-SEC-005 | guards |
+| LESSON-073 | PROCESS_GAP | `phase-0-orchestration.md` (python -m pytest) | - | guards |
+| LESSON-074 | CODE_QUALITY | `convergence.py` (unused imports cleanup) | - | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
