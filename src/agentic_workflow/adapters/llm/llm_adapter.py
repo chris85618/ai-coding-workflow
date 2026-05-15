@@ -8,7 +8,6 @@ for model routing. Requires langchain-core >= 0.3.
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING, Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -145,13 +144,7 @@ class LangChainLLMAdapter(LLMGateway):
         Tests the reasoning-model provider (used by Agent alpha).
 
         Returns:
-            True if a corresponding API key env-var is set.
+            True if a corresponding API key is set in the config.
         """
         default_cfg = self._selector.select(TaskType.CRITIQUE)
-        provider = default_cfg.provider.lower()
-        env_map = {
-            "openai": "OPENAI_API_KEY",
-            "anthropic": "ANTHROPIC_API_KEY",
-        }
-        env_var = env_map.get(provider, f"{provider.upper()}_API_KEY")
-        return bool(os.environ.get(env_var))
+        return bool(default_cfg.api_key)

@@ -28,7 +28,9 @@ from agentic_workflow.domain.models.enums import (
     PipelineStatus,
     StageStatus,
 )
+from agentic_workflow.domain.models.sonarcloud_config import SonarCloudConfig
 from agentic_workflow.domain.models.stage import MAX_ITERATIONS
+from agentic_workflow.frameworks.config import load_config
 
 
 def node_start_pipeline(state: WorkflowState) -> WorkflowState:
@@ -248,9 +250,19 @@ def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
     Checks for required config, evaluates results, and converts failures to DEBT.
     """
     metadata = state.get("metadata", {})
-    # 1. Verify Configuration (from environment variables)
-    required_vars = ["SONAR_TOKEN", "SONAR_PROJECT_KEY", "SONAR_ORGANIZATION"]
-    config_check = SonarCloudGate.verify_configuration(required_vars)
+    # 1. Verify Configuration (from centralized config system)
+    wf_config = load_config()
+    sonar_config_raw = wf_config.sonarcloud
+    # Map frameworks config to domain config
+    sonar_config = SonarCloudConfig(
+        token=sonar_config_raw.token,
+        project_key=sonar_config_raw.project_key,
+        organization=sonar_config_raw.organization,
+        auto_convert_to_debt=sonar_config_raw.feedback.auto_convert_to_debt,
+        default_debt_priority=sonar_config_raw.feedback.default_debt_priority,
+        on_missing_config=sonar_config_raw.on_missing_config,
+    )
+    config_check = SonarCloudGate.verify_configuration(sonar_config)
 
     if not config_check["valid"]:
         metadata["sonar_status"] = "disabled"

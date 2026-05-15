@@ -7,7 +7,6 @@ All external I/O remains mocked.
 
 from __future__ import annotations
 
-import os
 import tempfile
 from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock, patch
@@ -97,27 +96,25 @@ class TestLLMProviders:
         # _build_langchain_model called only once due to cache
         assert mock_create.call_count == 1
 
-    @patch(
-        "agentic_workflow.adapters.llm.providers.anthropic.AnthropicProvider.create_model"
-    )
-    def test_anthropic_is_available(self, mock_create: MagicMock) -> None:
-        """Test availability for Anthropic provider."""
+    def test_anthropic_is_available(self) -> None:
+        """Test Anthropic provider availability via config."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.models.model_config import ModelConfig
 
-        m = ModelConfig(provider="anthropic", model="claude-opus")
+        model = ModelConfig(
+            provider="anthropic", model="claude-3-5-sonnet", api_key="test-key"
+        )
         cfg = StrategyConfig(
-            reasoning_model=m,
-            editing_model=m,
-            cheap_model=m,
-            default_model=m,
-            fallback_model=m,
+            reasoning_model=model,
+            editing_model=model,
+            cheap_model=model,
+            default_model=model,
+            fallback_model=model,
             enabled_providers=frozenset(["anthropic"]),
         )
-        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
-            adapter = LangChainLLMAdapter(cfg)
-            assert adapter.is_available() is True
+        adapter = LangChainLLMAdapter(cfg)
+        assert adapter.is_available() is True
 
 
 # ===========================================================================
@@ -529,3 +526,30 @@ class TestLLMAdapterTokenLimit:
             pytest.raises(TokenLimitExceededError, match="across 3 continuations"),
         ):
             adapter.complete("prompt", TaskType.CRITIQUE)
+
+
+class TestSonarCloudConfigCoverage:
+    """Coverage for SonarCloudConfig domain model."""
+
+    def test_missing_vars_full(self) -> None:
+        """TC-SONAR-002: Report all missing vars if config is empty."""
+        from agentic_workflow.domain.models.sonarcloud_config import (
+            SonarCloudConfig,
+        )
+
+        config = SonarCloudConfig(token=None, project_key=None, organization=None)
+        assert config.is_valid is False
+        missing = config.missing_vars
+        assert "SONAR_TOKEN" in missing
+        assert "SONAR_PROJECT_KEY" in missing
+        assert "SONAR_ORGANIZATION" in missing
+
+    def test_missing_vars_none(self) -> None:
+        """TC-SONAR-003: Report no missing vars if config is complete."""
+        from agentic_workflow.domain.models.sonarcloud_config import (
+            SonarCloudConfig,
+        )
+
+        config = SonarCloudConfig(token="t", project_key="p", organization="o")
+        assert config.is_valid is True
+        assert len(config.missing_vars) == 0

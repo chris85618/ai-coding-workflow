@@ -15,16 +15,24 @@ from typing import Any
 
 import yaml
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ModelConfig(BaseModel):
     """Configuration for a specific LLM model provider."""
 
+    model_config = ConfigDict(populate_by_name=True)
+
     provider: str
-    name: str
-    temperature: float
+    model: str = Field(alias="name", validation_alias="name")
+    temperature: float = 0.0
+    max_tokens: int = 4096
     api_key: str | None = None
+
+    @property
+    def name(self) -> str:
+        """Backward compatibility for tests using .name."""
+        return self.model
 
 
 class PromptConfig(BaseModel):
@@ -34,14 +42,20 @@ class PromptConfig(BaseModel):
     task_template: str
 
 
+class FeedbackConfig(BaseModel):
+    """Nested feedback configuration for SonarCloud."""
+
+    auto_convert_to_debt: bool = True
+    default_debt_priority: str = "P2"
+
+
 class SonarCloudConfig(BaseModel):
     """Configuration for SonarCloud quality gate."""
 
     token: str | None = None
     project_key: str | None = None
     organization: str | None = None
-    auto_convert_to_debt: bool = True
-    default_debt_priority: str = "P2"
+    feedback: FeedbackConfig = Field(default_factory=FeedbackConfig)
     on_missing_config: str = "warn_and_disable"
 
 

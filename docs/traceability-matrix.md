@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-15T22:03:00+08:00 (ADR-STR-007 架構強化 — YAML 動態建圖移除)
-**Validation Status**: ✅ ALG-010 (OO Mandate), ADR-STR-007 (Single Build Path), test coverage 100.00% (636 passing); 304 條追溯紀錄，零孤兒
+**Last Validated**: 2026-05-16T07:30:00+08:00 (ADR-SEC-005 安全性增強與 DEBT-007 結案)
+**Validation Status**: ✅ ALG-010 (OO Mandate), ADR-STR-007 (Single Build Path), test coverage 100.00% (636 passing); 306 條追溯紀錄，零孤兒
 
 ---
 
@@ -101,7 +101,9 @@
 
 | ADR | 標題 | 類別 | 狀態 | FR/NFR | 連結 |
 |-----|------|------|------|--------|------|
-| [ADR-STR-001](adr/ADR-STR-001.md) | 三層分離架構（Docs / Skills / Tools） | STR | Accepted | FR-001, FR-002, FR-003 | justifies |
+| [ADR-SEC-005](adr/ADR-SEC-005.md) | 配置網關安全性與 Clean Architecture 存取限制 | SEC | Accepted | FR-032, NFR-004, NFR-011 | justifies |
+
+> 類別統計：STR=8, GOV=26, SEC=1, SCP=0, GATE=0, OPS=0, **合計=35**
 | [ADR-GOV-001](adr/ADR-GOV-001.md) | Decision Unit 理論 + 資訊新穎性門檻 | GOV | Accepted | FR-001, NFR-001 | justifies |
 | [ADR-GOV-002](adr/ADR-GOV-002.md) | ADR 治理框架 — 全決策記錄制度 | GOV | Accepted | FR-001, FR-002, FR-003, NFR-001, FR-022, FR-023 | justifies |
 | [ADR-GOV-003](adr/ADR-GOV-003.md) | 格式驗證閘門 (Step 0) + 外來殘留掃描 | GOV | Accepted | FR-005, FR-007 | justifies |
@@ -177,6 +179,7 @@
 | DEBT-004 | Layer 2/3 安全審計尚未執行 | resolved | 安全債 | P2 | 4.0 | Major Project | FR-030 | N/A | N/A | derives |
 | DEBT-005 | SonarCloud CI 閘門尚未設定 | in-progress | 流程債 | P2 | 9.0 | Quick Win | FR-004,005 | N/A | N/A | derives |
 | DEBT-006 | SonarCloudGate.evaluate 認知複雜度過高 | resolved | 程式碼品質 | P2 | 9.0 | Quick Win | FR-015 | RISK-012 | LESSON-063 | derives |
+| DEBT-007 | `os.environ` 依賴清理 | resolved | 安全債 | P1 | 12.0 | Quick Win | FR-032 | RISK-005 | LESSON-071,072 | derives |
 
 ### CLS → UC / ALG
 
@@ -278,6 +281,9 @@
 
 | TC | 追溯至 SC | 連結 | 語意 |
 |----|----------|------|------|
+| TC-SONAR-001 | 驗證 SonarCloud 閘門邏輯 | FR-015 | SonarCloudGate | ✅ |
+| TC-SONAR-002 | 驗證 SonarCloudConfig 缺失參數報告 | FR-032 | SonarCloudConfig | ✅ |
+| TC-SONAR-003 | 驗證 SonarCloudConfig 完整參數檢核 | FR-032 | SonarCloudConfig | ✅ |
 | TC-001 | SC-001 | validates | ✅ |
 | TC-002 | SC-002 | validates | ✅ |
 | TC-003 | SC-003 | validates | ✅ |
@@ -327,7 +333,6 @@
 | FR-025 | `change_management.py` (PGVG) | implemented-by |
 | FR-033 | `warning_policy_verifier.py`, `nodes.py` (node_warning_policy_gate) | implemented-by |
 | FR-034 | `llm_adapter.py` (LangChainLLMAdapter.complete) | implemented-by |
-| FR-015 | `sonarcloud_gate.py` (Complexity Refactor) | implemented-by |
 
 ### LESSON → Skill 守衛映射
 
@@ -459,5 +464,5 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | **合計** | — | **315** | — | — | **100%** |
 
 > **Status**: TDD/BDD 追溯修復 (TC-015/SC-020/INV-025/CLS-021)。638 測試, 100% coverage。315 條追溯紀錄，零孤兒。
-> **未應對風險**: 3 (RISK-001/004/005 MEDIUM)
-> **技術債**: 1 (DEBT-005 P2)
+> **未應對風險**: 2 (RISK-001/004 MEDIUM)
+> **技術債**: 0 (All resolved)

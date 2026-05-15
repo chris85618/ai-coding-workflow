@@ -1,7 +1,7 @@
 # Tech Debt Register — Unified Agentic Workflow System
 
-> **Last Updated**: 2026-05-15T00:47+08:00
-> **Total Active Items**: 0 (DEBT-001~005 all resolved)
+> **Last Updated**: 2026-05-16T07:30+08:00
+> **Total Active Items**: 0 (All resolved)
 > **Sprint Allocation**: 20% capacity
 > **維護 Skill**: `skills/workflow-skills/tech-debt-collect.md`, `skills/workflow-skills/tech-debt-framework.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § DEBT → FR
@@ -85,6 +85,31 @@
 **債務描述**：`evaluate` 函數認知複雜度為 22，超過 15 的上限。
 
 **解決措施**：提取 `_check_threshold` 輔助方法，將複雜度降至 15 以下。
+
+---
+
+### DEBT-007: `os.environ` 依賴清理
+
+| 欄位 | 值 |
+|------|-----|
+| **ID** | DEBT-007 |
+| **狀態** | resolved |
+| **來源** | 安全債 |
+| **影響元件** | `sonarcloud_gate.py`, `llm_adapter.py`, `tests/` |
+| **優先等級** | P1 |
+| **象限** | Quick Win |
+| **RICE Score** | 12.0 (R=20, I=2.0, C=0.9, E=3) |
+| **ADR 追溯** | ADR-SEC-005 |
+| **FR 追溯** | FR-032 |
+| **對應 RISK** | RISK-005 |
+| **對應 LESSON** | LESSON-071, LESSON-072 |
+| **建立日期** | 2026-05-16T07:10+08:00 |
+| **預計處理 Sprint** | 立即 |
+| **解決日期** | 2026-05-16T07:30+08:00 |
+
+**債務描述**：程式碼中散落 `os.environ` 呼叫，違反 Clean Architecture 並增加密鑰洩漏風險。
+
+**解決措施**：將所有環境變數存取收斂至 `frameworks/config.py`，領域與適配層改用 DI 注入。
 
 ---
 

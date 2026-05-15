@@ -8,7 +8,6 @@ All external dependencies (LLM APIs, MCP servers, git) are mocked.
 from __future__ import annotations
 
 import json
-import os
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -625,11 +624,13 @@ class TestLangGraphNodes:
 class TestLangChainLLMAdapter:
     """Tests for LLM adapter with mocked LangChain models."""
 
-    def _make_config(self) -> StrategyConfig:
+    def _make_config(self, api_key: str | None = None) -> StrategyConfig:
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.models.model_config import ModelConfig
 
-        model = ModelConfig(provider="openai", model="gpt-4o", temperature=0.0)
+        model = ModelConfig(
+            provider="openai", model="gpt-4o", temperature=0.0, api_key=api_key
+        )
         return StrategyConfig(
             reasoning_model=model,
             editing_model=model,
@@ -639,22 +640,19 @@ class TestLangChainLLMAdapter:
             enabled_providers=frozenset(["openai"]),
         )
 
-    @patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"})
     def test_is_available_with_api_key(self) -> None:
-        """Test availability when API key present."""
+        """Test availability when API key present in config."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
 
-        adapter = LangChainLLMAdapter(self._make_config())
+        adapter = LangChainLLMAdapter(self._make_config(api_key="sk-test"))
         assert adapter.is_available() is True
 
     def test_is_available_without_api_key(self) -> None:
-        """Test availability when API key missing."""
+        """Test availability when API key missing in config."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
 
-        env = {k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"}
-        with patch.dict(os.environ, env, clear=True):
-            adapter = LangChainLLMAdapter(self._make_config())
-            assert adapter.is_available() is False
+        adapter = LangChainLLMAdapter(self._make_config(api_key=None))
+        assert adapter.is_available() is False
 
     def test_get_model_config(self) -> None:
         """Test mapping TaskType to ModelConfig."""

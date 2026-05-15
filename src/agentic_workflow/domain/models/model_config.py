@@ -27,6 +27,7 @@ class ModelConfig:
     model: str
     temperature: float = 0.0
     max_tokens: int = 4096
+    api_key: str | None = None
 
 
 @dataclass(frozen=True)

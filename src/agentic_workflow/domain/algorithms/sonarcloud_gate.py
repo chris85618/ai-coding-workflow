@@ -5,8 +5,9 @@ parameter verification, and automated technical debt extraction for
 the closed-loop feedback system (ADR-OPS-001).
 """
 
-import os
 from typing import Any
+
+from agentic_workflow.domain.models.sonarcloud_config import SonarCloudConfig
 
 
 class SonarCloudGate:
@@ -28,17 +29,18 @@ class SonarCloudGate:
     }
 
     @classmethod
-    def verify_configuration(cls, required_vars: list[str]) -> dict[str, Any]:
-        """Checks if required environment variables are set.
+    def verify_configuration(cls, config: SonarCloudConfig) -> dict[str, Any]:
+        """Checks if required configuration parameters are set.
 
         Returns:
             Dict with 'valid' (bool) and 'missing_vars' (list).
         """
-        missing = [var for var in required_vars if not os.environ.get(var)]
+        valid = config.is_valid
+        missing = config.missing_vars
         return {
-            "valid": len(missing) == 0,
+            "valid": valid,
             "missing_vars": missing,
-            "status": "active" if len(missing) == 0 else "disabled",
+            "status": "active" if valid else "disabled",
         }
 
     @classmethod
