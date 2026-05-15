@@ -16,20 +16,20 @@
 | 欄位 | 值 |
 |------|-----|
 | **ID** | RISK-001 |
-| **狀態** | open |
+| **狀態** | in-progress |
 | **類別** | OPERATIONAL |
-| **機率** | 2 (5-25%) |
+| **機率** | 1 (罕見 <5%) ↓ 降評 |
 | **影響** | 3 (中等 — 品質閘門無法執行) |
-| **風險強度** | 6 (MEDIUM) |
+| **風險強度** | 3 (LOW) ↓ |
 | **應對策略** | MT (緩解) |
-| **應對動作** | 實作 `SonarCloudGate.verify_configuration` 校驗參數；缺失時自動降級為 WARNING 並記錄於 metadata (ADR-OPS-001) |
+| **應對動作** | 實作 `SonarCloudGate.verify_configuration` 校驗參數；缺失時自動降級為 WARNING 並記錄於 metadata (ADR-OPS-001) — **已於 2026-05-16 實測 active 成功** |
 | **預期殘餘風險** | 2 (LOW) |
 | **觸發來源** | Phase 2 — 範圍定義 Red Team 挑戰 3 |
 | **受影響 FEA** | FEA-006 |
-| **對應 LESSON** | N/A |
-| **對應 ADR** | ADR-OPS-001 |
+| **對應 LESSON** | LESSON-071, LESSON-072 |
+| **對應 ADR** | ADR-OPS-001, ADR-SEC-005 |
 | **建立日期** | 2026-05-13T00:00+08:00 |
-| **最後更新** | 2026-05-14T07:17+08:00 |
+| **最後更新** | 2026-05-16T07:42+08:00 |
 | **負責人** | HITL |
 
 **風險描述**：FEA-006 (SonarCloud 品質閘門) 依賴外部服務帳號。若帳號未設定或服務不可用，Stage 8 品質閘門無法執行，導致品質保證缺口。
