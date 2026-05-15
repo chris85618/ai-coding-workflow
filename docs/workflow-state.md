@@ -1,7 +1,7 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 10 Complete
-**Last Updated**: 2026-05-16T07:45+08:00
+**Pipeline Position**: Phase 10 Complete (API Verified)
+**Last Updated**: 2026-05-16T07:50+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -11,7 +11,7 @@
 - [x] S8-04: 配置網關對齊 (Alias & Nested Feedback) — ✅ DONE
 - [x] S8-05: 最終集成驗證 — ✅ DONE
 - [x] S8-06: 提交與推送 (Commit & Push) — ✅ DONE
-- [x] S8-07: 實測 SonarCloud active 狀態 — ✅ DONE
+- [x] S8-07: 實作 `SonarCloudAdapter` 並獲取真實數據 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -34,7 +34,7 @@
 
 1. 實施 ADR-SEC-005，將環境變數存取限制在 `frameworks/config.py`。
 2. 建立領域模型 `SonarCloudConfig` 與 `ModelConfig` 擴充。
-3. 移除 `domain` 與 `adapters` 層對 `os.environ` 的直接依賴。
-4. 修復 Pydantic 驗證錯誤，支援舊有 YAML 結構並保持欄位對齊。
-5. **實測驗證成功**: SonarCloud 帳號已填入且狀態為 `active` (RISK-001 降評至 LOW)。
-6. **修復 DEBT-008**: 對齊 Framework 配置模型與 Domain 介面，解決屬性缺失問題。
+3. **實作 FEA-015**: 建立 `SonarCloudAdapter` 並成功調用 `sonarcloud.io` Web API。
+4. **獲取真實數據**: 成功拉取 `coverage` (100%), `complexity` (469.0) 等 9 項關鍵指標。
+5. **修復評估 Bug**: 解決了領域算法中「數字 vs 評等字串」的比較類型錯誤。
+6. **當前狀態**: 品質閘門檢出 **2 項失敗** (專案總複雜度超標)，Issue 數量為 **0**。
