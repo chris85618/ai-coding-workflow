@@ -1,8 +1,8 @@
 # Risk Register — Unified Agentic Workflow System
 
 > **標準**: ISO 31000:2018
-> **Last Updated**: 2026-05-15T00:47+08:00
-> **Total Active (Open/In-Progress)**: 3 (RISK-001, RISK-004, RISK-005)
+> **Last Updated**: 2026-05-15T17:42+08:00
+> **Total Active (Open/In-Progress)**: 3 (RISK-001, RISK-004, RISK-005) — RISK-004 降評 MEDIUM(8)→MEDIUM(6)
 > **Total Closed/Rejected**: 2 (RISK-002, RISK-003)
 > **維護 Skill**: `skills/workflow-skills/risk-management.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § RISK → FEA
@@ -84,9 +84,9 @@
 | **ID** | RISK-004 |
 | **狀態** | open |
 | **類別** | PROCESS |
-| **機率** | **2 (5-25%) ↓ 降評** |
-| **影響** | 4 (大 — 產出物未持久化，治理繞道) |
-| **風險強度** | **8 (MEDIUM) ↓** |
+| **機率** | **2 (5-25%)** |
+| **影響** | **3 (中等 — 追溯品質下降但可補救)** |
+| **風險強度** | **6 (MEDIUM) ↓ 降評** |
 | **應對策略** | MT (緩解) |
 | **應對動作** | AGENTS.md Step 12 CM 前置斷言（12.1 窩舆式檔案列舉）強制執行；ADR-GOV-010 規定 Session-End Hook 前置條件 |
 | **殖餘風險** | 4 (LOW) |

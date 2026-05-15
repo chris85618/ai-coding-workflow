@@ -165,13 +165,63 @@ tests/
 
 ---
 
-## 10. Phase 10 完成宣告
+```
+
+---
+
+## [v0.1.1+] Phase 10 Retrospective — 零容忍警告治理週期
+
+> **版本**: v0.1.1+ (ADR-GOV-026)
+> **日期**: 2026-05-15T17:42+08:00
+> **Pipeline ID**: pipe-langgraph-migration-v1 (continued)
+> **主要工作**: OO 重構 + 100% coverage + 零容忍警告政策
+
+### 1. 成果快照
+
+| 指標 | 值 |
+|------|-----|
+| 測試數量 | 646 tests (100% coverage) |
+| 覆蓋率 | 100.00% (statement + branch) |
+| 警告 | 0 (ADR-GOV-026 enforced) |
+| DEBT 解決 | DEBT-006 closed (.coverage tracking 移除) |
+| 交付方式 | Branch push: `langgraph-coding` @ 70d5007 |
+| 交付日期 | 2026-05-15T17:38+08:00 |
+
+### 2. 成功模式
+
+- **ALG-010 OO Mandate**: 全部演算法轉 class-based，stateful encapsulation 實現
+- **Logic-Fix First (ADR-GOV-026)**: runpy 警告透過邏輯修正而非 filter 解決，根本治理
+- **LangGraph gate 節點**: `node_warning_policy_gate` 將政策制度化在執行路徑上
+
+### 3. 新教訓歸檔 (LESSON-045~049)
+
+| LESSON | 根因 | 守衛 |
+|--------|------|------|
+| LESSON-045 | FILTERING_LOGIC_FLAW | `warning_policy_verifier.py` — 警告判定需用 message/category 雙重條件 |
+| LESSON-046 | PROCESS_GAP | `.gitignore` 範本不完整 → 二進位進 git tracking |
+| LESSON-047 | ARCHITECTURE_EROSION | `$FRAMEWORK_ROOT` 與 `{target_repo}` 在多層 submodule 結構中可能不同 |
+| LESSON-048 | PROCESS_GAP | Phase 0 checklist 必須強制驗證 `.gitignore` 包含 `.coverage`/`.pytest_cache`/`.env` |
+| LESSON-049 | ARCHITECTURE_EROSION | Step 0 讀取 skill 前需探測路徑，fallback 至 `$FRAMEWORK_ROOT` |
+
+### 4. 風險重評
+
+| RISK | 前強度 | 新強度 | 狀態 |
+|------|--------|--------|------|
+| RISK-004 Session CM bypass | MEDIUM (8) | **MEDIUM (6)** | open — 機率降 2×4→2×3 |
+
+### 5. 工作流改善
+
+1. **Phase 0 checklist 強化**: 加入 `.gitignore` 完整範本驗證（含 `.coverage`, `.pytest_cache`, `.env`）
+2. **Skill 路徑雙重探測**: Step 0 先嘗試 `{target_repo}/skills/workflow-skills/`，空時 fallback 至 `$FRAMEWORK_ROOT`
+3. **ALG-010 推廣**: 所有新演算法一律 class-based
+
+### 6. Phase 10 完成宣告
 
 ```
-Phase 10 Retro: COMPLETE
-LESSON: LESSON-040~044 歸檔
-DEBT: DEBT-001~004 resolved, DEBT-005 deferred
-RISK: RISK-002/003 closed; RISK-001/004/005 open (re-evaluated)
-Archive: docs/archive/traceability-2026-05-15.md (待建立)
-Next Pipeline: N/A (v0.1.0 shipped; 下個功能由新 session Phase 0 啟動)
+Phase 10 Retro [v0.1.1+]: COMPLETE
+LESSON: LESSON-045~049 歸檔
+DEBT: 無新增；DEBT-005 仍 deferred
+RISK: RISK-004 降評 MEDIUM(8)→MEDIUM(6)
+Archive: 追溯矩陣已更新 (302 條，零孤兒)
+Next Pipeline: 等待人類發起新功能需求 (Phase 2)
 ```
