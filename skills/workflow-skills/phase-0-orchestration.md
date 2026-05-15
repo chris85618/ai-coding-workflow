@@ -25,6 +25,10 @@ gstack-config set checkpoint_mode continuous
 
 若缺失，主動將其補入 `.gitignore`，以防止二進位或敏感資料進入 Git 追蹤。
 
+## Step 2.5: Python 測試環境驗證 (LESSON-052)
+
+檢查專案根目錄 `pytest.ini`，若專案採用 `src` 目錄結構，確保包含 `pythonpath = src`，以防 `ModuleNotFoundError`。若缺失則主動補入。
+
 ## Step 3: Pipeline 完備性檢查
 
 觸發 `skills/workflow-skills/pipeline-completeness-check.md`。
