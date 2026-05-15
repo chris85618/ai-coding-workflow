@@ -33,44 +33,45 @@ def test_invariants_verifier_passes_on_correct_dag() -> None:
     pass
 
 
-class TestBuildLangchainModel:
-    """Tests for the provider dispatch in _build_langchain_model."""
+class TestLLMProviders:
+    """Tests for concrete LLM provider implementations."""
 
     def test_unsupported_provider_raises(self) -> None:
-        """Test error when provider is not supported."""
-        from agentic_workflow.adapters.llm.llm_adapter import _build_langchain_model
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        """Test registry error when provider is not supported."""
+        from agentic_workflow.adapters.llm.provider_registry import LLMProviderRegistry
 
-        cfg = ModelConfig(provider="cohere", model="command-r")
+        registry = LLMProviderRegistry()
         with pytest.raises(ValueError, match="Unsupported LLM provider"):
-            _build_langchain_model(cfg)
+            registry.get_provider("cohere")
 
     def test_openai_import_error(self) -> None:
-        """Test handling of missing langchain_openai."""
-        from agentic_workflow.adapters.llm.llm_adapter import _build_langchain_model
+        """Test handling of missing langchain_openai in OpenAIProvider."""
+        from agentic_workflow.adapters.llm.providers.openai import OpenAIProvider
         from agentic_workflow.domain.models.model_config import ModelConfig
 
         cfg = ModelConfig(provider="openai", model="gpt-4o")
+        provider = OpenAIProvider()
         with (
             patch.dict("sys.modules", {"langchain_openai": None}),
-            pytest.raises((ImportError, Exception)),
+            pytest.raises(ImportError, match="langchain-openai is required"),
         ):
-            _build_langchain_model(cfg)
+            provider.create_model(cfg)
 
     def test_anthropic_import_error(self) -> None:
-        """Test handling of missing langchain_anthropic."""
-        from agentic_workflow.adapters.llm.llm_adapter import _build_langchain_model
+        """Test handling of missing langchain_anthropic in AnthropicProvider."""
+        from agentic_workflow.adapters.llm.providers.anthropic import AnthropicProvider
         from agentic_workflow.domain.models.model_config import ModelConfig
 
         cfg = ModelConfig(provider="anthropic", model="claude-opus")
+        provider = AnthropicProvider()
         with (
             patch.dict("sys.modules", {"langchain_anthropic": None}),
-            pytest.raises((ImportError, Exception)),
+            pytest.raises(ImportError, match="langchain-anthropic is required"),
         ):
-            _build_langchain_model(cfg)
+            provider.create_model(cfg)
 
-    @patch("agentic_workflow.adapters.llm.llm_adapter._build_langchain_model")
-    def test_model_cache_reuse(self, mock_build: MagicMock) -> None:
+    @patch("agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model")
+    def test_model_cache_reuse(self, mock_create: MagicMock) -> None:
         """Same (provider, model, temp) key should reuse cached model."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
@@ -79,7 +80,7 @@ class TestBuildLangchainModel:
 
         mock_model = MagicMock()
         mock_model.invoke.return_value = MagicMock(content="resp")
-        mock_build.return_value = mock_model
+        mock_create.return_value = mock_model
 
         m = ModelConfig(provider="openai", model="gpt-4o")
         cfg = StrategyConfig(
@@ -94,10 +95,12 @@ class TestBuildLangchainModel:
         adapter.complete("p1", TaskType.CRITIQUE)
         adapter.complete("p2", TaskType.CRITIQUE)
         # _build_langchain_model called only once due to cache
-        assert mock_build.call_count == 1
+        assert mock_create.call_count == 1
 
-    @patch("agentic_workflow.adapters.llm.llm_adapter._build_langchain_model")
-    def test_anthropic_is_available(self, mock_build: MagicMock) -> None:
+    @patch(
+        "agentic_workflow.adapters.llm.providers.anthropic.AnthropicProvider.create_model"
+    )
+    def test_anthropic_is_available(self, mock_create: MagicMock) -> None:
         """Test availability for Anthropic provider."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
@@ -416,7 +419,7 @@ class TestLLMAdapterTokenLimit:
         mock_model.invoke.side_effect = [resp1, resp2]
 
         with patch(
-            "agentic_workflow.adapters.llm.llm_adapter._build_langchain_model",
+            "agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model",
             return_value=mock_model,
         ):
             # CRITIQUE supports auto-continuation
@@ -451,7 +454,7 @@ class TestLLMAdapterTokenLimit:
 
         with (
             patch(
-                "agentic_workflow.adapters.llm.llm_adapter._build_langchain_model",
+                "agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model",
                 return_value=mock_model,
             ),
             pytest.raises(TokenLimitExceededError, match="Auto-continuation disabled"),
@@ -485,7 +488,7 @@ class TestLLMAdapterTokenLimit:
         mock_model.invoke.return_value = resp
 
         with patch(
-            "agentic_workflow.adapters.llm.llm_adapter._build_langchain_model",
+            "agentic_workflow.adapters.llm.providers.anthropic.AnthropicProvider.create_model",
             return_value=mock_model,
         ):
             result = adapter.complete("prompt", TaskType.COMPREHEND)
@@ -520,7 +523,7 @@ class TestLLMAdapterTokenLimit:
 
         with (
             patch(
-                "agentic_workflow.adapters.llm.llm_adapter._build_langchain_model",
+                "agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model",
                 return_value=mock_model,
             ),
             pytest.raises(TokenLimitExceededError, match="across 3 continuations"),

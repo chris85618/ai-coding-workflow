@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Phase 10 COMPLETE — DEBT-005 (SonarCloud) 配置檔補齊。`
-**Last Updated**: `2026-05-16T01:10:00+08:00`
+**Current Phase/Stage**: `Stage 8 COMPLETE — 100% 品質閘門 (Mypy, Ruff, Pytest 物理覆蓋 100%) 合規。`
+**Last Updated**: `2026-05-16T06:15:00+08:00`
 **Recovery Mode**: false
 
 ---
@@ -28,6 +28,7 @@
 ```
 ROOT: {零容忍警告治理}
 │
+└── ✅ 系統性修復 LLM Adapter Mypy 錯誤與測試物理覆蓋 (ADR-STR-009)
 └── ⏳ 等待人類發起下一階段任務 (Phase 11)
 ```
 
@@ -45,7 +46,7 @@ ROOT: {零容忍警告治理}
 | Stage 5 | ✅ (self-bootstrap) | — | 2026-05-13 |
 | Stage 6 | ✅ (self-bootstrap) | — | 2026-05-13 |
 | Stage 7 | ✅ (self-bootstrap) | — | 2026-05-13 |
-| Stage 8 | ✅ (Strict Error) | ADR-GOV-026 | 2026-05-15 |
+| Stage 8 | ✅ (Strict Error) | ADR-GOV-026, ADR-STR-009 | 2026-05-16 |
 | Phase 9 | ✅ | — | 2026-05-15 |
 | Phase 10 | ✅ | — | 2026-05-15 |
 
@@ -110,8 +111,8 @@ ROOT: {零容忍警告治理}
 
 ## Session Summary
 
-- **Last Session Date**: 2026-05-16T04:10:00+08:00
-- **Pipeline Position (recorded)**: Phase 10 COMPLETE (Quality Hardening)
-- **Actual Work Done**: 系統性修正 `src/` 目錄下所有 `ruff` 和 `mypy` 違規（逾 80 筆），包含 docstrings (D101/D107)、Type Safety (type-arg/UP042/F821)、代碼簡化 (SIM101/SIM102/SIM103) 與行寬 (E501)。
-- **State Diff**: 程式碼庫達到 100% 靜態檢查合規 (Zero Errors)，且通過 640 項 pytest 測試與 100% 覆蓋率檢查。
+- **Last Session Date**: 2026-05-16T06:05:00+08:00
+- **Pipeline Position (recorded)**: Stage 8 COMPLETE
+- **Actual Work Done**: 採用 Provider Registry 模式 (ADR-STR-009) 重構 LLM Adapter，解決 Mypy `unused-ignore` 警告；修正多個測試檔案的 mock 邏輯，達成 100% 靜態檢查合規與 100% 測試覆蓋率。
+- **State Diff**: 程式碼庫結構優化，達成 Strict Quality Gate。
 - **Pending Escalations Carried Over**: 無

@@ -59,6 +59,25 @@ class TestPortInterfaces:
         with pytest.raises(TypeError):
             MCPGateway()  # type: ignore[abstract]
 
+    def test_llm_provider_is_abc(self) -> None:
+        """Verify LLMProvider is an ABC and cover its pass statement."""
+        from typing import Any
+
+        from agentic_workflow.application.ports.llm_provider import LLMProvider
+        from agentic_workflow.domain.models.model_config import ModelConfig
+
+        with pytest.raises(TypeError):
+            LLMProvider()  # type: ignore[abstract]
+
+        class CoverageProvider(LLMProvider):
+            def create_model(self, model_cfg: ModelConfig) -> Any:
+                return super().create_model(model_cfg)  # type: ignore[safe-super]
+
+        cp = CoverageProvider()
+        cfg = ModelConfig(provider="p", model="m")
+        # Call super().create_model() which is 'pass' and returns None
+        assert cp.create_model(cfg) is None
+
     def test_document_io_is_abc(self) -> None:
         """Verify DocumentIOGateway is an ABC."""
         from agentic_workflow.application.ports.doc_io import DocumentIOGateway
@@ -646,15 +665,15 @@ class TestLangChainLLMAdapter:
         cfg = adapter.get_model_config(TaskType.CRITIQUE)
         assert cfg.provider == "openai"
 
-    @patch("agentic_workflow.adapters.llm.llm_adapter._build_langchain_model")
-    def test_complete_calls_model(self, mock_build: MagicMock) -> None:
+    @patch("agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model")
+    def test_complete_calls_model(self, mock_create: MagicMock) -> None:
         """Test complete method invokes model."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.models.enums import TaskType
 
         mock_model = MagicMock()
         mock_model.invoke.return_value = MagicMock(content="test response")
-        mock_build.return_value = mock_model
+        mock_create.return_value = mock_model
 
         adapter = LangChainLLMAdapter(self._make_config())
         result = adapter.complete("Hello", TaskType.RESOLVE)

@@ -9,10 +9,11 @@ for model routing. Requires langchain-core >= 0.3.
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
+from agentic_workflow.adapters.llm.provider_registry import LLMProviderRegistry
 from agentic_workflow.application.ports.gateways import LLMGateway
 from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
 from agentic_workflow.domain.models.enums import TaskType
@@ -23,65 +24,11 @@ if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
 
 
-def _build_langchain_model(model_cfg: ModelConfig) -> BaseChatModel:
-    """Instantiate a LangChain chat model from a ModelConfig.
-
-    Lazily imports provider-specific packages so the adapter can be
-    imported without both openai and anthropic being installed.
-
-    Args:
-        model_cfg: Immutable model configuration.
-
-    Returns:
-        LangChain BaseChatModel instance.
-
-    Raises:
-        ImportError: If the required provider package is not installed.
-        ValueError: If the provider is unsupported.
-    """
-    provider = model_cfg.provider.lower()
-    if provider == "openai":
-        try:
-            from langchain_openai import ChatOpenAI  # type: ignore[import-not-found]
-        except ImportError as exc:
-            raise ImportError(
-                "langchain-openai is required for OpenAI provider. "
-                "Install with: pip install langchain-openai"
-            ) from exc
-        return cast(
-            "BaseChatModel",
-            ChatOpenAI(
-                model=model_cfg.model,
-                temperature=model_cfg.temperature,
-                max_tokens=model_cfg.max_tokens,
-            ),
-        )
-    if provider == "anthropic":
-        try:
-            from langchain_anthropic import (  # type: ignore[import-not-found]
-                ChatAnthropic,
-            )
-        except ImportError as exc:
-            raise ImportError(
-                "langchain-anthropic is required for Anthropic provider. "
-                "Install with: pip install langchain-anthropic"
-            ) from exc
-        return cast(
-            "BaseChatModel",
-            ChatAnthropic(
-                model=model_cfg.model,
-                temperature=model_cfg.temperature,
-                max_tokens=model_cfg.max_tokens,
-            ),
-        )
-    raise ValueError(f"Unsupported LLM provider: {provider!r}")
-
-
 class LangChainLLMAdapter(LLMGateway):
     """LangChain-backed LLM gateway.
 
     Uses CLS-017 LLMStrategySelector for task-type-based model routing.
-    Delegates to langchain_openai or langchain_anthropic at call time.
+    Delegates to LLMProviderRegistry to instantiate specific models.
 
     Args:
         strategy_config: Strategy configuration (ALG-008).
@@ -96,13 +43,15 @@ class LangChainLLMAdapter(LLMGateway):
         """Initialize the adapter with strategy and prompt."""
         self._selector = LLMStrategySelector(strategy_config)
         self._system_prompt = system_prompt
+        self._registry = LLMProviderRegistry()
         # Cache LangChain model instances keyed by (provider, model, temp)
         self._model_cache: dict[tuple[Any, ...], BaseChatModel] = {}
 
     def _get_model(self, model_cfg: ModelConfig) -> BaseChatModel:
         key = (model_cfg.provider, model_cfg.model, model_cfg.temperature)
         if key not in self._model_cache:
-            self._model_cache[key] = _build_langchain_model(model_cfg)
+            provider = self._registry.get_provider(model_cfg.provider)
+            self._model_cache[key] = provider.create_model(model_cfg)
         return self._model_cache[key]
 
     def complete(
