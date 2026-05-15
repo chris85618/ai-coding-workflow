@@ -15,6 +15,15 @@ from typing import TYPE_CHECKING
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
 from agentic_workflow.domain.models.enums import GateDecision, PipelineStatus, StageStatus
 from agentic_workflow.domain.models.stage import MAX_ITERATIONS
+from agentic_workflow.domain.algorithms.pipeline_completeness import calculate_completeness
+from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
+from agentic_workflow.domain.algorithms.root_cause_leftshift import RootCauseLeftShift
+from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
+from agentic_workflow.domain.algorithms.tech_debt_manager import TechDebtManager
+from agentic_workflow.domain.algorithms.risk_manager import RiskManager
+from agentic_workflow.domain.algorithms.adr_governance import ADRGovernance
+from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
+from pathlib import Path
 
 if TYPE_CHECKING:
     pass
@@ -36,6 +45,26 @@ def node_start_pipeline(state: WorkflowState) -> WorkflowState:
     if pipeline.status == PipelineStatus.NOT_STARTED:
         pipeline.start()
     return StateMapper.pipeline_to_state(pipeline)
+
+
+def node_pipeline_completeness(state: WorkflowState) -> WorkflowState:
+    """DAG node: Fast scan for pipeline completeness.
+
+    Corresponds to Phase 0 Pipeline Completeness Check (FR-001).
+
+    Args:
+        state: Current LangGraph workflow state.
+
+    Returns:
+        Partial state update with completeness metadata.
+    """
+    completeness_data = calculate_completeness(Path("."))
+    
+    # Store the results into state metadata
+    metadata = state.get("metadata", {})
+    metadata["completeness"] = completeness_data
+    
+    return {"metadata": metadata}
 
 
 def node_auto_gate(state: WorkflowState) -> WorkflowState:
@@ -134,3 +163,55 @@ def should_continue_iterating(state: WorkflowState) -> str:
     if stage.iteration_count >= MAX_ITERATIONS:
         return "gate"
     return "iterate"
+
+
+def node_micro_validation(state: WorkflowState) -> WorkflowState:
+    """DAG node: Execute micro-validation on recent changes.
+    
+    Corresponds to FR-005, FR-006, FR-007.
+    """
+    metadata = state.get("metadata", {})
+    changes_content = metadata.get("recent_changes_content", "")
+    changed_ids = metadata.get("recent_changed_ids", [])
+    
+    result = MicroValidation.run_all(changes_content, changed_ids)
+    metadata["micro_validation_result"] = result
+    
+    return {"metadata": metadata}
+
+
+def node_impact_analysis(state: WorkflowState) -> WorkflowState:
+    """DAG node: Execute impact analysis for modifications.
+    
+    Corresponds to FR-008, FR-009, FR-022.
+    """
+    metadata = state.get("metadata", {})
+    changed_ids = metadata.get("recent_changed_ids", [])
+    
+    impact_results = {}
+    for mod_id in changed_ids:
+        # Mocking nodes traversal
+        impact_results[mod_id] = ImpactAnalysis.calculate_blast_radius(mod_id, [])
+        
+    metadata["impact_analysis_results"] = impact_results
+    return {"metadata": metadata}
+
+
+def node_orchestrator(state: WorkflowState) -> WorkflowState:
+    """DAG node: Master orchestrator entrypoint for phases and stages.
+    
+    Corresponds to FR-002, FR-017, FR-018.
+    """
+    pipeline = StateMapper.state_to_pipeline(state)
+    metadata = state.get("metadata", {})
+    
+    # Delegate to Orchestrator based on current state
+    if pipeline.status == PipelineStatus.NOT_STARTED:
+        result = Orchestrator.execute_phase(0, metadata)
+    else:
+        # Example of executing current stage
+        result = Orchestrator.execute_stage(pipeline.current_position.stage, metadata)
+        
+    metadata["orchestrator_result"] = result
+    return {"metadata": metadata}
+

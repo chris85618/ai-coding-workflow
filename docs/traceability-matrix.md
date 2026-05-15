@@ -278,69 +278,69 @@
 
 | FR | 實作 Skill | 連結 |
 |----|-----------|------|
-| FR-001 | `pipeline-completeness-check.md`, `AGENTS.md` (Step 0-12) | implemented-by |
-| FR-002 | `phase-0~10-orchestration.md`, `stage-3~8-dimensions.md` | implemented-by |
-| FR-003 | `iter-loop.md`, `s2c-*.md` | implemented-by |
-| FR-004 | `traceability-system.md` | implemented-by |
-| FR-005 | `micro-validation.md`, `traceability-system.md` | implemented-by |
-| FR-006 | `micro-validation.md` (Step 4) | implemented-by |
-| FR-007 | `micro-validation.md`, `root-cause-leftshift.md` | implemented-by |
-| FR-008 | `impact-analysis-exec.md` | implemented-by |
-| FR-009 | `impact-analysis-exec.md`, `adr-governance.md` | implemented-by |
-| FR-010 | `tech-debt-collect.md`, `tech-debt-framework.md`, `risk-management.md` | implemented-by |
-| FR-011 | `tech-debt-framework.md`, `risk-management.md` | implemented-by |
-| FR-012 | `iter-loop.md` | implemented-by |
-| FR-013 | `iter-loop.md` (Step F) | implemented-by |
-| FR-014 | `iter-loop.md` (HITL section) | implemented-by |
-| FR-015 | `sonarcloud-gate.md` | implemented-by |
-| FR-016 | `security-audit-3layer.md` | implemented-by |
-| FR-017 | `s2c-*.md` (6 files) | implemented-by |
-| FR-018 | `phase-0~10-orchestration.md` | implemented-by |
-| FR-019 | `workflow-resume.md`, `AGENTS.md` (Step 0) | implemented-by |
-| FR-020 | `iter-loop.md` | implemented-by |
-| FR-021 | `workflow-resume.md` | implemented-by |
-| FR-022 | `impact-analysis-exec.md`, `micro-validation.md` (Step 5.5) | implemented-by |
-| FR-023 | `root-cause-leftshift.md` (Step 1.5/3c), `micro-validation.md` (Step 5.7) | implemented-by |
-| FR-024 | `change-management-protocol.md`, `micro-validation.md` | implemented-by |
-| FR-025 | `change-management-protocol.md` (PGVG) | implemented-by |
+| FR-001 | `pipeline_completeness.py`, `AGENTS.md` (Step 0-12) | implemented-by |
+| FR-002 | `orchestrator.py` | implemented-by |
+| FR-003 | `iter_loop.py`, `orchestrator.py` | implemented-by |
+| FR-004 | `traceability_validator.py` | implemented-by |
+| FR-005 | `micro_validation.py`, `traceability_validator.py` | implemented-by |
+| FR-006 | `micro_validation.py` (Step 4) | implemented-by |
+| FR-007 | `micro_validation.py`, `root_cause_leftshift.py` | implemented-by |
+| FR-008 | `impact_analysis.py` | implemented-by |
+| FR-009 | `impact_analysis.py`, `adr_governance.py` | implemented-by |
+| FR-010 | `tech_debt_manager.py`, `risk_manager.py` | implemented-by |
+| FR-011 | `tech_debt_manager.py`, `risk_manager.py` | implemented-by |
+| FR-012 | `iter_loop.py` | implemented-by |
+| FR-013 | `iter_loop.py` (determine_convergence) | implemented-by |
+| FR-014 | `iter_loop.py` (HITL section) | implemented-by |
+| FR-015 | `sonarcloud_gate.py` | implemented-by |
+| FR-016 | `security_audit.py` | implemented-by |
+| FR-017 | `orchestrator.py` | implemented-by |
+| FR-018 | `orchestrator.py` | implemented-by |
+| FR-019 | `workflow_resume.py`, `AGENTS.md` (Step 0) | implemented-by |
+| FR-020 | `iter_loop.py` | implemented-by |
+| FR-021 | `workflow_resume.py` | implemented-by |
+| FR-022 | `impact_analysis.py`, `micro_validation.py` (Step 5.5) | implemented-by |
+| FR-023 | `root_cause_leftshift.py` (Step 1.5/3c), `micro_validation.py` (Step 5.7) | implemented-by |
+| FR-024 | `change_management.py`, `micro_validation.py` | implemented-by |
+| FR-025 | `change_management.py` (PGVG) | implemented-by |
 
 ### LESSON → Skill 守衛映射
 
 | LESSON | 根因分類 | 守衛所在 Skill | ADR 來源 | 連結 |
 |--------|---------|---------------|----------|------|
-| LESSON-001 | FORMAT_ERROR | `micro-validation.md` (Step 0) | ADR-GOV-003 | guards |
-| LESSON-002 | COVERAGE_GAP | `micro-validation.md` (Step 4), `s2c-domain-model.md`, `completion-check.md` | ADR-GOV-004 | guards |
-| LESSON-003 | LLM_HALLUCINATION | `s2c-bdd-scenarios.md` | ADR-GOV-005 | guards |
-| LESSON-004 | PROCESS_GAP | `micro-validation.md` (Step 0) | ADR-GOV-003 | guards |
-| LESSON-005 | LLM_HALLUCINATION | `micro-validation.md` (Step 1), `completion-check.md` | ADR-GOV-006 | guards |
-| LESSON-006 | PROCESS_GAP | `micro-validation.md` (Step 5.5), `change-management-protocol.md` (Step 5) | ADR-GOV-007 | guards |
-| LESSON-007 | DECLARATION_IMPLEMENTATION_GAP | `change-management-protocol.md` (Step 2f/5), `micro-validation.md` (Step 5.5/5.7) | ADR-GOV-008 | guards |
-| LESSON-008 | PROCESS_GAP | `stage-3~8-dimensions.md` | ADR-GOV-009 | guards |
-| LESSON-009 | PROCESS_GAP | `change-management-protocol.md` (Precondition Gate) | ADR-GOV-010 | guards |
-| LESSON-010 | GOVERNANCE_BYPASS | `root-cause-leftshift.md` (觸發條件) | ADR-GOV-011 | guards |
+| LESSON-001 | FORMAT_ERROR | `micro_validation.py` (Step 0) | ADR-GOV-003 | guards |
+| LESSON-002 | COVERAGE_GAP | `micro_validation.py` (Step 4), `orchestrator.py`, `completion_check.py` | ADR-GOV-004 | guards |
+| LESSON-003 | LLM_HALLUCINATION | `orchestrator.py` | ADR-GOV-005 | guards |
+| LESSON-004 | PROCESS_GAP | `micro_validation.py` (Step 0) | ADR-GOV-003 | guards |
+| LESSON-005 | LLM_HALLUCINATION | `micro_validation.py` (Step 1), `completion_check.py` | ADR-GOV-006 | guards |
+| LESSON-006 | PROCESS_GAP | `micro_validation.py` (Step 5.5), `change_management.py` (Step 5) | ADR-GOV-007 | guards |
+| LESSON-007 | DECLARATION_IMPLEMENTATION_GAP | `change_management.py` (Step 2f/5), `micro_validation.py` (Step 5.5/5.7) | ADR-GOV-008 | guards |
+| LESSON-008 | PROCESS_GAP | `orchestrator.py` | ADR-GOV-009 | guards |
+| LESSON-009 | PROCESS_GAP | `change_management.py` (Precondition Gate) | ADR-GOV-010 | guards |
+| LESSON-010 | GOVERNANCE_BYPASS | `root_cause_leftshift.py` (觸發條件) | ADR-GOV-011 | guards |
 | LESSON-011 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 0 Hard Gate) | ADR-GOV-012 | guards |
-| LESSON-012 | SCAN_INCOMPLETENESS | `exhaustive-search.md` | ADR-GOV-013 | guards |
-| LESSON-013 | DECLARATION_IMPLEMENTATION_GAP | `change-management-protocol.md` (ADR 變更紀錄區段) | ADR-GOV-008 | guards |
+| LESSON-012 | SCAN_INCOMPLETENESS | `exhaustive_search.py` | ADR-GOV-013 | guards |
+| LESSON-013 | DECLARATION_IMPLEMENTATION_GAP | `change_management.py` (ADR 變更紀錄區段) | ADR-GOV-008 | guards |
 | LESSON-014 | IMPROVEMENT | 16 個 `workflow-skills/*.md` (Step N 格式) | ADR-GOV-016 | guards |
 | LESSON-020 | ARCHITECTURE_EROSION | `AGENTS.md` (Principle #13) | ADR-GOV-020 | guards |
 | LESSON-022 | ARCHITECTURE_EROSION | `AGENTS.md` (Scope Rules) | ADR-GOV-022 | guards |
-| LESSON-023 | GOVERNANCE_BYPASS | `change-management-protocol.md` (Inline CM-GATE), `AGENTS.md` (#14) | ADR-GOV-022 | guards |
-| LESSON-024 | PROCESS_GAP | `change-management-protocol.md` (CM-GATE 宣告) | ADR-GOV-022 | guards |
-| LESSON-025 | DECLARATION_IMPLEMENTATION_GAP | `root-cause-leftshift.md` (Meta-RCA) | ADR-GOV-022 | guards |
-| LESSON-026 | DECLARATION_IMPLEMENTATION_GAP | `micro-validation.md` (Step 7.6) | ADR-GOV-022 | guards |
-| LESSON-027 | ARCHITECTURE_EROSION | `impact-analysis-exec.md` | — (ADR-INDEX 合併) | guards |
+| LESSON-023 | GOVERNANCE_BYPASS | `change_management.py` (Inline CM-GATE), `AGENTS.md` (#14) | ADR-GOV-022 | guards |
+| LESSON-024 | PROCESS_GAP | `change_management.py` (CM-GATE 宣告) | ADR-GOV-022 | guards |
+| LESSON-025 | DECLARATION_IMPLEMENTATION_GAP | `root_cause_leftshift.py` (Meta-RCA) | ADR-GOV-022 | guards |
+| LESSON-026 | DECLARATION_IMPLEMENTATION_GAP | `micro_validation.py` (Step 7.6) | ADR-GOV-022 | guards |
+| LESSON-027 | ARCHITECTURE_EROSION | `impact_analysis.py` | — (ADR-INDEX 合併) | guards |
 | LESSON-028 | GOVERNANCE_BYPASS | `AGENTS.md` (#15 + Step 輸出協議) | ADR-GOV-024 | guards |
-| LESSON-029 | PROCESS_GAP | `risk-management.md` (Step 5), `tech-debt-collect.md` (Step 5), `ADR-TEMPLATE.md` (關聯產出物) | ADR-GOV-025 | guards |
-| LESSON-030 | SCAN_INCOMPLETENESS | `risk-management.md` (Step 1 SSOT), `tech-debt-collect.md` (Step 1 SSOT), `exhaustive-search.md` | ADR-GOV-025 (追加) | guards |
-| LESSON-031 | ARCHITECTURE_EROSION | `traceability-system.md` (Step 0 通用 ID 指派協議), `root-cause-leftshift.md` (Step 7 LESSON ID 守衞) | ADR-GOV-025 (追加) | guards |
+| LESSON-029 | PROCESS_GAP | `risk_manager.py` (Step 5), `tech_debt_manager.py` (Step 5), `ADR-TEMPLATE.md` (關聯產出物) | ADR-GOV-025 | guards |
+| LESSON-030 | SCAN_INCOMPLETENESS | `risk_manager.py` (Step 1 SSOT), `tech_debt_manager.py` (Step 1 SSOT), `exhaustive_search.py` | ADR-GOV-025 (追加) | guards |
+| LESSON-031 | ARCHITECTURE_EROSION | `traceability_validator.py` (Step 0 通用 ID 指派協議), `root_cause_leftshift.py` (Step 7 LESSON ID 守衞) | ADR-GOV-025 (追加) | guards |
 | LESSON-032 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 12.2 Pipeline Position 客觀判定守衛) | ADR-GOV-025 (追加) | guards |
 | LESSON-033 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 輸出協議 — 每個 prompt = 完整協議觸發) | ADR-GOV-025 (追加) | guards |
 | LESSON-034 | ASSUMPTION_OVERRIDE | `AGENTS.md` (Factual Reporting — 範圍限定詞保護) | ADR-GOV-025 (追加) | guards |
-| LESSON-040 | SECURITY_TESTING_FLAW | `stage-8-dimensions.md` (Step 4) | - | guards |
-| LESSON-041 | ALGORITHM_TESTING_FLAW | `stage-8-dimensions.md` (Step 4) | - | guards |
-| LESSON-042 | COVERAGE_GAP | `stage-8-dimensions.md` (Step 4) | - | guards |
-| LESSON-043 | FILTERING_LOGIC_FLAW | `stage-8-dimensions.md` (Step 4) | - | guards |
-| LESSON-044 | DELIVERY_MODEL_DRIFT | `phase-9-orchestration.md` (Step 2) | - | guards |
+| LESSON-040 | SECURITY_TESTING_FLAW | `orchestrator.py` (Step 4) | - | guards |
+| LESSON-041 | ALGORITHM_TESTING_FLAW | `orchestrator.py` (Step 4) | - | guards |
+| LESSON-042 | COVERAGE_GAP | `orchestrator.py` (Step 4) | - | guards |
+| LESSON-043 | FILTERING_LOGIC_FLAW | `orchestrator.py` (Step 4) | - | guards |
+| LESSON-044 | DELIVERY_MODEL_DRIFT | `orchestrator.py` (Step 2) | - | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
@@ -348,23 +348,23 @@
 
 | ADR | 修改的 Skill | 連結 |
 |-----|-------------|------|
-| ADR-GOV-003 | `micro-validation.md` | modified-by |
-| ADR-GOV-004 | `micro-validation.md`, `s2c-domain-model.md`, `completion-check.md` | modified-by |
-| ADR-GOV-005 | `s2c-bdd-scenarios.md` | modified-by |
-| ADR-GOV-006 | `micro-validation.md`, `completion-check.md` | modified-by |
-| ADR-GOV-007 | `micro-validation.md` | modified-by |
-| ADR-GOV-008 | `change-management-protocol.md`, `micro-validation.md` | modified-by |
-| ADR-GOV-009 | `stage-3~8-dimensions.md` | modified-by |
-| ADR-GOV-010 | `change-management-protocol.md` | modified-by |
-| ADR-GOV-011 | `root-cause-leftshift.md`, `change-management-protocol.md` | modified-by |
+| ADR-GOV-003 | `micro_validation.py` | modified-by |
+| ADR-GOV-004 | `micro_validation.py`, `orchestrator.py`, `completion_check.py` | modified-by |
+| ADR-GOV-005 | `orchestrator.py` | modified-by |
+| ADR-GOV-006 | `micro_validation.py`, `completion_check.py` | modified-by |
+| ADR-GOV-007 | `micro_validation.py` | modified-by |
+| ADR-GOV-008 | `change_management.py`, `micro_validation.py` | modified-by |
+| ADR-GOV-009 | `orchestrator.py` | modified-by |
+| ADR-GOV-010 | `change_management.py` | modified-by |
+| ADR-GOV-011 | `root_cause_leftshift.py`, `change_management.py` | modified-by |
 | ADR-GOV-012 | `AGENTS.md` (Step 0) | modified-by |
-| ADR-GOV-013 | `exhaustive-search.md` | modified-by |
+| ADR-GOV-013 | `exhaustive_search.py` | modified-by |
 | ADR-GOV-016 | 16 個 `workflow-skills/*.md` | modified-by |
-| ADR-GOV-020 | `AGENTS.md`, `exhaustive-search.md` | modified-by |
-| ADR-GOV-022 | 15 CREATE + `impact-analysis-exec.md` + `AGENTS.md` | modified-by |
-| ADR-GOV-023 | `traceability-system.md`, `root-cause-leftshift.md`, `adr-governance.md` | modified-by |
+| ADR-GOV-020 | `AGENTS.md`, `exhaustive_search.py` | modified-by |
+| ADR-GOV-022 | 15 CREATE + `impact_analysis.py` + `AGENTS.md` | modified-by |
+| ADR-GOV-023 | `traceability_validator.py`, `root_cause_leftshift.py`, `adr_governance.py` | modified-by |
 | ADR-GOV-024 | `AGENTS.md` (#15 + Step 輸出協議 + Step 0-12 輸出標注) | modified-by |
-| ADR-GOV-025 | `risk-management.md` (CREATE), `risk-register.md` (CREATE), `tech-debt-register.md` (CREATE), `tech-debt-collect.md` (Step 5), `ADR-TEMPLATE.md` (關聯產出物), `AGENTS.md` (Routing+12.5), `security-audit-3layer.md` (Step 5), `phase-10-orchestration.md` (Step 3.5), `stage-8-dimensions.md` (Step 5.5), `root-cause-leftshift.md` (Step 7.5), `phase-2-orchestration.md` (Step 4.5) | modified-by |
+| ADR-GOV-025 | `risk_manager.py` (CREATE), `risk-register.md` (CREATE), `tech-debt-register.md` (CREATE), `tech_debt_manager.py` (Step 5), `ADR-TEMPLATE.md` (關聯產出物), `AGENTS.md` (Routing+12.5), `security_audit.py` (Step 5), `orchestrator.py` (Step 3.5), `orchestrator.py` (Step 5.5), `root_cause_leftshift.py` (Step 7.5), `orchestrator.py` (Step 4.5) | modified-by |
 
 > ADR-GOV-001/002/014/015/017/018/019/021, ADR-STR-001 為治理原則定義，嵌入 AGENTS.md Core Directives
 
