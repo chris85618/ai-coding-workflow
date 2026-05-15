@@ -120,13 +120,14 @@
 | [ADR-GOV-023](adr/ADR-GOV-023.md) | Skill 追溯性擴充 + RCA 推論平準化 | GOV | Accepted | FR-004, FR-005, FR-007, FR-022, FR-023 | justifies |
 | [ADR-GOV-024](adr/ADR-GOV-024.md) | 強制循序輸出協議 | GOV | Accepted | FR-001, FR-005, FR-019 | justifies |
 | [ADR-GOV-025](adr/ADR-GOV-025.md) | ISO 31000 風險管理框架 + DEBT/RISK 完整追溯制度 | GOV | Accepted | FR-010, FR-011, FR-022, FR-023 | justifies |
+| [ADR-GOV-026](adr/ADR-GOV-026.md) | 零容忍警告政策與嚴格 Scope 制度 | GOV | Accepted | NFR-001, FR-004, FR-005 | justifies |
 | [ADR-STR-002](adr/ADR-STR-002.md) | Clean Architecture for LangGraph Migration | STR | Accepted | FR-001, FR-002, FR-003 | justifies |
 | [ADR-STR-003](adr/ADR-STR-003.md) | 自主執行模型 (No HITL Gates) | STR | Accepted | FR-012, FR-013, FR-014-v2, FR-019-v2, FR-021-v2 | justifies |
 | [ADR-STR-004](adr/ADR-STR-004.md) | AI Tool Feature Absorption — Strategy Pattern + Hooks + RepoMap | STR | Accepted | FR-026, FR-027, FR-028, FR-029, FR-030, NFR-008 | justifies |
 | [ADR-STR-005](adr/ADR-STR-005.md) | Markdown ↔ JSON 雙向轉換策略 | STR | Accepted | FR-031, NFR-009 | justifies |
 | [ADR-STR-006](adr/ADR-STR-006.md) | 外部化 YAML 配置 | STR | Accepted | FR-032, NFR-010 | justifies |
 
-> 類別統計：STR=6, GOV=25, SEC=0, SCP=0, GATE=0, OPS=0, **合計=31**
+> 類別統計：STR=6, GOV=26, SEC=0, SCP=0, GATE=0, OPS=0, **合計=32**
 
 ### ALG → FR
 
@@ -368,6 +369,7 @@
 | ADR-GOV-023 | `traceability_validator.py`, `root_cause_leftshift.py`, `adr_governance.py` | modified-by |
 | ADR-GOV-024 | `AGENTS.md` (#15 + Step 輸出協議 + Step 0-12 輸出標注) | modified-by |
 | ADR-GOV-025 | `risk_manager.py` (CREATE), `risk-register.md` (CREATE), `tech-debt-register.md` (CREATE), `tech_debt_manager.py` (Step 5), `ADR-TEMPLATE.md` (關聯產出物), `AGENTS.md` (Routing+12.5), `security_audit.py` (Step 5), `orchestrator.py` (Step 3.5), `orchestrator.py` (Step 5.5), `root_cause_leftshift.py` (Step 7.5), `orchestrator.py` (Step 4.5) | modified-by |
+| ADR-GOV-026 | `pyproject.toml`, `test_graph_builder.py`, `test_invariants_verifier.py` | modified-by |
 
 > ADR-GOV-001/002/014/015/017/018/019/021, ADR-STR-001 為治理原則定義，嵌入 AGENTS.md Core Directives
 
@@ -406,7 +408,7 @@ INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 | Stage 3 | NFR-xxx | 8 | 8/8 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 13 | 13/13 | 13/13 | 100% |
 | Stage 3 | ADR-STR-xxx | 4 | 4/4 | — | 100% |
-| 治理層 | ADR-GOV-xxx | 25 | 25/25 | — (治理) | 100% |
+| 治理層 | ADR-GOV-xxx | 26 | 26/26 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 8 | 8/8 | 8/8 | 100% |
 | Stage 5 | CLS-xxx | 18 | 18/18 | 18/18 | 100% |
 | Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
@@ -418,8 +420,8 @@ INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 | Skill 修改 | ADR→Skill | 19 | 19/19 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |
-| **合計** | — | **288** | — | — | **100%** |
+| **合計** | — | **289** | — | — | **100%** |
 
-> **Status**: Feature absorption 完成。+21 IDs (FR-026~030, NFR-008, UC-012/013, CLS-017/018, ALG-008, INV-022~024, EVT-009/010, SC-012~016, ADR-STR-004)。288 條追溯紀錄，零孤兒。
+> **Status**: ADR-GOV-026 (Zero-Tolerance Warnings) integrated. Feature absorption 完成。+22 IDs total. 289 條追溯紀錄，零孤兒。
 > **未應對風險**: 3 (RISK-001/004/005 MEDIUM)
 > **技術債**: 1 (DEBT-005 P2)
