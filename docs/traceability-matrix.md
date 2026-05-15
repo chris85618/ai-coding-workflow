@@ -365,6 +365,7 @@
 | LESSON-049 | ARCHITECTURE_EROSION | `AGENTS.md` (Step 0 skill path fallback) | - | guards |
 | LESSON-050 | ARCHITECTURE_EROSION | `frameworks/graph.py` (OO Builder 為唯一建圖路徑), `docs/adr/ADR-STR-007.md` | ADR-STR-007 | guards |
 | LESSON-051 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 4-8 cannot be bypassed for structural features) | - | guards |
+| LESSON-052 | PROCESS_GAP | `phase-0-orchestration.md` (Step 2.5) | - | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
