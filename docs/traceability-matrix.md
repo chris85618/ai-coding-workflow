@@ -171,7 +171,7 @@
 | DEBT-002 | Adapter 層尚未實作 | resolved | 架構債 | P1 | 6.75 | Major Project | FR-001,015,018,026~030 | N/A | LESSON-035 | derives |
 | DEBT-003 | repo_map_builder.py 相對 import 邊界分支未覆蓋 | resolved | 測試缺口 | P3 | 0.9 | Fill In | FR-018 | N/A | LESSON-037 | derives |
 | DEBT-004 | Layer 2/3 安全審計尚未執行 | resolved | 安全債 | P2 | 4.0 | Major Project | FR-030 | N/A | N/A | derives |
-| DEBT-005 | SonarCloud CI 閘門尚未設定 | open | 流程債 | P2 | 9.0 | Quick Win | FR-004,005 | N/A | N/A | derives |
+| DEBT-005 | SonarCloud CI 閘門尚未設定 | in-progress | 流程債 | P2 | 9.0 | Quick Win | FR-004,005 | N/A | N/A | derives |
 
 ### CLS → UC / ALG
 

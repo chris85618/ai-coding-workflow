@@ -1,5 +1,9 @@
 # AI Coding Workflow — Agentic Pipeline
 
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=chris85618_ai-coding-workflow)](https://sonarcloud.io/summary/new_code?id=chris85618_ai-coding-workflow)
+
+---
+
 > **Single Source of Truth** for LangGraph-based agentic development workflow orchestration.
 
 本目錄實作一套以 **LangGraph** 驅動的 AI 開發管線，將 AGENTS.md 的 12-Step 協議具象化為可執行的 Python DAG。
