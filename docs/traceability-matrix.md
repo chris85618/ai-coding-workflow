@@ -83,6 +83,9 @@
 | FR-032 | UC-015 | realizes | ✅ |
 | FR-033 | UC-004 | realizes | ✅ |
 | FR-034 | UC-003 | realizes | ✅ |
+| FR-040 | UC-001 | realizes | ✅ |
+| FR-041 | UC-004 | realizes | ✅ |
+| FR-042 | UC-003 | realizes | ✅ |
 
 ### Stakeholder → BG
 
@@ -366,6 +369,9 @@
 | LESSON-050 | ARCHITECTURE_EROSION | `frameworks/graph.py` (OO Builder 為唯一建圖路徑), `docs/adr/ADR-STR-007.md` | ADR-STR-007 | guards |
 | LESSON-051 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 4-8 cannot be bypassed for structural features) | - | guards |
 | LESSON-052 | PROCESS_GAP | `phase-0-orchestration.md` (Step 2.5) | - | guards |
+| LESSON-060 | LOGIC_FLAW | `pipeline_completeness.py` | - | guards |
+| LESSON-061 | LOGIC_FLAW | `micro_validation.py` | - | guards |
+| LESSON-062 | PROCESS_GAP | `convergence.py` | - | guards |
 | LESSON-053 | PROCESS_GAP | `change_management.py` (區塊完整性檢查) | - | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
@@ -428,7 +434,7 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Phase 2.2 | FEA-xxx | 13 | 13/13 | 13/13 | 100% |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 1 | 1/1 | — | 100% |
-| Stage 3 | FR-xxx | 31+3v2 | 34/34 | 34/34 | 100% |
+| Stage 3 | FR-xxx | 34+3v2 | 37/37 | 37/37 | 100% |
 | Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 13 | 13/13 | 13/13 | 100% |
 | Stage 3 | ADR-STR-xxx | 7 | 7/7 | — | 100% |
@@ -440,7 +446,7 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 7 | SC-xxx | 20 | 20/20 | 20/20 | 100% |
 | Stage 8 | TC-xxx | 15 | 15/15 | 15/15 | 100% |
 | Skill 實作 | FR→Skill | 27 | 27/27 | — (映射) | 100% |
-| Skill 守衛 | LESSON→Skill | 41 | 41/41 | — (映射) | 100% |
+| Skill 守衛 | LESSON→Skill | 44 | 44/44 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 20 | 20/20 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |

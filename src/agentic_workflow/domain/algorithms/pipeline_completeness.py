@@ -96,7 +96,7 @@ class PipelineCompletenessChecker:
         passed = sum(1 for c in checks if c)
         completeness = passed / self._TOTAL_CHECKS
 
-        decision, next_action = self._classify(completeness)
+        decision, next_action = self._classify(passed, completeness)
 
         return {
             "completeness_score": passed,
@@ -106,16 +106,17 @@ class PipelineCompletenessChecker:
             "checks_breakdown": checks,
         }
 
-    def _classify(self, completeness: float) -> tuple[str, str]:
+    def _classify(self, passed: int, completeness: float) -> tuple[str, str]:
         """Return (decision, next_action) for the given completeness ratio.
 
         Args:
+            passed: Number of checks passed.
             completeness: Ratio in [0.0, 1.0].
 
         Returns:
             Tuple of (decision_label, next_action_string).
         """
-        if completeness == 1.0:
+        if passed >= self._TOTAL_CHECKS:
             return (
                 "complete",
                 "Check workflow-state.md position. "

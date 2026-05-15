@@ -6,6 +6,10 @@ Replaces: skills/workflow-skills/micro-validation.md
 
 from typing import Any
 
+from agentic_workflow.domain.algorithms.traceability_validator import (
+    TraceabilityValidator,
+)
+
 
 class MicroValidation:
     """Executes the micro-validation loop for any CREATE/MODIFY/FIX action."""
@@ -19,7 +23,11 @@ class MicroValidation:
     def validate_structure(cls, changed_ids: list[str]) -> bool:
         """Step 1: Structural integrity."""
         # Check if IDs match prefix pattern (delegated to TraceabilityValidator)
-        return True
+        if not changed_ids:
+            return True
+        return all(
+            TraceabilityValidator.validate_id_format(node_id) for node_id in changed_ids
+        )
 
     @classmethod
     def run_all(cls, changed_content: str, changed_ids: list[str]) -> dict[str, Any]:

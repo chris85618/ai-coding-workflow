@@ -31,7 +31,6 @@ class ConvergenceDetector:
 
     @classmethod
     @icontract.require(lambda iteration_count: iteration_count >= 0)
-    @icontract.require(lambda findings_per_iter: len(findings_per_iter) >= 0)
     def check_convergence(
         cls,
         iteration_count: int,
@@ -100,7 +99,6 @@ class ConvergenceDetector:
 
 
 @icontract.require(lambda iteration_count: iteration_count >= 0)
-@icontract.require(lambda findings_per_iter: len(findings_per_iter) >= 0)
 def check_convergence(
     iteration_count: int,
     findings_per_iter: list[list[str]],

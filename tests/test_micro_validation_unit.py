@@ -51,10 +51,10 @@ class TestValidateStructure:
         """Verify empty IDs pass structure validation."""
         assert MicroValidation.validate_structure([]) is True
 
-    def test_any_ids_returns_true(self) -> None:
-        """Verify delegated structure validation (always True in current impl)."""
-        # Delegated to TraceabilityValidator, always True in current impl
-        assert MicroValidation.validate_structure(["INVALID"]) is True
+    def test_invalid_ids_returns_false(self) -> None:
+        """Verify invalid IDs fail structure validation."""
+        # Now implemented using TraceabilityValidator
+        assert MicroValidation.validate_structure(["INVALID"]) is False
 
 
 class TestRunAll:

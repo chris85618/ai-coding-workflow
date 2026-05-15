@@ -117,6 +117,10 @@ class TestMicroValidation:
         """TC-225: Structure validation helper."""
         assert MicroValidation.validate_structure(["FR-001"]) is True
 
+    def test_validate_structure_invalid_fails(self) -> None:
+        """TC-294: Invalid ID structure detection."""
+        assert MicroValidation.validate_structure(["INVALID-ID"]) is False
+
     def test_next_actions_on_pass(self) -> None:
         """TC-226: Next actions on pass."""
         result = MicroValidation.run_all("valid", [])
