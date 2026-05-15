@@ -347,3 +347,108 @@ parse_markdown(content, schema):
 | ALG-007 | FR-030 | implements |
 | ALG-008 | FR-029 | implements |
 | ALG-009 | FR-031 | implements |
+| ALG-010 | FR-002, NFR-002 | implements |
+
+---
+
+## ALG-010: Stage 8 TDD 骨架優先協議
+
+**描述**：Stage 8 強制執行「骨架先行 → 測試先行 → 實作」的三階段 TDD 順序。
+確保每個 production module 在實作前先有完整的介面契約與行為規格。
+**追溯**：FR-002 (implements), NFR-002 (implements), ALG-001 (requires), ALG-002 (requires)
+**版本**：v1.0 (2026-05-15) — LESSON-035 (端到端原子性)
+
+**前置條件（Precondition）**：
+- Stage 3 FR-xxx、Stage 4 ALG-xxx、Stage 5 CLS-xxx/EVT-xxx、Stage 6 INV-xxx、Stage 7 SC-xxx 全部通過 HITL 閘門
+- 覆蓋率基準已知（上次 `pytest --cov` 的 TOTAL 行）
+
+**不變量（Invariant）**：
+- 禁止在 Step B（測試先行）完成前寫入任何實作邏輯（only `pass`/`...` 佔位）
+- 每個 production module 必須有對應測試模組，且測試先於實作提交
+- 覆蓋率門檻：`≥ 99%` 為目標，`≥ 95%` 為最低閘門
+
+**後置條件（Postcondition）**：
+- 所有 TC-xxx 已通過且追溯至 SC-xxx
+- `pytest --cov` TOTAL ≥ 95%（閘門），目標 ≥ 99%
+- 每個低覆蓋模組（< 99%）有對應的 DEBT-xxx 技術債記錄
+
+```
+stage_8_tdd_skeleton_first(alg_specs, cls_specs, inv_specs, bdd_scenarios):
+
+  # ── Step A: 骨架生成（Skeleton Generation）──────────────────────
+  FOR each module M IN scope(alg_specs, cls_specs):
+    skeleton = generate_skeleton(M):
+      - 完整 class/function 簽名（含型別提示）
+      - Docstring（含 traceable IDs）
+      - 所有 method body = `...`（pass/ellipsis，禁止含邏輯）
+    write(skeleton → src/...)
+    ASSERT no_logic_in_skeleton(skeleton)  # 違反 = GOVERNANCE_BYPASS
+
+  # ── Step B: 測試先行（Test-First）──────────────────────────────
+  baseline_coverage = run_coverage()  # 記錄基準
+  
+  FOR each module M IN skeleton_modules:
+    tests = generate_tests_from_spec(M, bdd_scenarios, inv_specs):
+      - 正向路徑（happy path）
+      - 邊界條件（boundary cases）
+      - 不變量違反（invariant violations → assert exceptions）
+      - 分支覆蓋（branch coverage）
+    write(tests → tests/test_{module}.py)
+    result = run(tests → M.skeleton)
+    ASSERT result.status == "FAILED"  # 紅燈是正確的
+  
+  # ── Step C: 實作（Implementation）──────────────────────────────
+  FOR each module M IN skeleton_modules:
+    implement(M, alg_specs):
+      - 僅實作通過現有測試的最少程式碼
+      - 不超過 BDD 場景定義的行為
+    result = run(tests → M)
+    ASSERT result.status == "PASSED"  # 綠燈
+
+  # ── Step D: 覆蓋率迭代（Coverage Iteration Loop）──────────────
+  LOOP:
+    coverage = run_coverage()  # pytest --cov
+    
+    # 找到所有未達 99% 的模組（優先處理 0% 的）
+    low_modules = [m for m in coverage.modules if m.coverage < 0.99]
+    low_modules.sort(key=lambda m: m.coverage)  # 從最低開始
+    
+    IF coverage.total >= 0.99 OR low_modules == []:
+      BREAK
+    
+    current = low_modules[0]  # 每輪只處理一個模組
+    
+    # 分析缺失的分支/行
+    missing = current.missing_branches + current.missing_lines
+    
+    FOR each gap IN missing:
+      test = synthesize_test_for_gap(gap, current)
+      append(test → tests/test_{current.module}.py)
+    
+    run_coverage()  # 驗證提升
+    
+    IF coverage.total < 0.95:
+      # 仍未達閘門 → 繼續下一輪
+      CONTINUE
+    ELIF 0.95 <= coverage.total < 0.99:
+      # 達閘門但未達目標 → 建立 DEBT-xxx 並繼續
+      register_debt(current, priority="P2")
+      CONTINUE
+    ELSE:
+      BREAK  # ≥ 99% 達成
+
+  # ── Step E: 形式化驗證對齊（Invariant Verification）───────────
+  FOR each INV-xxx IN inv_specs:
+    test_case = lookup_test_for_invariant(INV-xxx)
+    ASSERT test_case.exists AND test_case.passing
+    IF NOT: generate_invariant_test(INV-xxx) → append to test suite
+```
+
+**理論保證**：
+| 屬性 | 等級 | 說明 |
+|------|------|------|
+| 介面先行 | 🅐 | 骨架確保 API 契約在實作前定義，防止介面蔓延 |
+| 紅燈驗證 | 🅐 | ASSERT result == "FAILED" 確保測試真正在測試行為 |
+| 覆蓋率收斂 | 🅐 | 循環至 ≥ 99% 或所有模組有 DEBT 記錄後結束 |
+| 形式化對齊 | 🅐 | 每個 INV-xxx 必有對應的 TC-xxx |
+

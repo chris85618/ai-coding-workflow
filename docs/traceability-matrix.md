@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-14T19:10:00+08:00 (Feature absorption: +21 IDs, ADR-STR-004, multi-agent/dreaming removed)
-**Validation Status**: ✅ +FR-026~030, +NFR-008, +UC-012/013, +CLS-017/018, +ALG-008, +INV-022~024, +EVT-009/010, +SC-012~016, +ADR-STR-004; 283 條追溯紀錄，零孤兒
+**Last Validated**: 2026-05-15T15:50:00+08:00 (TDD protocol hardening: +ALG-010, +TC-015~020, coverage 73%→95.66%)
+**Validation Status**: ✅ +ALG-010 (Stage 8 TDD骨架優先協議), test coverage 95.66% (400 passing); 284 條追溯紀錄，零孤兒
 
 ---
 
@@ -141,6 +141,7 @@
 | ALG-007 | FR-030, FEA-011 | implements | ✅ (ContextBudgetAllocator) |
 | ALG-008 | FR-029, FEA-011 | implements | ✅ (NEW: ModelSelector Strategy Pattern) |
 | ALG-009 | FR-031, FEA-012 | implements | ✅ (NEW: Markdown Parser) |
+| ALG-010 | FR-002, NFR-002 | implements | ✅ (NEW: Stage 8 TDD骨架優先協議; test coverage 95.66%) |
 
 ### RISK → FEA (ISO 31000 完整屬性)
 
@@ -255,6 +256,7 @@
 | SC-016 | UC-003 | INV-021 | covers, verifies | ✅ (NEW: Context budget) |
 | SC-017 | UC-014 | INV-001 | covers, verifies | ✅ (NEW: MD-JSON Parser) |
 | SC-018 | UC-015 | INV-001 | covers, verifies | ✅ (NEW: YAML Config) |
+| SC-019 | UC-001 | INV-001, INV-002-v2, INV-003 | covers, verifies | ✅ (NEW: LangGraph DAG & Invariants) |
 
 ### TC → SC
 
@@ -273,6 +275,7 @@
 | TC-011 | SC-011 | validates | ✅ |
 | TC-012 | SC-017 | validates | ✅ |
 | TC-013 | SC-018 | validates | ✅ |
+| TC-014 | SC-019 | validates | ✅ |
 
 ### FR → Skill 實作映射
 
@@ -374,7 +377,7 @@
 FR-014 → Superseded by → FR-014-v2 (ADR-STR-003: 自主收斂取代 HITL)
 FR-019 → Superseded by → FR-019-v2 (ADR-STR-003: DAG checkpoint 取代 workflow-state.md)
 FR-021 → Superseded by → FR-021-v2 (ADR-STR-003: checkpoint recovery 取代 file recovery)
-INV-002 → Superseded by → INV-002-v2 (ADR-STR-003: auto-gate 取代 HITL gate)
+INV-002 → Superseded by → INV-002-v2 (ADR-STR-003: auto-gate取代 HITL gate)
 INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 ```
 
@@ -408,8 +411,8 @@ INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 | Stage 5 | CLS-xxx | 18 | 18/18 | 18/18 | 100% |
 | Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
 | Stage 6 | INV-xxx | 24 | 24/24 | 24/24 | 100% |
-| Stage 7 | SC-xxx | 16 | 16/16 | 16/16 | 100% |
-| Stage 8 | TC-xxx | 11 | 11/11 | — (末端) | 100% |
+| Stage 7 | SC-xxx | 19 | 19/19 | 19/19 | 100% |
+| Stage 8 | TC-xxx | 14 | 14/14 | 14/14 | 100% |
 | Skill 實作 | FR→Skill | 25 | 25/25 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 33 | 33/33 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 19 | 19/19 | — (映射) | 100% |

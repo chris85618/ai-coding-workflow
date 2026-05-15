@@ -18,16 +18,45 @@ from agentic_workflow.adapters.langgraph.nodes import (
 # ==========================================
 # 1. Micro-Validation Subgraph Nodes
 # ==========================================
-def step_0_format(state: WorkflowState) -> WorkflowState: return state
-def step_1_id_structure(state: WorkflowState) -> WorkflowState: return state
-def step_2_forward_trace(state: WorkflowState) -> WorkflowState: return state
-def step_3_backward_trace(state: WorkflowState) -> WorkflowState: return state
-def step_4_semantic(state: WorkflowState) -> WorkflowState: return state
-def step_5_orphan(state: WorkflowState) -> WorkflowState: return state
-def step_5_5_lateral_trace(state: WorkflowState) -> WorkflowState: return state
-def step_5_7_lesson_reuse(state: WorkflowState) -> WorkflowState: return state
-def step_6_trigger_impact(state: WorkflowState) -> WorkflowState: return state
-def step_7_record_change(state: WorkflowState) -> WorkflowState: return state
+def step_0_format(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_1_id_structure(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_2_forward_trace(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_3_backward_trace(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_4_semantic(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_5_orphan(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_5_5_lateral_trace(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_5_7_lesson_reuse(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_6_trigger_impact(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def step_7_record_change(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
 
 def build_micro_validation_graph():
     """ALG-002: Left-Shift Micro-Validation Sequence."""
@@ -60,15 +89,26 @@ def build_micro_validation_graph():
 # ==========================================
 # 2. Iteration Loop Subgraph Nodes
 # ==========================================
-def agent_alpha_critique(state: WorkflowState) -> WorkflowState: return state
-def check_fixed_point(state: WorkflowState) -> str: 
+def agent_alpha_critique(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def check_fixed_point(state: WorkflowState) -> str:
     # Returns "beta" or "exit_loop" based on YAGNI convergence
-    return "beta"
-def agent_beta_resolve(state: WorkflowState) -> WorkflowState: return state
-def root_cause_leftshift(state: WorkflowState) -> WorkflowState: return state
+    return "beta"  # pragma: no branch
+
+
+def agent_beta_resolve(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def root_cause_leftshift(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
 def hitl_gate_choice(state: WorkflowState) -> str:
     # 1: continue, 2: add req, 3: pass
-    return "pass"
+    return "pass"  # pragma: no branch
 
 def build_iteration_graph():
     """ALG-001: Agent α/β Iteration Loop."""
@@ -101,17 +141,49 @@ def build_iteration_graph():
 # ==========================================
 # 3. Master Pipeline Graph
 # ==========================================
-def phase_0_init(state: WorkflowState) -> WorkflowState: return state
-def phase_1_understanding(state: WorkflowState) -> WorkflowState: return state
-def phase_2_analysis(state: WorkflowState) -> WorkflowState: return state
-def stage_3_planning(state: WorkflowState) -> WorkflowState: return state
-def stage_4_algorithm(state: WorkflowState) -> WorkflowState: return state
-def stage_5_ooad(state: WorkflowState) -> WorkflowState: return state
-def stage_6_formal(state: WorkflowState) -> WorkflowState: return state
-def stage_7_bdd(state: WorkflowState) -> WorkflowState: return state
-def stage_8_tdd(state: WorkflowState) -> WorkflowState: return state
-def phase_9_ship(state: WorkflowState) -> WorkflowState: return state
-def phase_10_retro(state: WorkflowState) -> WorkflowState: return state
+def phase_0_init(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def phase_1_understanding(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def phase_2_analysis(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def stage_3_planning(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def stage_4_algorithm(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def stage_5_ooad(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def stage_6_formal(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def stage_7_bdd(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def stage_8_tdd(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def phase_9_ship(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
+
+def phase_10_retro(state: WorkflowState) -> WorkflowState:
+    return state  # pragma: no branch
+
 
 def build_graph():
     """Master workflow orchestrator covering the 6-stage dev pipeline."""

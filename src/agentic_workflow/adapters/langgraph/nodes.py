@@ -209,8 +209,9 @@ def node_orchestrator(state: WorkflowState) -> WorkflowState:
     if pipeline.status == PipelineStatus.NOT_STARTED:
         result = Orchestrator.execute_phase(0, metadata)
     else:
-        # Example of executing current stage
-        result = Orchestrator.execute_stage(pipeline.current_position.stage, metadata)
+        pos = pipeline.current_position
+        stage = pos.get("stage", 0) if isinstance(pos, dict) else 0
+        result = Orchestrator.execute_stage(stage, metadata)
         
     metadata["orchestrator_result"] = result
     return {"metadata": metadata}

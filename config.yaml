@@ -48,3 +48,38 @@ prompts:
       請將其轉換為符合以下 JSON Schema 的格式：{schema}
       Markdown 內容：
       {content}
+
+workflow_graph:
+  nodes:
+    - start_pipeline
+    - pipeline_completeness
+    - orchestrator
+    - auto_gate
+    - advance_stage
+    - iterate_stage
+    - complete_pipeline
+    - micro_validation
+    - impact_analysis
+  edges:
+    - source: __start__
+      target: start_pipeline
+    - source: start_pipeline
+      target: pipeline_completeness
+    - source: pipeline_completeness
+      target: orchestrator
+    - source: orchestrator
+      target: micro_validation
+    - source: micro_validation
+      target: impact_analysis
+    - source: impact_analysis
+      target: auto_gate
+    - source: advance_stage
+      target: orchestrator
+    - source: iterate_stage
+      target: orchestrator
+  conditional_edges:
+    - source: auto_gate
+      condition_func: should_continue_iterating
+      mapping:
+        gate: advance_stage
+        iterate: iterate_stage
