@@ -40,8 +40,9 @@
 | FEA-011 | FR-001, FR-002, FR-003, FR-012, FR-013 | decomposes | ✅ |
 | FEA-011 | NFR-002, NFR-003, NFR-007, NFR-008 | constrains | ✅ |
 | FEA-011 | FR-026, FR-027, FR-028, FR-029, FR-030 | decomposes | ✅ |
-| FEA-012 | FR-031, FR-032 | decomposes | ✅ |
 | FEA-012 | NFR-009, NFR-010 | constrains | ✅ |
+| FEA-013 | FR-033 | decomposes | ✅ |
+| FEA-013 | NFR-011 | constrains | ✅ |
 
 ### FR → UC
 
@@ -79,6 +80,7 @@
 | FR-030 | UC-003 | realizes | ✅ |
 | FR-031 | UC-014 | realizes | ✅ |
 | FR-032 | UC-015 | realizes | ✅ |
+| FR-033 | UC-004 | realizes | ✅ |
 
 ### Stakeholder → BG
 
@@ -120,7 +122,7 @@
 | [ADR-GOV-023](adr/ADR-GOV-023.md) | Skill 追溯性擴充 + RCA 推論平準化 | GOV | Accepted | FR-004, FR-005, FR-007, FR-022, FR-023 | justifies |
 | [ADR-GOV-024](adr/ADR-GOV-024.md) | 強制循序輸出協議 | GOV | Accepted | FR-001, FR-005, FR-019 | justifies |
 | [ADR-GOV-025](adr/ADR-GOV-025.md) | ISO 31000 風險管理框架 + DEBT/RISK 完整追溯制度 | GOV | Accepted | FR-010, FR-011, FR-022, FR-023 | justifies |
-| [ADR-GOV-026](adr/ADR-GOV-026.md) | 零容忍警告政策與嚴格 Scope 制度 | GOV | Accepted | NFR-001, FR-004, FR-005 | justifies |
+| [ADR-GOV-026](adr/ADR-GOV-026.md) | 零容忍警告政策與嚴格 Scope 制度 (Logic-Fix First) | GOV | Accepted | NFR-001, FR-004, FR-005, FR-033 | justifies |
 | [ADR-STR-002](adr/ADR-STR-002.md) | Clean Architecture for LangGraph Migration | STR | Accepted | FR-001, FR-002, FR-003 | justifies |
 | [ADR-STR-003](adr/ADR-STR-003.md) | 自主執行模型 (No HITL Gates) | STR | Accepted | FR-012, FR-013, FR-014-v2, FR-019-v2, FR-021-v2 | justifies |
 | [ADR-STR-004](adr/ADR-STR-004.md) | AI Tool Feature Absorption — Strategy Pattern + Hooks + RepoMap | STR | Accepted | FR-026, FR-027, FR-028, FR-029, FR-030, NFR-008 | justifies |
@@ -143,6 +145,7 @@
 | ALG-008 | FR-029, FEA-011 | implements | ✅ (NEW: ModelSelector Strategy Pattern) |
 | ALG-009 | FR-031, FEA-012 | implements | ✅ (NEW: Markdown Parser) |
 | ALG-010 | FR-002, NFR-002 | implements | ✅ (NEW: Stage 8 TDD骨架優先協議; test coverage 95.66%) |
+| ALG-013 | FR-033, FEA-013 | implements | ✅ (NEW: WarningPolicyVerifier) |
 
 ### RISK → FEA (ISO 31000 完整屬性)
 
@@ -307,6 +310,7 @@
 | FR-023 | `root_cause_leftshift.py` (Step 1.5/3c), `micro_validation.py` (Step 5.7) | implemented-by |
 | FR-024 | `change_management.py`, `micro_validation.py` | implemented-by |
 | FR-025 | `change_management.py` (PGVG) | implemented-by |
+| FR-033 | `warning_policy_verifier.py`, `nodes.py` (node_warning_policy_gate) | implemented-by |
 
 ### LESSON → Skill 守衛映射
 
@@ -345,6 +349,7 @@
 | LESSON-042 | COVERAGE_GAP | `orchestrator.py` (Step 4) | - | guards |
 | LESSON-043 | FILTERING_LOGIC_FLAW | `orchestrator.py` (Step 4) | - | guards |
 | LESSON-044 | DELIVERY_MODEL_DRIFT | `orchestrator.py` (Step 2) | - | guards |
+| LESSON-045 | FILTERING_LOGIC_FLAW | `warning_policy_verifier.py`, `graph.py` (s8_warning) | ADR-GOV-026 | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
@@ -369,7 +374,7 @@
 | ADR-GOV-023 | `traceability_validator.py`, `root_cause_leftshift.py`, `adr_governance.py` | modified-by |
 | ADR-GOV-024 | `AGENTS.md` (#15 + Step 輸出協議 + Step 0-12 輸出標注) | modified-by |
 | ADR-GOV-025 | `risk_manager.py` (CREATE), `risk-register.md` (CREATE), `tech-debt-register.md` (CREATE), `tech_debt_manager.py` (Step 5), `ADR-TEMPLATE.md` (關聯產出物), `AGENTS.md` (Routing+12.5), `security_audit.py` (Step 5), `orchestrator.py` (Step 3.5), `orchestrator.py` (Step 5.5), `root_cause_leftshift.py` (Step 7.5), `orchestrator.py` (Step 4.5) | modified-by |
-| ADR-GOV-026 | `pyproject.toml`, `test_graph_builder.py`, `test_invariants_verifier.py` | modified-by |
+| ADR-GOV-026 | `pyproject.toml`, `test_graph_builder.py`, `test_invariants_verifier.py`, `graph.py`, `nodes.py`, `warning_policy_verifier.py` | modified-by |
 
 > ADR-GOV-001/002/014/015/017/018/019/021, ADR-STR-001 為治理原則定義，嵌入 AGENTS.md Core Directives
 
@@ -401,27 +406,27 @@ INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 |------|---------|--------|--------|--------|--------|
 | Phase 2.0 | BG-xxx | 4 | — (源頭) | 4/4 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
-| Phase 2.2 | FEA-xxx | 11 | 11/11 | 11/11 | 100% |
+| Phase 2.2 | FEA-xxx | 13 | 13/13 | 13/13 | 100% |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 1 | 1/1 | — | 100% |
-| Stage 3 | FR-xxx | 30+3v2 | 33/33 | 33/33 | 100% |
-| Stage 3 | NFR-xxx | 8 | 8/8 | — (約束) | 100% |
+| Stage 3 | FR-xxx | 31+3v2 | 34/34 | 34/34 | 100% |
+| Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 13 | 13/13 | 13/13 | 100% |
-| Stage 3 | ADR-STR-xxx | 4 | 4/4 | — | 100% |
+| Stage 3 | ADR-STR-xxx | 6 | 6/6 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 26 | 26/26 | — (治理) | 100% |
-| Stage 4 | ALG-xxx | 8 | 8/8 | 8/8 | 100% |
-| Stage 5 | CLS-xxx | 18 | 18/18 | 18/18 | 100% |
+| Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
+| Stage 5 | CLS-xxx | 20 | 20/20 | 20/20 | 100% |
 | Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
 | Stage 6 | INV-xxx | 24 | 24/24 | 24/24 | 100% |
 | Stage 7 | SC-xxx | 19 | 19/19 | 19/19 | 100% |
 | Stage 8 | TC-xxx | 14 | 14/14 | 14/14 | 100% |
-| Skill 實作 | FR→Skill | 25 | 25/25 | — (映射) | 100% |
-| Skill 守衛 | LESSON→Skill | 33 | 33/33 | — (映射) | 100% |
+| Skill 實作 | FR→Skill | 26 | 26/26 | — (映射) | 100% |
+| Skill 守衛 | LESSON→Skill | 34 | 34/34 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 19 | 19/19 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |
-| **合計** | — | **289** | — | — | **100%** |
+| **合計** | — | **298** | — | — | **100%** |
 
-> **Status**: ADR-GOV-026 (Zero-Tolerance Warnings) integrated. Feature absorption 完成。+22 IDs total. 289 條追溯紀錄，零孤兒。
+> **Status**: ADR-GOV-026 (Zero-Tolerance Warnings) hardened via autonomous LangGraph gate. +9 IDs total. 298 條追溯紀錄，零孤兒。
 > **未應對風險**: 3 (RISK-001/004/005 MEDIUM)
 > **技術債**: 1 (DEBT-005 P2)

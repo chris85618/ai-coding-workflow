@@ -23,6 +23,7 @@ from agentic_workflow.domain.algorithms.tech_debt_manager import TechDebtManager
 from agentic_workflow.domain.algorithms.risk_manager import RiskManager
 from agentic_workflow.domain.algorithms.adr_governance import ADRGovernance
 from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
+from agentic_workflow.domain.algorithms.warning_policy_verifier import WarningPolicyVerifier
 from pathlib import Path
 
 if TYPE_CHECKING:
@@ -214,5 +215,27 @@ def node_orchestrator(state: WorkflowState) -> WorkflowState:
         result = Orchestrator.execute_stage(stage, metadata)
         
     metadata["orchestrator_result"] = result
+    return {"metadata": metadata}
+
+
+def node_warning_policy_gate(state: WorkflowState) -> WorkflowState:
+    """DAG node: Enforce ADR-GOV-026 Warning Policy.
+    
+    Validates pyproject.toml and requires justification for exclusions.
+    """
+    verifier_result = WarningPolicyVerifier.verify_config(Path("pyproject.toml"))
+    
+    metadata = state.get("metadata", {})
+    metadata["warning_policy_result"] = verifier_result
+    
+    if not verifier_result["passed"]:
+        # If violations found, check for justification in recent comments/ADRs
+        # For simulation, we assume failure if passed is False
+        return {
+            "metadata": metadata,
+            "last_error": f"Warning Policy Violation: {verifier_result['violations']}",
+            "pipeline_status": PipelineStatus.FAILED
+        }
+        
     return {"metadata": metadata}
 

@@ -15,6 +15,7 @@ from agentic_workflow.adapters.langgraph.nodes import (
     node_auto_gate,
     node_advance_stage,
     node_complete_pipeline,
+    node_warning_policy_gate,
 )
 
 
@@ -163,6 +164,7 @@ class MicroValidationGraphBuilder:
         graph.add_node("s57_lesson", step_5_7_lesson_reuse)
         graph.add_node("s6_impact", step_6_trigger_impact)
         graph.add_node("s7_record", step_7_record_change)
+        graph.add_node("s8_warning", node_warning_policy_gate)
 
         graph.set_entry_point("s0_format")
         graph.add_edge("s0_format", "s1_id")
@@ -174,7 +176,8 @@ class MicroValidationGraphBuilder:
         graph.add_edge("s55_lateral", "s57_lesson")
         graph.add_edge("s57_lesson", "s6_impact")
         graph.add_edge("s6_impact", "s7_record")
-        graph.add_edge("s7_record", END)
+        graph.add_edge("s7_record", "s8_warning")
+        graph.add_edge("s8_warning", END)
 
         return graph.compile()
 
