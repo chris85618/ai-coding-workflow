@@ -95,7 +95,7 @@ def _build_import_graph(
             continue
         for match in import_pattern.finditer(source):
             module = match.group(1) or match.group(2)
-            if module:
+            if module:  # pragma: no branch  # regex guarantees at least one group matches
                 base = module.split(".")[-1]
                 if base in path_map:
                     graph[file_path].append(path_map[base])

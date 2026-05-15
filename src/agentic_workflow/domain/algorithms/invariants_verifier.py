@@ -45,10 +45,10 @@ class DAGInvariantVerifier:
             "failures": failures
         }
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     from agentic_workflow.adapters.langgraph.graph_builder import build_graph_from_config
     graph = build_graph_from_config()
-    
+
     result = DAGInvariantVerifier.run_all_verifications(graph)
     if result["passed"]:
         print("Stage 6 Formal Verification PASSED: All DAG invariants upheld.")
