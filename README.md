@@ -1,5 +1,9 @@
 # AI Coding Workflow Configuration
 
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=chris85618_ai-coding-workflow)](https://sonarcloud.io/summary/new_code?id=chris85618_ai-coding-workflow)
+
+---
+
 > **Single Source of Truth** for agentic development workflow orchestration.
 
 本目錄管理跨 AI 工具鏈的統一開發流程配置，整合四個子模組為一套端對端迭代管線。
