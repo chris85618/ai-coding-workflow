@@ -8,6 +8,9 @@ dependencies = [
     "langchain-core>=0.3",
     "icontract>=2.7",
     "pydantic>=2.0",
+    "python-sonarqube-api>=2.0.5",
+    "python-dotenv>=1.0.0",
+    "z3-solver>=4.13.0",
 ]
 
 [project.optional-dependencies]
@@ -18,6 +21,11 @@ dev = [
     "crosshair-tool>=0.0.82",
     "ruff>=0.11",
     "mypy>=1.15",
+    "pdoc>=14.0.0",
+    "mkdocs>=1.5.3",
+    "bandit>=1.7.8",
+    "safety>=3.1.0",
+    "pip-audit>=2.7.2",
 ]
 
 [build-system]
