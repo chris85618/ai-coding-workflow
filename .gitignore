@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage_report.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Linter & Formatter Caches
+.ruff_cache/
+.mypy_cache/
+
+# Agentic / AI
+.claude/
+.gemini/
+.agentic_workflow/

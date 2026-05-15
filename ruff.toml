@@ -1,0 +1,16 @@
+# Ruff Configuration
+# See: https://docs.astral.sh/ruff/configuration/
+line-length = 88
+target-version = "py312"
+
+[format]
+docstring-code-format = true
+quote-style = "double"
+indent-style = "space"
+
+[lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "D"]
+ignore = []
+
+[lint.pydocstyle]
+convention = "google"

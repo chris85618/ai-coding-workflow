@@ -258,9 +258,9 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-15T22:30+08:00
-- **Pipeline Position (recorded)**: Stage 3 COMPLETE (架構設計 ADR-STR-008)
-- **Actual Work Done**: 建立 ADR-STR-008 (Token 機制)，修改 `llm_adapter.py` 以實作 TaskType-aware 的自動續寫與快速失敗機制，新增 `exceptions.py`。更新 `traceability-matrix.md`，新增 FR-034 追溯。
-- **State Diff**: 架構性擴展完成。
+- **Last Session Date**: 2026-05-15T23:01+08:00
+- **Pipeline Position (recorded)**: Phase 10 COMPLETE (設定檔補齊)
+- **Actual Work Done**: 建立 `.gitignore`, `.gitattributes`, `.gitmodules`, `requirements.txt` 及 7 個工具配置檔 (`ruff.toml`, `pytest.ini`, `mypy.ini`, `mkdocs.yml`, `.bandit.yaml`, `.safety-policy.yml`, `.crosshair.toml`)。產生 GOVERNANCE_BYPASS (寫入前未輸出 CM-GATE)，記錄為 LESSON-050。
+- **State Diff**: 補齊基礎配置與依賴清單。
 - **Pending Escalations Carried Over**: 無
 

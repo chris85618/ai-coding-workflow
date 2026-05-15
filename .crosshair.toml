@@ -1,0 +1,5 @@
+[crosshair]
+per_condition_timeout = 5
+per_path_timeout = 2
+max_unroll = 10
+report_all = true

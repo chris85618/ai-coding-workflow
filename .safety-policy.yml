@@ -1,0 +1,10 @@
+security:
+  ignore-vulnerabilities:
+    # Example format:
+    # '12345':
+    #   reason: "Not applicable because..."
+    #   expires: "2026-12-31"
+
+audit-and-monitor:
+  # Enable continuous auditing
+  enabled: true
