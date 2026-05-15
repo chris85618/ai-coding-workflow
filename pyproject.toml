@@ -41,6 +41,17 @@ convention = "google"
 testpaths = ["tests"]
 bdd_features_base_dir = "tests/features"
 addopts = "--cov=src/agentic_workflow --cov-branch --cov-report=term-missing"
+filterwarnings = [
+    # Default: every unhandled warning becomes a hard test error.
+    "error",
+    # ── Third-party allow-list ────────────────────────────────────────────────
+    # Each entry is scoped to the third-party package namespace only.
+    "ignore::DeprecationWarning:pkg_resources.*",
+    "ignore::DeprecationWarning:google.*",
+    "ignore::DeprecationWarning:pydantic.*",
+    "ignore::DeprecationWarning:langgraph.*",
+    "ignore::DeprecationWarning:langchain.*",
+]
 
 [tool.coverage.run]
 branch = true

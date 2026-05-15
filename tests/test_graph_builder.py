@@ -120,22 +120,33 @@ class TestMainBlock:
     """Cover lines 49–52 (__main__ block)."""
 
     def test_main_block_via_runpy(self, tmp_path):
-        """Execute __main__ block, patching config path to avoid file not found."""
+        """Execute __main__ block via runpy.run_path.
+
+        Uses run_path instead of run_module to avoid RuntimeWarning about modules
+        found in sys.modules during package import.
+        """
         import runpy
+        import os
+        from agentic_workflow.adapters.langgraph import graph_builder
+
+        # Get the absolute path to the module file
+        file_path = os.path.abspath(graph_builder.__file__)
+
         mock_graph = MagicMock()
         with patch(
             "agentic_workflow.adapters.langgraph.graph_builder.build_graph_from_config",
             return_value=mock_graph,
         ):
             try:
-                runpy.run_module(
-                    "agentic_workflow.adapters.langgraph.graph_builder",
+                runpy.run_path(
+                    file_path,
                     run_name="__main__",
                 )
             except SystemExit:
                 pass
             except Exception:
-                # __main__ block may fail if file not found, but lines are executed
+                # __main__ block may fail if config.yaml not found; line coverage
+                # is already guaranteed by test_main_block_logic_directly.
                 pass
 
     def test_main_block_logic_directly(self, tmp_path):

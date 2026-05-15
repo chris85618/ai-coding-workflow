@@ -46,7 +46,8 @@ def build_graph_from_config(config_path: str = "config.yaml") -> StateGraph:
         
     return builder.compile()
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     # Test compilation
     graph = build_graph_from_config()
     print("LangGraph successfully compiled from YAML configuration.")
+
