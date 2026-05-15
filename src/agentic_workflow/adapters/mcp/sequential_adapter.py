@@ -8,8 +8,8 @@ Falls back to a passthrough mode if the MCP server is unavailable.
 
 from __future__ import annotations
 
-import subprocess
 import json
+from typing import Any
 
 from agentic_workflow.application.ports.gateways import MCPGateway
 
@@ -31,15 +31,22 @@ class SequentialThinkingMCPAdapter(MCPGateway):
         server_url: str = "http://localhost:3000",
         event_bus: object | None = None,
     ) -> None:
+        """Initialize the Sequential Thinking MCP adapter."""
         # SEC-004: Validate URL scheme to prevent SSRF.
         # Only https:// is allowed in production; http:// only for localhost.
         import urllib.parse
+
         parsed = urllib.parse.urlparse(server_url)
-        if parsed.scheme == "http" and parsed.hostname not in ("localhost", "127.0.0.1", "::1"):
-            raise ValueError(
-                f"SSRF protection: http:// is only allowed for localhost, got {server_url!r}. "
-                "Use https:// for remote MCP servers (SEC-004)."
+        if parsed.scheme == "http" and parsed.hostname not in (
+            "localhost",
+            "127.0.0.1",
+            "::1",
+        ):
+            msg = (
+                f"SSRF protection: http:// is only allowed for localhost, "
+                f"got {server_url!r}. Use https:// for remote MCP servers (SEC-004)."
             )
+            raise ValueError(msg)
         if parsed.scheme not in ("http", "https"):
             raise ValueError(
                 f"SSRF protection: unsupported URL scheme {parsed.scheme!r}. "
@@ -48,7 +55,7 @@ class SequentialThinkingMCPAdapter(MCPGateway):
         self._server_url = server_url
         self._event_bus = event_bus
 
-    def call_tool(self, tool_name: str, arguments: dict) -> dict:
+    def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Invoke a Sequential Thinking MCP tool.
 
         Supported tools: ``sequentialthinking``
@@ -68,8 +75,8 @@ class SequentialThinkingMCPAdapter(MCPGateway):
 
         # Attempt HTTP call to MCP server
         try:
-            import urllib.request
             import urllib.error
+            import urllib.request
 
             payload = json.dumps(
                 {

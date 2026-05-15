@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import icontract
 
-VALID_IMPACT_VALUES = frozenset({0.5, 1.0, 2.0, 3.0})
+VALID_IMPACT_VALUES: frozenset[float] = frozenset({0.5, 1.0, 2.0, 3.0})
 
 
 class RiceScorer:
@@ -20,7 +20,7 @@ class RiceScorer:
     Constraint values are class-level constants for testability and documentation.
     """
 
-    VALID_IMPACT_VALUES: frozenset = VALID_IMPACT_VALUES
+    VALID_IMPACT_VALUES: frozenset[float] = VALID_IMPACT_VALUES
     REACH_MIN: int = 1
     REACH_MAX: int = 100
     CONFIDENCE_MIN: float = 0.5
@@ -40,9 +40,9 @@ class RiceScorer:
         "Confidence must be between 0.5 and 1.0",
     )
     @icontract.ensure(
-        lambda result, reach, impact, confidence, effort: abs(
-            result - (reach * impact * confidence) / effort
-        ) < 1e-9,
+        lambda result, reach, impact, confidence, effort: (
+            abs(result - (reach * impact * confidence) / effort) < 1e-9
+        ),
         "RICE formula must be exact (INV-015)",
     )
     def score(
@@ -70,9 +70,7 @@ class RiceScorer:
 
 
 @icontract.require(lambda effort: effort > 0, "Effort must be positive")
-@icontract.require(
-    lambda reach: 1 <= reach <= 100, "Reach must be between 1 and 100"
-)
+@icontract.require(lambda reach: 1 <= reach <= 100, "Reach must be between 1 and 100")
 @icontract.require(
     lambda impact: impact in VALID_IMPACT_VALUES,
     "Impact must be 0.5, 1.0, 2.0, or 3.0",
@@ -82,13 +80,11 @@ class RiceScorer:
     "Confidence must be between 0.5 and 1.0",
 )
 @icontract.ensure(
-    lambda result, reach, impact, confidence, effort: abs(
-        result - (reach * impact * confidence) / effort
-    ) < 1e-9,
+    lambda result, reach, impact, confidence, effort: (
+        abs(result - (reach * impact * confidence) / effort) < 1e-9
+    ),
     "RICE formula must be exact (INV-015)",
 )
-def rice_score(
-    reach: int, impact: float, confidence: float, effort: float
-) -> float:
+def rice_score(reach: int, impact: float, confidence: float, effort: float) -> float:
     """Backward-compat facade — delegates to RiceScorer."""
     return RiceScorer.score(reach, impact, confidence, effort)

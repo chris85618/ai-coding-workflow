@@ -4,13 +4,12 @@ Traceable to: Exhaustive Search Protocol
 Replaces: skills/workflow-skills/exhaustive-search.md
 """
 
-from typing import List
 
 class ExhaustiveSearch:
     """Enforces the exhaustive search protocol for ID verification and orphans."""
 
     @classmethod
-    def scan_directory(cls, path: str, pattern: str) -> List[str]:
+    def scan_directory(cls, path: str, pattern: str) -> list[str]:
         """Performs a deep grep for a specific pattern (e.g., FR-xxx)."""
         # Simulated deep search
         return []

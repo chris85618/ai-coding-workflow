@@ -5,7 +5,7 @@ OO Design: CompletionCheck class encapsulates all logic (ALG-010 OO mandate).
 Ensures 100% test coverage and zero High/Critical risks before ship.
 """
 
-from typing import Dict, Any, List
+from typing import Any
 
 
 class CompletionCheck:
@@ -19,7 +19,7 @@ class CompletionCheck:
     @classmethod
     def verify_readiness(
         cls, test_coverage: float, open_risks: int, pending_debts: int = 0
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Runs final checks before allowing Phase 9 ship.
 
         Args:
@@ -30,11 +30,11 @@ class CompletionCheck:
         Returns:
             Dict with 'ready' (bool) and 'failures' (List[str]).
         """
-        failures: List[str] = []
+        failures: list[str] = []
 
         # Check coverage
         if test_coverage < cls.COVERAGE_THRESHOLD:
-            failures.append(f"Test coverage ({test_coverage*100:.2f}%) below 100%.")
+            failures.append(f"Test coverage ({test_coverage * 100:.2f}%) below 100%.")
 
         # Check risks
         if open_risks > 0:
@@ -52,6 +52,6 @@ class CompletionCheck:
 
 def verify_readiness(
     test_coverage: float, open_risks: int, pending_debts: int = 0
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Backward-compat facade — delegates to CompletionCheck."""
     return CompletionCheck.verify_readiness(test_coverage, open_risks, pending_debts)

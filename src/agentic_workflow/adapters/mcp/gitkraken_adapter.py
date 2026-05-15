@@ -9,6 +9,7 @@ Uses subprocess to call the GitKraken MCP server via its CLI interface.
 from __future__ import annotations
 
 import subprocess
+from typing import Any, cast
 
 from agentic_workflow.application.ports.gateways import MCPGateway
 
@@ -32,10 +33,16 @@ class GitKrakenMCPAdapter(MCPGateway):
         event_bus: object | None = None,
         git_binary: str = "git",
     ) -> None:
+        """Initializes the GitKraken MCP adapter.
+
+        Args:
+            event_bus: Optional DomainEventBus for event publishing.
+            git_binary: Path to the git executable.
+        """
         self._event_bus = event_bus
         self._git = git_binary
 
-    def call_tool(self, tool_name: str, arguments: dict) -> dict:
+    def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Invoke a GitKraken MCP tool (stub — extend per tool definition).
 
         Currently delegates git-specific tools to subprocess helpers.
@@ -95,7 +102,8 @@ class GitKrakenMCPAdapter(MCPGateway):
 
         # Emit EVT-009 (GitCommitCreated)
         if self._event_bus is not None:
-            self._event_bus.publish(  # type: ignore[union-attr]
+            # Cast to Any to allow calling publish on the port
+            cast(Any, self._event_bus).publish(
                 "GitCommitCreated",
                 {"sha": sha, "message": message, "files": files},
             )
@@ -120,7 +128,7 @@ class GitKrakenMCPAdapter(MCPGateway):
 
     # --- Private helpers ---
 
-    def _git_add(self, files: list[str], repo_path: str) -> dict:
+    def _git_add(self, files: list[str], repo_path: str) -> dict[str, Any]:
         if not files:
             return {"success": True, "output": "No files to stage"}
         result = subprocess.run(
@@ -134,7 +142,7 @@ class GitKrakenMCPAdapter(MCPGateway):
             "output": result.stdout + result.stderr,
         }
 
-    def _git_commit_raw(self, message: str, repo_path: str) -> dict:
+    def _git_commit_raw(self, message: str, repo_path: str) -> dict[str, Any]:
         result = subprocess.run(
             [self._git, "commit", "-m", message],
             capture_output=True,
@@ -146,7 +154,7 @@ class GitKrakenMCPAdapter(MCPGateway):
             "output": result.stdout + result.stderr,
         }
 
-    def _git_status(self, repo_path: str) -> dict:
+    def _git_status(self, repo_path: str) -> dict[str, Any]:
         result = subprocess.run(
             [self._git, "status", "--porcelain"],
             capture_output=True,

@@ -366,6 +366,7 @@
 | LESSON-050 | ARCHITECTURE_EROSION | `frameworks/graph.py` (OO Builder 為唯一建圖路徑), `docs/adr/ADR-STR-007.md` | ADR-STR-007 | guards |
 | LESSON-051 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 4-8 cannot be bypassed for structural features) | - | guards |
 | LESSON-052 | PROCESS_GAP | `phase-0-orchestration.md` (Step 2.5) | - | guards |
+| LESSON-053 | PROCESS_GAP | `change_management.py` (區塊完整性檢查) | - | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
@@ -439,12 +440,12 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 7 | SC-xxx | 20 | 20/20 | 20/20 | 100% |
 | Stage 8 | TC-xxx | 15 | 15/15 | 15/15 | 100% |
 | Skill 實作 | FR→Skill | 27 | 27/27 | — (映射) | 100% |
-| Skill 守衛 | LESSON→Skill | 40 | 40/40 | — (映射) | 100% |
+| Skill 守衛 | LESSON→Skill | 41 | 41/41 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 20 | 20/20 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |
-| **合計** | — | **311** | — | — | **100%** |
+| **合計** | — | **312** | — | — | **100%** |
 
-> **Status**: TDD/BDD 追溯修復 (TC-015/SC-020/INV-025/CLS-021)。638 測試, 100% coverage。311 條追溯紀錄，零孤兒。
+> **Status**: TDD/BDD 追溯修復 (TC-015/SC-020/INV-025/CLS-021)。638 測試, 100% coverage。312 條追溯紀錄，零孤兒。
 > **未應對風險**: 3 (RISK-001/004/005 MEDIUM)
 > **技術債**: 1 (DEBT-005 P2)

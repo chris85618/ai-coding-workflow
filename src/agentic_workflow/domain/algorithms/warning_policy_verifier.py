@@ -3,11 +3,12 @@
 Implements ALG-013: Automated compliance check for ADR-GOV-026.
 Ensures logic fixes are prioritized over warning exclusions.
 """
+
 from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
 
 class WarningPolicyVerifier:
@@ -17,7 +18,7 @@ class WarningPolicyVerifier:
     """
 
     @classmethod
-    def verify_config(cls, pyproject_path: Path) -> Dict[str, Any]:
+    def verify_config(cls, pyproject_path: Path) -> dict[str, Any]:
         """Verify the current pyproject.toml for warning policy compliance.
 
         Args:
@@ -40,28 +41,36 @@ class WarningPolicyVerifier:
 
         fw_list_str = fw_match.group(1)
         # Extract individual rules
-        rules = [r.strip().strip('"').strip("'") for r in fw_list_str.split(",") if r.strip()]
+        rules = [
+            r.strip().strip('"').strip("'") for r in fw_list_str.split(",") if r.strip()
+        ]
 
         for rule in rules:
             # Rule 1: No internal exclusions
             if "agentic_workflow" in rule:
-                violations.append(f"Internal code warning exclusion detected: {rule}. Fix the logic instead.")
+                violations.append(
+                    f"Internal code warning exclusion detected: {rule}. "
+                    "Fix the logic instead."
+                )
 
             # Rule 2: Must be scoped (regex .* at the end for 3rd party)
-            # Basic check: if it's an ignore, it must have a colon and a module name with scope
+            # Basic check: if it's an ignore, it must have a colon and
+            # a module name with scope
             if rule.startswith("ignore") and ":" in rule:
                 _, scope = rule.split(":", 1)
                 if not scope.endswith(".*") and not re.search(r"\[.*\]", scope):
-                     # If it doesn't look scoped, flag it
-                     violations.append(f"Broad or unscoped warning exclusion detected: {rule}. Use regex scope (e.g., 'pkg.*').")
+                    # If it doesn't look scoped, flag it
+                    violations.append(
+                        f"Broad or unscoped warning exclusion detected: {rule}. "
+                        "Use regex scope (e.g., 'pkg.*')."
+                    )
 
-        return {
-            "passed": len(violations) == 0,
-            "violations": violations
-        }
+        return {"passed": len(violations) == 0, "violations": violations}
 
     @classmethod
-    def verify_change_justification(cls, commit_msg: str, violations: List[str]) -> bool:
+    def verify_change_justification(
+        cls, commit_msg: str, violations: list[str]
+    ) -> bool:
         """Verify if detected violations are justified in the commit message/ADR.
 
         Args:
@@ -69,7 +78,7 @@ class WarningPolicyVerifier:
             violations: List of detected violations.
 
         Returns:
-            True if all violations are explicitly justified with "FAILED_REFAC_EVIDENCE".
+            True if all violations are justified with "FAILED_REFAC_EVIDENCE".
         """
         # Enforcement: Every exclusion MUST have a justification keyword
         # In this hardening, we mandate the string 'FAILED_REFAC_EVIDENCE'

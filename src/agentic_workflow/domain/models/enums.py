@@ -3,10 +3,10 @@
 All enums are str-based for JSON serialization compatibility.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 
-class PipelineStatus(str, Enum):
+class PipelineStatus(StrEnum):
     """Pipeline execution status. INV-001 enforces unidirectional transitions."""
 
     NOT_STARTED = "not_started"
@@ -15,7 +15,7 @@ class PipelineStatus(str, Enum):
     FAILED = "failed"
 
 
-class StageStatus(str, Enum):
+class StageStatus(StrEnum):
     """Stage iteration status. INV-003 enforces unidirectional transitions."""
 
     PENDING = "pending"
@@ -24,14 +24,14 @@ class StageStatus(str, Enum):
     FAILED = "failed"
 
 
-class GateDecision(str, Enum):
+class GateDecision(StrEnum):
     """Auto-gate decision result. Replaces HitlChoice (ADR-STR-003)."""
 
     PASS = "pass"
     PASS_WITH_WARNINGS = "pass_with_warnings"
 
 
-class FixedPointResult(str, Enum):
+class FixedPointResult(StrEnum):
     """Iteration convergence check result."""
 
     REACHED = "reached"
@@ -40,7 +40,7 @@ class FixedPointResult(str, Enum):
     MAX_ITERATIONS = "max_iterations"
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     """Finding or impact severity classification.
 
     COSMETIC: blast_radius == 0 (INV-012)
@@ -54,7 +54,7 @@ class Severity(str, Enum):
     YAGNI = "yagni"
 
 
-class IDPrefix(str, Enum):
+class IDPrefix(StrEnum):
     """Traceable ID prefix. Maps to pipeline stages."""
 
     BG = "BG"
@@ -77,7 +77,7 @@ class IDPrefix(str, Enum):
     LESSON = "LESSON"
 
 
-class LinkType(str, Enum):
+class LinkType(StrEnum):
     """Trace link relationship type."""
 
     DERIVES = "derives"
@@ -93,7 +93,7 @@ class LinkType(str, Enum):
     MITIGATES = "mitigates"
 
 
-class DebtSource(str, Enum):
+class DebtSource(StrEnum):
     """Technical debt origin."""
 
     DESIGN = "design"
@@ -102,7 +102,7 @@ class DebtSource(str, Enum):
     TEST = "test"
 
 
-class Priority(str, Enum):
+class Priority(StrEnum):
     """Debt/risk priority level."""
 
     P0 = "P0"
@@ -111,7 +111,7 @@ class Priority(str, Enum):
     P3 = "P3"
 
 
-class HookEvent(str, Enum):
+class HookEvent(StrEnum):
     """Lifecycle hook event types (from Claude Code pattern)."""
 
     PRE_STAGE_START = "pre_stage_start"
@@ -120,7 +120,7 @@ class HookEvent(str, Enum):
     POST_DOC_WRITE = "post_doc_write"
 
 
-class TaskType(str, Enum):
+class TaskType(StrEnum):
     """LLM task type for Strategy Pattern model selection (ALG-008).
 
     Each type maps to a different model tier:

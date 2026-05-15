@@ -53,7 +53,13 @@ class ModelSelector:
     """
 
     _STRATEGY_MAP_KEYS: frozenset[TaskType] = frozenset(
-        [TaskType.CRITIQUE, TaskType.RESOLVE, TaskType.COMPREHEND, TaskType.CHARTER, TaskType.FORMAT]
+        [
+            TaskType.CRITIQUE,
+            TaskType.RESOLVE,
+            TaskType.COMPREHEND,
+            TaskType.CHARTER,
+            TaskType.FORMAT,
+        ]
     )
 
     @classmethod
@@ -89,7 +95,7 @@ class ModelSelector:
         if selected.provider not in config.enabled_providers:
             selected = config.fallback_model
 
-        # Final safety: if fallback is also disabled, use first enabled provider's default
+        # Final safety: if fallback is disabled, use first enabled provider's default
         if selected.provider not in config.enabled_providers:
             # Should not happen if config is valid, but guard defensively
             selected = ModelConfig(

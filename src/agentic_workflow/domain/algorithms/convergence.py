@@ -10,7 +10,10 @@ from __future__ import annotations
 
 import icontract
 
-from agentic_workflow.domain.models.enums import FixedPointResult, Severity  # noqa: F401
+from agentic_workflow.domain.models.enums import (  # noqa: F401
+    FixedPointResult,
+    Severity,
+)
 
 MAX_ITERATIONS = 10
 DIVERGENCE_WINDOW = 3
@@ -61,10 +64,13 @@ class ConvergenceDetector:
             recent_counts = [
                 len(f) for f in findings_per_iter[-cls.DIVERGENCE_WINDOW :]
             ]
-            if all(
-                recent_counts[i] <= recent_counts[i + 1]
-                for i in range(len(recent_counts) - 1)
-            ) and recent_counts[-1] > recent_counts[0]:
+            if (
+                all(
+                    recent_counts[i] <= recent_counts[i + 1]
+                    for i in range(len(recent_counts) - 1)
+                )
+                and recent_counts[-1] > recent_counts[0]
+            ):
                 return FixedPointResult.DIVERGING
 
         return FixedPointResult.NOT_REACHED

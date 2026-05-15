@@ -7,14 +7,25 @@ INV-002-v2: auto_gate must return PASS before advance() is called.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import icontract
 
-from agentic_workflow.domain.models.enums import PipelineStatus, GateDecision
+from agentic_workflow.domain.models.enums import GateDecision, PipelineStatus
 
-_STAGE_ORDER = ["phase0", "phase1", "phase2", "stage3", "stage4",
-                "stage5", "stage6", "stage7", "stage8", "phase9", "phase10"]
+_STAGE_ORDER = [
+    "phase0",
+    "phase1",
+    "phase2",
+    "stage3",
+    "stage4",
+    "stage5",
+    "stage6",
+    "stage7",
+    "stage8",
+    "phase9",
+    "phase10",
+]
 
 
 @dataclass
@@ -43,8 +54,9 @@ class Pipeline:
         "Pipeline must be running to advance",
     )
     @icontract.require(
-        lambda self: self.last_gate_decision in (
-            GateDecision.PASS, GateDecision.PASS_WITH_WARNINGS
+        lambda self: (
+            self.last_gate_decision
+            in (GateDecision.PASS, GateDecision.PASS_WITH_WARNINGS)
         ),
         "Auto-gate must PASS before advance (INV-002-v2)",
     )

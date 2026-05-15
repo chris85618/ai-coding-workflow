@@ -2,21 +2,32 @@
 
 Constructs the LangGraph StateGraph.
 This file implements the highly detailed workflow requested, exploding AGENTS.md
-steps into LangGraph subgraphs (Micro-Validation ALG-002, Iteration ALG-001, Master Pipeline).
-OO Design: Three builder classes encapsulate all graph construction logic (ALG-010 OO mandate).
+steps into LangGraph subgraphs (Micro-Validation ALG-002, Iteration ALG-001,
+Master Pipeline).
+OO Design: Three builder classes encapsulate all graph construction logic
+(ALG-010 OO mandate).
 Module-level functions retained as backward-compat facades.
 """
+
 from __future__ import annotations
 
-from langgraph.graph import StateGraph, END
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    try:
+        from langgraph.graph import CompiledGraph  # type: ignore[attr-defined]
+    except ImportError:
+        from typing import Any as CompiledGraph
+
+from langgraph.graph import END, StateGraph
+
 from agentic_workflow.adapters.langgraph.nodes import (
-    node_start_pipeline,
     node_auto_gate,
-    node_advance_stage,
     node_complete_pipeline,
+    node_start_pipeline,
     node_warning_policy_gate,
 )
+from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 
 
 # ==========================================
@@ -24,42 +35,52 @@ from agentic_workflow.adapters.langgraph.nodes import (
 # (module-level to allow LangGraph node registration)
 # ==========================================
 def step_0_format(state: WorkflowState) -> WorkflowState:
+    """Format check node."""
     return state  # pragma: no branch
 
 
 def step_1_id_structure(state: WorkflowState) -> WorkflowState:
+    """ID structure check node."""
     return state  # pragma: no branch
 
 
 def step_2_forward_trace(state: WorkflowState) -> WorkflowState:
+    """Forward traceability check node."""
     return state  # pragma: no branch
 
 
 def step_3_backward_trace(state: WorkflowState) -> WorkflowState:
+    """Backward traceability check node."""
     return state  # pragma: no branch
 
 
 def step_4_semantic(state: WorkflowState) -> WorkflowState:
+    """Semantic consistency check node."""
     return state  # pragma: no branch
 
 
 def step_5_orphan(state: WorkflowState) -> WorkflowState:
+    """Orphan node detection node."""
     return state  # pragma: no branch
 
 
 def step_5_5_lateral_trace(state: WorkflowState) -> WorkflowState:
+    """Lateral traceability check node."""
     return state  # pragma: no branch
 
 
 def step_5_7_lesson_reuse(state: WorkflowState) -> WorkflowState:
+    """Lesson reuse check node."""
     return state  # pragma: no branch
 
 
 def step_6_trigger_impact(state: WorkflowState) -> WorkflowState:
+    """Impact analysis trigger node."""
     return state  # pragma: no branch
 
 
 def step_7_record_change(state: WorkflowState) -> WorkflowState:
+    """Change record node."""
     return state  # pragma: no branch
 
 
@@ -67,23 +88,28 @@ def step_7_record_change(state: WorkflowState) -> WorkflowState:
 # 2. Iteration Loop Subgraph Nodes
 # ==========================================
 def agent_alpha_critique(state: WorkflowState) -> WorkflowState:
+    """Agent Alpha: Critique and problem discovery."""
     return state  # pragma: no branch
 
 
 def check_fixed_point(state: WorkflowState) -> str:
+    """Checks for convergence or YAGNI termination."""
     # Returns "beta" or "exit_loop" based on YAGNI convergence
     return "beta"  # pragma: no branch
 
 
 def agent_beta_resolve(state: WorkflowState) -> WorkflowState:
+    """Agent Beta: Resolution and integration."""
     return state  # pragma: no branch
 
 
 def root_cause_leftshift(state: WorkflowState) -> WorkflowState:
+    """Root Cause Analysis: Left-shift feedback loop."""
     return state  # pragma: no branch
 
 
 def hitl_gate_choice(state: WorkflowState) -> str:
+    """Human-in-the-loop decision routing."""
     # 1: continue, 2: add req, 3: pass
     return "pass"  # pragma: no branch
 
@@ -92,52 +118,64 @@ def hitl_gate_choice(state: WorkflowState) -> str:
 # 3. Master Pipeline Nodes
 # ==========================================
 def phase_0_init(state: WorkflowState) -> WorkflowState:
+    """Phase 0: Environment and State initialization."""
     return state  # pragma: no branch
 
 
 def phase_1_understanding(state: WorkflowState) -> WorkflowState:
+    """Phase 1: Codebase comprehension and Knowledge Graph."""
     return state  # pragma: no branch
 
 
 def phase_2_analysis(state: WorkflowState) -> WorkflowState:
+    """Phase 2: Project Analysis and FEA generation."""
     return state  # pragma: no branch
 
 
 def stage_3_planning(state: WorkflowState) -> WorkflowState:
+    """Stage 3: Technical Planning and Requirements."""
     return state  # pragma: no branch
 
 
 def stage_4_algorithm(state: WorkflowState) -> WorkflowState:
+    """Stage 4: Algorithm Design and Complexity."""
     return state  # pragma: no branch
 
 
 def stage_5_ooad(state: WorkflowState) -> WorkflowState:
+    """Stage 5: Object-Oriented Analysis and Design."""
     return state  # pragma: no branch
 
 
 def stage_6_formal(state: WorkflowState) -> WorkflowState:
+    """Stage 6: Formal Verification and Invariants."""
     return state  # pragma: no branch
 
 
 def stage_7_bdd(state: WorkflowState) -> WorkflowState:
+    """Stage 7: Behavior-Driven Development and Scenarios."""
     return state  # pragma: no branch
 
 
 def stage_8_tdd(state: WorkflowState) -> WorkflowState:
+    """Stage 8: Test-Driven Development and Implementation."""
     return state  # pragma: no branch
 
 
 def phase_9_ship(state: WorkflowState) -> WorkflowState:
+    """Phase 9: Deployment and Shipping."""
     return state  # pragma: no branch
 
 
 def phase_10_retro(state: WorkflowState) -> WorkflowState:
+    """Phase 10: Retrospective and Learning Extraction."""
     return state  # pragma: no branch
 
 
 # ==========================================
 # OO Graph Builder Classes
 # ==========================================
+
 
 class MicroValidationGraphBuilder:
     """ALG-002: Builds the Left-Shift Micro-Validation Sequence subgraph.
@@ -147,7 +185,7 @@ class MicroValidationGraphBuilder:
     """
 
     @classmethod
-    def build(cls) -> object:
+    def build(cls) -> CompiledGraph:
         """Build and compile the micro-validation subgraph.
 
         Returns:
@@ -190,7 +228,7 @@ class IterationGraphBuilder:
     """
 
     @classmethod
-    def build(cls) -> object:
+    def build(cls) -> CompiledGraph:
         """Build and compile the dual-agent iteration subgraph.
 
         Returns:
@@ -206,17 +244,15 @@ class IterationGraphBuilder:
         graph.add_node("rca", root_cause_leftshift)
 
         graph.set_entry_point("alpha")
-        graph.add_conditional_edges("alpha", check_fixed_point, {
-            "beta": "beta",
-            "exit_loop": END
-        })
+        graph.add_conditional_edges(
+            "alpha", check_fixed_point, {"beta": "beta", "exit_loop": END}
+        )
         graph.add_edge("beta", "micro_val")
         graph.add_edge("micro_val", "rca")
 
-        graph.add_conditional_edges("rca", hitl_gate_choice, {
-            "alpha": "alpha",
-            "pass": END
-        })
+        graph.add_conditional_edges(
+            "rca", hitl_gate_choice, {"alpha": "alpha", "pass": END}
+        )
         return graph.compile()
 
 
@@ -228,7 +264,7 @@ class MasterGraphBuilder:
     """
 
     @classmethod
-    def build(cls) -> object:
+    def build(cls) -> CompiledGraph:
         """Build and compile the master workflow graph.
 
         Returns:
@@ -282,16 +318,17 @@ class MasterGraphBuilder:
 # Module-level facades (backward compatibility)
 # ==========================================
 
-def build_micro_validation_graph():
+
+def build_micro_validation_graph() -> CompiledGraph:
     """Backward-compat facade — delegates to MicroValidationGraphBuilder."""
     return MicroValidationGraphBuilder.build()
 
 
-def build_iteration_graph():
+def build_iteration_graph() -> CompiledGraph:
     """Backward-compat facade — delegates to IterationGraphBuilder."""
     return IterationGraphBuilder.build()
 
 
-def build_graph():
+def build_graph() -> CompiledGraph:
     """Backward-compat facade — delegates to MasterGraphBuilder."""
     return MasterGraphBuilder.build()

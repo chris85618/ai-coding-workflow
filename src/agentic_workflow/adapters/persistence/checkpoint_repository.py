@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, cast
 
 from agentic_workflow.application.ports.repositories import CheckpointRepository
 
@@ -29,6 +30,11 @@ class FileCheckpointRepository(CheckpointRepository):
     """
 
     def __init__(self, repo_root: str = ".") -> None:
+        """Initializes the checkpoint repository.
+
+        Args:
+            repo_root: Path to the repository root directory.
+        """
         self._root = Path(repo_root) / ".agentic" / "checkpoints"
         self._root.mkdir(parents=True, exist_ok=True)
 
@@ -38,7 +44,7 @@ class FileCheckpointRepository(CheckpointRepository):
         d.mkdir(parents=True, exist_ok=True)
         return d
 
-    def save_checkpoint(self, pipeline_id: str, state: dict) -> str:
+    def save_checkpoint(self, pipeline_id: str, state: dict[str, Any]) -> str:
         """Save a pipeline checkpoint JSON file.
 
         Args:
@@ -48,12 +54,12 @@ class FileCheckpointRepository(CheckpointRepository):
         Returns:
             Checkpoint identifier (ISO 8601 UTC timestamp string).
         """
-        checkpoint_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        checkpoint_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
         path = self._pipeline_dir(pipeline_id) / f"{checkpoint_id}.json"
         path.write_text(json.dumps(state, indent=2, default=str), encoding="utf-8")
         return checkpoint_id
 
-    def load_latest(self, pipeline_id: str) -> dict | None:
+    def load_latest(self, pipeline_id: str) -> dict[str, Any] | None:
         """Load the most recent checkpoint for a pipeline.
 
         Args:
@@ -66,7 +72,9 @@ class FileCheckpointRepository(CheckpointRepository):
         checkpoints = sorted(d.glob("*.json"), reverse=True)
         if not checkpoints:
             return None
-        return json.loads(checkpoints[0].read_text(encoding="utf-8"))
+        return cast(
+            dict[str, Any], json.loads(checkpoints[0].read_text(encoding="utf-8"))
+        )
 
     def list_checkpoints(self, pipeline_id: str) -> list[str]:
         """List checkpoint identifiers newest first.

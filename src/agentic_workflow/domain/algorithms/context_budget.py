@@ -91,11 +91,15 @@ class ContextBudgetAllocator:
 
         # Repo map: gets whatever is left
         map_budget = remaining
-        pruned_map = repo_map.prune_to_budget(map_budget) if map_budget > 0 else repo_map
+        pruned_map = (
+            repo_map.prune_to_budget(map_budget) if map_budget > 0 else repo_map
+        )
         map_text = pruned_map.get_context_string() if map_budget > 0 else ""
 
-        total = task_budget + files_budget + (
-            cls.estimate_tokens(map_text) if map_text else 0
+        total = (
+            task_budget
+            + files_budget
+            + (cls.estimate_tokens(map_text) if map_text else 0)
         )
 
         return ContextAllocation(

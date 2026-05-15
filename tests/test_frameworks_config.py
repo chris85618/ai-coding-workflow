@@ -1,11 +1,16 @@
 """Tests for config loader."""
-import pytest
-from pathlib import Path
-from agentic_workflow.frameworks.config import load_config, WorkflowConfig
 
-def test_load_config_success(tmp_path):
+from typing import Any
+
+import pytest
+
+from agentic_workflow.frameworks.config import WorkflowConfig, load_config
+
+
+def test_load_config_success(tmp_path: Any) -> None:
+    """TC-071: Load valid config file successfully."""
     config_file = tmp_path / "config.yaml"
-    config_file.write_text('''
+    config_file.write_text("""
 models:
   reasoning:
     provider: "anthropic"
@@ -15,11 +20,13 @@ prompts:
   agent_alpha:
     system: "sys"
     task_template: "task"
-    ''')
+    """)
     config = load_config(str(config_file))
     assert isinstance(config, WorkflowConfig)
     assert config.models["reasoning"].provider == "anthropic"
 
-def test_load_config_not_found():
+
+def test_load_config_not_found() -> None:
+    """TC-072: Raise error if config file not found."""
     with pytest.raises(FileNotFoundError):
         load_config("does_not_exist_xyz123.yaml")

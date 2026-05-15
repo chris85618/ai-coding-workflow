@@ -5,24 +5,46 @@ Replaces: skills/workflow-skills/traceability-system.md
 """
 
 import re
-from typing import Dict, Any, List
+from typing import Any
+
 from pydantic import BaseModel
-from pathlib import Path
+
 
 class TraceabilityNode(BaseModel):
+    """Represents a node in the traceability matrix."""
+
     id: str
     type: str
-    upstream: List[str] = []
-    downstream: List[str] = []
-    links: Dict[str, List[str]] = {}
+    upstream: list[str] = []
+    downstream: list[str] = []
+    links: dict[str, list[str]] = {}
+
 
 class TraceabilityValidator:
     """Validates the traceability matrix and ID assignments."""
 
     PREFIXES = [
-        "BG", "S", "FEA", "FR", "NFR", "UC", "ADR-STR", "ADR-GOV", 
-        "ADR-SEC", "ADR-SCP", "ADR-GATE", "ADR-OPS", "ALG", "CLS", 
-        "EVT", "INV", "SC", "TC", "DEBT", "RISK", "LESSON"
+        "BG",
+        "S",
+        "FEA",
+        "FR",
+        "NFR",
+        "UC",
+        "ADR-STR",
+        "ADR-GOV",
+        "ADR-SEC",
+        "ADR-SCP",
+        "ADR-GATE",
+        "ADR-OPS",
+        "ALG",
+        "CLS",
+        "EVT",
+        "INV",
+        "SC",
+        "TC",
+        "DEBT",
+        "RISK",
+        "LESSON",
     ]
 
     @classmethod
@@ -32,7 +54,7 @@ class TraceabilityValidator:
         return bool(re.match(pattern, node_id))
 
     @classmethod
-    def generate_next_id(cls, prefix: str, current_ids: List[str]) -> str:
+    def generate_next_id(cls, prefix: str, current_ids: list[str]) -> str:
         """Generates the next sequential ID for a given prefix."""
         max_num = 0
         for nid in current_ids:
@@ -46,31 +68,45 @@ class TraceabilityValidator:
         return f"{prefix}-{max_num + 1:03d}"
 
     @classmethod
-    def detect_orphans(cls, nodes: List[TraceabilityNode]) -> List[str]:
+    def detect_orphans(cls, nodes: list[TraceabilityNode]) -> list[str]:
         """Detects IDs with no upstream or downstream (except source/sink nodes)."""
         orphans = []
         for node in nodes:
             # BG and S don't need upstream
             # TC doesn't need downstream
-            needs_upstream = not node.type in ["BG", "S"]
+            needs_upstream = node.type not in ["BG", "S"]
             needs_downstream = node.type != "TC"
 
-            if needs_upstream and not node.upstream:
-                if not any(link_type in ["justifies", "mitigates", "guards", "formalizes", "emitted-by"] for link_type in node.links):
-                    orphans.append(node.id)
-            if needs_downstream and not node.downstream:
-                 if not any(link_type in ["justifies", "mitigates", "guards", "formalizes", "emitted-by"] for link_type in node.links):
-                    orphans.append(node.id)
-                    
+            valid_link_types = {
+                "justifies",
+                "mitigates",
+                "guards",
+                "formalizes",
+                "emitted-by",
+            }
+
+            if (
+                needs_upstream
+                and not node.upstream
+                and not any(link in valid_link_types for link in node.links)
+            ):
+                orphans.append(node.id)
+
+            if (
+                needs_downstream
+                and not node.downstream
+                and not any(link in valid_link_types for link in node.links)
+            ):
+                orphans.append(node.id)
+
         return list(set(orphans))
 
     @classmethod
-    def run_validation(cls, matrix_content: str) -> Dict[str, Any]:
+    def run_validation(cls, matrix_content: str) -> dict[str, Any]:
         """Runs a complete validation against a matrix markdown content."""
         # Simple extraction logic (mocking full markdown parsing)
-        ids = re.findall(r"\b(" + "|".join(cls.PREFIXES) + r")-\d{3}\b", matrix_content)
-        unique_ids = list(set([f"{match}-{num}" for match in ids for num in re.findall(r"\b" + match + r"-(\d{3})\b", matrix_content)]))
-        
+        re.findall(r"\b(" + "|".join(cls.PREFIXES) + r")-\d{3}\b", matrix_content)
+
         # In a real implementation we would parse upstream/downstream
         # For now, we simulate success
         return {
@@ -78,5 +114,5 @@ class TraceabilityValidator:
             "orphans": [],
             "invalid_ids": [],
             "next_action": "continue",
-            "prompt_for_agent": None
+            "prompt_for_agent": None,
         }

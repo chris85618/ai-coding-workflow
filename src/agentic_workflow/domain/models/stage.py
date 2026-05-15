@@ -60,9 +60,7 @@ class Stage:
             ValueError: If the transition would be invalid.
         """
         if _STATUS_ORDER[new_status] < _STATUS_ORDER[self.status]:
-            raise ValueError(
-                f"Cannot regress from {self.status} to {new_status}"
-            )
+            raise ValueError(f"Cannot regress from {self.status} to {new_status}")
         self.status = new_status
 
     @icontract.require(

@@ -14,3 +14,10 @@ ignore = []
 
 [lint.pydocstyle]
 convention = "google"
+
+[lint.pep8-naming]
+# 警告：禁止無謂地增加此清單。
+# 此忽略僅限於 icontract 庫強制要求的 'OLD' 保留字，
+# 在環境無法相容且作為無奈之下的最終手段時才可使用。
+# 任何新增項必須經過嚴格的架構審核。
+extend-ignore-names = ["OLD"]

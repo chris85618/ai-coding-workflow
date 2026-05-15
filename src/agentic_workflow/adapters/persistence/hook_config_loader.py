@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from agentic_workflow.domain.models.enums import HookEvent
 from agentic_workflow.domain.services.hook_runner import HookDef
@@ -37,6 +38,11 @@ class HookConfigLoader:
     """
 
     def __init__(self, config_path: str) -> None:
+        """Initializes the hook configuration loader.
+
+        Args:
+            config_path: Path to the hook configuration file.
+        """
         self._path = Path(config_path)
 
     def load(self) -> list[HookDef]:
@@ -64,7 +70,7 @@ class HookConfigLoader:
         return hooks
 
     @staticmethod
-    def from_dict(config: dict) -> list[HookDef]:
+    def from_dict(config: dict[str, Any]) -> list[HookDef]:
         """Parse hook definitions from a dictionary (no file I/O).
 
         Useful for testing or inline configuration.

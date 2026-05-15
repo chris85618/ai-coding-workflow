@@ -110,7 +110,7 @@ class StateMapper:
         stage_id = state.get("current_stage_id")
         if not stage_id:
             return None
-        status_str = state.get("stage_status", "pending")
+        status_str = str(state.get("stage_status") or "pending")
         return Stage(
             stage_id=stage_id,
             name=state.get("metadata", {}).get("stage_name", stage_id),

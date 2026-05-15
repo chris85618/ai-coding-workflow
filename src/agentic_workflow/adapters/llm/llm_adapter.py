@@ -9,7 +9,7 @@ for model routing. Requires langchain-core >= 0.3.
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
 
 
-def _build_langchain_model(model_cfg: ModelConfig) -> "BaseChatModel":
+def _build_langchain_model(model_cfg: ModelConfig) -> BaseChatModel:
     """Instantiate a LangChain chat model from a ModelConfig.
 
     Lazily imports provider-specific packages so the adapter can be
@@ -42,29 +42,37 @@ def _build_langchain_model(model_cfg: ModelConfig) -> "BaseChatModel":
     provider = model_cfg.provider.lower()
     if provider == "openai":
         try:
-            from langchain_openai import ChatOpenAI  # type: ignore[import]
+            from langchain_openai import ChatOpenAI  # type: ignore[import-not-found]
         except ImportError as exc:
             raise ImportError(
                 "langchain-openai is required for OpenAI provider. "
                 "Install with: pip install langchain-openai"
             ) from exc
-        return ChatOpenAI(
-            model=model_cfg.model,
-            temperature=model_cfg.temperature,
-            max_tokens=model_cfg.max_tokens,
+        return cast(
+            "BaseChatModel",
+            ChatOpenAI(
+                model=model_cfg.model,
+                temperature=model_cfg.temperature,
+                max_tokens=model_cfg.max_tokens,
+            ),
         )
     if provider == "anthropic":
         try:
-            from langchain_anthropic import ChatAnthropic  # type: ignore[import]
+            from langchain_anthropic import (  # type: ignore[import-not-found]
+                ChatAnthropic,
+            )
         except ImportError as exc:
             raise ImportError(
                 "langchain-anthropic is required for Anthropic provider. "
                 "Install with: pip install langchain-anthropic"
             ) from exc
-        return ChatAnthropic(  # type: ignore[call-arg]
-            model=model_cfg.model,
-            temperature=model_cfg.temperature,
-            max_tokens=model_cfg.max_tokens,
+        return cast(
+            "BaseChatModel",
+            ChatAnthropic(
+                model=model_cfg.model,
+                temperature=model_cfg.temperature,
+                max_tokens=model_cfg.max_tokens,
+            ),
         )
     raise ValueError(f"Unsupported LLM provider: {provider!r}")
 
@@ -85,12 +93,13 @@ class LangChainLLMAdapter(LLMGateway):
         strategy_config: StrategyConfig,
         system_prompt: str = "You are a helpful AI coding assistant.",
     ) -> None:
+        """Initialize the adapter with strategy and prompt."""
         self._selector = LLMStrategySelector(strategy_config)
         self._system_prompt = system_prompt
         # Cache LangChain model instances keyed by (provider, model, temp)
-        self._model_cache: dict[tuple[Any, ...], "BaseChatModel"] = {}
+        self._model_cache: dict[tuple[Any, ...], BaseChatModel] = {}
 
-    def _get_model(self, model_cfg: ModelConfig) -> "BaseChatModel":
+    def _get_model(self, model_cfg: ModelConfig) -> BaseChatModel:
         key = (model_cfg.provider, model_cfg.model, model_cfg.temperature)
         if key not in self._model_cache:
             self._model_cache[key] = _build_langchain_model(model_cfg)
@@ -111,54 +120,63 @@ class LangChainLLMAdapter(LLMGateway):
 
         Returns:
             LLM completion string.
-            
+
         Raises:
-            TokenLimitExceededError: If token limit is reached and auto-continue is disabled or maxed out.
+            TokenLimitExceededError: If token limit is reached and auto-continue
+                is disabled or maxed out.
         """
         from agentic_workflow.domain.models.exceptions import TokenLimitExceededError
+
         model_cfg = self._selector.select(task_type)
         lc_model = self._get_model(model_cfg)
         messages: list[Any] = [
             SystemMessage(content=self._system_prompt),
             HumanMessage(content=prompt),
         ]
-        
+
         # Determine if auto-continuation is safe
         auto_continue_types = {TaskType.CRITIQUE, TaskType.COMPREHEND, TaskType.CHARTER}
         can_auto_continue = task_type in auto_continue_types
         max_continuations = 3 if can_auto_continue else 0
         continuations = 0
         full_content = ""
-        
+
         while True:
             response = lc_model.invoke(messages)
             content = str(response.content)
             full_content += content
-            
+
             finish_reason = response.response_metadata.get("finish_reason")
             if not finish_reason:
                 finish_reason = response.response_metadata.get("stop_reason")
-                
+
             if finish_reason in ("length", "max_tokens"):
                 if not can_auto_continue:
                     raise TokenLimitExceededError(
-                        f"Output exceeded max_tokens={max_tokens} for structural task {task_type.value}. Auto-continuation disabled."
+                        f"Output exceeded max_tokens={max_tokens} for "
+                        f"structural task {task_type.value}. "
+                        "Auto-continuation disabled."
                     )
                 continuations += 1
                 if continuations > max_continuations:
                     raise TokenLimitExceededError(
-                        f"Output exceeded max_tokens across {max_continuations} continuations."
+                        f"Output exceeded max_tokens across "
+                        f"{max_continuations} continuations."
                     )
                 continuations += 1
                 messages.append(response)
                 messages.append(
                     HumanMessage(
-                        content="Response truncated due to length. Please continue exactly where you left off. Do not repeat previous content. Do not add introductory text."
+                        content=(
+                            "Response truncated due to length. Please continue "
+                            "exactly where you left off. Do not repeat previous "
+                            "content. Do not add introductory text."
+                        )
                     )
                 )
             else:
                 break
-                
+
         return full_content
 
     def get_model_config(self, task_type: TaskType) -> ModelConfig:

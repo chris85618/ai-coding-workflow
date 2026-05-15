@@ -7,7 +7,8 @@ Lightweight in-memory bus; no external dependencies required.
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from agentic_workflow.application.ports.doc_io import DomainEventBus
 
@@ -20,6 +21,7 @@ class InMemoryEventBus(DomainEventBus):
     """
 
     def __init__(self) -> None:
+        """Initializes the in-memory event bus."""
         self._handlers: dict[str, list[Callable[..., None]]] = {}
         self._published: list[dict[str, Any]] = []
 

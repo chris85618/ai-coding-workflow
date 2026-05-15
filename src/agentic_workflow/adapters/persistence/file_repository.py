@@ -31,6 +31,7 @@ class FileTraceableIDRepository(TraceableIDRepository):
     """
 
     def __init__(self, repo_root: str = ".") -> None:
+        """Initialize the repository at .agentic/ids relative to repo_root."""
         self._root = Path(repo_root) / ".agentic" / "ids"
         self._root.mkdir(parents=True, exist_ok=True)
 
@@ -44,13 +45,13 @@ class FileTraceableIDRepository(TraceableIDRepository):
         resolved = (self._root / f"{safe}.json").resolve()
         try:
             resolved.relative_to(self._root.resolve())
-        except ValueError:
+        except ValueError as err:
             raise ValueError(
                 f"Path traversal detected for ID {id_str!r} (SEC-003)"
-            )
+            ) from err
         return resolved
 
-    def save(self, traceable_id: "TraceableID") -> None:
+    def save(self, traceable_id: TraceableID) -> None:
         """Persist a TraceableID as JSON.
 
         Args:
@@ -81,7 +82,7 @@ class FileTraceableIDRepository(TraceableIDRepository):
         path = self._path_for(traceable_id.full_id)
         path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
-    def find_by_id(self, id_str: str) -> "TraceableID | None":
+    def find_by_id(self, id_str: str) -> TraceableID | None:
         """Load a TraceableID from disk by its string identifier.
 
         Args:
@@ -90,8 +91,8 @@ class FileTraceableIDRepository(TraceableIDRepository):
         Returns:
             The TraceableID if found, else None.
         """
-        from agentic_workflow.domain.models.traceable_id import TraceableID, TraceLink
         from agentic_workflow.domain.models.enums import IDPrefix, LinkType
+        from agentic_workflow.domain.models.traceable_id import TraceableID, TraceLink
 
         path = self._path_for(id_str)
         if not path.exists():
@@ -121,7 +122,7 @@ class FileTraceableIDRepository(TraceableIDRepository):
             downstream_links=downstream_links,
         )
 
-    def find_all(self) -> list["TraceableID"]:
+    def find_all(self) -> list[TraceableID]:
         """Return all persisted TraceableIDs.
 
         Returns:

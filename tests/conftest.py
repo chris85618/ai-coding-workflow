@@ -6,9 +6,8 @@ All step definitions share these fixtures.
 
 from __future__ import annotations
 
-import os
-import tempfile
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -16,9 +15,6 @@ from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
 from agentic_workflow.domain.models.enums import (
     GateDecision,
     HookEvent,
-    PipelineStatus,
-    StageStatus,
-    TaskType,
 )
 from agentic_workflow.domain.models.model_config import ModelConfig
 from agentic_workflow.domain.models.pipeline import Pipeline
@@ -27,8 +23,14 @@ from agentic_workflow.domain.models.stage import Stage
 from agentic_workflow.domain.services.hook_runner import HookDef, HookRunner
 from agentic_workflow.domain.services.llm_strategy_selector import LLMStrategySelector
 
-
 # ── Project fixtures ──────────────────────────────────────────────────────────
+
+
+@pytest.fixture
+def context() -> dict[str, Any]:
+    """BDD context fixture."""
+    return {}
+
 
 @pytest.fixture
 def docs_path(tmp_path: Path) -> Path:
@@ -65,6 +67,7 @@ def many_files_project(tmp_path: Path) -> str:
 
 # ── Domain model fixtures ─────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def running_pipeline() -> Pipeline:
     """Return a Pipeline in RUNNING state with PASS gate."""
@@ -81,6 +84,7 @@ def fresh_stage() -> Stage:
 
 
 # ── Strategy Pattern fixtures ─────────────────────────────────────────────────
+
 
 @pytest.fixture
 def anthropic_model() -> ModelConfig:
@@ -149,6 +153,7 @@ def openai_only_config(
 
 # ── Hook fixtures ─────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def hook_runner() -> HookRunner:
     """Return a fresh HookRunner with no hooks registered."""
@@ -160,7 +165,7 @@ def passing_hook() -> HookDef:
     """A hook that always exits 0 (success)."""
     return HookDef(
         event=HookEvent.PRE_STAGE_START,
-        command="python -c \"exit(0)\"",
+        command='python -c "exit(0)"',
         blocking=True,
     )
 
@@ -170,12 +175,13 @@ def blocking_hook() -> HookDef:
     """A blocking hook that exits 2 (block signal)."""
     return HookDef(
         event=HookEvent.PRE_STAGE_START,
-        command="python -c \"exit(2)\"",
+        command='python -c "exit(2)"',
         blocking=True,
     )
 
 
 # ── RepoMap fixtures ──────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def small_repo_map() -> RepoMap:

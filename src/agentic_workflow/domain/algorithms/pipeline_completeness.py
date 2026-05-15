@@ -6,7 +6,7 @@ OO Design: PipelineCompletenessChecker class wraps all logic (ALG-010 OO mandate
 """
 
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
 
 class PipelineCompletenessChecker:
@@ -18,7 +18,7 @@ class PipelineCompletenessChecker:
     """
 
     # Ordered list of (rel_path, must_contain) tuples that define the 10 checks.
-    _CHECKS: List[tuple] = [
+    _CHECKS: list[tuple[str, str | None]] = [
         ("docs/workflow-state.md", None),
         ("docs/project-charter.md", "BG-"),
         ("docs/stakeholder-analysis.md", "S-"),
@@ -80,7 +80,7 @@ class PipelineCompletenessChecker:
 
     # ── Public API ─────────────────────────────────────────────────────────────
 
-    def calculate(self) -> Dict[str, Any]:
+    def calculate(self) -> dict[str, Any]:
         """Calculate pipeline completeness by checking documentation assets.
 
         Returns:
@@ -118,7 +118,8 @@ class PipelineCompletenessChecker:
         if completeness == 1.0:
             return (
                 "complete",
-                "Check workflow-state.md position. Trigger workflow-resume.md if pending work exists.",
+                "Check workflow-state.md position. "
+                "Trigger workflow-resume.md if pending work exists.",
             )
         if completeness >= 0.6:
             return (
@@ -155,6 +156,6 @@ def _check_glob_count(base_dir: Path, pattern: str) -> bool:
     return checker._glob_count(pattern)
 
 
-def calculate_completeness(base_dir: Path) -> Dict[str, Any]:
+def calculate_completeness(base_dir: Path) -> dict[str, Any]:
     """Backward-compat facade — delegates to PipelineCompletenessChecker."""
     return PipelineCompletenessChecker(base_dir).calculate()

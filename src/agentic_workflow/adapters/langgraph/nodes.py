@@ -10,21 +10,25 @@ Each node is a pure function: (WorkflowState) -> WorkflowState (partial).
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
-from agentic_workflow.domain.models.enums import GateDecision, PipelineStatus, StageStatus
-from agentic_workflow.domain.models.stage import MAX_ITERATIONS
-from agentic_workflow.domain.algorithms.pipeline_completeness import calculate_completeness
-from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
-from agentic_workflow.domain.algorithms.root_cause_leftshift import RootCauseLeftShift
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
-from agentic_workflow.domain.algorithms.tech_debt_manager import TechDebtManager
-from agentic_workflow.domain.algorithms.risk_manager import RiskManager
-from agentic_workflow.domain.algorithms.adr_governance import ADRGovernance
+from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
 from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
-from agentic_workflow.domain.algorithms.warning_policy_verifier import WarningPolicyVerifier
-from pathlib import Path
+from agentic_workflow.domain.algorithms.pipeline_completeness import (
+    calculate_completeness,
+)
+from agentic_workflow.domain.algorithms.warning_policy_verifier import (
+    WarningPolicyVerifier,
+)
+from agentic_workflow.domain.models.enums import (
+    GateDecision,
+    PipelineStatus,
+    StageStatus,
+)
+from agentic_workflow.domain.models.stage import MAX_ITERATIONS
 
 if TYPE_CHECKING:
     pass
@@ -60,11 +64,11 @@ def node_pipeline_completeness(state: WorkflowState) -> WorkflowState:
         Partial state update with completeness metadata.
     """
     completeness_data = calculate_completeness(Path("."))
-    
+
     # Store the results into state metadata
     metadata = state.get("metadata", {})
     metadata["completeness"] = completeness_data
-    
+
     return {"metadata": metadata}
 
 
@@ -168,44 +172,44 @@ def should_continue_iterating(state: WorkflowState) -> str:
 
 def node_micro_validation(state: WorkflowState) -> WorkflowState:
     """DAG node: Execute micro-validation on recent changes.
-    
+
     Corresponds to FR-005, FR-006, FR-007.
     """
     metadata = state.get("metadata", {})
     changes_content = metadata.get("recent_changes_content", "")
     changed_ids = metadata.get("recent_changed_ids", [])
-    
+
     result = MicroValidation.run_all(changes_content, changed_ids)
     metadata["micro_validation_result"] = result
-    
+
     return {"metadata": metadata}
 
 
 def node_impact_analysis(state: WorkflowState) -> WorkflowState:
     """DAG node: Execute impact analysis for modifications.
-    
+
     Corresponds to FR-008, FR-009, FR-022.
     """
     metadata = state.get("metadata", {})
     changed_ids = metadata.get("recent_changed_ids", [])
-    
+
     impact_results = {}
     for mod_id in changed_ids:
         # Mocking nodes traversal
         impact_results[mod_id] = ImpactAnalysis.calculate_blast_radius(mod_id, [])
-        
+
     metadata["impact_analysis_results"] = impact_results
     return {"metadata": metadata}
 
 
 def node_orchestrator(state: WorkflowState) -> WorkflowState:
     """DAG node: Master orchestrator entrypoint for phases and stages.
-    
+
     Corresponds to FR-002, FR-017, FR-018.
     """
     pipeline = StateMapper.state_to_pipeline(state)
     metadata = state.get("metadata", {})
-    
+
     # Delegate to Orchestrator based on current state
     if pipeline.status == PipelineStatus.NOT_STARTED:
         result = Orchestrator.execute_phase(0, metadata)
@@ -213,29 +217,28 @@ def node_orchestrator(state: WorkflowState) -> WorkflowState:
         pos = pipeline.current_position
         stage = pos.get("stage", 0) if isinstance(pos, dict) else 0
         result = Orchestrator.execute_stage(stage, metadata)
-        
+
     metadata["orchestrator_result"] = result
     return {"metadata": metadata}
 
 
 def node_warning_policy_gate(state: WorkflowState) -> WorkflowState:
     """DAG node: Enforce ADR-GOV-026 Warning Policy.
-    
+
     Validates pyproject.toml and requires justification for exclusions.
     """
     verifier_result = WarningPolicyVerifier.verify_config(Path("pyproject.toml"))
-    
+
     metadata = state.get("metadata", {})
     metadata["warning_policy_result"] = verifier_result
-    
+
     if not verifier_result["passed"]:
         # If violations found, check for justification in recent comments/ADRs
         # For simulation, we assume failure if passed is False
         return {
             "metadata": metadata,
             "last_error": f"Warning Policy Violation: {verifier_result['violations']}",
-            "pipeline_status": PipelineStatus.FAILED
+            "pipeline_status": PipelineStatus.FAILED,
         }
-        
-    return {"metadata": metadata}
 
+    return {"metadata": metadata}

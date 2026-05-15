@@ -75,7 +75,11 @@ class HookRunner:
         lambda result, hook_def: (
             (result.exit_code == 0 and result.proceed is True)
             or (result.exit_code == 2 and hook_def.blocking and not result.proceed)
-            or (result.exit_code == 2 and not hook_def.blocking and result.proceed is True)
+            or (
+                result.exit_code == 2
+                and not hook_def.blocking
+                and result.proceed is True
+            )
             or (result.exit_code not in (0, 2) and result.proceed is True)
         ),
         "Hook exit code must determine proceed correctly (INV-020, with blocking flag)",
@@ -97,7 +101,9 @@ class HookRunner:
         cmd = hook_def.command
         for key, val in context.items():
             # Strip any shell metacharacters from context values (defensive)
-            safe_val = val.replace(";", "").replace("&", "").replace("|", "").replace("`", "")
+            safe_val = (
+                val.replace(";", "").replace("&", "").replace("|", "").replace("`", "")
+            )
             cmd = cmd.replace(f"{{{key}}}", safe_val)
 
         try:

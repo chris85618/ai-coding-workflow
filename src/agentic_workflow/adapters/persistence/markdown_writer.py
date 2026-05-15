@@ -23,6 +23,11 @@ class MarkdownDocumentIO(DocumentIOGateway):
     """
 
     def __init__(self, repo_root: str = ".") -> None:
+        """Initializes the Markdown document IO.
+
+        Args:
+            repo_root: Path to the repository root directory.
+        """
         self._root = Path(repo_root).resolve()
 
     def _resolve(self, doc_path: str) -> Path:
@@ -37,7 +42,7 @@ class MarkdownDocumentIO(DocumentIOGateway):
         except ValueError:
             raise ValueError(
                 f"Path traversal detected: {doc_path!r} escapes repo root (SEC-002)"
-            )
+            ) from None
         return resolved
 
     def read(self, doc_path: str) -> str:

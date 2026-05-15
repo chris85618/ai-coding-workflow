@@ -15,22 +15,25 @@ Traceable to: DEBT-003, ALG-006, INV-024, FR-018
 from __future__ import annotations
 
 import os
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, mock_open, MagicMock
+from typing import Any
+from unittest.mock import patch
 
 import pytest
-
 
 # ===========================================================================
 # _extract_symbols_ast — boundary branches
 # ===========================================================================
 
+
 class TestExtractSymbolsAst:
     """Unit tests for the AST symbol extraction helper."""
 
-    def _fn(self, file_path: str, source: str):
-        from agentic_workflow.domain.algorithms.repo_map_builder import _extract_symbols_ast
+    def _fn(self, file_path: str, source: str) -> list[Any]:
+        from agentic_workflow.domain.algorithms.repo_map_builder import (
+            _extract_symbols_ast,
+        )
+
         return _extract_symbols_ast(file_path, source)
 
     def test_syntax_error_returns_empty(self) -> None:
@@ -70,11 +73,15 @@ class TestExtractSymbolsAst:
 # _build_import_graph — OSError branch
 # ===========================================================================
 
+
 class TestBuildImportGraph:
     """Unit tests for import graph builder."""
 
-    def _fn(self, py_files, project_path):
-        from agentic_workflow.domain.algorithms.repo_map_builder import _build_import_graph
+    def _fn(self, py_files: list[str], project_path: str) -> dict[str, list[str]]:
+        from agentic_workflow.domain.algorithms.repo_map_builder import (
+            _build_import_graph,
+        )
+
         return _build_import_graph(py_files, project_path)
 
     def test_oserror_on_file_read_is_skipped(self, tmp_path: Path) -> None:
@@ -117,11 +124,15 @@ class TestBuildImportGraph:
 # _pagerank — empty graph branch
 # ===========================================================================
 
+
 class TestPagerank:
     """Unit tests for the simplified PageRank implementation."""
 
-    def _fn(self, graph, damping=0.85, iterations=20):
+    def _fn(
+        self, graph: dict[str, list[str]], damping: float = 0.85, iterations: int = 20
+    ) -> dict[str, float]:
         from agentic_workflow.domain.algorithms.repo_map_builder import _pagerank
+
         return _pagerank(graph, damping, iterations)
 
     def test_empty_graph_returns_empty(self) -> None:
@@ -153,12 +164,14 @@ class TestPagerank:
 # repo_map_build — edge cases
 # ===========================================================================
 
+
 class TestRepoMapBuild:
     """Integration-level tests for repo_map_build."""
 
     def test_no_python_files_returns_empty(self, tmp_path: Path) -> None:
         """L175-176: no .py files → RepoMap with 0 tokens and empty symbols."""
         from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+
         (tmp_path / "README.md").write_text("# readme")
         result = repo_map_build(str(tmp_path), token_budget=1000)
         assert result.token_count == 0
@@ -167,12 +180,13 @@ class TestRepoMapBuild:
     def test_oserror_on_symbol_read_skipped(self, tmp_path: Path) -> None:
         """L183-184: OSError when reading file for symbols → skip, continue."""
         from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+
         # Create one good file
         (tmp_path / "good.py").write_text("def f(): pass\n")
         # Simulate OSError on read by patching Path.read_text
         original_read_text = Path.read_text
 
-        def patched_read_text(self, *a, **kw):
+        def patched_read_text(self: Path, *a: Any, **kw: Any) -> str:
             if "good" not in str(self):
                 raise OSError("simulated")
             return original_read_text(self, *a, **kw)
@@ -185,37 +199,42 @@ class TestRepoMapBuild:
     def test_tight_token_budget_prunes_symbols(self, tmp_path: Path) -> None:
         """Token budget of 1 forces pruning after first symbol."""
         from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+
         for i in range(10):
-            (tmp_path / f"mod_{i}.py").write_text(
-                f"class BigClass{i}:\n    pass\n" * 5
-            )
+            (tmp_path / f"mod_{i}.py").write_text(f"class BigClass{i}:\n    pass\n" * 5)
         result = repo_map_build(str(tmp_path), token_budget=1)
         assert result.token_count <= 1
 
     def test_test_files_excluded(self, tmp_path: Path) -> None:
         """Files starting with test_ are not scanned for symbols."""
         from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
-        (tmp_path / "test_something.py").write_text("def test_foo(): pass\n")
+
+        (tmp_path / "test_something.py").write_text("def test_foo() -> None: pass\n")
         (tmp_path / "module.py").write_text("def real_func(): pass\n")
         result = repo_map_build(str(tmp_path), token_budget=500)
         # test_something.py should not appear as any symbol's file_path
         test_file_paths = [
-            s.file_path for s in result.symbols
+            s.file_path
+            for s in result.symbols
             if os.path.basename(s.file_path).startswith("test_")
         ]
         assert test_file_paths == [], f"test_ files appeared in map: {test_file_paths}"
 
     def test_invalid_project_path_raises(self, tmp_path: Path) -> None:
-        """icontract precondition: non-existent project_path raises ViolationError."""
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        """Icontract precondition: non-existent project_path raises ViolationError."""
         import icontract
+
+        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+
         with pytest.raises((icontract.ViolationError, ValueError)):
             repo_map_build("/nonexistent/path/xyz", token_budget=1000)
 
     def test_zero_budget_raises(self, tmp_path: Path) -> None:
-        """icontract precondition: token_budget=0 raises ViolationError."""
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        """Icontract precondition: token_budget=0 raises ViolationError."""
         import icontract
+
+        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+
         with pytest.raises((icontract.ViolationError, ValueError)):
             repo_map_build(str(tmp_path), token_budget=0)
 
@@ -224,34 +243,53 @@ class TestRepoMapBuild:
 # RepoMap model — uncovered branches (L56-68, L80-89)
 # ===========================================================================
 
+
 class TestRepoMapModel:
     """Unit tests for RepoMap value object methods."""
 
-    def _make_sym(self, name="Foo", file_path="a.py", kind="class", sig="class Foo", line=1):
+    def _make_sym(
+        self,
+        name: str = "Foo",
+        file_path: str = "a.py",
+        kind: str = "class",
+        sig: str = "class Foo",
+        line: int = 1,
+    ) -> Any:
         from agentic_workflow.domain.models.repo_map import SymbolDef
-        return SymbolDef(file_path=file_path, name=name, kind=kind, signature=sig, line_number=line)
+
+        return SymbolDef(
+            file_path=file_path, name=name, kind=kind, signature=sig, line_number=line
+        )
 
     def test_prune_to_budget_zero_returns_empty(self) -> None:
         """L56-57: budget <= 0 → return empty RepoMap."""
         from agentic_workflow.domain.models.repo_map import RepoMap
+
         rm = RepoMap(symbols=(self._make_sym(),), token_count=5, file_ranks={})
         result = rm.prune_to_budget(0)
         assert result.token_count == 0
         assert result.symbols == ()
 
     def test_prune_to_budget_negative_returns_empty(self) -> None:
-        """budget < 0 → also returns empty."""
+        """Budget < 0 → also returns empty."""
         from agentic_workflow.domain.models.repo_map import RepoMap
+
         rm = RepoMap(symbols=(self._make_sym(),), token_count=5, file_ranks={})
         result = rm.prune_to_budget(-1)
         assert result.symbols == ()
 
     def test_prune_to_budget_keeps_within_limit(self) -> None:
         """Prune to budget trims symbols correctly."""
-        from agentic_workflow.domain.models.repo_map import SymbolDef, RepoMap
+        from agentic_workflow.domain.models.repo_map import RepoMap, SymbolDef
+
         syms = tuple(
-            SymbolDef(file_path="f.py", name=f"F{i}", kind="class",
-                      signature="class " + "X" * 40, line_number=i)
+            SymbolDef(
+                file_path="f.py",
+                name=f"F{i}",
+                kind="class",
+                signature="class " + "X" * 40,
+                line_number=i,
+            )
             for i in range(20)
         )
         rm = RepoMap(symbols=syms, token_count=200, file_ranks={})
@@ -261,12 +299,14 @@ class TestRepoMapModel:
     def test_get_context_string_empty(self) -> None:
         """L80-81: empty symbols → return empty string."""
         from agentic_workflow.domain.models.repo_map import RepoMap
+
         rm = RepoMap(symbols=(), token_count=0, file_ranks={})
         assert rm.get_context_string() == ""
 
     def test_get_context_string_single_file(self) -> None:
         """L82-89: symbols from same file grouped under one header."""
         from agentic_workflow.domain.models.repo_map import RepoMap
+
         syms = (
             self._make_sym("Foo", "a.py"),
             self._make_sym("Bar", "a.py", "function", "def Bar()"),
@@ -279,6 +319,7 @@ class TestRepoMapModel:
     def test_get_context_string_multiple_files(self) -> None:
         """L85-87: symbols from different files get separate headers."""
         from agentic_workflow.domain.models.repo_map import RepoMap
+
         syms = (
             self._make_sym("A", "a.py"),
             self._make_sym("B", "b.py"),

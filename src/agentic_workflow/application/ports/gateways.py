@@ -8,7 +8,7 @@ Adapters in adapters/llm/, adapters/mcp/ implement these interfaces.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from agentic_workflow.domain.models.enums import TaskType
@@ -26,7 +26,7 @@ class LLMGateway(ABC):
     def complete(
         self,
         prompt: str,
-        task_type: "TaskType",
+        task_type: TaskType,
         max_tokens: int = 4096,
     ) -> str:
         """Send a prompt to the LLM and return the completion.
@@ -41,7 +41,7 @@ class LLMGateway(ABC):
         """
 
     @abstractmethod
-    def get_model_config(self, task_type: "TaskType") -> "ModelConfig":
+    def get_model_config(self, task_type: TaskType) -> ModelConfig:
         """Return the ModelConfig that will be used for this task type.
 
         Args:
@@ -68,7 +68,7 @@ class MCPGateway(ABC):
     """
 
     @abstractmethod
-    def call_tool(self, tool_name: str, arguments: dict) -> dict:
+    def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Invoke an MCP tool and return its result.
 
         Args:
@@ -116,7 +116,7 @@ class SecurityGateway(ABC):
     """
 
     @abstractmethod
-    def scan(self, target_path: str) -> dict:
+    def scan(self, target_path: str) -> dict[str, Any]:
         """Run a security scan on the target path.
 
         Args:
@@ -127,7 +127,7 @@ class SecurityGateway(ABC):
         """
 
     @abstractmethod
-    def generate_sbom(self, target_path: str) -> dict:
+    def generate_sbom(self, target_path: str) -> dict[str, Any]:
         """Generate a Software Bill of Materials (SBOM).
 
         Args:
@@ -145,7 +145,7 @@ class QualityGateway(ABC):
     """
 
     @abstractmethod
-    def get_quality_metrics(self, project_key: str) -> dict:
+    def get_quality_metrics(self, project_key: str) -> dict[str, Any]:
         """Fetch quality metrics for a project.
 
         Args:

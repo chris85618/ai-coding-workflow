@@ -8,7 +8,7 @@ Adapters in adapters/persistence/ implement these interfaces.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from agentic_workflow.domain.models.traceable_id import TraceableID
@@ -21,7 +21,7 @@ class TraceableIDRepository(ABC):
     """
 
     @abstractmethod
-    def save(self, traceable_id: "TraceableID") -> None:
+    def save(self, traceable_id: TraceableID) -> None:
         """Persist a TraceableID.
 
         Args:
@@ -29,7 +29,7 @@ class TraceableIDRepository(ABC):
         """
 
     @abstractmethod
-    def find_by_id(self, id_str: str) -> "TraceableID | None":
+    def find_by_id(self, id_str: str) -> TraceableID | None:
         """Look up a TraceableID by its string identifier.
 
         Args:
@@ -40,7 +40,7 @@ class TraceableIDRepository(ABC):
         """
 
     @abstractmethod
-    def find_all(self) -> list["TraceableID"]:
+    def find_all(self) -> list[TraceableID]:
         """Return all persisted TraceableIDs.
 
         Returns:
@@ -67,7 +67,7 @@ class CheckpointRepository(ABC):
     """
 
     @abstractmethod
-    def save_checkpoint(self, pipeline_id: str, state: dict) -> str:
+    def save_checkpoint(self, pipeline_id: str, state: dict[str, Any]) -> str:
         """Save a pipeline checkpoint and return its identifier.
 
         Args:
@@ -79,7 +79,7 @@ class CheckpointRepository(ABC):
         """
 
     @abstractmethod
-    def load_latest(self, pipeline_id: str) -> dict | None:
+    def load_latest(self, pipeline_id: str) -> dict[str, Any] | None:
         """Load the most recent checkpoint for a pipeline.
 
         Args:
