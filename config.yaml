@@ -1,66 +1,159 @@
 # Unified Agentic Workflow Configuration
 # 實踐 ADR-STR-006: 外部化 YAML 配置
+#
+# ⚠️  API Key 配置規則：
+#    - 絕對不要在此檔案中填入 API Key
+#    - 使用環境變數：ANTHROPIC_API_KEY / OPENAI_API_KEY
+#    - Windows: $env:ANTHROPIC_API_KEY = "sk-ant-..."
+#    - Linux:   export ANTHROPIC_API_KEY="sk-ant-..."
+#    - 或使用 .env 檔案（搭配 python-dotenv，.env 已在 .gitignore）
 
+# ============================================================
+# 模型配置
+# 每個角色對應不同的成本/能力取捨
+# ============================================================
 models:
   reasoning:
+    # 用途：Agent α 批評掃描、Agent β 收斂整合、複雜決策節點
+    # 觸發：stage_3 ~ stage_8 的 alpha / beta 節點
+    # 成本考量：高準確度優先，允許較高 token 消耗
     provider: "anthropic"
     name: "claude-3-7-sonnet-20250219"
-    temperature: 0.7
+    temperature: 0.7             # 適度創意，允許發散找問題
+
   editing:
+    # 用途：微驗證節點（格式檢查、ID 結構驗證）、輕量修改
+    # 觸發：micro_validation、s0_format ~ s7_record 節點
+    # 成本考量：快速低成本，確定性輸出
     provider: "anthropic"
     name: "claude-3-5-haiku-20241022"
-    temperature: 0.1
+    temperature: 0.1             # 低溫度 = 格式化任務更穩定
+
   fallback:
+    # 用途：Anthropic API 不可用時的備援
+    # 觸發：LLM adapter 自動降級邏輯
     provider: "openai"
     name: "gpt-4o-mini"
-    temperature: 0.0
+    temperature: 0.0             # 零溫度 = 最大確定性
 
+# ============================================================
+# 提示詞範本（Prompt Engineering）
+# system: 角色定義（每次呼叫都會附加）
+# task_template: 任務指令（使用 {變數} 佔位符）
+# ============================================================
 prompts:
   agent_alpha:
-    system: "你是一個嚴格的架構審查員 (Agent α)。你的任務是發散尋找所有邊界條件與潛在破綻。"
+    # Agent α：破綻發掘者
+    # 目標：窮盡批判，找出所有可能的缺陷
+    # 輸出格式：問題清單，每項標記嚴重度
+    system: |
+      你是一個嚴格的架構審查員 (Agent α)。
+      你的唯一職責是發散思考，找出輸入中所有的邊界條件、潛在破綻和未覆蓋的情境。
+      不要提供解決方案，只列出問題。
+      每個問題必須標記嚴重度：CRITICAL | HIGH | MEDIUM | LOW | YAGNI
     task_template: |
-      請基於以下輸入 (FR/NFR/UC)，審查目前的產出物。
-      請確保符合 AGENTS.md 的每一項要求與 skills/ 下的所有細節。
-      輸出任何發現的缺陷，並標記嚴重度 (CRITICAL/HIGH/MEDIUM/LOW/YAGNI)。
+      審查目標：{artifact_type}
+      審查範圍：{scope}
+
+      當前輸入（FR/NFR/UC）：
+      {input_artifacts}
+
+      請逐條審查，確保符合 AGENTS.md 的每一項要求。
+      輸出格式：
+      - [SEVERITY] 問題描述 | 影響範圍 | 受影響 ID
 
   agent_beta:
-    system: "你是一個務實的開發者 (Agent β)。你的任務是收斂 Agent α 的發現，並產出精確的程式碼或文件修改。"
+    # Agent β：收斂整合者
+    # 目標：依奧卡姆剃刀原則，產出最簡修復方案
+    # 輸入：Agent α 的問題清單
+    system: |
+      你是一個務實的開發者 (Agent β)。
+      你接收 Agent α 的問題清單，依以下優先順序處理：
+      1. CRITICAL / HIGH → 必須修復
+      2. MEDIUM → 評估成本效益後決定
+      3. LOW / YAGNI → 拒絕，記錄理由
+      遵循奧卡姆剃刀：選擇最簡路徑，拒絕過度工程。
     task_template: |
-      根據以下缺陷清單，產生修復方案。
-      請遵循奧卡姆剃刀原則 (Ockham's Razor)。
+      Agent α 發現的問題清單：
+      {issues}
+
+      請為每個 CRITICAL/HIGH 問題提供：
+      1. 根因（一句話）
+      2. 修復方案（具體檔案 + 行號 + 修改內容）
+      3. 驗證方式
 
   micro_validation:
-    system: "你負責微驗證 (Micro-Validation)。"
+    # 微驗證：格式與追溯鏈檢查
+    # 在每次 CREATE/MODIFY/FIX 後執行（ADR-GOV-011）
+    system: |
+      你負責微驗證 (Micro-Validation)。
+      你的輸出必須是嚴格的 JSON，不允許任何 markdown 或解釋文字。
     task_template: |
-      發現以下格式或追溯鏈錯誤：{errors}
-      請根據 {schema} 提供修正後的 JSON 結構。
+      發現以下格式或追溯鏈錯誤：
+      {errors}
+
+      目標 JSON Schema：
+      {schema}
+
+      請輸出修正後的 JSON 結構。
 
   root_cause_leftshift:
-    system: "你負責根因左移分析 (Root-Cause Left-Shift)。"
+    # 根因左移：5-Whys 分析 → LESSON 守衛規則
+    # 在治理繞道事件後執行（ADR-GOV-011）
+    system: |
+      你負責根因左移分析 (Root-Cause Left-Shift)。
+      使用 5-Whys 方法找到系統性根因，而非表面症狀。
+      最終產出必須是可插入 AGENTS.md 的防護規則。
     task_template: |
-      剛才發生了一個錯誤或治理繞道：{issue}
-      請進行 5-Whys 分析，並產出 LESSON 守衛規則。
+      發生的治理繞道事件：
+      {issue}
+
+      請執行：
+      1. 5-Whys 分析（每個 Why 都要有可觀測的證據）
+      2. TOC 瓶頸識別（哪個約束導致繞道？）
+      3. 產出 LESSON 守衛規則（格式：LESSON-XXX: 如果...則...否則...）
 
   markdown_fallback:
-    system: "你是一個資料萃取器。嚴格按照要求將 Markdown 轉為 JSON。"
+    # 降級路徑：當確定型演算法無法解析 Markdown 時使用
+    # 對應 ADR-GOV-017（LLM 原生與優雅降級）
+    system: |
+      你是一個精確的資料萃取器。
+      你的輸出必須是嚴格的 JSON，不允許任何額外文字。
+      如果無法解析，回傳 {"error": "parse_failed", "reason": "..."} 而非猜測。
     task_template: |
       無法使用確定型演算法解析以下 Markdown。
-      請將其轉換為符合以下 JSON Schema 的格式：{schema}
+      目標 JSON Schema：
+      {schema}
+
       Markdown 內容：
       {content}
 
+# ============================================================
+# 工作流圖拓樸（YAML-Driven Config）
+# 對應 ADR-STR-006 + adapters/langgraph/graph_builder.py
+# 節點名稱 node_X → nodes.py 中的 node_X 函數
+# ============================================================
 workflow_graph:
   nodes:
-    - start_pipeline
-    - pipeline_completeness
-    - orchestrator
-    - auto_gate
-    - advance_stage
-    - iterate_stage
-    - complete_pipeline
-    - micro_validation
-    - impact_analysis
+    # Phase 0: 初始化
+    - start_pipeline          # 狀態機 NOT_STARTED → RUNNING
+    - pipeline_completeness   # 掃描 docs/ 計算治理完成度分數
+
+    # 核心執行節點
+    - orchestrator            # 依當前 Phase/Stage 分派任務
+    - micro_validation        # 10 步微驗證鏈（格式、ID、追溯）
+    - impact_analysis         # 計算變更 blast radius
+
+    # 閘門與流控
+    - auto_gate               # 自動通過/失敗判定（ADR-STR-003）
+    - advance_stage           # 推進到下一個 Stage
+    - iterate_stage           # 執行一輪 α/β 迭代
+
+    # Phase 9: 完成
+    - complete_pipeline       # 狀態機 RUNNING → COMPLETED
+
   edges:
+    # 線性主幹
     - source: __start__
       target: start_pipeline
     - source: start_pipeline
@@ -73,13 +166,17 @@ workflow_graph:
       target: impact_analysis
     - source: impact_analysis
       target: auto_gate
+    # 閘門後的回流邊
     - source: advance_stage
       target: orchestrator
     - source: iterate_stage
       target: orchestrator
+
   conditional_edges:
+    # auto_gate 的條件出口
+    # 路由函數：should_continue_iterating(state) -> "gate" | "iterate"
     - source: auto_gate
       condition_func: should_continue_iterating
       mapping:
-        gate: advance_stage
-        iterate: iterate_stage
+        gate: advance_stage    # 收斂 → 推進
+        iterate: iterate_stage # 未收斂 → 再迭代
