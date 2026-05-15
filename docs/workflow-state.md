@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Stage 8 COMPLETE — 100% 品質閘門 (Mypy, Ruff, Pytest 物理覆蓋 100%) 合規。`
-**Last Updated**: `2026-05-16T06:15:00+08:00`
+**Current Phase/Stage**: `Stage 5 加固 — 配置安全性網關已實作 (ADR-SEC-005)。`
+**Last Updated**: `2026-05-16T07:15:00+08:00`
 **Recovery Mode**: false
 
 ---
@@ -26,9 +26,10 @@
 > - 完成項移除前，確認產出物已持久化至對應 docs/ 文件
 
 ```
-ROOT: {零容忍警告治理}
+ROOT: {配置安全性與 Clean Architecture 加固}
 │
-└── ✅ 系統性修復 LLM Adapter Mypy 錯誤與測試物理覆蓋 (ADR-STR-009)
+└── ✅ 實作配置安全性網關 (ADR-SEC-005): 單一入口、祕鑰隔離
+└── ✅ 更新 SonarCloud 必填參數至 .env 並隔離 config.yaml
 └── ⏳ 等待人類發起下一階段任務 (Phase 11)
 ```
 
@@ -46,7 +47,7 @@ ROOT: {零容忍警告治理}
 | Stage 5 | ✅ (self-bootstrap) | — | 2026-05-13 |
 | Stage 6 | ✅ (self-bootstrap) | — | 2026-05-13 |
 | Stage 7 | ✅ (self-bootstrap) | — | 2026-05-13 |
-| Stage 8 | ✅ (Strict Error) | ADR-GOV-026, ADR-STR-009 | 2026-05-16 |
+| Stage 8 | ✅ (Strict Error) | ADR-GOV-026, ADR-OPS-001 | 2026-05-16 |
 | Phase 9 | ✅ | — | 2026-05-15 |
 | Phase 10 | ✅ | — | 2026-05-15 |
 
@@ -111,8 +112,8 @@ ROOT: {零容忍警告治理}
 
 ## Session Summary
 
-- **Last Session Date**: 2026-05-16T06:25:00+08:00
+- **Last Session Date**: 2026-05-16T06:45:00+08:00
 - **Pipeline Position (recorded)**: Stage 8 COMPLETE
-- **Actual Work Done**: 成功將 `sonarcloud_gate.py` 的 `evaluate` 方法認知複雜度從 22 降低至 14 (低於 15 的閾值)，方法是提取閾值檢查邏輯至私有靜態方法 `_check_threshold` (LESSON-063)。同步更新 `tech-debt-register.md` (DEBT-006), `iteration-log.md` (Round 5), `traceability-matrix.md`。驗證 77 個 coverage 測試全數通過。
-- **State Diff**: 程式碼品質閘門違規已修復，專案技術債 (Cognitive Complexity) 已清償。
+- **Actual Work Done**: 實作 SonarCloud 閉環回饋機制：1. 更新 `SonarCloudGate` 支援環境變數檢核與自動降級 (ADR-OPS-001)。2. 實作 `node_sonarcloud_gate` 並整合進 Master Pipeline (graph.py)。3. 支援將失敗項自動轉化為 `DEBT-SONAR-xxx`。4. 更新 `risk-register.md` 緩解 RISK-001。
+- **State Diff**: 品質閘門安全性增強，外部依賴風險已受控。
 - **Pending Escalations Carried Over**: 無

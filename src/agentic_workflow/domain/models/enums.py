@@ -29,6 +29,7 @@ class GateDecision(StrEnum):
 
     PASS = "pass"
     PASS_WITH_WARNINGS = "pass_with_warnings"
+    FAIL = "fail"
 
 
 class FixedPointResult(StrEnum):

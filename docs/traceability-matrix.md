@@ -28,7 +28,7 @@
 | FEA-003 | FR-008, FR-009 | decomposes | ✅ |
 | FEA-004 | FR-010, FR-011 | decomposes | ✅ |
 | FEA-005 | FR-012, FR-013, FR-014-v2 | decomposes | ✅ (FR-014 superseded → v2: 自主收斂) |
-| FEA-006 | FR-015 | decomposes | ✅ |
+| FEA-006 | FR-015, FR-035, FR-036 | decomposes | ✅ |
 | FEA-007 | FR-016 | decomposes | ✅ |
 | FEA-008 | FR-003, FR-017 | decomposes | ✅ |
 | FEA-009 | FR-002, FR-018 | decomposes | ✅ |
@@ -135,6 +135,7 @@
 | [ADR-STR-006](adr/ADR-STR-006.md) | 外部化 YAML 配置 (Models & Prompts Only) | STR | Amended | FR-032, NFR-010 | justifies |
 | [ADR-STR-007](adr/ADR-STR-007.md) | 單一建圖路徑 — OO Builder 為唯一合法建圖機制 | STR | Accepted | NFR-003, RISK-004 | justifies |
 | [ADR-STR-008](adr/ADR-STR-008.md) | Token Budget & Long Response Continuation Mechanism | STR | Accepted | FR-034 | justifies |
+| [ADR-OPS-001](adr/ADR-OPS-001.md) | SonarCloud 閉環回饋與降級機制 | OPS | Accepted | FR-015, FR-035, FR-036 | justifies |
 
 > 類別統計：STR=8, GOV=26, SEC=0, SCP=0, GATE=0, OPS=0, **合計=34**
 
@@ -158,7 +159,7 @@
 
 | RISK | 標題 | 狀態 | 機率 | 影響 | 強度 | 策略 | FEA | 對應LESSON | 對應ADR | 連結 |
 |------|------|------|------|------|------|------|-----|-----------|---------|------|
-| RISK-001 | SonarCloud依賴外部服務帳號 | open | 2 | 3 | 6(MEDIUM) | MT | FEA-006 | N/A | N/A | mitigates |
+| RISK-001 | SonarCloud依賴外部服務帳號 | open | 2 | 3 | 6(MEDIUM) | MT | FEA-006 | N/A | ADR-OPS-001 | mitigates |
 | RISK-002 | ADR數量膨脹導致管理困難 | closed | 3 | 2 | 6(MEDIUM) | MT | FEA-009 | N/A | ADR-GOV-002 | mitigates |
 | RISK-003 | docs/與skills/版本漂移 | closed | 3 | 3 | 9(MEDIUM) | MT | FEA-001,009 | LESSON-022 | ADR-GOV-022 | mitigates |
 | RISK-004 | Session結束前未執行完整CM協議 | open | 2 | 4 | 8(MEDIUM) | MT | FEA-006 | LESSON-009,011,030 | ADR-GOV-010,011 | mitigates |
@@ -311,7 +312,9 @@
 | FR-012 | `iter_loop.py` | implemented-by |
 | FR-013 | `iter_loop.py` (determine_convergence) | implemented-by |
 | FR-014 | `iter_loop.py` (HITL section) | implemented-by |
-| FR-015 | `sonarcloud_gate.py` | implemented-by |
+| FR-015 | `sonarcloud_gate.py`, `nodes.py` (node_sonarcloud_gate) | implemented-by |
+| FR-035 | `sonarcloud_gate.py`, `nodes.py` (node_sonarcloud_gate) | implemented-by |
+| FR-036 | `sonarcloud_gate.py`, `nodes.py` (node_sonarcloud_gate) | implemented-by |
 | FR-016 | `security_audit.py` | implemented-by |
 | FR-017 | `orchestrator.py` | implemented-by |
 | FR-018 | `orchestrator.py` | implemented-by |

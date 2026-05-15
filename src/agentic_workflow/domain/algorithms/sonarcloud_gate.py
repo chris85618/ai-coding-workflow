@@ -1,14 +1,19 @@
-"""SonarCloud Quality Gate Algorithm.
+"""Domain Algorithm — SonarCloud Quality Gate.
 
-Traceable to: FR-015
-Replaces: skills/workflow-skills/sonarcloud-gate.md
+This module implements the SonarCloud quality gate evaluation logic,
+parameter verification, and automated technical debt extraction for
+the closed-loop feedback system (ADR-OPS-001).
 """
 
+import os
 from typing import Any
 
 
 class SonarCloudGate:
-    """Evaluates SonarCloud quality metrics against defined thresholds."""
+    """Evaluates SonarCloud quality metrics against defined thresholds.
+
+    Traceable to: FR-015, FR-035, FR-036
+    """
 
     THRESHOLDS: dict[str, dict[str, Any]] = {
         "coverage": {"global": 80.0, "new": 85.0},
@@ -23,7 +28,25 @@ class SonarCloudGate:
     }
 
     @classmethod
-    def evaluate(cls, metrics: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    def verify_configuration(cls, required_vars: list[str]) -> dict[str, Any]:
+        """Checks if required environment variables are set.
+
+        Returns:
+            Dict with 'valid' (bool) and 'missing_vars' (list).
+        """
+        missing = [var for var in required_vars if not os.environ.get(var)]
+        return {
+            "valid": len(missing) == 0,
+            "missing_vars": missing,
+            "status": "active" if len(missing) == 0 else "disabled",
+        }
+
+    @classmethod
+    def evaluate(
+        cls,
+        metrics: dict[str, dict[str, Any]],
+        issues: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """Evaluates given metrics against the thresholds.
 
         metrics format:
@@ -50,9 +73,12 @@ class SonarCloudGate:
                     failures.append(failure)
 
         passed = len(failures) == 0
+        tech_debts = cls.extract_tech_debt(issues or []) if not passed else []
+
         return {
             "passed": passed,
             "failures": failures,
+            "tech_debts": tech_debts,
             "next_action": "continue" if passed else "trigger_autonomous_fix",
             "prompt_for_agent": "Analyze the SonarCloud failures and apply fixes."
             if not passed
@@ -79,15 +105,17 @@ class SonarCloudGate:
         """Converts TODO/FIXME comments or remaining smells into DEBT items."""
         debts = []
         for idx, issue in enumerate(issues):
-            if issue.get("type") in ["TODO", "FIXME", "CODE_SMELL"]:
+            issue_type = issue.get("type")
+            if issue_type in ["TODO", "FIXME", "CODE_SMELL", "BUG", "VULNERABILITY"]:
                 debts.append(
                     {
                         "id": f"DEBT-SONAR-{idx}",
                         "title": issue.get("message", "SonarCloud Issue"),
                         "priority": "P2"
-                        if issue.get("severity") in ["MAJOR", "CRITICAL"]
+                        if issue.get("severity") in ["MAJOR", "CRITICAL", "BLOCKER"]
                         else "P3",
-                        "source": "程式碼品質",
+                        "source": "SonarCloud Quality Gate",
+                        "affected_file": issue.get("component", "unknown"),
                     }
                 )
         return debts

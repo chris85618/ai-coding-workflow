@@ -20,6 +20,7 @@ models:
     provider: "anthropic"
     name: "claude-3-7-sonnet-20250219"
     temperature: 0.7             # 適度創意，允許發散找問題
+    api_key: "${ANTHROPIC_API_KEY}"
 
   editing:
     # 用途：微驗證節點（格式檢查、ID 結構驗證）、輕量修改
@@ -28,6 +29,7 @@ models:
     provider: "anthropic"
     name: "claude-3-5-haiku-20241022"
     temperature: 0.1             # 低溫度 = 格式化任務更穩定
+    api_key: "${ANTHROPIC_API_KEY}"
 
   fallback:
     # 用途：Anthropic API 不可用時的備援
@@ -35,6 +37,7 @@ models:
     provider: "openai"
     name: "gpt-4o-mini"
     temperature: 0.0             # 零溫度 = 最大確定性
+    api_key: "${OPENAI_API_KEY}"
 
 # ============================================================
 # 提示詞範本（Prompt Engineering）
@@ -130,14 +133,17 @@ prompts:
 
 
 # ============================================================
-# 圖拓樸
+# SonarCloud 策略配置 (ADR-OPS-001 / ADR-SEC-005)
+# ⚠️ 注意：密鑰使用 ${VAR} 語法自動從 .env 注入
 # ============================================================
-# ⚠️  ADR-STR-007: 圖拓樸（節點、邊、條件邊）由 frameworks/graph.py
-#     中的 OO Builder 類別（MasterGraphBuilder、IterationGraphBuilder、
-#     MicroValidationGraphBuilder）硬性編碼。
-#
-# 原 workflow_graph YAML 區段已於 2026-05-15 移除。
-# 原因：允許外部配置圖拓樸會創造「多條執行路徑」，使 LLM 可合理化
-#       省略治理步驟，導致災難性的流程跳過。
-#
-# 變更圖結構唯一合法路徑：修改 frameworks/graph.py 並建立對應 ADR。
+sonarcloud:
+  token: "${SONAR_TOKEN}"
+  project_key: "${SONAR_PROJECT_KEY}"
+  organization: "${SONAR_ORGANIZATION}"
+  # 閉環策略
+  feedback:
+    auto_convert_to_debt: true    # 是否自動將失敗項轉為技術債
+    default_debt_priority: "P2"
+    
+  # 警告策略
+  on_missing_config: "warn_and_disable"  # 參數缺失時的行為: fail | warn_and_disable

@@ -150,7 +150,9 @@ class TestExtractTechDebt:
 
     def test_non_matching_type_skipped(self) -> None:
         """Verify non-debt types are skipped."""
-        issues: list[dict[str, Any]] = [{"type": "BUG", "message": "Not a debt type"}]
+        issues: list[dict[str, Any]] = [
+            {"type": "UNKNOWN", "message": "Not a debt type"}
+        ]
         debts = SonarCloudGate.extract_tech_debt(issues)
         assert debts == []
 

@@ -132,6 +132,16 @@
 **描述**：修改治理/流程文件時，PGVG 強制從追溯矩陣反向查找此文件實作的 FR/NFR，逐一驗證修改後的文件是否仍滿足每個 FR/NFR 的描述。
 **追溯**：FEA-002, FEA-003 (decomposes)
 
+### FR-035: SonarCloud 參數缺失自動降級與警告
+
+**描述**：當環境變數（SONAR_TOKEN 等）缺失時，品質閘門應自動降級為 WARNING 狀態而非 FAILED，並向使用者輸出明確警告。
+**追溯**：FEA-006 (decomposes)
+
+### FR-036: SonarCloud 結果自動轉技術債
+
+**描述**：品質閘門執行失敗時，應自動將 SonarCloud 傳回的 Smells/Bugs/Vulnerabilities 轉化為系統內的 `DEBT-SONAR-xxx` 並登錄於 `docs/tech-debt-register.md`。
+**追溯**：FEA-006 (decomposes)
+
 ---
 
 ## Non-Functional Requirements

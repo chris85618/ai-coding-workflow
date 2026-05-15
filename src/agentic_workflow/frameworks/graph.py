@@ -24,6 +24,7 @@ from langgraph.graph import END, StateGraph
 from agentic_workflow.adapters.langgraph.nodes import (
     node_auto_gate,
     node_complete_pipeline,
+    node_sonarcloud_gate,
     node_start_pipeline,
     node_warning_policy_gate,
 )
@@ -287,6 +288,7 @@ class MasterGraphBuilder:
         workflow.add_node("stage_6", iter_app)
         workflow.add_node("stage_7", iter_app)
         workflow.add_node("stage_8", iter_app)
+        workflow.add_node("sonar_gate", node_sonarcloud_gate)
 
         workflow.add_node("phase_9", phase_9_ship)
         workflow.add_node("phase_10", phase_10_retro)
@@ -306,7 +308,8 @@ class MasterGraphBuilder:
         workflow.add_edge("stage_5", "stage_6")
         workflow.add_edge("stage_6", "stage_7")
         workflow.add_edge("stage_7", "stage_8")
-        workflow.add_edge("stage_8", "phase_9")
+        workflow.add_edge("stage_8", "sonar_gate")
+        workflow.add_edge("sonar_gate", "phase_9")
         workflow.add_edge("phase_9", "phase_10")
         workflow.add_edge("phase_10", "complete")
         workflow.add_edge("complete", END)

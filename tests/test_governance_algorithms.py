@@ -289,7 +289,7 @@ class TestSonarCloudGate:
 
     def test_extract_tech_debt_non_debt_type_ignored(self) -> None:
         """TC-032: Ignore non-debt types."""
-        issues = [{"type": "BUG", "message": "crash"}]
+        issues = [{"type": "INFO", "message": "not a debt"}]
         debts = SonarCloudGate.extract_tech_debt(issues)
         assert debts == []
 

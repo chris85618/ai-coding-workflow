@@ -19,6 +19,7 @@ from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
 from agentic_workflow.domain.algorithms.pipeline_completeness import (
     calculate_completeness,
 )
+from agentic_workflow.domain.algorithms.sonarcloud_gate import SonarCloudGate
 from agentic_workflow.domain.algorithms.warning_policy_verifier import (
     WarningPolicyVerifier,
 )
@@ -238,3 +239,49 @@ def node_warning_policy_gate(state: WorkflowState) -> WorkflowState:
         }
 
     return {"metadata": metadata}
+
+
+def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
+    """DAG node: Verify SonarCloud results and apply closed-loop feedback.
+
+    Implements FR-015, FR-035, FR-036.
+    Checks for required config, evaluates results, and converts failures to DEBT.
+    """
+    metadata = state.get("metadata", {})
+    # 1. Verify Configuration (from environment variables)
+    required_vars = ["SONAR_TOKEN", "SONAR_PROJECT_KEY", "SONAR_ORGANIZATION"]
+    config_check = SonarCloudGate.verify_configuration(required_vars)
+
+    if not config_check["valid"]:
+        metadata["sonar_status"] = "disabled"
+        metadata["sonar_warning"] = (
+            f"Missing SonarCloud parameters: {config_check['missing_vars']}"
+        )
+        # ADR-OPS-001: 參數缺失時自動降級為 WARNING 並繼續
+        return {
+            "metadata": metadata,
+            "last_gate_decision": GateDecision.PASS_WITH_WARNINGS,
+        }
+
+    # 2. Evaluate Results (Mocked or from metadata if already fetched by CI)
+    # In a real scenario, this would call a SonarCloud API adapter
+    sonar_metrics = metadata.get("sonar_metrics", {})
+    sonar_issues = metadata.get("sonar_issues", [])
+
+    eval_result = SonarCloudGate.evaluate(sonar_metrics, sonar_issues)
+
+    # 3. Closed Loop: Feed back tech debts to state/docs
+    if not eval_result["passed"]:
+        # Record tech debts for systematic improvement
+        debts = eval_result["tech_debts"]
+        metadata["pending_sonar_debts"] = debts
+        metadata["sonar_failures"] = eval_result["failures"]
+
+        return {
+            "metadata": metadata,
+            "last_gate_decision": GateDecision.FAIL,
+            "last_error": f"SonarCloud Quality Gate Failed: {eval_result['failures']}",
+        }
+
+    metadata["sonar_status"] = "passed"
+    return {"metadata": metadata, "last_gate_decision": GateDecision.PASS}
