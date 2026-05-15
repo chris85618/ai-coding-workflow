@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Stage 8 COMPLETE — test coverage 100.00% (646 tests). README/config.yaml 文件完整更新，DEBT-006 閉合。`
-**Last Updated**: `2026-05-15T17:31:00+08:00`
+**Current Phase/Stage**: `Phase 9 COMPLETE — repo cleaned (.gitignore/tracking), changes pushed to origin.`
+**Last Updated**: `2026-05-15T17:38:00+08:00`
 **Recovery Mode**: false
 
 ---
@@ -32,7 +32,8 @@ ROOT: {零容忍警告治理}
 ├── ✅ 修改 pyproject.toml filterwarnings (NFR-001)
 ├── ✅ 修正 test_graph_builder.py 邏輯 (run_path)
 ├── ✅ 修正 test_invariants_verifier.py 邏輯 (run_path)
-└── ⏳ 等待人類發起下一階段任務 (Phase 9/10)
+├── ✅ Phase 9: commit & push (cleanup .gitignore)
+└── ⏳ 等待人類發起下一階段任務 (Phase 10 Retro)
 ```
 
 ---
@@ -50,6 +51,7 @@ ROOT: {零容忍警告治理}
 | Stage 6 | ✅ (self-bootstrap) | — | 2026-05-13 |
 | Stage 7 | ✅ (self-bootstrap) | — | 2026-05-13 |
 | Stage 8 | ✅ (Strict Error) | ADR-GOV-026 | 2026-05-15 |
+| Phase 9 | ✅ | — | 2026-05-15 |
 
 > 每個 Phase/Stage 通過後新增一行。已歸檔的行保留作為恢復判定依據。
 
@@ -143,8 +145,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-15T17:31+08:00
-- **Pipeline Position (recorded)**: Stage 8 COMPLETE (100% Coverage, 0 Warnings)
-- **Actual Work Done**: README 完整重寫（LangGraph 架構說明 + 自舉 + API Key 配置）。config.yaml 提示詞工程最佳化。DEBT-006 閉合確認（graph.py 100%）。
-- **State Diff**: DEBT-006 移除；Next Actions 更新；646 tests 仍 100%。
+- **Last Session Date**: 2026-05-15T17:38+08:00
+- **Pipeline Position (recorded)**: Phase 9 COMPLETE
+- **Actual Work Done**: Commit & Push complete. Cleaned up repository by adding `.coverage` and `.pytest_cache` to `.gitignore` and removing `.coverage` binary from git tracking.
+- **State Diff**: Phase 9 Gate closed; .gitignore updated; tracking hardened.
 - **Pending Escalations Carried Over**: 無

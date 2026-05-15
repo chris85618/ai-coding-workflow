@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-15T17:16:45+08:00 (Strict 100% statement + branch coverage enforcement)
-**Validation Status**: ✅ ALG-010 (OO Mandate), test coverage 100.00% (646 passing); 298 條追溯紀錄，零孤兒
+**Last Validated**: 2026-05-15T17:38:00+08:00 (Phase 9 Ship COMPLETE; repo tracking hardened)
+**Validation Status**: ✅ ALG-010 (OO Mandate), test coverage 100.00% (646 passing); 300 條追溯紀錄，零孤兒
 
 ---
 
@@ -350,6 +350,8 @@
 | LESSON-043 | FILTERING_LOGIC_FLAW | `orchestrator.py` (Step 4) | - | guards |
 | LESSON-044 | DELIVERY_MODEL_DRIFT | `orchestrator.py` (Step 2) | - | guards |
 | LESSON-045 | FILTERING_LOGIC_FLAW | `warning_policy_verifier.py`, `graph.py` (s8_warning) | ADR-GOV-026 | guards |
+| LESSON-046 | PROCESS_GAP | `.gitignore`, `mcp_GitKraken_git_push` | - | guards |
+| LESSON-047 | ARCHITECTURE_EROSION | `AGENTS.md` (Scope Rules - Parent Repo Awareness) | - | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
@@ -421,12 +423,12 @@ INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 | Stage 7 | SC-xxx | 19 | 19/19 | 19/19 | 100% |
 | Stage 8 | TC-xxx | 14 | 14/14 | 14/14 | 100% |
 | Skill 實作 | FR→Skill | 26 | 26/26 | — (映射) | 100% |
-| Skill 守衛 | LESSON→Skill | 34 | 34/34 | — (映射) | 100% |
+| Skill 守衛 | LESSON→Skill | 36 | 36/36 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 19 | 19/19 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |
-| **合計** | — | **298** | — | — | **100%** |
+| **合計** | — | **300** | — | — | **100%** |
 
-> **Status**: ADR-GOV-026 (Zero-Tolerance Warnings) hardened via autonomous LangGraph gate. +9 IDs total. 298 條追溯紀錄，零孤兒。
+> **Status**: Phase 9 Ship COMPLETE. Repository cleaned (.gitignore updated, binary tracking removed). 300 條追溯紀錄，零孤兒。
 > **未應對風險**: 3 (RISK-001/004/005 MEDIUM)
 > **技術債**: 1 (DEBT-005 P2)
