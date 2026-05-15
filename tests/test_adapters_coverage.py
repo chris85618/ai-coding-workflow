@@ -236,3 +236,118 @@ class TestFileRepositoryFindAll:
         id_strings = {obj.full_id for obj in all_ids}
         assert "FR-001" in id_strings
         assert "FR-002" in id_strings
+
+
+# ===========================================================================
+# LLM Adapter: Token Limit Exceeded
+# ===========================================================================
+
+class TestLLMAdapterTokenLimit:
+    """Tests for the token auto-continuation and fast-fail logic."""
+
+    def test_auto_continuation(self) -> None:
+        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
+        from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
+        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.models.enums import TaskType
+        
+        m = ModelConfig(provider="openai", model="gpt-4o")
+        cfg = StrategyConfig(
+            reasoning_model=m, editing_model=m, cheap_model=m,
+            default_model=m, fallback_model=m,
+            enabled_providers=frozenset(["openai"]),
+        )
+        adapter = LangChainLLMAdapter(cfg)
+        
+        mock_model = MagicMock()
+        resp1 = MagicMock()
+        resp1.content = "Part 1"
+        resp1.response_metadata = {"finish_reason": "length"}
+        resp2 = MagicMock()
+        resp2.content = " Part 2"
+        resp2.response_metadata = {"finish_reason": "stop"}
+        mock_model.invoke.side_effect = [resp1, resp2]
+        
+        with patch("agentic_workflow.adapters.llm.llm_adapter._build_langchain_model", return_value=mock_model):
+            # CRITIQUE supports auto-continuation
+            result = adapter.complete("prompt", TaskType.CRITIQUE)
+            assert result == "Part 1 Part 2"
+            assert mock_model.invoke.call_count == 2
+            
+    def test_structured_fast_fail(self) -> None:
+        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
+        from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
+        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.models.enums import TaskType
+        from agentic_workflow.domain.models.exceptions import TokenLimitExceededError
+        
+        m = ModelConfig(provider="openai", model="gpt-4o")
+        cfg = StrategyConfig(
+            reasoning_model=m, editing_model=m, cheap_model=m,
+            default_model=m, fallback_model=m,
+            enabled_providers=frozenset(["openai"]),
+        )
+        adapter = LangChainLLMAdapter(cfg)
+        
+        mock_model = MagicMock()
+        resp = MagicMock()
+        resp.content = "{\"partial\": "
+        resp.response_metadata = {"finish_reason": "length"}
+        mock_model.invoke.return_value = resp
+        
+        with patch("agentic_workflow.adapters.llm.llm_adapter._build_langchain_model", return_value=mock_model):
+            # RESOLVE does not support auto-continuation
+            with pytest.raises(TokenLimitExceededError, match="Auto-continuation disabled"):
+                adapter.complete("prompt", TaskType.RESOLVE)
+
+    def test_stop_reason_anthropic(self) -> None:
+        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
+        from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
+        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.models.enums import TaskType
+        
+        m = ModelConfig(provider="anthropic", model="claude-opus")
+        cfg = StrategyConfig(
+            reasoning_model=m, editing_model=m, cheap_model=m,
+            default_model=m, fallback_model=m,
+            enabled_providers=frozenset(["anthropic"]),
+        )
+        adapter = LangChainLLMAdapter(cfg)
+        
+        mock_model = MagicMock()
+        resp = MagicMock()
+        resp.content = "Anthropic reply"
+        # Simulate finish_reason being missing and using stop_reason
+        resp.response_metadata = {"stop_reason": "stop_sequence"}
+        mock_model.invoke.return_value = resp
+        
+        with patch("agentic_workflow.adapters.llm.llm_adapter._build_langchain_model", return_value=mock_model):
+            result = adapter.complete("prompt", TaskType.COMPREHEND)
+            assert result == "Anthropic reply"
+            
+    def test_max_continuations_exceeded(self) -> None:
+        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
+        from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
+        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.models.enums import TaskType
+        from agentic_workflow.domain.models.exceptions import TokenLimitExceededError
+        
+        m = ModelConfig(provider="openai", model="gpt-4o")
+        cfg = StrategyConfig(
+            reasoning_model=m, editing_model=m, cheap_model=m,
+            default_model=m, fallback_model=m,
+            enabled_providers=frozenset(["openai"]),
+        )
+        adapter = LangChainLLMAdapter(cfg)
+        
+        mock_model = MagicMock()
+        resp = MagicMock()
+        resp.content = "Loop "
+        resp.response_metadata = {"finish_reason": "length"}
+        # It will continuously return length. max_continuations is 3.
+        # It will invoke 4 times (initial + 3 continuations) and then raise.
+        mock_model.invoke.return_value = resp
+        
+        with patch("agentic_workflow.adapters.llm.llm_adapter._build_langchain_model", return_value=mock_model):
+            with pytest.raises(TokenLimitExceededError, match="across 3 continuations"):
+                adapter.complete("prompt", TaskType.CRITIQUE)

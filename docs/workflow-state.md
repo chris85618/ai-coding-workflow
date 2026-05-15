@@ -126,8 +126,8 @@ FOR each pending WBS leaf L:
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Phase 10 COMPLETE — LESSON-045~049 歸檔，RISK-004 降評，追溯矩陣已影片化。`
-**Last Updated**: `2026-05-15T17:43:00+08:00`
+**Current Phase/Stage**: `Stage 3 COMPLETE — ADR-STR-008 建立，Token 機制實作。`
+**Last Updated**: `2026-05-15T22:30:00+08:00`
 **Recovery Mode**: false
 
 ---
@@ -258,9 +258,9 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-15T22:03+08:00
-- **Pipeline Position (recorded)**: Phase 10 COMPLETE (架構修復，ADR-STR-007)
-- **Actual Work Done**: 移除 YAML 動態建圖路徑（graph_builder.py + test_graph_builder.py）。建立 ADR-STR-007（單一建圖路徑）。修訂 ADR-STR-006 scope。更新 5 個受影響檔案 + README + CHANGELOG。636 tests, 100% coverage 維持。
-- **State Diff**: 架構性澄清完成，無 WBS 結構變更。
+- **Last Session Date**: 2026-05-15T22:30+08:00
+- **Pipeline Position (recorded)**: Stage 3 COMPLETE (架構設計 ADR-STR-008)
+- **Actual Work Done**: 建立 ADR-STR-008 (Token 機制)，修改 `llm_adapter.py` 以實作 TaskType-aware 的自動續寫與快速失敗機制，新增 `exceptions.py`。更新 `traceability-matrix.md`，新增 FR-034 追溯。
+- **State Diff**: 架構性擴展完成。
 - **Pending Escalations Carried Over**: 無
 

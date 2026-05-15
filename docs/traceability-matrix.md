@@ -43,6 +43,7 @@
 | FEA-012 | NFR-009, NFR-010 | constrains | ✅ |
 | FEA-013 | FR-033 | decomposes | ✅ |
 | FEA-013 | NFR-011 | constrains | ✅ |
+| FEA-011 | FR-034 | decomposes | ✅ (NEW: Token Limit Mechanism) |
 
 ### FR → UC
 
@@ -81,6 +82,7 @@
 | FR-031 | UC-014 | realizes | ✅ |
 | FR-032 | UC-015 | realizes | ✅ |
 | FR-033 | UC-004 | realizes | ✅ |
+| FR-034 | UC-003 | realizes | ✅ |
 
 ### Stakeholder → BG
 
@@ -129,8 +131,9 @@
 | [ADR-STR-005](adr/ADR-STR-005.md) | Markdown ↔ JSON 雙向轉換策略 | STR | Accepted | FR-031, NFR-009 | justifies |
 | [ADR-STR-006](adr/ADR-STR-006.md) | 外部化 YAML 配置 (Models & Prompts Only) | STR | Amended | FR-032, NFR-010 | justifies |
 | [ADR-STR-007](adr/ADR-STR-007.md) | 單一建圖路徑 — OO Builder 為唯一合法建圖機制 | STR | Accepted | NFR-003, RISK-004 | justifies |
+| [ADR-STR-008](adr/ADR-STR-008.md) | Token Budget & Long Response Continuation Mechanism | STR | Accepted | FR-034 | justifies |
 
-> 類別統計：STR=7, GOV=26, SEC=0, SCP=0, GATE=0, OPS=0, **合計=33**
+> 類別統計：STR=8, GOV=26, SEC=0, SCP=0, GATE=0, OPS=0, **合計=34**
 
 ### ALG → FR
 
@@ -194,6 +197,7 @@
 | CLS-018 | CLS-017 | models | ✅ (NEW: ModelConfig VO) |
 | CLS-019 | UC-014, FR-031 | models | ✅ (NEW: Markdown Parser) |
 | CLS-020 | UC-015, FR-032 | models | ✅ (NEW: YAML Configurator) |
+| CLS-021 | FR-034 | models | ✅ (NEW: TokenLimitExceededError) |
 
 ### EVT → CLS
 
@@ -238,6 +242,7 @@
 | INV-022 | CLS-017 | formalizes | ✅ (NEW: Strategy provider constraint) |
 | INV-023 | MCPGateway | formalizes | ✅ (NEW: Atomic commit completeness) |
 | INV-024 | ALG-006 | formalizes | ✅ (NEW: RepoMap budget constraint) |
+| INV-025 | CLS-021 | formalizes | ✅ (NEW: Token Bound Continuation Safety) |
 
 ### SC → UC / INV
 
@@ -262,6 +267,7 @@
 | SC-017 | UC-014 | INV-001 | covers, verifies | ✅ (NEW: MD-JSON Parser) |
 | SC-018 | UC-015 | INV-001 | covers, verifies | ✅ (NEW: YAML Config) |
 | SC-019 | UC-001 | INV-001, INV-002-v2, INV-003 | covers, verifies | ✅ (NEW: LangGraph DAG & Invariants) |
+| SC-020 | UC-003 | INV-025 | covers, verifies | ✅ (NEW: Auto-continuation bounding) |
 
 ### TC → SC
 
@@ -281,6 +287,7 @@
 | TC-012 | SC-017 | validates | ✅ |
 | TC-013 | SC-018 | validates | ✅ |
 | TC-014 | SC-019 | validates | ✅ |
+| TC-015 | SC-020 | validates | ✅ |
 
 ### FR → Skill 實作映射
 
@@ -312,6 +319,7 @@
 | FR-024 | `change_management.py`, `micro_validation.py` | implemented-by |
 | FR-025 | `change_management.py` (PGVG) | implemented-by |
 | FR-033 | `warning_policy_verifier.py`, `nodes.py` (node_warning_policy_gate) | implemented-by |
+| FR-034 | `llm_adapter.py` (LangChainLLMAdapter.complete) | implemented-by |
 
 ### LESSON → Skill 守衛映射
 
@@ -356,6 +364,7 @@
 | LESSON-048 | PROCESS_GAP | `phase-0-orchestration.md` (gitignore checklist) | - | guards |
 | LESSON-049 | ARCHITECTURE_EROSION | `AGENTS.md` (Step 0 skill path fallback) | - | guards |
 | LESSON-050 | ARCHITECTURE_EROSION | `frameworks/graph.py` (OO Builder 為唯一建圖路徑), `docs/adr/ADR-STR-007.md` | ADR-STR-007 | guards |
+| LESSON-051 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 4-8 cannot be bypassed for structural features) | - | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
@@ -423,18 +432,18 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 3 | ADR-STR-xxx | 7 | 7/7 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 26 | 26/26 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
-| Stage 5 | CLS-xxx | 20 | 20/20 | 20/20 | 100% |
+| Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
 | Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
-| Stage 6 | INV-xxx | 24 | 24/24 | 24/24 | 100% |
-| Stage 7 | SC-xxx | 19 | 19/19 | 19/19 | 100% |
-| Stage 8 | TC-xxx | 14 | 14/14 | 14/14 | 100% |
-| Skill 實作 | FR→Skill | 26 | 26/26 | — (映射) | 100% |
-| Skill 守衛 | LESSON→Skill | 39 | 39/39 | — (映射) | 100% |
+| Stage 6 | INV-xxx | 25 | 25/25 | 25/25 | 100% |
+| Stage 7 | SC-xxx | 20 | 20/20 | 20/20 | 100% |
+| Stage 8 | TC-xxx | 15 | 15/15 | 15/15 | 100% |
+| Skill 實作 | FR→Skill | 27 | 27/27 | — (映射) | 100% |
+| Skill 守衛 | LESSON→Skill | 40 | 40/40 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 20 | 20/20 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |
-| **合計** | — | **304** | — | — | **100%** |
+| **合計** | — | **311** | — | — | **100%** |
 
-> **Status**: ADR-STR-007 架構強化完成。YAML 動態建圖已移除。636 測試, 100% coverage。304 條追溯紀錄，零孤兒。
+> **Status**: TDD/BDD 追溯修復 (TC-015/SC-020/INV-025/CLS-021)。638 測試, 100% coverage。311 條追溯紀錄，零孤兒。
 > **未應對風險**: 3 (RISK-001/004/005 MEDIUM)
 > **技術債**: 1 (DEBT-005 P2)
