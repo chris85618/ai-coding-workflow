@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """Unit tests for multiple governance algorithms.
 
 Includes: completion_check, exhaustive_search, iter_loop,
@@ -7,10 +5,10 @@ security_audit, sonarcloud_gate, workflow_resume.
 Targets 100% coverage on each module.
 """
 
-from typing import TYPE_CHECKING, Any
-from unittest.mock import MagicMock
+from __future__ import annotations
 
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+from typing import Any
+from unittest.mock import MagicMock
 
 from agentic_workflow.adapters.langgraph.nodes import (
     node_advance_stage,
@@ -24,6 +22,7 @@ from agentic_workflow.adapters.langgraph.nodes import (
     node_start_pipeline,
     should_continue_iterating,
 )
+from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 from agentic_workflow.domain.algorithms.adr_governance import ADRGovernance
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
 from agentic_workflow.domain.algorithms.invariants_verifier import DAGInvariantVerifier
