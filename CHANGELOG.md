@@ -6,6 +6,33 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.1.2] — 2026-05-15
+
+### Summary
+架構強化版本。依 ADR-STR-007 移除 YAML 動態建圖路徑，強制 OO Builder 為唯一合法建圖機制。
+636 unit tests, 100.00% coverage.
+
+### Removed (Breaking Change — Architecture)
+- `src/agentic_workflow/adapters/langgraph/graph_builder.py` — YAML 動態建圖模組已刪除
+- `tests/test_graph_builder.py` — 對應測試已刪除
+- `config.yaml` 的 `workflow_graph` 區段 — 圖拓樸不再可外部配置
+
+### Changed
+- `docs/adr/ADR-STR-006.md` — scope 縮窄至 models+prompts，排除 graph topology
+- `src/agentic_workflow/domain/algorithms/invariants_verifier.py` — `__main__` 改為呼叫 `build_graph()` (OO Builder)
+- `tests/test_invariants_verifier.py` — mock patch 路徑更新
+- `tests/step_defs/test_langgraph_dag.py` — 全部改為使用 `build_graph()`
+- `README.md` — 移除方式 B、Self-Bootstrap YAML 路徑、更新 Key Decisions 表格
+
+### Added
+- `docs/adr/ADR-STR-007.md` — 新建 ADR：單一建圖路徑原則
+
+### Rationale (ADR-STR-007)
+允許多條建圖路徑等同於允許 LLM 代理在面對壓力時合法化地選擇省略治理步驟。
+此為使用者放棄 skill-based 架構的直接根因：彈性路徑最終必然導致流程跳過。
+
+---
+
 ## [0.1.1] — 2026-05-15
 
 ### Summary

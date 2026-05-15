@@ -46,8 +46,8 @@ class DAGInvariantVerifier:
         }
 
 if __name__ == "__main__":  # pragma: no cover
-    from agentic_workflow.adapters.langgraph.graph_builder import build_graph_from_config
-    graph = build_graph_from_config()
+    from agentic_workflow.frameworks.graph import build_graph
+    graph = build_graph()
 
     result = DAGInvariantVerifier.run_all_verifications(graph)
     if result["passed"]:

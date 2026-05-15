@@ -23,10 +23,9 @@ ai_coding/
 │   ├── adapters/
 │   │   └── langgraph/         # 唯一知道 LangGraph 的層
 │   │       ├── state_mapper.py    # WorkflowState TypedDict + 雙向轉換器
-│   │       ├── nodes.py           # DAG 節點函數
-│   │       └── graph_builder.py   # 從 config.yaml 動態建圖
+│   │       └── nodes.py           # DAG 節點函數
 │   └── frameworks/
-│       ├── graph.py           # OO Builder Classes（主圖建構）
+│       ├── graph.py           # OO Builder Classes（唯一建圖路徑，ADR-STR-007）
 │       ├── config.py          # YAML 配置載入器
 │       └── main.py            # CLI 入口點
 ├── docs/                      # 治理產出物
@@ -107,9 +106,10 @@ def node_start_pipeline(state: WorkflowState) -> WorkflowState:
 
 Domain 層的 25 個演算法（`algorithms/`）完全不 import LangGraph。
 
-### 4. 兩種建圖方式
+### 4. 建圖方式（唯一路徑）
 
-#### 方式 A：OO Builder（硬編碼圖結構）
+> **ADR-STR-007**: OO Builder 是唯一合法的建圖機制。YAML 動態建圖已被移除。
+> 允許多條建圖路徑等同於允許 LLM 代理合法化地跳過治理步驟，屬於架構性危害。
 
 ```python
 from agentic_workflow.frameworks.graph import build_graph
@@ -117,15 +117,7 @@ from agentic_workflow.frameworks.graph import build_graph
 app = build_graph()  # → MasterGraphBuilder.build()
 ```
 
-#### 方式 B：YAML 動態建圖（config-driven）
-
-```python
-from agentic_workflow.adapters.langgraph.graph_builder import build_graph_from_config
-
-app = build_graph_from_config("config.yaml")
-```
-
-`config.yaml` 的 `workflow_graph` 區段宣告節點名稱、邊與條件邊。系統用 `getattr(nodes_module, f"node_{name}")` 自動綁定函數，無需改 Python 即可調整管線拓樸。
+變更圖拓樸的唯一合法方式：修改 `frameworks/graph.py` 並建立對應 ADR。
 
 ---
 
@@ -237,9 +229,9 @@ python -m agentic_workflow.frameworks.main
 以此框架的管線分析框架本身（指向 `ai_coding/` 根目錄）：
 
 ```python
-from agentic_workflow.adapters.langgraph.graph_builder import build_graph_from_config
+from agentic_workflow.frameworks.graph import build_graph
 
-app = build_graph_from_config("config.yaml")
+app = build_graph()  # ADR-STR-007: OO Builder 是唯一合法建圖路徑
 
 state = {
     "pipeline_id": "self-bootstrap-v2",
@@ -254,17 +246,15 @@ state = {
 result = app.invoke(state)
 ```
 
-管線自動執行順序（依 `config.yaml`）：
+管線執行順序由 `MasterGraphBuilder` 硬性定義：
 
 ```
-start_pipeline
-→ pipeline_completeness   ← 掃描 docs/ 計算治理完成度
-→ orchestrator            ← 判斷當前 Phase/Stage
-→ micro_validation        ← 驗證追溯 ID 格式
-→ impact_analysis         ← 計算 blast radius
-→ auto_gate               ← 自動通過/失敗判定
-→ [條件] advance_stage | iterate_stage
+start → phase_0 → phase_1 → phase_2
+      → stage_3 → stage_4 → stage_5 → stage_6 → stage_7 → stage_8
+      → phase_9 → phase_10 → complete → END
 ```
+
+`stage_3` 到 `stage_8` 每個均執行完整的 `IterationGraphBuilder`（α/β 迭代 + 10 步微驗證），不可省略。
 
 ---
 
@@ -277,8 +267,8 @@ python -m pytest tests/
 # 只測 LangGraph 圖建構
 python -m pytest tests/test_frameworks_graph.py tests/test_frameworks_graph_coverage.py -v
 
-# 只測 YAML 動態建圖
-python -m pytest tests/test_graph_builder.py -v
+# 只測 OO Builder 圖建構
+python -m pytest tests/test_frameworks_graph.py tests/test_frameworks_graph_coverage.py -v
 ```
 
 ---
@@ -327,7 +317,8 @@ flowchart TD
 | Domain 完全不知道 LangGraph | `algorithms/` 只用純 Python | ADR-STR-002 |
 | 節點只做狀態轉換 | `state_to_X → X.method() → X_to_state` | ADR-STR-003 |
 | 子圖共用 | `iter_app` 同一物件掛在 stage_3~8 | ALG-001 |
-| YAML 驅動拓樸 | `graph_builder.py` 動態綁定節點函數 | ADR-STR-006 |
+| **單一建圖路徑** | OO Builder 是唯一合法建圖機制，YAML 拓樸已移除 | **ADR-STR-007** |
+| YAML 僅限 models+prompts | `config.yaml` 不含圖拓樸 | ADR-STR-006 (amended) |
 | 零警告強制 | `filterwarnings = ["error", ...]` | ADR-GOV-026 |
 | OO 演算法類別 | 所有 algorithms 為 class，不用 module-level 函數 | ALG-010 |
 
@@ -338,8 +329,9 @@ flowchart TD
 | File | Purpose |
 |------|---------|
 | [AGENTS.md](./AGENTS.md) | 統一執行協議：Step 0-12 + skill routing |
-| [config.yaml](./config.yaml) | 模型配置 + 提示詞範本 + 圖拓樸宣告 |
+| [config.yaml](./config.yaml) | 模型配置 + 提示詞範本（**不含**圖拓樸，見 ADR-STR-007） |
+| [docs/adr/ADR-STR-007.md](./docs/adr/ADR-STR-007.md) | 單一建圖路徑決策紀錄 |
 | [docs/traceability-matrix.md](./docs/traceability-matrix.md) | 追溯矩陣 + ADR 登記簿 |
 | [docs/workflow-state.md](./docs/workflow-state.md) | 當前管線位置持久化 |
 | `src/agentic_workflow/adapters/langgraph/nodes.py` | 所有 DAG 節點函數 |
-| `src/agentic_workflow/frameworks/graph.py` | OO Graph Builder Classes |
+| `src/agentic_workflow/frameworks/graph.py` | OO Graph Builder Classes（唯一建圖路徑） |

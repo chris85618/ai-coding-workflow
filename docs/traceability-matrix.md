@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-15T17:42:00+08:00 (Phase 10 Retro COMPLETE; LESSON-048/049 歸檔)
-**Validation Status**: ✅ ALG-010 (OO Mandate), test coverage 100.00% (646 passing); 302 條追溯紀錄，零孤兒
+**Last Validated**: 2026-05-15T22:03:00+08:00 (ADR-STR-007 架構強化 — YAML 動態建圖移除)
+**Validation Status**: ✅ ALG-010 (OO Mandate), ADR-STR-007 (Single Build Path), test coverage 100.00% (636 passing); 304 條追溯紀錄，零孤兒
 
 ---
 
@@ -127,9 +127,10 @@
 | [ADR-STR-003](adr/ADR-STR-003.md) | 自主執行模型 (No HITL Gates) | STR | Accepted | FR-012, FR-013, FR-014-v2, FR-019-v2, FR-021-v2 | justifies |
 | [ADR-STR-004](adr/ADR-STR-004.md) | AI Tool Feature Absorption — Strategy Pattern + Hooks + RepoMap | STR | Accepted | FR-026, FR-027, FR-028, FR-029, FR-030, NFR-008 | justifies |
 | [ADR-STR-005](adr/ADR-STR-005.md) | Markdown ↔ JSON 雙向轉換策略 | STR | Accepted | FR-031, NFR-009 | justifies |
-| [ADR-STR-006](adr/ADR-STR-006.md) | 外部化 YAML 配置 | STR | Accepted | FR-032, NFR-010 | justifies |
+| [ADR-STR-006](adr/ADR-STR-006.md) | 外部化 YAML 配置 (Models & Prompts Only) | STR | Amended | FR-032, NFR-010 | justifies |
+| [ADR-STR-007](adr/ADR-STR-007.md) | 單一建圖路徑 — OO Builder 為唯一合法建圖機制 | STR | Accepted | NFR-003, RISK-004 | justifies |
 
-> 類別統計：STR=6, GOV=26, SEC=0, SCP=0, GATE=0, OPS=0, **合計=32**
+> 類別統計：STR=7, GOV=26, SEC=0, SCP=0, GATE=0, OPS=0, **合計=33**
 
 ### ALG → FR
 
@@ -354,6 +355,7 @@
 | LESSON-047 | ARCHITECTURE_EROSION | `AGENTS.md` (Scope Rules - Parent Repo Awareness) | - | guards |
 | LESSON-048 | PROCESS_GAP | `phase-0-orchestration.md` (gitignore checklist) | - | guards |
 | LESSON-049 | ARCHITECTURE_EROSION | `AGENTS.md` (Step 0 skill path fallback) | - | guards |
+| LESSON-050 | ARCHITECTURE_EROSION | `frameworks/graph.py` (OO Builder 為唯一建圖路徑), `docs/adr/ADR-STR-007.md` | ADR-STR-007 | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
@@ -378,7 +380,8 @@
 | ADR-GOV-023 | `traceability_validator.py`, `root_cause_leftshift.py`, `adr_governance.py` | modified-by |
 | ADR-GOV-024 | `AGENTS.md` (#15 + Step 輸出協議 + Step 0-12 輸出標注) | modified-by |
 | ADR-GOV-025 | `risk_manager.py` (CREATE), `risk-register.md` (CREATE), `tech-debt-register.md` (CREATE), `tech_debt_manager.py` (Step 5), `ADR-TEMPLATE.md` (關聯產出物), `AGENTS.md` (Routing+12.5), `security_audit.py` (Step 5), `orchestrator.py` (Step 3.5), `orchestrator.py` (Step 5.5), `root_cause_leftshift.py` (Step 7.5), `orchestrator.py` (Step 4.5) | modified-by |
-| ADR-GOV-026 | `pyproject.toml`, `test_graph_builder.py`, `test_invariants_verifier.py`, `graph.py`, `nodes.py`, `warning_policy_verifier.py` | modified-by |
+| ADR-GOV-026 | `pyproject.toml`, `test_invariants_verifier.py`, `graph.py`, `nodes.py`, `warning_policy_verifier.py` | modified-by |
+| ADR-STR-007 | `adapters/langgraph/graph_builder.py` (DELETED), `tests/test_graph_builder.py` (DELETED), `config.yaml` (workflow_graph removed), `docs/adr/ADR-STR-006.md` (amended), `invariants_verifier.py`, `test_invariants_verifier.py`, `tests/step_defs/test_langgraph_dag.py`, `README.md`, `CHANGELOG.md` | modified-by |
 
 > ADR-GOV-001/002/014/015/017/018/019/021, ADR-STR-001 為治理原則定義，嵌入 AGENTS.md Core Directives
 
@@ -390,6 +393,7 @@ FR-019 → Superseded by → FR-019-v2 (ADR-STR-003: DAG checkpoint 取代 workf
 FR-021 → Superseded by → FR-021-v2 (ADR-STR-003: checkpoint recovery 取代 file recovery)
 INV-002 → Superseded by → INV-002-v2 (ADR-STR-003: auto-gate取代 HITL gate)
 INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
+ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建圖路徑)
 ```
 
 > 當 ADR 狀態變更為 Superseded 時，在此記錄取代鏈：`ADR-xxx → Superseded by → ADR-yyy`
@@ -416,7 +420,7 @@ INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 | Stage 3 | FR-xxx | 31+3v2 | 34/34 | 34/34 | 100% |
 | Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 13 | 13/13 | 13/13 | 100% |
-| Stage 3 | ADR-STR-xxx | 6 | 6/6 | — | 100% |
+| Stage 3 | ADR-STR-xxx | 7 | 7/7 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 26 | 26/26 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
 | Stage 5 | CLS-xxx | 20 | 20/20 | 20/20 | 100% |
@@ -425,12 +429,12 @@ INV-005 → Superseded by → INV-005-v2 (ADR-STR-003: stepM before auto-gate)
 | Stage 7 | SC-xxx | 19 | 19/19 | 19/19 | 100% |
 | Stage 8 | TC-xxx | 14 | 14/14 | 14/14 | 100% |
 | Skill 實作 | FR→Skill | 26 | 26/26 | — (映射) | 100% |
-| Skill 守衛 | LESSON→Skill | 38 | 38/38 | — (映射) | 100% |
-| Skill 修改 | ADR→Skill | 19 | 19/19 | — (映射) | 100% |
+| Skill 守衛 | LESSON→Skill | 39 | 39/39 | — (映射) | 100% |
+| Skill 修改 | ADR→Skill | 20 | 20/20 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 5 | 5/5 | — (治理) | 100% |
-| **合計** | — | **302** | — | — | **100%** |
+| **合計** | — | **304** | — | — | **100%** |
 
-> **Status**: Phase 10 Retro COMPLETE. LESSON-048/049 歸檔。RISK-004 降評 MEDIUM(8)→MEDIUM(6)。302 條追溯紀錄，零孤兒。
+> **Status**: ADR-STR-007 架構強化完成。YAML 動態建圖已移除。636 測試, 100% coverage。304 條追溯紀錄，零孤兒。
 > **未應對風險**: 3 (RISK-001/004/005 MEDIUM)
 > **技術債**: 1 (DEBT-005 P2)

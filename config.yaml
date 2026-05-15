@@ -128,55 +128,16 @@ prompts:
       Markdown 內容：
       {content}
 
+
 # ============================================================
-# 工作流圖拓樸（YAML-Driven Config）
-# 對應 ADR-STR-006 + adapters/langgraph/graph_builder.py
-# 節點名稱 node_X → nodes.py 中的 node_X 函數
+# 圖拓樸
 # ============================================================
-workflow_graph:
-  nodes:
-    # Phase 0: 初始化
-    - start_pipeline          # 狀態機 NOT_STARTED → RUNNING
-    - pipeline_completeness   # 掃描 docs/ 計算治理完成度分數
-
-    # 核心執行節點
-    - orchestrator            # 依當前 Phase/Stage 分派任務
-    - micro_validation        # 10 步微驗證鏈（格式、ID、追溯）
-    - impact_analysis         # 計算變更 blast radius
-
-    # 閘門與流控
-    - auto_gate               # 自動通過/失敗判定（ADR-STR-003）
-    - advance_stage           # 推進到下一個 Stage
-    - iterate_stage           # 執行一輪 α/β 迭代
-
-    # Phase 9: 完成
-    - complete_pipeline       # 狀態機 RUNNING → COMPLETED
-
-  edges:
-    # 線性主幹
-    - source: __start__
-      target: start_pipeline
-    - source: start_pipeline
-      target: pipeline_completeness
-    - source: pipeline_completeness
-      target: orchestrator
-    - source: orchestrator
-      target: micro_validation
-    - source: micro_validation
-      target: impact_analysis
-    - source: impact_analysis
-      target: auto_gate
-    # 閘門後的回流邊
-    - source: advance_stage
-      target: orchestrator
-    - source: iterate_stage
-      target: orchestrator
-
-  conditional_edges:
-    # auto_gate 的條件出口
-    # 路由函數：should_continue_iterating(state) -> "gate" | "iterate"
-    - source: auto_gate
-      condition_func: should_continue_iterating
-      mapping:
-        gate: advance_stage    # 收斂 → 推進
-        iterate: iterate_stage # 未收斂 → 再迭代
+# ⚠️  ADR-STR-007: 圖拓樸（節點、邊、條件邊）由 frameworks/graph.py
+#     中的 OO Builder 類別（MasterGraphBuilder、IterationGraphBuilder、
+#     MicroValidationGraphBuilder）硬性編碼。
+#
+# 原 workflow_graph YAML 區段已於 2026-05-15 移除。
+# 原因：允許外部配置圖拓樸會創造「多條執行路徑」，使 LLM 可合理化
+#       省略治理步驟，導致災難性的流程跳過。
+#
+# 變更圖結構唯一合法路徑：修改 frameworks/graph.py 並建立對應 ADR。

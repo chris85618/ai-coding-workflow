@@ -258,8 +258,9 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-15T21:43+08:00
-- **Pipeline Position (recorded)**: Phase 10 COMPLETE
-- **Actual Work Done**: 完成 LESSON-048 守衛實作，更新 framework repository 的 `phase-0-orchestration.md` 加入 `.gitignore` 檢查，並 commit/push。
-- **State Diff**: Next Actions 已清理。
+- **Last Session Date**: 2026-05-15T22:03+08:00
+- **Pipeline Position (recorded)**: Phase 10 COMPLETE (架構修復，ADR-STR-007)
+- **Actual Work Done**: 移除 YAML 動態建圖路徑（graph_builder.py + test_graph_builder.py）。建立 ADR-STR-007（單一建圖路徑）。修訂 ADR-STR-006 scope。更新 5 個受影響檔案 + README + CHANGELOG。636 tests, 100% coverage 維持。
+- **State Diff**: 架構性澄清完成，無 WBS 結構變更。
 - **Pending Escalations Carried Over**: 無
+

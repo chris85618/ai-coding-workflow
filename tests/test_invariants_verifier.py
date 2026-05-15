@@ -129,11 +129,11 @@ class TestMainBlock:
         # Get the absolute path to the module file
         file_path = os.path.abspath(invariants_verifier.__file__)
 
-        # The __main__ block calls build_graph_from_config then DAGInvariantVerifier.
-        # Patch build_graph_from_config where it is imported inside __main__.
+        # The __main__ block calls build_graph then DAGInvariantVerifier.
+        # Patch build_graph where it is imported inside __main__.
         mock_graph = _mock_graph()
         with patch(
-            "agentic_workflow.adapters.langgraph.graph_builder.build_graph_from_config",
+            "agentic_workflow.frameworks.graph.build_graph",
             return_value=mock_graph,
         ):
             try:
