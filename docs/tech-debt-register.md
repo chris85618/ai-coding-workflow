@@ -1,7 +1,7 @@
 # Tech Debt Register — Unified Agentic Workflow System
 
 > **Last Updated**: 2026-05-15T00:47+08:00
-> **Total Active Items**: 1 (DEBT-005 deferred; DEBT-001~004 all resolved)
+> **Total Active Items**: 0 (DEBT-001~005 all resolved)
 > **Sprint Allocation**: 20% capacity
 > **維護 Skill**: `skills/workflow-skills/tech-debt-collect.md`, `skills/workflow-skills/tech-debt-framework.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § DEBT → FR
@@ -115,19 +115,21 @@
 | 欄位 | 值 |
 |------|-----|
 | **ID** | DEBT-005 |
-| **狀態** | open |
+| **狀態** | resolved |
 | **來源** | 流程債 |
-| **影響元件** | `.github/workflows/ci.yml` (尚不存在) |
+| **影響元件** | `.github/workflows/build.yml` |
 | **優先等級** | P2 |
 | **象限** | Quick Win |
 | **RICE Score** | 9.0 (R=10, I=2.0, C=0.9, E=2) |
 | **ADR 追溯** | N/A |
 | **FR 追溯** | FR-004 (quality gate), FR-005 (SonarCloud) |
 | **建立日期** | 2026-05-14T19:45+08:00 |
-| **預計處理 Sprint** | Backlog |
-| **解決日期** | N/A |
+| **預計處理 Sprint** | 本 Sprint |
+| **解決日期** | 2026-05-16T01:48+08:00 |
 
-**債務描述**: `pytest --cov` 本地已通過 98.88%，但尚未設定 GitHub Actions 將結果送至 SonarCloud。需建立 `.github/workflows/ci.yml`。
+**債務描述**: `pytest --cov` 本地已通過 98.88%，但尚未設定 GitHub Actions 將結果送至 SonarCloud。需建立/修改 CI workflow。
+
+**解決措施**: 2026-05-16 — 於 `.github/workflows/build.yml` 中新增測試與驗證步驟 (pytest, ruff, mypy)，在 SonarQube Scan 前產出 `reports/coverage.xml` 與 `reports/pytest.xml`。
 
 ---
 

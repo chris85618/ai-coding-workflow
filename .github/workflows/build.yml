@@ -5,14 +5,33 @@ on:
       - master
   pull_request:
     types: [opened, synchronize, reopened]
+env:
+  PYTHON_VERSION: "3.12"
 jobs:
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .[dev]
+      - name: Run validation and linting
+        run: |
+          python -m ruff check src tests
+          python -m mypy src tests --ignore-missing-imports --explicit-package-bases
+      - name: Run tests with coverage
+        run: |
+          python -m pytest --cov --cov-report=xml:reports/coverage.xml --junitxml=reports/pytest.xml
       - name: Determine SonarQube Version
         id: vars
         run: |
@@ -22,7 +41,7 @@ jobs:
             echo "SONAR_VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           fi
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -31,3 +50,4 @@ jobs:
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION_KEY }}
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.projectVersion=${{ env.SONAR_VERSION }}
+            -Dsonar.python.version=${{ env.PYTHON_VERSION }}

@@ -105,14 +105,13 @@ ROOT: {零容忍警告治理}
 | # | 行動 | 觸發條件 / LRM 判定 | 優先級 |
 |---|------|---------------------|--------|
 | 1 | 新開發週期計畫 (Phase 11) | 人類主動發起新功能需求 | P2 |
-| 2 | DEBT-005 SonarCloud CI 閘門 | 正在處理 (已完成 properties 配置) | P3 |
 
 ---
 
 ## Session Summary
 
-- **Last Session Date**: 2026-05-15T17:08+08:00
-- **Pipeline Position (recorded)**: Phase 10 COMPLETE (DEBT-005 部分處理)
-- **Actual Work Done**: 建立 `sonar-project.properties` 並更新 `pyproject.toml` 的 pytest 配置以支援 XML 報告。
-- **State Diff**: 推進 DEBT-005 至 in-progress 狀態。
+- **Last Session Date**: 2026-05-16T01:48+08:00
+- **Pipeline Position (recorded)**: Phase 10 COMPLETE (DEBT-005 處理完成)
+- **Actual Work Done**: 更新 `.github/workflows/build.yml` 增加完整測試與驗證步驟 (pytest, mypy, ruff)，完成 DEBT-005 CI 閘門設定。
+- **State Diff**: DEBT-005 完成，CI 工作流支援 SonarQube 所需之 XML 報告產生。
 - **Pending Escalations Carried Over**: 無
