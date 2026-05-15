@@ -9,8 +9,8 @@
 ## Pipeline Position
 
 **Pipeline ID**: `pipe-langgraph-migration-v1`
-**Current Phase/Stage**: `Stage 8 COMPLETE — test coverage 100.00% statement + branch (646 tests). ADR-GOV-026 (Zero-Tolerance Warnings) implemented & verified logic (run_path).`
-**Last Updated**: `2026-05-15T17:16:45+08:00`
+**Current Phase/Stage**: `Stage 8 COMPLETE — test coverage 100.00% (646 tests). README/config.yaml 文件完整更新，DEBT-006 閉合。`
+**Last Updated**: `2026-05-15T17:31:00+08:00`
 **Recovery Mode**: false
 
 ---
@@ -135,7 +135,6 @@ FOR each pending WBS leaf L:
 |---|------|---------------------|--------|
 | 1 | 新開發週期計畫 (Phase 2) | 人類主動發起新功能需求 | P2 |
 | 2 | DEBT-005 SonarCloud CI 閘門 | 視需求設定 | P3 |
-| 3 | DEBT-006 frameworks/graph.py branch coverage (84%) | ALG-010 下一週期優先 | P2 |
 
 ---
 
@@ -144,8 +143,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-15T17:15+08:00
+- **Last Session Date**: 2026-05-15T17:31+08:00
 - **Pipeline Position (recorded)**: Stage 8 COMPLETE (100% Coverage, 0 Warnings)
-- **Actual Work Done**: 實作 ADR-GOV-026 零容忍警告政策。修改 pyproject.toml 強制 `error` 並排除 stdlib 豁免。修正 `run_module` 警告根因為 `run_path`。
-- **State Diff**: 637 → 638 tests; coverage 100.00%; 排除 RuntimeWarning.
+- **Actual Work Done**: README 完整重寫（LangGraph 架構說明 + 自舉 + API Key 配置）。config.yaml 提示詞工程最佳化。DEBT-006 閉合確認（graph.py 100%）。
+- **State Diff**: DEBT-006 移除；Next Actions 更新；646 tests 仍 100%。
 - **Pending Escalations Carried Over**: 無
