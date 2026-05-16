@@ -16,6 +16,7 @@
 - [x] S10-02: 系統性重構 `WorkflowConfig` 為 OO 類別 — ✅ DONE
 - [x] S10-03: 移除 `frameworks/graph` 中的 Legacy Facades — ✅ DONE
 - [x] S10-04: 優化 SonarCloud 配置架構 (Nested Feedback Config) — ✅ DONE
+- [x] S10-05: 實作並驗證 SonarCloud 切換邏輯 (RISK-001) — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -48,3 +49,4 @@
 10. **全域對齊**: 更新 `main.py`、`nodes.py` 及全體測試套件（含 BDD）以對齊 OO 呼叫模式。
 11. **驗證與清理**: 通過全體測試，`ruff` 與 `mypy` 零警告。
 12. **SonarCloud 架構優化**: 將 `FeedbackConfig` 獨立並放入 `sonarcloud/` 套件，提升高內聚低耦合。
+13. **品質閘門達標**: 修復 `test_sonarcloud_node_switching.py` 的 9 個 mypy 錯誤，並通過新增測試案例達成全專案 100.00% 測試覆蓋率。

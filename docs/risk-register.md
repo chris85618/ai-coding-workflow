@@ -11,25 +11,25 @@
 
 ## Active Risks
 
-### RISK-001: SonarCloud 依賴外部服務帳號
+### RISK-001: SonarCloud 依賴外部服務帳號 — **CLOSED**
 
 | 欄位 | 值 |
 |------|-----|
 | **ID** | RISK-001 |
-| **狀態** | in-progress |
+| **狀態** | resolved |
 | **類別** | OPERATIONAL |
-| **機率** | 1 (罕見 <5%) ↓ 降評 |
-| **影響** | 3 (中等 — 品質閘門無法執行) |
-| **風險強度** | 3 (LOW) ↓ |
+| **機率** | 0 (已解決) ↓ |
+| **影響** | 3 (中等 — 品質閘門已實作降級路徑) |
+| **風險強度** | 0 (NONE) ↓ |
 | **應對策略** | MT (緩解) |
-| **應對動作** | 實作 `SonarCloudGate.verify_configuration` 校驗參數；缺失時自動降級為 WARNING 並記錄於 metadata (ADR-OPS-001) — **已於 2026-05-16 實測 active 成功** |
-| **預期殘餘風險** | 2 (LOW) |
+| **應對動作** | 實作 `node_sonarcloud_gate` 自動切換邏輯：設定缺失時 WARNING+繼續，齊全時呼叫 Adapter 獲取數據。已補齊 TC-SONAR-004 詳盡驗證。 |
+| **預期殘餘風險** | 0 |
 | **觸發來源** | Phase 2 — 範圍定義 Red Team 挑戰 3 |
 | **受影響 FEA** | FEA-006 |
-| **對應 LESSON** | LESSON-071, LESSON-072 |
+| **對應 LESSON** | LESSON-073, LESSON-074 |
 | **對應 ADR** | ADR-OPS-001, ADR-SEC-005 |
 | **建立日期** | 2026-05-13T00:00+08:00 |
-| **最後更新** | 2026-05-16T07:42+08:00 |
+| **最後更新** | 2026-05-16T10:15+08:00 |
 | **負責人** | HITL |
 
 **風險描述**：FEA-006 (SonarCloud 品質閘門) 依賴外部服務帳號。若帳號未設定或服務不可用，Stage 8 品質閘門無法執行，導致品質保證缺口。
@@ -126,6 +126,9 @@
 ---
 
 ## Closed / Rejected Risks
+
+### RISK-001: SonarCloud 依賴外部服務帳號 — **Closed 2026-05-16**
+實作 `node_sonarcloud_gate` 自動切換邏輯並補齊 TC-SONAR-004 驗證，設定缺失時自動降級。
 
 ### RISK-002: ADR 數量膨脹 — **Closed 2026-05-15**
 ADR 數量穩定在 ~30 筆，traceability-matrix.md 統一管理有效，Phase 10 確認緩解完成。

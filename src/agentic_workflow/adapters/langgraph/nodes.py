@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
+from agentic_workflow.adapters.sonarcloud.sonar_adapter import SonarCloudAdapter
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
 from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
 from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
@@ -245,19 +246,37 @@ def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
             "last_gate_decision": GateDecision.PASS_WITH_WARNINGS,
         }
 
-    # 2. Evaluate Results (Mocked or from metadata if already fetched by CI)
-    # In a real scenario, this would call a SonarCloud API adapter
-    sonar_metrics = metadata.get("sonar_metrics", {})
-    sonar_issues = metadata.get("sonar_issues", [])
+    # 2. Fetch Data if not already in metadata
+    sonar_metrics = metadata.get("sonar_metrics")
+    sonar_issues = metadata.get("sonar_issues")
 
+    if sonar_metrics is None or sonar_issues is None:
+        try:
+            adapter = SonarCloudAdapter(sonar_config_raw)
+            if sonar_metrics is None:
+                sonar_metrics = adapter.get_metrics()
+            if sonar_issues is None:
+                sonar_issues = adapter.get_issues()
+            metadata["sonar_metrics"] = sonar_metrics
+            metadata["sonar_issues"] = sonar_issues
+        except Exception as exc:
+            metadata["sonar_status"] = "error"
+            metadata["sonar_warning"] = f"SonarCloud API error: {exc}"
+            return {
+                "metadata": metadata,
+                "last_gate_decision": GateDecision.PASS_WITH_WARNINGS,
+            }
+
+    # 3. Evaluate Results
     eval_result = SonarCloudGate.evaluate(sonar_metrics, sonar_issues)
 
-    # 3. Closed Loop: Feed back tech debts to state/docs
+    # 4. Closed Loop: Feed back tech debts to state/docs
     if not eval_result["passed"]:
         # Record tech debts for systematic improvement
         debts = eval_result["tech_debts"]
         metadata["pending_sonar_debts"] = debts
         metadata["sonar_failures"] = eval_result["failures"]
+        metadata["sonar_status"] = "failed"
 
         return {
             "metadata": metadata,

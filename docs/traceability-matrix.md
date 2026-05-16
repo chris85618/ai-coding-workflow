@@ -163,7 +163,7 @@
 
 | RISK | 標題 | 狀態 | 機率 | 影響 | 強度 | 策略 | FEA | 對應LESSON | 對應ADR | 連結 |
 |------|------|------|------|------|------|------|-----|-----------|---------|------|
-| RISK-001 | SonarCloud依賴外部服務帳號 | open | 2 | 3 | 6(MEDIUM) | MT | FEA-006 | N/A | ADR-OPS-001 | mitigates |
+| RISK-001 | SonarCloud依賴外部服務帳號 | resolved | 2 | 3 | 6(MEDIUM) | MT | FEA-006 | LESSON-073,074 | ADR-OPS-001 | mitigates |
 | RISK-002 | ADR數量膨脹導致管理困難 | closed | 3 | 2 | 6(MEDIUM) | MT | FEA-009 | N/A | ADR-GOV-002 | mitigates |
 | RISK-003 | docs/與skills/版本漂移 | closed | 3 | 3 | 9(MEDIUM) | MT | FEA-001,009 | LESSON-022 | ADR-GOV-022 | mitigates |
 | RISK-004 | Session結束前未執行完整CM協議 | open | 2 | 4 | 8(MEDIUM) | MT | FEA-006 | LESSON-009,011,030 | ADR-GOV-010,011 | mitigates |
@@ -182,6 +182,7 @@
 | DEBT-005 | SonarCloud CI 閘門尚未設定 | in-progress | 流程債 | P2 | 9.0 | Quick Win | FR-004,005 | N/A | N/A | derives |
 | DEBT-006 | SonarCloudGate.evaluate 認知複雜度過高 | resolved | 程式碼品質 | P2 | 9.0 | Quick Win | FR-015 | RISK-012 | LESSON-063 | derives |
 | DEBT-007 | `os.environ` 依賴清理 | resolved | 安全債 | P1 | 12.0 | Quick Win | FR-032 | RISK-005 | LESSON-071,072 | derives |
+| DEBT-008 | SonarCloud 切換邏輯異步化 | open | 效能債 | P3 | 2.0 | Fill In | FR-015 | N/A | LESSON-073 | derives |
 
 ### CLS → UC / ALG
 
@@ -286,6 +287,7 @@
 | TC-SONAR-001 | 驗證 SonarCloud 閘門邏輯 | FR-015 | SonarCloudGate | ✅ |
 | TC-SONAR-002 | 驗證 SonarCloudConfig 缺失參數報告 | FR-032 | SonarCloudConfig | ✅ |
 | TC-SONAR-003 | 驗證 SonarCloudConfig 完整參數檢核 | FR-032 | SonarCloudConfig | ✅ |
+| TC-SONAR-004 | 驗證 SonarCloud 節點切換邏輯 (Mocked) | FR-015, FR-035, ADR-OPS-001 | node_sonarcloud_gate | ✅ |
 | TC-001 | SC-001 | validates | ✅ |
 | TC-002 | SC-002 | validates | ✅ |
 | TC-003 | SC-003 | validates | ✅ |
@@ -472,8 +474,8 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Skill 修改 | ADR→Skill | 26 | 26/26 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **323** | — | — | **100%** |
+| **合計** | — | **325** | — | — | **100%** |
 
-> **Status**: ADR-STR-009 登記 + src/ 模組重構 + ADR→Skill 映射補齊。318 條追溯紀錄，零孤兒。
-> **未應對風險**: 2 (RISK-001/004 MEDIUM)
-> **技術債**: 0 (All resolved)
+> **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
+> **未應對風險**: 1 (RISK-004 MEDIUM)
+> **技術債**: 1 (DEBT-008 P3)
