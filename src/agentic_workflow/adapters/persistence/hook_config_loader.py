@@ -65,7 +65,7 @@ class HookConfigLoader:
                     command=entry["command"],
                     blocking=entry.get("blocking", True),
                     matcher=entry.get("matcher", ""),
-                )
+                ),
             )
         return hooks
 
@@ -89,6 +89,6 @@ class HookConfigLoader:
                     command=entry["command"],
                     blocking=entry.get("blocking", True),
                     matcher=entry.get("matcher", ""),
-                )
+                ),
             )
         return hooks

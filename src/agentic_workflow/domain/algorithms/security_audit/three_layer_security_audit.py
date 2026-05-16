@@ -93,7 +93,7 @@ class ThreeLayerSecurityAudit:
                     "severity": severity,
                     "strategy": "MT",
                     "description": f.get("message", "Security vulnerability found"),
-                }
+                },
             )
             debts.append(
                 {
@@ -101,6 +101,6 @@ class ThreeLayerSecurityAudit:
                     "priority": "P0" if severity == "CRITICAL" else "P1",
                     "source": "安全債",
                     "description": f.get("message", "Unresolved security issue"),
-                }
+                },
             )
         return {"risks": risks, "debts": debts}

@@ -11,4 +11,4 @@ from agentic_workflow.domain.algorithms.model_selector.strategy_config import (
     StrategyConfig,
 )
 
-__all__ = ["StrategyConfig", "ModelSelector", "select_model"]
+__all__ = ["ModelSelector", "StrategyConfig", "select_model"]

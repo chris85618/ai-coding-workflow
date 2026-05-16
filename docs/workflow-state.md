@@ -1,7 +1,7 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 10 Complete (SonarCloud Configuration Architecture Finalized)
-**Last Updated**: 2026-05-16T10:05+08:00
+**Pipeline Position**: Phase 10 Complete (Mypy Config Hardened)
+**Last Updated**: 2026-05-16T11:00+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -17,6 +17,10 @@
 - [x] S10-03: 移除 `frameworks/graph` 中的 Legacy Facades — ✅ DONE
 - [x] S10-04: 優化 SonarCloud 配置架構 (Nested Feedback Config) — ✅ DONE
 - [x] S10-05: 實作並驗證 SonarCloud 切換邏輯 (RISK-001) — ✅ DONE
+- [x] S10-06: 整合 `pyproject-mkdocs-plugin` (FEA-016) — ✅ DONE
+- [x] S10-07: 重定位 `main.py` 至 `docs/macros.py` 並實施安全過濾 (FEA-018) — ✅ DONE
+- [x] S10-08: 實施 Git Pre-commit Hook 自動化配置同步 (ADR-GOV-027) — ✅ DONE
+- [x] S10-09: 重構 README.md 入口文檔並建立 `ARCHITECTURE.md` (ADR-GOV-028) — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -50,3 +54,6 @@
 11. **驗證與清理**: 通過全體測試，`ruff` 與 `mypy` 零警告。
 12. **SonarCloud 架構優化**: 將 `FeedbackConfig` 獨立並放入 `sonarcloud/` 套件，提升高內聚低耦合。
 13. **品質閘門達標**: 修復 `test_sonarcloud_node_switching.py` 的 9 個 mypy 錯誤，並通過新增測試案例達成全專案 100.00% 測試覆蓋率。
+14. **MkDocs 插件整合**: 導入 `pyproject-mkdocs-plugin` (FEA-016)，實施 ADR-STR-015 以同步 `pyproject.toml` 元資料，補齊相關追溯鏈 (FR-043, UC-016)。
+15. **修正 Ruff 配置**: 將 `src-path` 修正為 `src` (ADR-STR-018)，修復 Ruff 在解析 `pyproject.toml` 時的未知欄位錯誤。
+16. **Mypy 配置硬化**: 實施 ADR-STR-019，將 `--ignore-missing-imports` 與 `--explicit-package-bases` 參數固化至 `pyproject.toml` (FEA-021, FR-045)。

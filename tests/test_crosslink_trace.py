@@ -46,7 +46,7 @@ def given_fr005_modified(ctx: dict[str, Any]) -> None:
 def given_fr_adrs(ctx: dict[str, Any], adr1: str, adr2: str, adr3: str) -> None:
     """Step: FR-005 adrs."""
     ctx["adrs"] = [adr1, adr2, adr3]
-    ctx["adr_status"] = {a: "VALID" for a in [adr1, adr2, adr3]}
+    ctx["adr_status"] = dict.fromkeys([adr1, adr2, adr3], "VALID")
 
 
 @given("a FEA is significantly modified")

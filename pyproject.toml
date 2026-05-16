@@ -23,6 +23,7 @@ dev = [
     "mypy>=1.15",
     "pdoc>=14.0.0",
     "mkdocs>=1.5.3",
+    "mkdocs-macros-plugin>=1.0.0",
     "bandit>=1.7.8",
     "safety>=3.1.0",
     "pip-audit>=2.7.2",
@@ -32,18 +33,35 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+
+# Ruff Configuration
+# See: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
+src = ["src", "tests"]
+include = ["src/**", "tests/**", "pyproject.toml"]
 line-length = 120
 target-version = "py312"
 
 [tool.ruff.format]
 docstring-code-format = true
+quote-style = "double"
+indent-style = "space"
 
 [tool.ruff.lint]
+# select = ["ALL"]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "D"]
+ignore = []
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.pep8-naming]
+# 警告：禁止無謂地增加此清單。
+# 此忽略僅限於 icontract 庫強制要求的 'OLD' 保留字，
+# 在環境無法相容且作為無奈之下的最終手段時才可使用。
+# 任何新增項必須經過嚴格的架構審核。
+extend-ignore-names = ["OLD"]
+
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
@@ -70,7 +88,40 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
-mypy_path = "src"
+ignore_missing_imports = true
+explicit_package_bases = true
+mypy_path = ["src", "tests"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentic_workflow"]
+
+# Safety Configuration
+# See: https://docs.pyup.io/docs/safety-2-0-configuration
+[tool.safety]
+ignore-vulnerabilities = {}
+audit-and-monitor = { enabled = true }
+
+# SonarCloud Configuration (Custom Section for Sync Script)
+[tool.sonar]
+projectKey = "${env:SONAR_PROJECT_KEY}"
+organization = "${env:SONAR_ORGANIZATION}"
+projectName = "agentic-workflow"
+sources = "src"
+tests = "tests"
+python.version = "3.12"
+python.coverage.reportPaths = "reports/coverage.xml"
+python.xunit.reportPath = "reports/pytest.xml"
+
+# MkDocs Configuration (Custom Section for Macros Plugin)
+[tool.mkdocs]
+site_name = "Agentic Workflow Documentation"
+site_description = "LangGraph-based agentic workflow orchestration system"
+nav = [
+    { Home = "index.md" },
+    { "API Reference" = "api.md" },
+    { "Workflow State" = "workflow-state.md" },
+    { "Traceability Matrix" = "traceability-matrix.md" },
+    { "Requirements" = "requirements.md" },
+    { "Use Cases" = "use-cases.md" },
+    { "ADR Index" = "adr/index.md" }
+]

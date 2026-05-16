@@ -1,0 +1,3 @@
+[tool.ruff]
+select = ['F401']
+exclude = ['other']

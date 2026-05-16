@@ -281,7 +281,7 @@ class TestGetIssues:
             [
                 {"status": "OPEN", "message": "gen1"},
                 {"status": "CLOSED", "message": "gen2"},
-            ]
+            ],
         )
         result = adapter.get_issues()
         assert len(result) == 1

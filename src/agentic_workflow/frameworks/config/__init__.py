@@ -17,9 +17,9 @@ from agentic_workflow.frameworks.config.workflow_config import (
 )
 
 __all__ = [
+    "FeedbackConfig",
     "ModelConfig",
     "PromptConfig",
-    "FeedbackConfig",
     "SonarCloudConfig",
     "WorkflowConfig",
     "WorkflowConfigLoader",

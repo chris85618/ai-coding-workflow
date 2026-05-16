@@ -34,7 +34,9 @@ class TestSonarCloudNodeSwitching:
             yield mock
 
     def test_switching_data_insufficient_warns_and_continues(
-        self, mock_config_loader: MagicMock, mock_adapter: MagicMock
+        self,
+        mock_config_loader: MagicMock,
+        mock_adapter: MagicMock,
     ) -> None:
         """Scenario 1: Config missing (simulate removed .env).
 
@@ -63,7 +65,9 @@ class TestSonarCloudNodeSwitching:
         mock_adapter.assert_not_called()
 
     def test_switching_data_sufficient_fetches_and_evaluates_pass(
-        self, mock_config_loader: MagicMock, mock_adapter: MagicMock
+        self,
+        mock_config_loader: MagicMock,
+        mock_adapter: MagicMock,
     ) -> None:
         """Scenario 2: Config present -> Fetch data -> Pass.
 
@@ -94,7 +98,9 @@ class TestSonarCloudNodeSwitching:
         adapter_inst.get_metrics.assert_called_once()
 
     def test_switching_data_sufficient_fetches_and_evaluates_fail(
-        self, mock_config_loader: MagicMock, mock_adapter: MagicMock
+        self,
+        mock_config_loader: MagicMock,
+        mock_adapter: MagicMock,
     ) -> None:
         """Scenario 3: Config present -> Fetch data -> Fail.
 
@@ -122,7 +128,9 @@ class TestSonarCloudNodeSwitching:
         assert "coverage" in result["metadata"]["sonar_failures"][0]
 
     def test_switching_data_sufficient_but_adapter_fails(
-        self, mock_config_loader: MagicMock, mock_adapter: MagicMock
+        self,
+        mock_config_loader: MagicMock,
+        mock_adapter: MagicMock,
     ) -> None:
         """Scenario 4: Config present but API call fails.
 
@@ -148,7 +156,9 @@ class TestSonarCloudNodeSwitching:
         assert "API Connection Timeout" in result["metadata"]["sonar_warning"]
 
     def test_switching_skip_fetch_if_data_already_in_metadata(
-        self, mock_config_loader: MagicMock, mock_adapter: MagicMock
+        self,
+        mock_config_loader: MagicMock,
+        mock_adapter: MagicMock,
     ) -> None:
         """Scenario 5: Data already present in metadata (e.g. from CI).
 
@@ -163,7 +173,7 @@ class TestSonarCloudNodeSwitching:
             "metadata": {
                 "sonar_metrics": {"coverage": {"global": 95.0}},
                 "sonar_issues": [],
-            }
+            },
         }
 
         # 2. Execute
@@ -175,7 +185,9 @@ class TestSonarCloudNodeSwitching:
         mock_adapter.assert_not_called()
 
     def test_switching_partial_data_fetches_missing_metrics(
-        self, mock_config_loader: MagicMock, mock_adapter: MagicMock
+        self,
+        mock_config_loader: MagicMock,
+        mock_adapter: MagicMock,
     ) -> None:
         """Scenario 6: sonar_issues present but sonar_metrics missing.
 
@@ -190,9 +202,9 @@ class TestSonarCloudNodeSwitching:
 
         state: WorkflowState = {
             "metadata": {
-                "sonar_issues": []  # Present
+                "sonar_issues": [],  # Present
                 # sonar_metrics missing
-            }
+            },
         }
 
         # 2. Execute
@@ -204,7 +216,9 @@ class TestSonarCloudNodeSwitching:
         adapter_inst.get_issues.assert_not_called()
 
     def test_switching_partial_data_fetches_missing_issues(
-        self, mock_config_loader: MagicMock, mock_adapter: MagicMock
+        self,
+        mock_config_loader: MagicMock,
+        mock_adapter: MagicMock,
     ) -> None:
         """Scenario 7: sonar_metrics present but sonar_issues missing.
 
@@ -219,9 +233,9 @@ class TestSonarCloudNodeSwitching:
 
         state: WorkflowState = {
             "metadata": {
-                "sonar_metrics": {"coverage": {"global": 100.0}}  # Present
+                "sonar_metrics": {"coverage": {"global": 100.0}},  # Present
                 # sonar_issues missing
-            }
+            },
         }
 
         # 2. Execute

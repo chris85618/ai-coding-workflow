@@ -68,7 +68,7 @@ class RepoMapBuilder:
                         kind="class",
                         signature=f"class {node.name}",
                         line_number=node.lineno,
-                    )
+                    ),
                 )
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 args = [arg.arg for arg in node.args.args]
@@ -80,7 +80,7 @@ class RepoMapBuilder:
                         kind="function",
                         signature=sig,
                         line_number=node.lineno,
-                    )
+                    ),
                 )
         return symbols
 
@@ -139,7 +139,7 @@ class RepoMapBuilder:
         if n == 0:
             return {}
 
-        ranks = {node: 1.0 / n for node in nodes}
+        ranks = dict.fromkeys(nodes, 1.0 / n)
 
         for _ in range(n_iter):
             new_ranks: dict[str, float] = {}

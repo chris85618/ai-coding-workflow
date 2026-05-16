@@ -9,4 +9,4 @@ from agentic_workflow.domain.models.model_config.context_allocation import (
 )
 from agentic_workflow.domain.models.model_config.model_config import ModelConfig
 
-__all__ = ["ModelConfig", "ContextAllocation"]
+__all__ = ["ContextAllocation", "ModelConfig"]

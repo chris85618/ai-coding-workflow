@@ -1,7 +1,7 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-16T10:05:00+08:00 (SonarCloud Config & Workflow Refactoring)
+**Last Validated**: Phase 10 Complete (MkDocs Sync Finalized)
 **Validation Status**: ✅ ALG-010 (OO Mandate), ADR-STR-007 (Single Build Path), ADR-SEC-005 (Config Security), ruff check ✅, mypy ✅; 325 條追溯紀錄，零孤兒
 
 ---
@@ -44,6 +44,12 @@
 | FEA-013 | FR-033 | decomposes | ✅ |
 | FEA-013 | NFR-011 | constrains | ✅ |
 | FEA-011 | FR-034 | decomposes | ✅ (NEW: Token Limit Mechanism) |
+| FEA-015 | FR-035, FR-036 | decomposes | ✅ (SonarCloud Adapter) |
+| FEA-016 | FR-043 | decomposes | ✅ (MkDocs-Pyproject Sync) |
+| FEA-019 | FR-043, FR-044 | decomposes | ✅ (Centralized Config SSOT) |
+| FEA-020 | FR-043 | decomposes | ✅ (Project Documentation Restructuring) |
+| FEA-021 | FR-045 | decomposes | ✅ (Mypy Config Hardening) |
+| FEA-022 | FR-046 | decomposes | ✅ (Git Hook Ruff Format) |
 
 ### FR → UC
 
@@ -86,6 +92,9 @@
 | FR-040 | UC-001 | realizes | ✅ |
 | FR-041 | UC-004 | realizes | ✅ |
 | FR-042 | UC-003 | realizes | ✅ |
+| FR-043 | UC-016 | realizes | ✅ |
+| FR-045 | UC-003 | realizes | ✅ (Mypy CLI Flag Internalization) |
+| FR-046 | UC-018 | realizes | ✅ (Pre-commit Ruff Format) |
 
 ### Stakeholder → BG
 
@@ -128,6 +137,7 @@
 | [ADR-GOV-022](adr/ADR-GOV-022.md) | docs/ 執行邏輯吸收至 skills/ 實現 Skill 自足性 | GOV | Accepted | FR-001, FR-002, FR-003, FR-005, FR-019, FR-022, FR-023 | justifies |
 | [ADR-GOV-023](adr/ADR-GOV-023.md) | Skill 追溯性擴充 + RCA 推論平準化 | GOV | Accepted | FR-004, FR-005, FR-007, FR-022, FR-023 | justifies |
 | [ADR-GOV-024](adr/ADR-GOV-024.md) | 強制循序輸出協議 | GOV | Accepted | FR-001, FR-005, FR-019 | justifies |
+| [ADR-GOV-027](adr/ADR-GOV-027.md) | 以 pyproject.toml 為全域配置唯一事實來源 | GOV | Accepted | FR-043, FR-044 | justifies |
 | [ADR-GOV-025](adr/ADR-GOV-025.md) | ISO 31000 風險管理框架 + DEBT/RISK 完整追溯制度 | GOV | Accepted | FR-010, FR-011, FR-022, FR-023 | justifies |
 | [ADR-GOV-026](adr/ADR-GOV-026.md) | 零容忍警告政策與嚴格 Scope 制度 (Logic-Fix First) | GOV | Accepted | NFR-001, FR-004, FR-005, FR-033 | justifies |
 | [ADR-STR-001](adr/ADR-STR-001.md) | 模組化架構 — 每個 Class 獨立檔案原則 | STR | Accepted | NFR-002, NFR-003 | justifies |
@@ -140,8 +150,14 @@
 | [ADR-STR-008](adr/ADR-STR-008.md) | Token Budget & Long Response Continuation Mechanism | STR | Accepted | FR-034 | justifies |
 | [ADR-STR-009](adr/ADR-STR-009.md) | Ruff Line-Length = 120 (禁止 noqa 抑制) | STR | Accepted | NFR-002, NFR-003 | justifies |
 | [ADR-OPS-001](adr/ADR-OPS-001.md) | SonarCloud 閉環回饋與降級機制 | OPS | Accepted | FR-015, FR-035, FR-036 | justifies |
+| [ADR-STR-015](adr/ADR-STR-015.md) | 導入 pyproject-mkdocs-plugin 實施單一事實來源 | STR | Accepted | FR-043 | justifies |
+| [ADR-STR-016](adr/ADR-STR-016.md) | 巨集驅動的配置與元資料同步 | STR | Accepted | FEA-017, FR-044 | justifies |
+| [ADR-STR-017](adr/ADR-STR-017.md) | 配置與文件巨集的生命週期隔離 | STR | Accepted | FEA-018, FR-044 | justifies |
+| [ADR-STR-019](adr/ADR-STR-019.md) | Mypy 常用執行參數固化 | STR | Accepted | FEA-021, FR-045 | justifies |
+| [ADR-GOV-028](adr/ADR-GOV-028.md) | 專案文件入口規範與 README 重構 | GOV | Accepted | FEA-020, FR-043 | justifies |
+| [ADR-GOV-029](adr/ADR-GOV-029.md) | Git Pre-commit Hook 整合 Ruff 格式化 | GOV | Accepted | FEA-022, FR-046 | justifies |
 
-> 類別統計：STR=9, GOV=26, SEC=1, SCP=0, GATE=0, OPS=1, **合計=37**
+> 類別統計：STR=11, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=40**
 
 ### ALG → FR
 
@@ -455,26 +471,27 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 |------|---------|--------|--------|--------|--------|
 | Phase 2.0 | BG-xxx | 4 | — (源頭) | 4/4 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
-| Phase 2.2 | FEA-xxx | 13 | 13/13 | 13/13 | 100% |
+| Phase 2.2 | FEA-xxx | 19 | 19/19 | 19/19 | 100% |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
-| Stage 3 | FR-xxx | 34+3v2 | 37/37 | 37/37 | 100% |
+| Stage 3 | FR-xxx | 36+3v2 | 39/39 | 39/39 | 100% |
 | Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
-| Stage 3 | UC-xxx | 13 | 13/13 | 13/13 | 100% |
-| Stage 3 | ADR-STR-xxx | 9 | 9/9 | — | 100% |
+| Stage 3 | UC-xxx | 14 | 14/14 | 14/14 | 100% |
+| Stage 3 | ADR-STR-xxx | 11 | 11/11 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 26 | 26/26 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
 | Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
 | Stage 6 | INV-xxx | 25 | 25/25 | 25/25 | 100% |
 | Stage 7 | SC-xxx | 20 | 20/20 | 20/20 | 100% |
+| **自動化** | FR→Hook | 1 | 1/1 | — (實作) | 100% |
 | Stage 8 | TC-xxx | 15 | 15/15 | 15/15 | 100% |
 | Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
-| Skill 修改 | ADR→Skill | 26 | 26/26 | — (映射) | 100% |
+| Skill 修改 | ADR→Skill | 28 | 28/28 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **325** | — | — | **100%** |
+| **合計** | — | **333** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)

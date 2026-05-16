@@ -25,12 +25,11 @@ class TechDebtManager:
         """Classifies the debt into action quadrants."""
         if impact >= 2.0 and effort <= 2.0:
             return "Quick Win"
-        elif impact >= 2.0 and effort > 2.0:
+        if impact >= 2.0 and effort > 2.0:
             return "Major Project"
-        elif impact < 2.0 and effort <= 2.0:
+        if impact < 2.0 and effort <= 2.0:
             return "Fill In"
-        else:
-            return "Thankless Task"
+        return "Thankless Task"
 
     @classmethod
     def assign_priority(cls, quadrant: str) -> str:

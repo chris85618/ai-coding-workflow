@@ -108,7 +108,7 @@ def when_task_type(ctx: dict[str, Any], task_type: str) -> None:
     fallback = ModelConfig(provider="openai", model="gpt-4o")
     disabled = ctx.get("disabled_provider")
 
-    enabled = frozenset(p for p in {"anthropic", "openai"} if p != disabled)
+    enabled = frozenset(p for p in ("anthropic", "openai") if p != disabled)
 
     config = StrategyConfig(
         reasoning_model=reasoning,

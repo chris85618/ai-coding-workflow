@@ -53,7 +53,7 @@ class TestSonarCloudNode:
             "metadata": {
                 "sonar_metrics": {"coverage": 90.0},
                 "sonar_issues": [],
-            }
+            },
         }
 
         # 2. Execute
@@ -84,7 +84,7 @@ class TestSonarCloudNode:
             "metadata": {
                 "sonar_metrics": {"coverage": 70.0},
                 "sonar_issues": [],
-            }
+            },
         }
 
         # 2. Execute

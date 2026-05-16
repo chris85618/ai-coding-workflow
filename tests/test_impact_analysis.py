@@ -108,7 +108,11 @@ class TestBlastRadiusModerate:
     def test_mixed_lists_sum_to_moderate(self) -> None:
         """Verify mixed list summation."""
         result = ImpactAnalysis.calculate_blast_radius(
-            "FR-001", [], _downstream=["A", "B"], _upstream=["C"], _lateral=["D", "E"]
+            "FR-001",
+            [],
+            _downstream=["A", "B"],
+            _upstream=["C"],
+            _lateral=["D", "E"],
         )
         assert result["blast_radius"] == 5
         assert result["severity"] == "MODERATE"

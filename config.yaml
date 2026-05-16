@@ -18,7 +18,7 @@ models:
     # 觸發：stage_3 ~ stage_8 的 alpha / beta 節點
     # 成本考量：高準確度優先，允許較高 token 消耗
     provider: "anthropic"
-    name: "claude-3-7-sonnet-20250219"
+    name: "${REASONING_MODEL:-claude-3-7-sonnet-20250219}"
     temperature: 0.7             # 適度創意，允許發散找問題
     api_key: "${ANTHROPIC_API_KEY}"
 
@@ -27,7 +27,7 @@ models:
     # 觸發：micro_validation、s0_format ~ s7_record 節點
     # 成本考量：快速低成本，確定性輸出
     provider: "anthropic"
-    name: "claude-3-5-haiku-20241022"
+    name: "${EDITING_MODEL:-claude-3-5-haiku-20241022}"
     temperature: 0.1             # 低溫度 = 格式化任務更穩定
     api_key: "${ANTHROPIC_API_KEY}"
 
@@ -35,7 +35,7 @@ models:
     # 用途：Anthropic API 不可用時的備援
     # 觸發：LLM adapter 自動降級邏輯
     provider: "openai"
-    name: "gpt-4o-mini"
+    name: "${FALLBACK_MODEL:-gpt-4o-mini}"
     temperature: 0.0             # 零溫度 = 最大確定性
     api_key: "${OPENAI_API_KEY}"
 

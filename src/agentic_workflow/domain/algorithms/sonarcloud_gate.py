@@ -119,6 +119,6 @@ class SonarCloudGate:
                         "priority": "P2" if issue.get("severity") in ["MAJOR", "CRITICAL", "BLOCKER"] else "P3",
                         "source": "SonarCloud Quality Gate",
                         "affected_file": issue.get("component", "unknown"),
-                    }
+                    },
                 )
         return debts

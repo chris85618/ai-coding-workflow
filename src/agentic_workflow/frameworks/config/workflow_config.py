@@ -39,7 +39,7 @@ class WorkflowConfigLoader:
     @staticmethod
     def _interpolate_env_vars(data: Any) -> Any:
         """Recursively search and replace ${VAR} with environment variables."""
-        pattern = re.compile(r"\$\{(\w+)(?::([^}]*))?\}")
+        pattern = re.compile(r"\$\{(\w+)(?::\-?([^}]*))?\}")
 
         if isinstance(data, str):
 

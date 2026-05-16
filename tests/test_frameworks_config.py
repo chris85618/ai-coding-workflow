@@ -30,7 +30,7 @@ sonarcloud:
     auto_convert_to_debt: true
     default_debt_priority: "P2"
   on_missing_config: "warn_and_disable"
-    """
+    """,
     )
     config = WorkflowConfigLoader.load(str(config_file))
     assert isinstance(config, WorkflowConfig)

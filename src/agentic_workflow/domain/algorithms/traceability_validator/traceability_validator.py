@@ -53,8 +53,7 @@ class TraceabilityValidator:
             if nid.startswith(f"{prefix}-"):
                 try:
                     num = int(nid.split("-")[-1])
-                    if num > max_num:
-                        max_num = num
+                    max_num = max(max_num, num)
                 except ValueError:
                     continue
         return f"{prefix}-{max_num + 1:03d}"

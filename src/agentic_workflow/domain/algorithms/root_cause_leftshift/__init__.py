@@ -18,8 +18,8 @@ from agentic_workflow.domain.algorithms.root_cause_leftshift.root_cause_leftshif
 )
 
 __all__ = [
-    "RootCauseCategory",
     "InterventionType",
     "RootCauseAnalysisResult",
+    "RootCauseCategory",
     "RootCauseLeftShift",
 ]

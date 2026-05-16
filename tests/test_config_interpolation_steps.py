@@ -38,7 +38,7 @@ prompts:
     task_template: "task"
 sonarcloud:
   on_missing_config: "warn"
-"""
+""",
         )
     return {"path": config_file}
 
@@ -63,7 +63,7 @@ prompts:
     task_template: "task"
 sonarcloud:
   on_missing_config: "warn"
-"""
+""",
         )
     return {"path": config_file}
 

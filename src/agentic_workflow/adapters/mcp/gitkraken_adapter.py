@@ -103,7 +103,7 @@ class GitKrakenMCPAdapter(MCPGateway):
         # Emit EVT-009 (GitCommitCreated)
         if self._event_bus is not None:
             # Cast to Any to allow calling publish on the port
-            cast(Any, self._event_bus).publish(
+            cast("Any", self._event_bus).publish(
                 "GitCommitCreated",
                 {"sha": sha, "message": message, "files": files},
             )

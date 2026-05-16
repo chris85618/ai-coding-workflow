@@ -73,7 +73,6 @@ def given_context_files(ctx: dict[str, Any], tmp_path: Path) -> None:
 def given_c_imports_a(ctx: dict[str, Any]) -> None:
     """Confirm the import relationship (already set up in prior step)."""
     # The project structure already has C.py importing from A.py
-    pass
 
 
 @given("a project with no Python files")

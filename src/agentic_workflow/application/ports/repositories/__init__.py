@@ -12,4 +12,4 @@ from agentic_workflow.application.ports.repositories.traceable_id_repository imp
     TraceableIDRepository,
 )
 
-__all__ = ["TraceableIDRepository", "CheckpointRepository"]
+__all__ = ["CheckpointRepository", "TraceableIDRepository"]

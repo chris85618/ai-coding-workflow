@@ -226,7 +226,7 @@ def then_auto_advances(ctx: dict[str, Any]) -> None:
 @then("no human intervention is requested")
 def then_no_human_intervention(ctx: dict[str, Any]) -> None:
     """Step: no HITL."""
-    pass  # By design (ADR-STR-003)
+    # By design (ADR-STR-003)
 
 
 @then("artifacts produced so far are written to docs/")
@@ -258,7 +258,6 @@ def then_iteration_increments(ctx: dict[str, Any]) -> None:
 @then("no human gate triggers")
 def then_no_human_gate(ctx: dict[str, Any]) -> None:
     """Step: no human gate."""
-    pass
 
 
 @then("a warning is logged with full blast radius details")
@@ -316,4 +315,3 @@ def then_continue_next_step(ctx: dict[str, Any]) -> None:
 @then("no escalation to human occurs")
 def then_no_escalation(ctx: dict[str, Any]) -> None:
     """Step: no escalation."""
-    pass

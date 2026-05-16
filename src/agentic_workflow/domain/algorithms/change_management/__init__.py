@@ -9,4 +9,4 @@ from agentic_workflow.domain.algorithms.change_management.change_management impo
 )
 from agentic_workflow.domain.algorithms.change_management.change_type import ChangeType
 
-__all__ = ["ChangeType", "ChangeManagement"]
+__all__ = ["ChangeManagement", "ChangeType"]

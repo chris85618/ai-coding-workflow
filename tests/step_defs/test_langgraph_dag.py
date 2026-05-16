@@ -21,7 +21,6 @@ from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBu
 )
 def test_graph_builder_constructs_valid_stategraph() -> None:
     """BDD scenario: Graph Builder constructs a valid StateGraph from config.yaml."""
-    pass
 
 
 @scenario(
@@ -30,7 +29,6 @@ def test_graph_builder_constructs_valid_stategraph() -> None:
 )
 def test_invariants_verifier_passes_on_correct_dag() -> None:
     """BDD scenario: Invariants Verifier passes on a correctly structured DAG."""
-    pass
 
 
 @given("a valid config.yaml with workflow_graph configuration")
@@ -39,7 +37,6 @@ def given_valid_config(monkeypatch: pytest.MonkeyPatch) -> None:
     # ADR-STR-007: Graph topology is fixed in OO Builder; config.yaml only
     # holds models/prompts. This step is a no-op — the OO Builder encodes the
     # complete, immutable graph structure.
-    pass
 
 
 @when("the graph builder compiles the LangGraph")

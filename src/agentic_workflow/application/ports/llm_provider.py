@@ -20,4 +20,3 @@ class LLMProvider(ABC):
     @abstractmethod
     def create_model(self, model_cfg: ModelConfig) -> BaseChatModel:
         """Create a LangChain chat model instance."""
-        pass

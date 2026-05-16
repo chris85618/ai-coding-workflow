@@ -50,7 +50,7 @@ class SequentialThinkingMCPAdapter(MCPGateway):
         if parsed.scheme not in ("http", "https"):
             raise ValueError(
                 f"SSRF protection: unsupported URL scheme {parsed.scheme!r}. "
-                "Only http (localhost) and https are allowed (SEC-004)."
+                "Only http (localhost) and https are allowed (SEC-004).",
             )
         self._server_url = server_url
         self._event_bus = event_bus
@@ -85,7 +85,7 @@ class SequentialThinkingMCPAdapter(MCPGateway):
                         "name": tool_name,
                         "arguments": arguments,
                     },
-                }
+                },
             ).encode()
             req = urllib.request.Request(
                 self._server_url,
@@ -114,7 +114,7 @@ class SequentialThinkingMCPAdapter(MCPGateway):
             NotImplementedError: Always.
         """
         raise NotImplementedError(
-            "SequentialThinkingMCPAdapter does not support git commits. Use GitKrakenMCPAdapter for auto_commit()."
+            "SequentialThinkingMCPAdapter does not support git commits. Use GitKrakenMCPAdapter for auto_commit().",
         )
 
     def is_connected(self) -> bool:

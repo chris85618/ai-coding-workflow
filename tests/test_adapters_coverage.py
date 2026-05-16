@@ -29,7 +29,6 @@ if TYPE_CHECKING:
 )
 def test_invariants_verifier_passes_on_correct_dag() -> None:
     """BDD scenario for invariant verification."""
-    pass
 
 
 class TestLLMProviders:
@@ -303,7 +302,6 @@ def then_contains_orchestrator(context: dict[str, Any]) -> None:
 @given("a valid config.yaml with workflow_graph configuration")
 def given_valid_config(monkeypatch: pytest.MonkeyPatch) -> None:
     """BDD given step: valid config."""
-    pass
 
 
 @then("all structural invariants should pass")
@@ -376,7 +374,6 @@ class TestFileRepositoryFindAll:
 )
 def test_graph_builder_constructs_valid_stategraph() -> None:
     """BDD scenario for graph construction."""
-    pass
 
 
 class TestLLMAdapterTokenLimit:

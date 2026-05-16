@@ -43,7 +43,7 @@ def docs_path(tmp_path: Path) -> Path:
 @pytest.fixture
 def empty_checkpoint() -> None:
     """Provide a None checkpoint simulating fresh start."""
-    return None
+    return
 
 
 @pytest.fixture

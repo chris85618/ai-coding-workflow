@@ -105,4 +105,3 @@ def test_file_repository_find_all_with_none(tmp_path: Any) -> None:
 def test_main_pragma() -> None:
     """TC-130: Main pragma logic test."""
     # just testing the import logic, main is already partially tested
-    pass

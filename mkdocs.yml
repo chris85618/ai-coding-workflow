@@ -1,8 +1,13 @@
-site_name: Agentic Workflow Documentation
-theme: readthedocs
-docs_dir: docs
+site_name: "Agentic Workflow"  # Will be overridden by docs/macros.py
+site_url: ""
+
 plugins:
   - search
-nav:
-  - Home: index.md
-  - API Reference: api.md
+  - macros:
+      module_name: docs.macros
+
+# Navigation is now managed in pyproject.toml [tool.mkdocs.nav]
+# site_description is now managed in pyproject.toml [tool.mkdocs.site_description]
+
+theme:
+  name: readthedocs

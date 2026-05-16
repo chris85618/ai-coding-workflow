@@ -39,7 +39,7 @@ class ModelSelector:
             TaskType.COMPREHEND,
             TaskType.CHARTER,
             TaskType.FORMAT,
-        ]
+        ],
     )
 
     @classmethod

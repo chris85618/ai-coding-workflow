@@ -136,7 +136,7 @@ def then_artifacts_preserved(ctx: dict[str, Any]) -> None:
 @then("no human confirmation is required")
 def then_no_human(ctx: dict[str, Any]) -> None:
     """Verify no HITL required."""
-    pass  # ADR-STR-003
+    # ADR-STR-003
 
 
 @then("execution begins from Phase 0")

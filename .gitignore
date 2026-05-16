@@ -23,6 +23,7 @@ coverage.xml
 .coverage
 htmlcov/
 coverage_report.txt
+reports/
 
 # IDE
 .vscode/
@@ -38,3 +39,6 @@ coverage_report.txt
 .claude/
 .gemini/
 .agentic_workflow/
+
+# Web
+site/

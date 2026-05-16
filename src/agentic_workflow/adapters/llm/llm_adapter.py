@@ -103,12 +103,12 @@ class LangChainLLMAdapter(LLMGateway):
                     raise TokenLimitExceededError(
                         f"Output exceeded max_tokens={max_tokens} for "
                         f"structural task {task_type.value}. "
-                        "Auto-continuation disabled."
+                        "Auto-continuation disabled.",
                     )
                 continuations += 1
                 if continuations > max_continuations:
                     raise TokenLimitExceededError(
-                        f"Output exceeded max_tokens across {max_continuations} continuations."
+                        f"Output exceeded max_tokens across {max_continuations} continuations.",
                     )
                 continuations += 1
                 messages.append(response)
@@ -118,8 +118,8 @@ class LangChainLLMAdapter(LLMGateway):
                             "Response truncated due to length. Please continue "
                             "exactly where you left off. Do not repeat previous "
                             "content. Do not add introductory text."
-                        )
-                    )
+                        ),
+                    ),
                 )
             else:
                 break

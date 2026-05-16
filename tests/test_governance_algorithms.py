@@ -166,7 +166,7 @@ class TestSecurityAudit:
                 layer="1",
                 passed=False,
                 findings=[{"severity": "HIGH", "message": "SQL injection"}],
-            )
+            ),
         ]
         ev = ThreeLayerSecurityAudit.evaluate_audit(results)
         assert ev["decision"] == "rework"
@@ -179,7 +179,7 @@ class TestSecurityAudit:
                 layer="1",
                 passed=False,
                 findings=[{"severity": "CRITICAL", "message": "RCE"}],
-            )
+            ),
         ]
         ev = ThreeLayerSecurityAudit.evaluate_audit(results)
         assert ev["decision"] == "block_escalate"
@@ -209,7 +209,7 @@ class TestSecurityAudit:
                 layer="1",
                 passed=False,
                 findings=[{"severity": "LOW", "message": "minor"}],
-            )
+            ),
         ]
         ev = ThreeLayerSecurityAudit.evaluate_audit(results)
         # all_passed=False, no HIGH/CRITICAL → decision=rework

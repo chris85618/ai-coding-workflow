@@ -72,7 +72,7 @@ class FileCheckpointRepository(CheckpointRepository):
         checkpoints = sorted(d.glob("*.json"), reverse=True)
         if not checkpoints:
             return None
-        return cast(dict[str, Any], json.loads(checkpoints[0].read_text(encoding="utf-8")))
+        return cast("dict[str, Any]", json.loads(checkpoints[0].read_text(encoding="utf-8")))
 
     def list_checkpoints(self, pipeline_id: str) -> list[str]:
         """List checkpoint identifiers newest first.

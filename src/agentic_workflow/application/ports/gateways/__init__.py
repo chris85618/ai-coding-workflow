@@ -10,4 +10,4 @@ from agentic_workflow.application.ports.gateways.mcp_gateway import MCPGateway
 from agentic_workflow.application.ports.gateways.quality_gateway import QualityGateway
 from agentic_workflow.application.ports.gateways.security_gateway import SecurityGateway
 
-__all__ = ["LLMGateway", "MCPGateway", "SecurityGateway", "QualityGateway"]
+__all__ = ["LLMGateway", "MCPGateway", "QualityGateway", "SecurityGateway"]

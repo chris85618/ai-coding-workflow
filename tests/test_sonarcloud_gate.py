@@ -104,7 +104,7 @@ class TestEvaluate:
         # Override THRESHOLDS temporarily with a non-numeric non-string value
         original = SonarCloudGate.THRESHOLDS.copy()
         SonarCloudGate.THRESHOLDS = {
-            "coverage": {"global": [80, 85]}  # list — neither float/int nor str
+            "coverage": {"global": [80, 85]},  # list — neither float/int nor str
         }
         try:
             result = SonarCloudGate.evaluate({"coverage": {"global": [80, 85]}})

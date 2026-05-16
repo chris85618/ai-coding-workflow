@@ -148,6 +148,38 @@
 
 ---
 
+## UC-016: 文件自動化同步
+
+**描述**：當開發者修改 `pyproject.toml` 中的專案元資料時，MkDocs 文件站點應在下次建置時自動套用這些變更。
+**追溯**：FR-043 (realizes)
+
+**前置條件**：`pyproject-mkdocs-plugin` 已安裝且已在 `mkdocs.yml` 啟用
+**後置條件**：文件站點資訊與 `pyproject.toml` 保持一致
+**主要流程**：修改 `pyproject.toml` → 執行 `mkdocs build` → 驗證站點資訊
+
+---
+
+## UC-017: 透過巨集管理多環境設定
+
+**描述**：開發者透過 `mkdocs-macros-plugin` 集中管理多個設定檔的共用變數，並透過環境變數在不同階段自動切換。
+**追溯**：FR-044 (realizes)
+
+**前置條件**：`mkdocs-macros-plugin` 已安裝且已在 `mkdocs.yml` 啟用，`main.py` 已建立
+**後置條件**：設定檔（如 config.yaml, sonar-project.properties）中的硬編碼值已被變數取代
+
+---
+
+## UC-018: 提交前自動代碼格式化
+
+**描述**：開發者執行 `git commit` 時，系統自動識別暫存的 Python 檔案並執行 `ruff format`，確保進入 repository 的代碼符合格式規範。
+**追溯**：FR-046 (realizes)
+
+**前置條件**：`ruff` 已安裝，`.git/hooks/pre-commit` 已配置
+**後置條件**：提交的代碼已格式化，且已重新暫存
+**主要流程**：git commit → 觸發 hook → 識別暫存檔 → ruff format → git add → 提交完成
+
+---
+
 ## 追溯矩陣更新
 
 | FR-xxx | UC-xxx | 連結類型 |
@@ -177,3 +209,6 @@
 | FR-023 | UC-005 | realizes |
 | FR-024 | UC-004, UC-005 | realizes |
 | FR-025 | UC-004 | realizes |
+| FR-043 | UC-016 | realizes |
+| FR-044 | UC-017 | realizes |
+| FR-046 | UC-018 | realizes |

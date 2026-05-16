@@ -37,7 +37,7 @@ def given_hitl_pass(ctx: dict[str, Any]) -> None:
             "security_ok": True,
             "debt_ok": True,
             "orphans": [],
-        }
+        },
     )
 
 

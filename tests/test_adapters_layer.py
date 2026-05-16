@@ -263,8 +263,8 @@ class TestHookConfigLoader:
                     "command": "echo hello",
                     "blocking": True,
                     "matcher": "",
-                }
-            ]
+                },
+            ],
         }
         cfg_path = Path(self._tmp) / "hooks.json"
         cfg_path.write_text(json.dumps(config), encoding="utf-8")

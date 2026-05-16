@@ -125,9 +125,10 @@
 ### FR-024: 跨切面一致性驗證
 
 **描述**：當變更橫跨 2+ Stage/Phase 或變更 3+ 文件時，強制執行全矩陣重驗證、跨文件交叉檢查、覆蓋統計重算和過期引用掃描。確保所有變更作為一個整體形成一致的系統。
-**追溯**：FEA-002, FEA-003 (decomposes)
-
-### FR-025: 治理文件 FR/NFR 合規驗證
+**追溯**：| FR-024 | UC-004, UC-005 | realizes |
+| FR-025 | UC-016 | realizes |
+| FR-043 | UC-016 | realizes |
+合規驗證
 
 **描述**：修改治理/流程文件時，PGVG 強制從追溯矩陣反向查找此文件實作的 FR/NFR，逐一驗證修改後的文件是否仍滿足每個 FR/NFR 的描述。
 **追溯**：FEA-002, FEA-003 (decomposes)
@@ -144,9 +145,34 @@
 
 ---
 
+| FR-045 | 系統應固化 Mypy 常用執行參數至 pyproject.toml | Stage 3 | FEA-021 |
+| FR-046 | 系統應在執行 git commit 前自動對暫存檔案執行 ruff format | Stage 3 | FEA-022 |
+
+### FR-043: MkDocs 自動讀取 pyproject.toml
+
+**描述**：系統應能自動從 `pyproject.toml` 提取專案元資料（name, version, description）以填充 MkDocs 文件站點資訊，避免手動同步。
+**追溯**：FEA-016 (decomposes)
+
+### FR-044: 巨集驅動的設定檔置換
+
+**描述**：系統應支援透過巨集（Macro）根據不同環境（Dev/Staging/Prod）自動置換設定檔中的佔位符，確保部署的一致性。
+**追溯**：FEA-017 (decomposes)
+
+---
+
 ## Non-Functional Requirements
 
 ### NFR-001: 純 Markdown 可讀性
+## UC-016: 文件自動化同步
+
+**描述**：當開發者修改 `pyproject.toml` 中的專案元資料時，MkDocs 文件站點應在下次建置時自動套用這些變更。
+**追溯**：FR-043 (realizes)
+
+**前置條件**：`pyproject-mkdocs-plugin` 已安裝且已在 `mkdocs.yml` 啟用
+**後置條件**：文件站點資訊與 `pyproject.toml` 保持一致
+**主要流程**：修改 `pyproject.toml` → 執行 `mkdocs build` → 驗證站點資訊
+
+---
 
 **描述**：所有文件必須為純 Markdown 格式，不使用可執行程式碼，任何文字編輯器皆可閱讀。
 **追溯**：FEA-009 (constrains)

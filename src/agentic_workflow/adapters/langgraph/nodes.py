@@ -60,7 +60,7 @@ def node_pipeline_completeness(state: WorkflowState) -> WorkflowState:
     Returns:
         Partial state update with completeness metadata.
     """
-    completeness_data = PipelineCompletenessChecker(Path(".")).calculate()
+    completeness_data = PipelineCompletenessChecker(Path()).calculate()
 
     # Store the results into state metadata
     metadata = state.get("metadata", {})
