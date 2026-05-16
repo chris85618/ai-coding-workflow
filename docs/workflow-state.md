@@ -1,6 +1,6 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 10 Complete (Mypy Config Hardened)
+**Pipeline Position**: Stage 8 (TDD + 測試 + 修復) - 已完成 FEA-017
 **Last Updated**: 2026-05-16T11:00+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)

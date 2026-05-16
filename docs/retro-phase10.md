@@ -64,6 +64,9 @@ DEBT-004 觸發的 SEC-001~004 修正均在程式碼層而非配置層實施，�
 **觸發**: SEC-001 test_metachar_stripped_from_context 第一版失敗。
 **SSOT**: `tests/test_security_fixes.py`
 
+- **LESSON-074**: 在 CI 腳本中處理 Node.js 版本切換時，應優先檢查 `node` 指令是否可用，而非僅依賴 `nvm`。
+- **LESSON-075**: Git Hook 模板應考慮指令參數化。目前 `install_hooks.py` 採硬編碼字串，若未來勾子邏輯變複雜，應考慮將指令清單化或從 `pyproject.toml` 讀取，以維持基礎設施程式碼的整潔與彈性。
+
 ### LESSON-041: PageRank 單節點穩態 = (1-damping)/n = 0.15，非 1.0
 **根因**: 誤將初始值 1/n 當作穩態值。
 **守衛**: 測試 PageRank 等數值演算法前先推算理論穩態，再寫斷言。

@@ -148,6 +148,10 @@
 | FR-045 | 系統應固化 Mypy 常用執行參數至 pyproject.toml | Stage 3 | FEA-021 |
 | FR-046 | 系統應在執行 git commit 前自動對暫存檔案執行 ruff format | Stage 3 | FEA-022 |
 
+### FR-044: 自動格式化規範
+- **FR-044**: 系統必須在 Git commit 階段前，自動針對 `src` 與 `tests` 目錄執行 `python -m ruff format`。
+- **FR-045**: `scripts/install_hooks.py` 必須支援安裝包含 `ruff format` 指令的 `pre-commit` 鉤子。
+
 ### FR-043: MkDocs 自動讀取 pyproject.toml
 
 **描述**：系統應能自動從 `pyproject.toml` 提取專案元資料（name, version, description）以填充 MkDocs 文件站點資訊，避免手動同步。

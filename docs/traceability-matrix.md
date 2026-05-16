@@ -67,9 +67,8 @@
 | FR-010 | UC-008 | realizes | ✅ |
 | FR-011 | UC-008 | realizes | ✅ |
 | FR-012 | UC-003 | realizes | ✅ |
-| FR-013 | UC-003 | realizes | ✅ |
-| FR-014 | UC-003 | realizes | ✅ |
-| FR-015 | UC-007, UC-009 | realizes | ✅ |
+| FR-013 | FEA-016 | MkDocs 元資料自動同步 | BG-004 | [FR-043](requirements.md#FR-043) | [SC-016](SC-016.md) | [TC-043](tests/test_docs.py) |
+| FEA-017 | 自動化程式碼格式化 | BG-005 | [FR-044, FR-045](requirements.md) | [SC-017](SC-017.md) | - |
 | FR-016 | UC-006, UC-009 | realizes | ✅ |
 | FR-017 | UC-002, UC-003 | realizes | ✅ |
 | FR-018 | UC-001, UC-002 | realizes | ✅ |
@@ -196,7 +195,8 @@
 | DEBT-003 | repo_map_builder.py 相對 import 邊界分支未覆蓋 | resolved | 測試缺口 | P3 | 0.9 | Fill In | FR-018 | N/A | LESSON-037 | derives |
 | DEBT-004 | Layer 2/3 安全審計尚未執行 | resolved | 安全債 | P2 | 4.0 | Major Project | FR-030 | N/A | N/A | derives |
 | DEBT-005 | SonarCloud CI 閘門尚未設定 | in-progress | 流程債 | P2 | 9.0 | Quick Win | FR-004,005 | N/A | N/A | derives |
-| DEBT-006 | SonarCloudGate.evaluate 認知複雜度過高 | resolved | 程式碼品質 | P2 | 9.0 | Quick Win | FR-015 | RISK-012 | LESSON-063 | derives |
+| DEBT-006 | SonarCloudGate.evaluate 認知複雜度過高 | resolved | 程式碼品質 | P2 | 9.0 | Quick Win | ADR-STR-017 | 設定中心化 SSOT 策略 | FR-042 | [LESSON-023](docs/lessons.md) |
+| ADR-STR-018 | 強制 Git Hook 整合 Ruff Format | FR-044 | - |
 | DEBT-007 | `os.environ` 依賴清理 | resolved | 安全債 | P1 | 12.0 | Quick Win | FR-032 | RISK-005 | LESSON-071,072 | derives |
 | DEBT-008 | SonarCloud 切換邏輯異步化 | open | 效能債 | P3 | 2.0 | Fill In | FR-015 | N/A | LESSON-073 | derives |
 

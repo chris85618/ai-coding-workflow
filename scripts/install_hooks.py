@@ -19,7 +19,10 @@ def install_hooks():
 
     # Hook content
     hook_content = """#!/bin/sh
-# Git Pre-commit Hook: Sync SonarCloud properties
+# Git Pre-commit Hook: Format code and Sync SonarCloud properties
+echo "Running ruff format..."
+python -m ruff format src tests
+
 echo "Checking configuration sync..."
 python scripts/sync_sonar_props.py
 """
