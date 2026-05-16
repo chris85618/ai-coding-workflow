@@ -16,6 +16,7 @@
 - [x] DDD-07: 修復 100% 類型檢查 (Mypy) 與格式 (Ruff) 錯誤 — ✅ DONE
 - [x] DDD-08: 移除 `src/` 下所有 Legacy `models/` 檔案 — ✅ DONE
 - [x] DDD-09: 重構 `tests/` 下所有內容改用 DDD 術語與結構 — ✅ DONE
+- [x] DDD-10: 修復 `Pipeline` 與 `StateMapper` 的覆蓋率缺口 (100% Coverage) — ✅ DONE
 
 ## 🚦 Gate Status
 
