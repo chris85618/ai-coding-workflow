@@ -5,6 +5,8 @@ Replaces: skills/workflow-skills/tech-debt-collect.md,
           skills/workflow-skills/tech-debt-framework.md
 """
 
+from typing import Any
+
 from agentic_workflow.domain.algorithms.rice_scoring import RiceScorer
 
 
