@@ -31,8 +31,9 @@ jobs:
           python -m mypy src tests --ignore-missing-imports --explicit-package-bases
       - name: Run tests with coverage
         run: |
-          python -m pytest --cov --cov-report=xml:reports/coverage.xml --junitxml=reports/pytest.xml
+          python -m pytest --cov --cov-branch --cov-report=xml:reports/coverage.xml --junitxml=reports/pytest.xml
       - name: Determine SonarQube Version
+        if: success() || failure()
         id: vars
         run: |
           if [[ "${{ github.ref_type }}" == "tag" ]]; then
@@ -41,6 +42,7 @@ jobs:
             echo "SONAR_VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           fi
       - name: SonarQube Scan
+        if: success() || failure()
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -56,3 +56,4 @@
 3. **Hardened DDD Aggregates**: Refactored `Pipeline` to use a validated `current_stage` property, consolidating logic and ensuring 100% coverage of stage access invariants.
 4. **Adapter Testing Hardening**: Standardized `DependencyContainer` initialization across all node tests and added dedicated error-path coverage tests for uninitialized container scenarios.
 5. **Traceability Validation**: Verified all changes against `docs/traceability-matrix.md`, ensuring no orphaned requirements or untested domain invariants.
+6. **Dependency Governance & Monitoring**: Established `.github/dependabot.yml` for automated security updates and integrated visual monitoring badges (Build, Coverage, Maintainability) into README.md.

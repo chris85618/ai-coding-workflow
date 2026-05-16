@@ -1,6 +1,11 @@
 # AI Coding Workflow — Agentic Pipeline
 
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=chris85618_ai-coding-workflow)](https://sonarcloud.io/summary/new_code?id=chris85618_ai-coding-workflow)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=chris85618_ai-coding-workflow&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=chris85618_ai-coding-workflow)
+[![Build & Analyze](https://github.com/chris85618/ai-coding-workflow/actions/workflows/build.yml/badge.svg)](https://github.com/chris85618/ai-coding-workflow/actions/workflows/build.yml)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=chris85618_ai-coding-workflow&metric=coverage)](https://sonarcloud.io/summary/new_code?id=chris85618_ai-coding-workflow)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=chris85618_ai-coding-workflow&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=chris85618_ai-coding-workflow)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=chris85618_ai-coding-workflow&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=chris85618_ai-coding-workflow)
+[![Dependabot](https://img.shields.io/badge/dependabot-enabled-blue.svg?logo=dependabot)](https://github.com/chris85618/ai-coding-workflow/network/updates)
 
 一套基於 **LangGraph** 與 **Clean Architecture** 的自動化代理編程工作流系統。本專案將複雜的開發協議具象化為可執行的導向無環圖 (DAG)，實現 100% 追溯與治理。
 

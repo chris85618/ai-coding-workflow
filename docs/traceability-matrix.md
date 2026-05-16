@@ -17,6 +17,7 @@
 | BG-003 | FEA-005, FEA-010 | derives | ✅ |
 | BG-004 | FEA-004, FEA-006, FEA-007, FEA-008 | derives | ✅ |
 | BG-005 | FEA-025 | derives | ✅ (DDD Transition) |
+| BG-006 | FEA-027, FEA-028 | derives | ✅ (Automation & Monitoring) |
 
 ### FEA → FR/NFR
 
@@ -55,6 +56,8 @@
 | FEA-024 | FR-050 | decomposes | ✅ (Granular Test Architecture) |
 | FEA-025 | FR-051, FR-052, FR-053 | decomposes | ✅ (DDD Core Models) |
 | FEA-026 | FR-054, FR-055, FR-056, FR-057, FR-058, FR-059, FR-060, FR-061, FR-062 | decomposes | ✅ (Clean Architecture Deep Alignment) |
+| FEA-027 | FR-063 | decomposes | ✅ (Dependabot Integration) |
+| FEA-028 | FR-064 | decomposes | ✅ (Visual Monitoring Badges) |
 
 ### FR → UC
 
@@ -117,6 +120,7 @@
 | [ADR-SEC-005](adr/ADR-SEC-005.md) | 配置網關安全性與 Clean Architecture 存取限制 | SEC | Accepted | FR-032, NFR-004, NFR-011 | justifies |
 | [ADR-STR-020](adr/ADR-STR-020.md) | 領域驅動設計 (DDD) 實施準則 | STR | Accepted | FR-051, FR-052, FR-053 | justifies |
 | [ADR-STR-021](adr/ADR-STR-021.md) | Clean Architecture & DDD 深度對齊實施 | STR | Proposed | FR-054~060 | justifies |
+| [ADR-STR-022](adr/ADR-STR-022.md) | Dependabot 依賴治理策略 | STR | Accepted | FR-063 | justifies |
 
 > 類別統計：STR=8, GOV=26, SEC=1, SCP=0, GATE=0, OPS=0, **合計=35**
 | [ADR-GOV-001](adr/ADR-GOV-001.md) | Decision Unit 理論 + 資訊新穎性門檻 | GOV | Accepted | FR-001, NFR-001 | justifies |
@@ -490,16 +494,16 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 
 | 階段 | ID 前綴 | 已指派 | 有上游 | 有下游 | 覆蓋率 |
 |------|---------|--------|--------|--------|--------|
-| Phase 2.0 | BG-xxx | 4 | — (源頭) | 4/4 | 100% |
+| Phase 2.0 | BG-xxx | 5 | — (源頭) | 5/5 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
-| Phase 2.2 | FEA-xxx | 20 | 20/20 | 20/20 | 100% |
+| Phase 2.2 | FEA-xxx | 22 | 22/22 | 22/22 | 100% |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
-| Stage 3 | FR-xxx | 37+3v2 | 40/40 | 40/40 | 100% |
+| Stage 3 | FR-xxx | 39+3v2 | 42/42 | 42/42 | 100% |
 | Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 14 | 14/14 | 14/14 | 100% |
-| Stage 3 | ADR-STR-xxx | 11 | 11/11 | — | 100% |
-| 治理層 | ADR-GOV-xxx | 26 | 26/26 | — (治理) | 100% |
+| Stage 3 | ADR-STR-xxx | 12 | 12/12 | — | 100% |
+| 治理層 | ADR-GOV-xxx | 27 | 27/27 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
 | Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
@@ -512,7 +516,7 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Skill 修改 | ADR→Skill | 28 | 28/28 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **343** | — | — | **100%** |
+| **合計** | — | **348** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)
