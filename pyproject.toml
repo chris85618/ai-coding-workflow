@@ -6,7 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "langgraph>=0.4",
     "langchain-core>=1.4.0",
-    "icontract>=2.7",
+    "icontract>=2.7.3",
     "pydantic>=2.0",
     "python-sonarqube-api>=2.0.5",
     "python-dotenv>=1.0.0",
@@ -15,18 +15,18 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.0",
-    "pytest-bdd>=8.0",
+    "pytest>=9.0.3",
+    "pytest-bdd>=8.1.0",
     "pytest-cov>=6.0",
-    "crosshair-tool>=0.0.82",
+    "crosshair-tool>=0.0.104",
     "ruff>=0.11",
-    "mypy>=1.15",
+    "mypy>=2.1.0",
     "pdoc>=14.0.0",
     "mkdocs>=1.5.3",
     "mkdocs-macros-plugin>=1.0.0",
-    "bandit>=1.7.8",
-    "safety>=3.1.0",
-    "pip-audit>=2.7.2",
+    "bandit>=1.9.4",
+    "safety>=3.7.0",
+    "pip-audit>=2.10.0",
 ]
 
 [build-system]
