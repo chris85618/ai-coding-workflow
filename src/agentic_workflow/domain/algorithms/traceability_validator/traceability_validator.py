@@ -59,7 +59,7 @@ class TraceabilityValidator:
         return f"{prefix}-{max_num + 1:03d}"
 
     @classmethod
-    def detect_orphans(cls, nodes: list[TraceabilityNode]) -> list[str]:
+    def orphan_check(cls, nodes: list[TraceabilityNode]) -> list[str]:
         """Detects IDs with no upstream or downstream (except source/sink nodes)."""
         orphans = []
         for node in nodes:

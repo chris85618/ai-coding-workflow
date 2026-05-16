@@ -31,9 +31,38 @@ def _fresh_state(
 class TestIterateStageNode:
     """Covers node_iterate_stage and should_continue_iterating logic."""
 
+    def setup_method(self) -> None:
+        """Set up for TestIterateStageNode."""
+        from unittest.mock import MagicMock
+
+        from agentic_workflow.adapters.langgraph.nodes import set_container
+        from agentic_workflow.domain.aggregates.pipeline import Pipeline
+        from agentic_workflow.frameworks.dependency_container import DependencyContainer
+
+        # Initialize container with mocks to satisfy nodes
+        self.mock_repo = MagicMock()
+        self.container = DependencyContainer(
+            pipeline_repo=self.mock_repo,
+            doc_io=MagicMock(),
+            reasoner=MagicMock(),
+        )
+        set_container(self.container)
+
+        # Default setup: return a running pipeline for "test-pipeline-001"
+        self.test_pipeline = Pipeline(pipeline_id="test-pipeline-001")
+        self.test_pipeline.start()
+
+        def get_by_id_side_effect(pid: str) -> Pipeline | None:
+            if pid == "test-pipeline-001":
+                return self.test_pipeline
+            return None
+
+        self.mock_repo.get_by_id.side_effect = get_by_id_side_effect
+
     def test_node_iterate_stage_no_stage(self) -> None:
         """TC-279: Iterate with no stage."""
-        state = _fresh_state()  # no current_stage key
+        state = _fresh_state()
+        state["pipeline_id"] = "unknown"
         result = node_iterate_stage(state)
         assert result.get("last_error") is not None
 

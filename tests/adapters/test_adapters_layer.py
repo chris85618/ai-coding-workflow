@@ -512,6 +512,29 @@ class TestStateMapper:
 class TestLangGraphNodes:
     """Tests for LangGraph DAG node functions."""
 
+    def setup_method(self) -> None:
+        """Set up for TestLangGraphNodes."""
+        from unittest.mock import MagicMock
+
+        from agentic_workflow.adapters.langgraph.nodes import set_container
+
+        # Initialize container with mocks to satisfy nodes
+        from agentic_workflow.domain.aggregates.pipeline import Pipeline
+        from agentic_workflow.frameworks.dependency_container import DependencyContainer
+
+        self.mock_repo = MagicMock()
+        self.container = DependencyContainer(
+            pipeline_repo=self.mock_repo,
+            doc_io=MagicMock(),
+            reasoner=MagicMock(),
+        )
+        set_container(self.container)
+
+        # Default setup: return a running pipeline
+        self.test_pipeline = Pipeline(pipeline_id="pipe-test")
+        self.test_pipeline.start()
+        self.mock_repo.get_by_id.return_value = self.test_pipeline
+
     def _base_state(self) -> WorkflowState:
         from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 
@@ -556,6 +579,8 @@ class TestLangGraphNodes:
         state = self._base_state()
         state["pipeline_status"] = "running"
         state["last_gate_decision"] = GateDecision.PASS.value
+        # Satisfy DbC: Auto-gate must PASS before advance
+        self.test_pipeline.last_gate_decision = GateDecision.PASS
         result = node_advance_stage(state)
         assert result["current_position"] == "phase1"
 
@@ -564,10 +589,10 @@ class TestLangGraphNodes:
         from agentic_workflow.adapters.langgraph.nodes import node_iterate_stage
 
         state = self._base_state()
-        state["current_stage_id"] = "stage3"
+        state["current_stage_id"] = "phase0"  # Use a valid stage id
         state["stage_status"] = "pending"
         state["iteration_count"] = 0
-        state["metadata"] = {"stage_name": "Technical Planning"}
+        state["metadata"] = {"stage_name": "Phase 0"}
         result = node_iterate_stage(state)
         assert result["iteration_count"] == 1
         assert result["stage_status"] == "iterating"

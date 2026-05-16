@@ -6,19 +6,24 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.1.5] — 2026-05-16
+## [0.1.5] — 2026-05-17
 
 ### Summary
-Quality Hardening & Final DDD Alignment release.
-Achieved 100.00% test coverage across all domain aggregates and adapters.
+Comprehensive Clean Architecture & DDD Hardening release.
+Successfully completed the migration of core domain aggregates and application use cases with 100.00% test coverage and full static analysis (Ruff/Mypy) compliance.
 
 ### Added
-- Coverage tests for `Pipeline` aggregate error paths and edge cases (TC-COV-002).
-- Coverage tests for `StateMapper` adapter boundary conditions (TC-COV-001).
+- **Domain Layer**: `Pipeline` Aggregate Root, `Stage` Entity, and multiple Value Objects (`Findings`, `SymbolDef`, `TraceLink`, `TraceableIdVO`).
+- **Application Layer**: Use Case encapsulation for all operations (`StartPipeline`, `AdvancePipeline`, `RunIteration`).
+- **Infrastructure Layer**: `IPipelineRepository` port and `MarkdownPipelineRepository` adapter for document-based persistence.
+- **Reasoning**: `IAgentReasoner` port and `AnthropicReasoner` adapter for LLM decoupling.
+- **Tests**: 100% statement and branch coverage across the entire core package.
+- **Granular Coverage**: Dedicated suites for abstract port interfaces and defensive error paths.
 
 ### Fixed
-- Coverage gaps in `src/agentic_workflow/domain/aggregates/pipeline.py` and `src/agentic_workflow/adapters/langgraph/state_mapper/state_mapper.py`.
-- Alignment of Use Case tests with strict DDD invariants.
+- Standardized all type-hinting and docstring issues across the repository (Ruff/Mypy clean).
+- Resolved test suite environmental instability by hardening `DependencyContainer` initialization.
+- Finalized alignment of LangGraph nodes with the Clean Architecture Use Case layer.
 
 ## [0.1.4] — 2026-05-16
 

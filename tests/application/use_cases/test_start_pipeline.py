@@ -9,8 +9,13 @@ class TestStartPipelineUseCase:
 
     def test_start_pipeline_creates_running_pipeline(self) -> None:
         """Verify that starting a pipeline results in a RUNNING state."""
-        use_case = StartPipelineUseCase()
+        from unittest.mock import MagicMock
+
+        mock_repo = MagicMock()
+
+        use_case = StartPipelineUseCase(mock_repo)
         pipeline = use_case.execute(pipeline_id="use-case-test")
 
         assert pipeline.pipeline_id == "use-case-test"
         assert pipeline.status == PipelineStatus.RUNNING
+        mock_repo.save.assert_called_once_with(pipeline)

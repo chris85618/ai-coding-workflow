@@ -1,9 +1,9 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 11 (Project Delivery) — ✅ DONE
+**Pipeline Position**: Phase 11 (Release v0.1.5) — ✅ DONE
 **Last Position**: Phase 11 (Release v0.1.5)
 **Status**: Project delivered with 100% coverage, DDD architecture, and validated documentation.
-**Last Updated**: 2026-05-16T20:56+08:00
+**Last Updated**: 2026-05-16T21:05+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -17,6 +17,16 @@
 - [x] DDD-08: 移除 `src/` 下所有 Legacy `models/` 檔案 — ✅ DONE
 - [x] DDD-09: 重構 `tests/` 下所有內容改用 DDD 術語與結構 — ✅ DONE
 - [x] DDD-10: 修復 `Pipeline` 與 `StateMapper` 的覆蓋率缺口 (100% Coverage) — ✅ DONE
+- [x] CAD-01: 建立 ADR-STR-021 (Clean Architecture 深度對齊) — ✅ DONE
+- [x] CAD-02: 提煉 `TraceableIdVO` 與 `Findings` VO — ✅ DONE
+- [x] CAD-03: 實作 `IPipelineRepository` 與 `MarkdownPipelineRepository` — ✅ DONE
+- [x] CAD-04: 建立 `DependencyContainer` 並重構 Use Cases 依賴注入 — ✅ DONE
+- [x] CAD-05: 隔離 LLM 邏輯至 `IAgentReasoner` Port — ✅ DONE
+- [x] CAD-06: 重構 `nodes.py` 使用 DI 與通用語言 (Alpha/Beta) — ✅ DONE
+- [x] CAD-07: 實作 `AnthropicReasoner` Adapter — ✅ DONE
+- [x] CAD-08: 重構 `ImpactAnalysis` 為 Domain Service — ✅ DONE
+- [x] CAD-09: 重構 `BlastRadius` 為 Specification — ✅ DONE
+- [x] CAD-10: 補齊 DI Container 與 Use Case 單元測試 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -38,9 +48,8 @@
 
 ## 📝 Session Summary
 
-1. **實施 ADR-STR-020**: 制定 DDD 重構準則，定義 AR、Entity、VO 的識別與邊界。
-2. **遷移領域模型**: 建立 `domain/aggregates/`, `domain/entities/`, `domain/value_objects/` 目錄並重新組織核心對象。
-3. **實作應用層**: 建立 `application/use_cases/`，將業務邏輯從領域模型中分離，確保 AR 僅處理領域不變量。
-4. **適配器解耦**: 更新 `StateMapper` 映射邏輯，將 LangGraph `nodes.py` 修改為僅透過 Use Case 存取領域層。
-5. **品質驗證**: 修正 15+ 項 Ruff 格式錯誤與 Mypy 類型錯誤，維持 138 個檔案的類型安全與 100% 測試可行性。
-6. **當前進度**: 已完成從 OOAD 到 DDD 的架構平移，系統正處於 Phase 10 的深度優化階段。
+1. **100% Test Coverage reached**: Resolved the final coverage gaps in `Pipeline` aggregate and LangGraph `nodes.py`, achieving 100% statement and branch coverage across the entire `agentic_workflow` package.
+2. **Static Analysis Compliance**: Fully resolved 30+ `ruff` and `mypy` errors across domain, application, and adapter layers. Standardized docstrings and return type annotations.
+3. **Hardened DDD Aggregates**: Refactored `Pipeline` to use a validated `current_stage` property, consolidating logic and ensuring 100% coverage of stage access invariants.
+4. **Adapter Testing Hardening**: Standardized `DependencyContainer` initialization across all node tests and added dedicated error-path coverage tests for uninitialized container scenarios.
+5. **Traceability Validation**: Verified all changes against `docs/traceability-matrix.md`, ensuring no orphaned requirements or untested domain invariants.

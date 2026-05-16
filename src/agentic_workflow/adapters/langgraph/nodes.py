@@ -14,11 +14,6 @@ from pathlib import Path
 
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
 from agentic_workflow.adapters.sonarcloud.sonar_adapter import SonarCloudAdapter
-from agentic_workflow.application.use_cases import (
-    AdvancePipelineUseCase,
-    RunIterationUseCase,
-    StartPipelineUseCase,
-)
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
 from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
 from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
@@ -34,6 +29,22 @@ from agentic_workflow.domain.enums import (
 )
 from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
 from agentic_workflow.frameworks.config import WorkflowConfigLoader
+from agentic_workflow.frameworks.dependency_container import DependencyContainer
+
+# Simulating a global container for the graph execution context
+_CONTAINER: DependencyContainer | None = None
+
+
+def set_container(container: DependencyContainer | None) -> None:
+    """Initialize the global container for nodes."""
+    global _CONTAINER
+    _CONTAINER = container
+
+
+def _get_container() -> DependencyContainer:
+    if _CONTAINER is None:
+        raise RuntimeError("DependencyContainer not initialized")
+    return _CONTAINER
 
 
 def node_start_pipeline(state: WorkflowState) -> WorkflowState:
@@ -42,9 +53,18 @@ def node_start_pipeline(state: WorkflowState) -> WorkflowState:
     Transitions Pipeline from NOT_STARTED → RUNNING.
     Corresponds to UC-001 (start pipeline).
     """
-    use_case = StartPipelineUseCase()
-    pipeline = use_case.execute(state["pipeline_id"])
-    return StateMapper.pipeline_to_state(pipeline)
+    if state.get("pipeline_status") == "running":
+        return state
+
+    pipeline_id = state.get("pipeline_id", "default")
+    try:
+        container = _get_container()
+        use_case = container.start_pipeline
+        pipeline = use_case.execute(pipeline_id)
+        return StateMapper.pipeline_to_state(pipeline)
+    except Exception as e:
+        state["last_error"] = str(e)
+        return state
 
 
 def node_pipeline_completeness(state: WorkflowState) -> WorkflowState:
@@ -75,18 +95,24 @@ def node_auto_gate(state: WorkflowState) -> WorkflowState:
 
 
 def node_advance_stage(state: WorkflowState) -> WorkflowState:
-    """DAG node: Advance pipeline to the next stage.
+    """DAG node: Advance pipeline to next stage.
 
-    Requires last_gate_decision == PASS (INV-002-v2).
+    Implements FR-001 (ordered phase progression).
     """
-    pipeline = StateMapper.state_to_pipeline(state)
-    gate_str = state.get("last_gate_decision")
-    decision = GateDecision(gate_str) if gate_str else GateDecision.PASS
+    pipeline_id = state.get("pipeline_id", "default")
+    decision_str = str(state.get("last_gate_decision", "pass"))
+    from agentic_workflow.domain.enums import GateDecision
 
-    use_case = AdvancePipelineUseCase()
-    use_case.execute(pipeline, decision)
+    decision = GateDecision(decision_str)
 
-    return StateMapper.pipeline_to_state(pipeline)
+    try:
+        container = _get_container()
+        use_case = container.advance_pipeline
+        pipeline = use_case.execute(pipeline_id, decision)
+        return StateMapper.pipeline_to_state(pipeline)
+    except Exception as e:
+        state["last_error"] = str(e)
+        return state
 
 
 def node_iterate_stage(state: WorkflowState) -> WorkflowState:
@@ -94,17 +120,18 @@ def node_iterate_stage(state: WorkflowState) -> WorkflowState:
 
     Implements FR-012 (autonomous α/β loop).
     """
-    if not state.get("current_stage_id"):
-        return WorkflowState(last_error="No active stage found in state")
-
-    pipeline = StateMapper.state_to_pipeline(state)
+    pipeline_id = state.get("pipeline_id", "default")
     metadata = state.get("metadata", {})
-    findings = metadata.get("recent_findings", [])
+    alpha_findings = metadata.get("recent_findings", [])
 
-    use_case = RunIterationUseCase()
-    use_case.execute(pipeline, findings)
-
-    return StateMapper.pipeline_to_state(pipeline)
+    try:
+        container = _get_container()
+        use_case = container.run_iteration
+        pipeline = use_case.execute(pipeline_id, alpha_findings)
+        return StateMapper.pipeline_to_state(pipeline)
+    except Exception as e:
+        state["last_error"] = str(e)
+        return state
 
 
 def node_complete_pipeline(state: WorkflowState) -> WorkflowState:

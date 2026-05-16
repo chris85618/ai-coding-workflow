@@ -21,6 +21,27 @@ def _fresh_state(
 class TestStartPipelineNode:
     """Covers node_start_pipeline logic."""
 
+    def setup_method(self) -> None:
+        """Set up for TestStartPipelineNode."""
+        from unittest.mock import MagicMock
+
+        from agentic_workflow.adapters.langgraph.nodes import set_container
+        from agentic_workflow.domain.aggregates.pipeline import Pipeline
+        from agentic_workflow.frameworks.dependency_container import DependencyContainer
+
+        # Initialize container with mocks to satisfy nodes
+        self.mock_repo = MagicMock()
+        self.container = DependencyContainer(
+            pipeline_repo=self.mock_repo,
+            doc_io=MagicMock(),
+            reasoner=MagicMock(),
+        )
+        set_container(self.container)
+
+        # Default setup: return a running pipeline
+        self.test_pipeline = Pipeline(pipeline_id="test-pipeline-001")
+        self.mock_repo.get_by_id.return_value = self.test_pipeline
+
     def test_node_start_pipeline_transitions_to_running(self) -> None:
         """TC-273: Start pipeline Running state."""
         state = _fresh_state("not_started")

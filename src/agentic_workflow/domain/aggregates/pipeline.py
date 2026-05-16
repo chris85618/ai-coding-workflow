@@ -37,6 +37,14 @@ class Pipeline:
     last_gate_decision: GateDecision | None = None
     stages: dict[str, Stage] = field(default_factory=dict)
 
+    @property
+    def current_stage(self) -> Stage:
+        """Get the stage entity for the current position."""
+        stage = self.stages.get(self.current_position)
+        if not stage:
+            raise ValueError(f"Current stage {self.current_position} not found")
+        return stage
+
     def __post_init__(self) -> None:
         """Ensure all required stages are initialized."""
         if self.current_position not in _STAGE_ORDER:
@@ -93,17 +101,34 @@ class Pipeline:
 
     def update_stage_findings(self, findings: list[str]) -> None:
         """Delegate findings update to the current stage entity."""
-        stage = self.stages.get(self.current_position)
-        if not stage:
-            raise ValueError(f"Current stage {self.current_position} not found")
         for finding in findings:
-            stage.add_finding(finding)
+            self.current_stage.add_finding(finding)
+
+    def advance_stage(self, decision: GateDecision) -> None:
+        """Centralized method to advance the stage.
+
+        Mandates gate decision recording before movement.
+        """
+        self.record_gate(decision)
+        if decision in (GateDecision.PASS, GateDecision.PASS_WITH_WARNINGS):
+            self.advance()
+        else:
+            self.fail_validation(f"Gate failed with decision: {decision}")
+
+    def fail_validation(self, reason: str) -> None:
+        """Handle validation failure.
+
+        Transitions current stage to FAILED and records the reason.
+        """
+        stage = self.stages.get(self.current_position)
+        if stage:
+            stage.transition(StageStatus.FAILED)
+            stage.add_finding(f"Validation Error: {reason}")
+        self.status = PipelineStatus.FAILED
 
     def increment_stage_iteration(self) -> None:
         """Delegate iteration increment to the current stage entity."""
-        stage = self.stages.get(self.current_position)
-        if not stage:
-            raise ValueError(f"Current stage {self.current_position} not found")
+        stage = self.current_stage
         stage.increment_iteration()
         if stage.status == StageStatus.PENDING:
             stage.transition(StageStatus.ITERATING)

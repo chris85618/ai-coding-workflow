@@ -10,12 +10,20 @@ class TestAdvancePipelineUseCase:
 
     def test_advance_pipeline_updates_gate_and_advances(self) -> None:
         """Verify that advancing records the gate and moves position."""
+        from unittest.mock import MagicMock
+
+        mock_repo = MagicMock()
+
         pipeline = Pipeline(pipeline_id="advance-test")
         pipeline.start()
+        pipeline.last_gate_decision = GateDecision.PASS  # Satisfy INV-002-v2
+
+        mock_repo.get_by_id.return_value = pipeline
 
         initial_position = pipeline.current_position
-        use_case = AdvancePipelineUseCase()
-        use_case.execute(pipeline, GateDecision.PASS)
+        use_case = AdvancePipelineUseCase(mock_repo)
+        use_case.execute("advance-test", GateDecision.PASS)
 
         assert pipeline.last_gate_decision == GateDecision.PASS
         assert pipeline.current_position != initial_position
+        mock_repo.save.assert_called_once_with(pipeline)

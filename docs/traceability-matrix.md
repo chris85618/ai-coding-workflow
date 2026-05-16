@@ -54,6 +54,7 @@
 | FEA-023 | FR-047, FR-048, FR-049 | decomposes | ✅ (Test Refactor & Quality Hardening) |
 | FEA-024 | FR-050 | decomposes | ✅ (Granular Test Architecture) |
 | FEA-025 | FR-051, FR-052, FR-053 | decomposes | ✅ (DDD Core Models) |
+| FEA-026 | FR-054, FR-055, FR-056, FR-057, FR-058, FR-059, FR-060, FR-061, FR-062 | decomposes | ✅ (Clean Architecture Deep Alignment) |
 
 ### FR → UC
 
@@ -72,8 +73,7 @@
 | FR-010 | UC-008 | realizes | ✅ |
 | FR-011 | UC-008 | realizes | ✅ |
 | FR-012 | UC-003 | realizes | ✅ |
-| FR-013 | FEA-016 | MkDocs 元資料自動同步 | BG-004 | [FR-043](requirements.md#FR-043) | [SC-016](SC-016.md) | [TC-043](tests/test_docs.py) |
-| FEA-017 | 自動化程式碼格式化 | BG-005 | [FR-044, FR-045](requirements.md) | [SC-017](SC-017.md) | - |
+| FR-013 | UC-003 | realizes | ✅ |
 | FR-016 | UC-006, UC-009 | realizes | ✅ |
 | FR-017 | UC-002, UC-003 | realizes | ✅ |
 | FR-018 | UC-001, UC-002 | realizes | ✅ |
@@ -116,6 +116,7 @@
 |-----|------|------|------|--------|------|
 | [ADR-SEC-005](adr/ADR-SEC-005.md) | 配置網關安全性與 Clean Architecture 存取限制 | SEC | Accepted | FR-032, NFR-004, NFR-011 | justifies |
 | [ADR-STR-020](adr/ADR-STR-020.md) | 領域驅動設計 (DDD) 實施準則 | STR | Accepted | FR-051, FR-052, FR-053 | justifies |
+| [ADR-STR-021](adr/ADR-STR-021.md) | Clean Architecture & DDD 深度對齊實施 | STR | Proposed | FR-054~060 | justifies |
 
 > 類別統計：STR=8, GOV=26, SEC=1, SCP=0, GATE=0, OPS=0, **合計=35**
 | [ADR-GOV-001](adr/ADR-GOV-001.md) | Decision Unit 理論 + 資訊新穎性門檻 | GOV | Accepted | FR-001, NFR-001 | justifies |
@@ -233,6 +234,10 @@
 | CLS-021 | FR-034 | models | ✅ (NEW: TokenLimitExceededError) |
 | CLS-022 | SymbolDef | domain/value_objects/symbol_def.py | ✅ (Value Object) |
 | CLS-023 | Findings | domain/value_objects/findings.py | ✅ (Value Object) |
+| CLS-024 | DependencyContainer | frameworks/dependency_container.py | ✅ (DI Container) |
+| CLS-025 | TraceableIdVO | domain/value_objects/traceable_id_vo.py | ✅ (Value Object) |
+| CLS-026 | IPipelineRepository | application/ports/repositories/pipeline_repository.py | ✅ (Port) |
+| CLS-027 | IAgentReasoner | application/ports/gateways/agent_reasoner.py | ✅ (Port) |
 
 ### EVT → CLS
 
@@ -331,6 +336,8 @@
 | TC-UC-001 | UC-001 | validates | ✅ (NEW: StartPipelineUseCase) |
 | TC-UC-002 | UC-001, UC-003 | validates | ✅ (NEW: AdvancePipelineUseCase) |
 | TC-UC-003 | UC-003 | validates | ✅ (NEW: RunIterationUseCase) |
+| TC-CAD-001 | DependencyContainer wiring validation | validates | ✅ |
+| TC-CAD-002 | AdvancePipelineUseCase execution validation | validates | ✅ |
 | TC-COV-001 | FR-019-v2 | validates | ✅ (NEW: StateMapper edge cases) |
 | TC-COV-002 | FR-051 | validates | ✅ (NEW: Pipeline error paths) |
 

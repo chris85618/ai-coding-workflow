@@ -226,6 +226,34 @@ def then_contains_start_pipeline(context: dict[str, Any]) -> None:
 class TestLangGraphNodeEdgeCases:
     """Edge cases for DAG node functions."""
 
+    def setup_method(self) -> None:
+        """Set up for TestLangGraphNodeEdgeCases."""
+        from unittest.mock import MagicMock
+
+        from agentic_workflow.adapters.langgraph.nodes import set_container
+        from agentic_workflow.domain.aggregates.pipeline import Pipeline
+        from agentic_workflow.frameworks.dependency_container import DependencyContainer
+
+        # Initialize container with mocks to satisfy nodes
+        self.mock_repo = MagicMock()
+        self.container = DependencyContainer(
+            pipeline_repo=self.mock_repo,
+            doc_io=MagicMock(),
+            reasoner=MagicMock(),
+        )
+        set_container(self.container)
+
+        # Default setup: return a running pipeline for "pipe-test"
+        self.test_pipeline = Pipeline(pipeline_id="pipe-test")
+        self.test_pipeline.start()
+
+        def get_by_id_side_effect(pid: str) -> Pipeline | None:
+            if pid == "pipe-test":
+                return self.test_pipeline
+            return None
+
+        self.mock_repo.get_by_id.side_effect = get_by_id_side_effect
+
     def _running_state(self) -> WorkflowState:
         from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
         from agentic_workflow.domain.enums import GateDecision
@@ -259,7 +287,7 @@ class TestLangGraphNodeEdgeCases:
         from agentic_workflow.adapters.langgraph.nodes import node_iterate_stage
         from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 
-        state = WorkflowState(pipeline_id="p1", pipeline_status="running")
+        state = WorkflowState(pipeline_id="unknown", pipeline_status="running")
         result = node_iterate_stage(state)
         assert result.get("last_error") is not None
 
