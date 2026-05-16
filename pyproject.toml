@@ -38,7 +38,6 @@ build-backend = "hatchling.build"
 # See: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
 src = ["src", "tests"]
-include = ["src/**", "tests/**", "pyproject.toml"]
 line-length = 120
 target-version = "py312"
 
@@ -48,7 +47,6 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.ruff.lint]
-# select = ["ALL"]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "D"]
 ignore = []
 

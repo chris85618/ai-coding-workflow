@@ -1,14 +1,12 @@
-import tomllib
 import os
+import tomllib
 
 # 安全黑名單：禁止透過巨集暴露的環境變數關鍵字
 SECRET_KEYWORDS = ["KEY", "TOKEN", "SECRET", "PASSWORD", "AUTH"]
 
 
 def define_env(env):
-    """
-    Define variables, macros and filters for mkdocs-macros-plugin.
-    """
+    """Define variables, macros and filters for mkdocs-macros-plugin."""
     # Load pyproject.toml as the single source of truth
     try:
         with open("pyproject.toml", "rb") as f:
@@ -35,7 +33,7 @@ def define_env(env):
     def include_file(filename, start_line=1, end_line=None):
         """Include a file content in markdown."""
         try:
-            with open(filename, "r", encoding="utf-8") as f:
+            with open(filename, encoding="utf-8") as f:
                 lines = f.readlines()
                 if end_line is None:
                     end_line = len(lines)
@@ -45,9 +43,7 @@ def define_env(env):
 
 
 def on_config(config):
-    """
-    Hook to modify mkdocs configuration dynamically from pyproject.toml [tool.mkdocs].
-    """
+    """Hook to modify mkdocs configuration dynamically from pyproject.toml [tool.mkdocs]."""
     try:
         with open("pyproject.toml", "rb") as f:
             pyproject = tomllib.load(f)
