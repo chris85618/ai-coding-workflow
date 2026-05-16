@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 from agentic_workflow.frameworks.main import main
 
 
-@patch("agentic_workflow.frameworks.main.load_config")
-@patch("agentic_workflow.frameworks.main.build_graph")
+@patch("agentic_workflow.frameworks.config.WorkflowConfigLoader.load")
+@patch("agentic_workflow.frameworks.graph.master_graph_builder.MasterGraphBuilder.build")
 def test_main_execution(mock_build: MagicMock, mock_load: MagicMock) -> None:
     """TC-070: Entry point main() initializes and builds graph."""
     mock_config = MagicMock()

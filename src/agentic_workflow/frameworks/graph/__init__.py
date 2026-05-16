@@ -11,14 +11,6 @@ Module-level functions retained as backward-compat facades.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    try:
-        from langgraph.graph import CompiledGraph  # type: ignore[attr-defined]
-    except ImportError:
-        from typing import Any as CompiledGraph
-
 from agentic_workflow.frameworks.graph.iteration_graph_builder import (
     IterationGraphBuilder,
 )
@@ -63,9 +55,6 @@ __all__ = [
     "MicroValidationGraphBuilder",
     "IterationGraphBuilder",
     "MasterGraphBuilder",
-    "build_micro_validation_graph",
-    "build_iteration_graph",
-    "build_graph",
     # Node functions (backward compat)
     "step_0_format",
     "step_1_id_structure",
@@ -94,23 +83,3 @@ __all__ = [
     "phase_9_ship",
     "phase_10_retro",
 ]
-
-
-# ==========================================
-# Module-level facades (backward compatibility)
-# ==========================================
-
-
-def build_micro_validation_graph() -> CompiledGraph:
-    """Backward-compat facade — delegates to MicroValidationGraphBuilder."""
-    return MicroValidationGraphBuilder.build()
-
-
-def build_iteration_graph() -> CompiledGraph:
-    """Backward-compat facade — delegates to IterationGraphBuilder."""
-    return IterationGraphBuilder.build()
-
-
-def build_graph() -> CompiledGraph:
-    """Backward-compat facade — delegates to MasterGraphBuilder."""
-    return MasterGraphBuilder.build()

@@ -12,7 +12,7 @@ import pytest
 from pytest_bdd import given, scenario, then, when
 
 from agentic_workflow.domain.algorithms.invariants_verifier import DAGInvariantVerifier
-from agentic_workflow.frameworks.graph import build_graph
+from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
 
 
 @scenario(
@@ -46,7 +46,7 @@ def given_valid_config(monkeypatch: pytest.MonkeyPatch) -> None:
 def when_compiles_langgraph(context: dict[str, Any]) -> None:
     """BDD step: perform graph compilation."""
     # ADR-STR-007: use OO Builder exclusively
-    context["compiled_graph"] = build_graph()
+    context["compiled_graph"] = MasterGraphBuilder.build()
 
 
 @then("it should return a compiled graph")
@@ -76,7 +76,7 @@ def then_contains_orchestrator(context: dict[str, Any]) -> None:
 def given_compiled_langgraph(context: dict[str, Any]) -> None:
     """BDD step: given compiled graph."""
     # ADR-STR-007: OO Builder is the sole path
-    context["compiled_graph"] = build_graph()
+    context["compiled_graph"] = MasterGraphBuilder.build()
 
 
 @when("the DAG Invariant Verifier checks the graph")

@@ -124,9 +124,9 @@ class TestLLMProviders:
 def given_compiled_langgraph(context: dict[str, Any]) -> None:
     """BDD given step: compiled graph."""
     # ADR-STR-007: OO Builder is the sole path
-    from agentic_workflow.frameworks.graph import build_graph
+    from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
 
-    context["compiled_graph"] = build_graph()
+    context["compiled_graph"] = MasterGraphBuilder.build()
 
 
 class TestGitKrakenEdgeCases:
@@ -282,9 +282,9 @@ class TestLangGraphNodeEdgeCases:
 @when("the graph builder compiles the LangGraph")
 def when_graph_builder_compiles(context: dict[str, Any]) -> None:
     """BDD when step: compile graph."""
-    from agentic_workflow.frameworks.graph import build_graph
+    from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
 
-    context["compiled_graph"] = build_graph()
+    context["compiled_graph"] = MasterGraphBuilder.build()
 
 
 @then("it should return a compiled graph")

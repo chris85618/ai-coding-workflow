@@ -27,7 +27,7 @@ from agentic_workflow.domain.models.enums import (
 )
 from agentic_workflow.domain.models.sonarcloud_config import SonarCloudConfig
 from agentic_workflow.domain.models.stage import MAX_ITERATIONS
-from agentic_workflow.frameworks.config import load_config
+from agentic_workflow.frameworks.config import WorkflowConfigLoader
 
 
 def node_start_pipeline(state: WorkflowState) -> WorkflowState:
@@ -223,7 +223,7 @@ def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
     """
     metadata = state.get("metadata", {})
     # 1. Verify Configuration (from centralized config system)
-    wf_config = load_config()
+    wf_config = WorkflowConfigLoader.load()
     sonar_config_raw = wf_config.sonarcloud
     # Map frameworks config to domain config
     sonar_config = SonarCloudConfig(

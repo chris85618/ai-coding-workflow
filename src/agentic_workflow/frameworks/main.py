@@ -5,18 +5,18 @@ Wiring for the LangGraph application.
 
 from __future__ import annotations
 
-from agentic_workflow.frameworks.config import load_config
-from agentic_workflow.frameworks.graph import build_graph
+from agentic_workflow.frameworks.config import WorkflowConfigLoader
+from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
 
 
 def main() -> None:
     """Main entry point."""
     print("Loading configuration... (ADR-STR-006)")
-    config = load_config()
+    config = WorkflowConfigLoader.load()
     print(f"Loaded config with models: {list(config.models.keys())}")
 
     print("Building LangGraph DAG...")
-    build_graph()
+    MasterGraphBuilder.build()
 
     print("Application initialized. Ready to invoke pipelines.")
     # Example invocation:

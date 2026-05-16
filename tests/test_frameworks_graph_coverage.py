@@ -5,11 +5,11 @@ Traceable to: FR-001, FR-002, ADR-STR-003.
 
 from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 from agentic_workflow.frameworks.graph import (
+    IterationGraphBuilder,
+    MasterGraphBuilder,
+    MicroValidationGraphBuilder,
     agent_alpha_critique,
     agent_beta_resolve,
-    build_graph,
-    build_iteration_graph,
-    build_micro_validation_graph,
     check_fixed_point,
     hitl_gate_choice,
     phase_0_init,
@@ -176,18 +176,18 @@ class TestGraphBuilders:
 
     def test_build_micro_validation_graph_compiles(self) -> None:
         """TC-067: Micro validation graph builds."""
-        graph = build_micro_validation_graph()
+        graph = MicroValidationGraphBuilder.build()
         assert graph is not None
         assert hasattr(graph, "invoke")
 
     def test_build_iteration_graph_compiles(self) -> None:
         """TC-068: Iteration graph builds."""
-        graph = build_iteration_graph()
+        graph = IterationGraphBuilder.build()
         assert graph is not None
         assert hasattr(graph, "invoke")
 
     def test_build_graph_compiles(self) -> None:
         """TC-069: Master graph builds."""
-        graph = build_graph()
+        graph = MasterGraphBuilder.build()
         assert graph is not None
         assert hasattr(graph, "invoke")

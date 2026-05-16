@@ -169,7 +169,7 @@ class TestMainBlock:
         # Patch build_graph where it is imported inside __main__.
         mock_graph = _mock_graph()
         with patch(
-            "agentic_workflow.frameworks.graph.build_graph",
+            "agentic_workflow.frameworks.graph.master_graph_builder.MasterGraphBuilder.build",
             return_value=mock_graph,
         ):
             try:

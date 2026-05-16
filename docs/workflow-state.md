@@ -1,7 +1,7 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 10 Complete (Facade Refactoring Verified)
-**Last Updated**: 2026-05-16T09:35+08:00
+**Pipeline Position**: Phase 10 Complete (Framework OO Refactoring Verified)
+**Last Updated**: 2026-05-16T10:05+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -13,6 +13,8 @@
 - [x] S8-06: 提交與推送 (Commit & Push) — ✅ DONE
 - [x] S8-07: 實作 `SonarCloudAdapter` 並獲取真實數據 — ✅ DONE
 - [x] S10-01: 系統性清理演算法 Facade (Domain Algorithm Refactoring) — ✅ DONE
+- [x] S10-02: 系統性重構 `WorkflowConfig` 為 OO 類別 — ✅ DONE
+- [x] S10-03: 移除 `frameworks/graph` 中的 Legacy Facades — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -40,5 +42,7 @@
 5. **修復評估 Bug**: 解決了領域算法中「數字 vs 評等字串」的比較類型錯誤。
 6. **當前狀態**: 品質閘門檢出 **2 項失敗** (專案總複雜度超標)，Issue 數量為 **0**。
 7. **演算法 Facade 清理**: 系統性移除 6 個演算法模組中的 legacy facade 函數，強制執行 ALG-010 (OO-Only)。
-8. **Adapter 同步**: 更新 `adapters/langgraph/nodes.py` 以調用最新類別方法。
-9. **驗證與清理**: 全面更新測試檔案中的註解與 docstring，通過 680 項全域測試。
+8. **配置網關重構**: 實施 `WorkflowConfigLoader` 類別，移除 standalone `load_config` 函數 (ALG-010)。
+9. **圖建構 Facade 移除**: 刪除 `frameworks/graph/__init__.py` 中的 `build_graph` 等函數，強制使用 Builder 類別。
+10. **全域對齊**: 更新 `main.py`、`nodes.py` 及全體測試套件（含 BDD）以對齊 OO 呼叫模式。
+11. **驗證與清理**: 通過全體測試，`ruff` 與 `mypy` 零警告。

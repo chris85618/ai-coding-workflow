@@ -13,8 +13,7 @@ from agentic_workflow.frameworks.config.sonarcloud_config import (
 )
 from agentic_workflow.frameworks.config.workflow_config import (
     WorkflowConfig,
-    _interpolate_env_vars,
-    load_config,
+    WorkflowConfigLoader,
 )
 
 __all__ = [
@@ -23,6 +22,5 @@ __all__ = [
     "FeedbackConfig",
     "SonarCloudConfig",
     "WorkflowConfig",
-    "_interpolate_env_vars",
-    "load_config",
+    "WorkflowConfigLoader",
 ]

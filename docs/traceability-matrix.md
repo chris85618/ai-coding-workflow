@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-16T09:40:00+08:00 (Domain Algorithm Facade Clean-up & Specification Update)
-**Validation Status**: ✅ ALG-010 (OO Mandate), ADR-STR-007 (Single Build Path), ruff check ✅, mypy ✅; 323 條追溯紀錄，零孤兒
+**Last Validated**: 2026-05-16T10:00:00+08:00 (WorkflowConfig and Graph Builder OO Refactoring)
+**Validation Status**: ✅ ALG-010 (OO Mandate), ADR-STR-007 (Single Build Path), ADR-SEC-005 (Config Security), ruff check ✅, mypy ✅; 325 條追溯紀錄，零孤兒
 
 ---
 

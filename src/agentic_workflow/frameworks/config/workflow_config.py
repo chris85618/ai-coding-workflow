@@ -29,45 +29,53 @@ class WorkflowConfig(BaseModel):
     sonarcloud: SonarCloudConfig
 
 
-def _interpolate_env_vars(data: Any) -> Any:
-    """Recursively search and replace ${VAR} with environment variables."""
-    pattern = re.compile(r"\$\{(\w+)(?::([^}]*))?\}")
+class WorkflowConfigLoader:
+    """OO Configuration Loader.
 
-    if isinstance(data, str):
-
-        def replacer(match: Match[str]) -> str:
-            env_var, default = match.groups()
-            return os.getenv(env_var, default if default is not None else match.group(0))
-
-        return pattern.sub(replacer, data)
-
-    if isinstance(data, dict):
-        return {k: _interpolate_env_vars(v) for k, v in data.items()}
-
-    if isinstance(data, list):
-        return [_interpolate_env_vars(i) for i in data]
-
-    return data
-
-
-def load_config(config_path: str = "config.yaml") -> WorkflowConfig:
-    """Load and merge configuration with environment variable interpolation.
-
-    Supports ${VAR_NAME} syntax in YAML to reference .env variables.
+    Encapsulates logic for loading YAML configuration and interpolating
+    environment variables.
     """
-    # 1. Load environment variables from .env
-    load_dotenv()
 
-    # 2. Load YAML configuration
-    path = Path(config_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
+    @staticmethod
+    def _interpolate_env_vars(data: Any) -> Any:
+        """Recursively search and replace ${VAR} with environment variables."""
+        pattern = re.compile(r"\$\{(\w+)(?::([^}]*))?\}")
 
-    with open(path, encoding="utf-8") as f:
-        raw_data = yaml.safe_load(f)
+        if isinstance(data, str):
 
-    # 3. Interpolate environment variables
-    interpolated_data = _interpolate_env_vars(raw_data)
+            def replacer(match: Match[str]) -> str:
+                env_var, default = match.groups()
+                return os.getenv(env_var, default if default is not None else match.group(0))
 
-    # 4. Parse into Pydantic model
-    return WorkflowConfig(**interpolated_data)
+            return pattern.sub(replacer, data)
+
+        if isinstance(data, dict):
+            return {k: WorkflowConfigLoader._interpolate_env_vars(v) for k, v in data.items()}
+
+        if isinstance(data, list):
+            return [WorkflowConfigLoader._interpolate_env_vars(i) for i in data]
+
+        return data
+
+    @classmethod
+    def load(cls, config_path: str = "config.yaml") -> WorkflowConfig:
+        """Load and merge configuration with environment variable interpolation.
+
+        Supports ${VAR_NAME} syntax in YAML to reference .env variables.
+        """
+        # 1. Load environment variables from .env
+        load_dotenv()
+
+        # 2. Load YAML configuration
+        path = Path(config_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Config file not found: {config_path}")
+
+        with open(path, encoding="utf-8") as f:
+            raw_data = yaml.safe_load(f)
+
+        # 3. Interpolate environment variables
+        interpolated_data = cls._interpolate_env_vars(raw_data)
+
+        # 4. Parse into Pydantic model
+        return WorkflowConfig(**interpolated_data)

@@ -7,8 +7,7 @@ import pytest
 
 from agentic_workflow.frameworks.config import (
     WorkflowConfig,
-    _interpolate_env_vars,
-    load_config,
+    WorkflowConfigLoader,
 )
 
 
@@ -33,7 +32,7 @@ sonarcloud:
   on_missing_config: "warn_and_disable"
     """
     )
-    config = load_config(str(config_file))
+    config = WorkflowConfigLoader.load(str(config_file))
     assert isinstance(config, WorkflowConfig)
     assert config.models["reasoning"].provider == "anthropic"
 
@@ -42,7 +41,7 @@ def test_interpolate_env_vars_recursive() -> None:
     """TC-074: Test interpolation helper with various types."""
     os.environ["VAR_X"] = "val_x"
     data = {"a": "${VAR_X}", "b": ["${VAR_X}", 123], "c": {"d": "${VAR_X}"}}
-    result = _interpolate_env_vars(data)
+    result = WorkflowConfigLoader._interpolate_env_vars(data)
     assert result["a"] == "val_x"
     assert result["b"] == ["val_x", 123]
     assert result["c"]["d"] == "val_x"
@@ -52,7 +51,7 @@ def test_interpolate_env_vars_recursive() -> None:
 def test_load_config_not_found() -> None:
     """TC-072: Raise error if config file not found."""
     with pytest.raises(FileNotFoundError):
-        load_config("does_not_exist_xyz123.yaml")
+        WorkflowConfigLoader.load("does_not_exist_xyz123.yaml")
 
 
 class TestFrameworksSonarCloudConfig:

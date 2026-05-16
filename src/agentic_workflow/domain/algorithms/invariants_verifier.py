@@ -43,9 +43,9 @@ class DAGInvariantVerifier:
 
 
 if __name__ == "__main__":  # pragma: no cover
-    from agentic_workflow.frameworks.graph import build_graph
+    from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
 
-    graph = build_graph()
+    graph = MasterGraphBuilder.build()
 
     result = DAGInvariantVerifier.run_all_verifications(graph)
     if result["passed"]:

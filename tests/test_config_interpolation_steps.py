@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 from pytest_bdd import given, parsers, scenarios, then, when
 
-from agentic_workflow.frameworks.config import load_config
+from agentic_workflow.frameworks.config import WorkflowConfigLoader
 
 scenarios(os.path.join(os.path.dirname(__file__), "features", "config_interpolation.feature"))
 
@@ -84,7 +84,7 @@ def unset_env_var(name: str) -> None:
 @when("I load the configuration", target_fixture="workflow_config")
 def load_workflow_config(context: dict[str, Any]) -> Any:
     """When I load the configuration."""
-    return load_config(context["path"])
+    return WorkflowConfigLoader.load(context["path"])
 
 
 @then(parsers.parse('the loaded api_key should be "{expected}"'))
