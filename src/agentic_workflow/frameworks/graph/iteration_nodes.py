@@ -13,7 +13,7 @@ def agent_alpha_critique(state: WorkflowState) -> WorkflowState:
     return state  # pragma: no branch
 
 
-def check_fixed_point(state: WorkflowState) -> str:
+def check_fixed_point(_state: WorkflowState) -> str:
     """Checks for convergence or YAGNI termination."""
     # Returns "beta" or "exit_loop" based on YAGNI convergence
     return "beta"  # pragma: no branch
@@ -29,7 +29,7 @@ def root_cause_leftshift(state: WorkflowState) -> WorkflowState:
     return state  # pragma: no branch
 
 
-def hitl_gate_choice(state: WorkflowState) -> str:
+def hitl_gate_choice(_state: WorkflowState) -> str:
     """Human-in-the-loop decision routing."""
     # 1: continue, 2: add req, 3: pass
     return "pass"  # pragma: no branch
