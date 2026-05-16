@@ -228,3 +228,54 @@ RISK: RISK-004 降評 MEDIUM(8)→MEDIUM(6)
 Archive: 追溯矩陣已更新 (302 條，零孤兒)
 Next Pipeline: 等待人類發起新功能需求 (Phase 2)
 ```
+
+---
+
+## [v0.1.3] Phase 10 Retrospective — 測試架構細粒度化重構週期
+
+> **版本**: v0.1.3 (FEA-024)
+> **日期**: 2026-05-16T18:58+08:00
+> **主要工作**: Granular Test Architecture + SSOT Config + SonarCloud Integration
+
+### 1. 成果快照
+
+| 指標 | 值 |
+|------|-----|
+| 測試數量 | 789 tests (100% coverage) |
+| 覆蓋率 | 100.00% (statement + branch) |
+| 治理模式 | One-Class-Per-File (FEA-024) |
+| 配置 SSOT | `pyproject.toml` (FEA-015, 016, 021) |
+| 交付日期 | 2026-05-16T18:44+08:00 |
+
+### 2. 成功模式
+
+- **One-Class-Per-File**: 成功解決大型測試集的維護瓶頸，檔案結構與 `src/` 完全對應。
+- **BDD @staticmethod Enforce**: 統一所有 Gherkin 步驟為類別靜態方法，消除 fixture 注入錯誤。
+- **SSOT Migration**: 將所有分佈在 `.safety-policy.yml`, `sonar-project.properties` 等處的配置統一移入 `pyproject.toml`。
+
+### 3. 新教訓歸檔 (LESSON-050~053)
+
+| LESSON | 根因 | 守衛 |
+|--------|------|------|
+| LESSON-050 | BDD_FIXTURE_INJECTION_FAIL | 類別化 BDD 測試必須使用 `@staticmethod` 並移除 `self` |
+| LESSON-051 | NAMESPACE_COLLISION | 重構測試目錄時必須主動刪除 legacy 檔案，避免同名模組衝突 |
+| LESSON-052 | SSOT_CONFIGURATION | 所有工具配置優先寫入 `pyproject.toml` `[tool.*]`，減少文件碎片 |
+| LESSON-053 | SHELL_PARSING_SENSITIVITY | PowerShell 在 multi-line string 中處理變數時易出錯，優先使用簡單語句 |
+
+### 4. 風險重評
+
+| RISK | 前強度 | 新強度 | 狀態 |
+|------|--------|--------|------|
+| RISK-001 SonarCloud 數據真實性 | MEDIUM (6) | **LOW (2)** | **→ closed** (FEA-015 實作完成) |
+| RISK-004 Session CM bypass | MEDIUM (6) | **LOW (3)** | open — Step 12 表格化後無漏檢 |
+
+### 5. Phase 10 完成宣告
+
+```
+Phase 10 Retro [v0.1.3]: COMPLETE
+LESSON: LESSON-050~053 歸檔
+DEBT: DEBT-008 (Async Sonar) P3 active
+RISK: RISK-001 CLOSED, RISK-004 降評 MEDIUM(6)→LOW(3)
+Archive: 追溯矩陣已更新 (338 條，100% 覆蓋)
+Next Pipeline: 交付模型穩定，進入維護/新功能階段
+```

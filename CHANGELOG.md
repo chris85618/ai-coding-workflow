@@ -6,6 +6,32 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.1.3] — 2026-05-16
+
+### Summary
+Granular Test Architecture & Quality Hardening release.
+Implemented "One-Class-Per-File" testing model (FEA-024) and unified all configurations into `pyproject.toml` as SSOT.
+789 unit tests, 100.00% coverage.
+
+### Added
+- Feature `FEA-024`: Granular Test Architecture (One-Class-Per-File) for improved modularity and maintenance.
+- Feature `FEA-015`: `SonarCloudAdapter` providing real-time quality gate metrics via Web API.
+- Feature `FEA-016`: `pyproject-mkdocs-plugin` for automated documentation metadata synchronization.
+- Feature `FEA-021`: Hardened Mypy configuration within `pyproject.toml`.
+- Feature `FEA-022`: Automated pre-commit formatting via Git hooks.
+
+### Changed
+- `tests/` directory — Complete hierarchical restructuring to mirror the `src/` production codebase.
+- `pyproject.toml` — Consolidated all scattered tool settings into a single source of truth.
+- `docs/macros.py` — Migrated from legacy `main.py` and implemented SEC-005 environment filtering.
+- `README.md` — Refactored to act as a high-level entry point with cross-links to specialized docs.
+
+### Fixed
+- BDD collection errors by adopting `@staticmethod` pattern for scenario methods within test classes.
+- Numerous namespace collisions and import file mismatch errors in the test suite.
+- Type hint inconsistencies in `SonarCloudAdapter` and `ModelConfig`.
+
+
 ## [0.1.2] — 2026-05-15
 
 ### Summary
