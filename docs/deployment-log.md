@@ -1,5 +1,17 @@
 # Deployment Log
 
+## [0.1.5] — 2026-05-16T20:45+08:00
+- **Pipeline Position**: Phase 10 -> 11 Transition
+- **Branch**: `master`
+- **Changes**: Coverage hardening (100% coverage reached), Use Case test alignment.
+- **Validation**: 787 tests passed. All quality gates green.
+
+## [0.1.4] — 2026-05-16T19:54+08:00
+- **Pipeline Position**: Phase 10
+- **Branch**: `master`
+- **Changes**: DDD refactoring (Aggregates, Entities, Use Cases).
+- **Validation**: Refactored test suite passes. Architectural consistency verified.
+
 ## [0.1.3] — 2026-05-16T18:55+08:00
 - **Pipeline Position**: Phase 9 -> 10 Transition
 - **Branch**: `main`

@@ -6,6 +6,36 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.1.5] — 2026-05-16
+
+### Summary
+Quality Hardening & Final DDD Alignment release.
+Achieved 100.00% test coverage across all domain aggregates and adapters.
+
+### Added
+- Coverage tests for `Pipeline` aggregate error paths and edge cases (TC-COV-002).
+- Coverage tests for `StateMapper` adapter boundary conditions (TC-COV-001).
+
+### Fixed
+- Coverage gaps in `src/agentic_workflow/domain/aggregates/pipeline.py` and `src/agentic_workflow/adapters/langgraph/state_mapper/state_mapper.py`.
+- Alignment of Use Case tests with strict DDD invariants.
+
+## [0.1.4] — 2026-05-16
+
+### Summary
+Domain-Driven Design (DDD) Refactoring release.
+Surgically migrated from OOAD to a strict DDD architecture with proper Aggregates, Entities, and Value Objects.
+
+### Changed
+- `src/agentic_workflow/domain/` — Reorganized into `aggregates/`, `entities/`, and `value_objects/`.
+- `Pipeline` — Refactored into the primary Aggregate Root with icontract-enforced invariants.
+- `Stage` — Refactored into a Domain Entity managed by the `Pipeline` aggregate.
+- `application/use_cases/` — Implemented explicit Use Case layer to encapsulate business logic.
+- `tests/` — Fully realigned test suite hierarchy and terminology with DDD standards.
+
+### Removed
+- Legacy `models/` directory in both `src/` and `tests/`.
+
 ## [0.1.3] — 2026-05-16
 
 ### Summary
