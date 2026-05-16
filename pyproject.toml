@@ -25,7 +25,7 @@ dev = [
     "mkdocs>=1.5.3",
     "mkdocs-macros-plugin>=1.0.0",
     "bandit>=1.9.4",
-    "safety>=3.1.0",
+    "safety>=3.7.0",
     "pip-audit>=2.10.0",
 ]
 
