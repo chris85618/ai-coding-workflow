@@ -18,7 +18,7 @@ from pydantic import BaseModel
 
 from agentic_workflow.frameworks.config.model_config import ModelConfig
 from agentic_workflow.frameworks.config.prompt_config import PromptConfig
-from agentic_workflow.frameworks.config.sonarcloud_config import SonarCloudConfig
+from agentic_workflow.frameworks.config.sonarcloud import SonarCloudConfig
 
 
 class WorkflowConfig(BaseModel):

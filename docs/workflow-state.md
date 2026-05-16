@@ -1,6 +1,6 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 10 Complete (Framework OO Refactoring Verified)
+**Pipeline Position**: Phase 10 Complete (SonarCloud Configuration Architecture Finalized)
 **Last Updated**: 2026-05-16T10:05+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
@@ -15,6 +15,7 @@
 - [x] S10-01: 系統性清理演算法 Facade (Domain Algorithm Refactoring) — ✅ DONE
 - [x] S10-02: 系統性重構 `WorkflowConfig` 為 OO 類別 — ✅ DONE
 - [x] S10-03: 移除 `frameworks/graph` 中的 Legacy Facades — ✅ DONE
+- [x] S10-04: 優化 SonarCloud 配置架構 (Nested Feedback Config) — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -46,3 +47,4 @@
 9. **圖建構 Facade 移除**: 刪除 `frameworks/graph/__init__.py` 中的 `build_graph` 等函數，強制使用 Builder 類別。
 10. **全域對齊**: 更新 `main.py`、`nodes.py` 及全體測試套件（含 BDD）以對齊 OO 呼叫模式。
 11. **驗證與清理**: 通過全體測試，`ruff` 與 `mypy` 零警告。
+12. **SonarCloud 架構優化**: 將 `FeedbackConfig` 獨立並放入 `sonarcloud/` 套件，提升高內聚低耦合。

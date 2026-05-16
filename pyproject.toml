@@ -46,6 +46,7 @@ select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "D"]
 convention = "google"
 
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 testpaths = ["tests"]
 bdd_features_base_dir = "tests/features"
 addopts = "--cov=src/agentic_workflow --cov-branch --cov-report=term-missing --cov-report=xml:reports/coverage.xml --junitxml=reports/pytest.xml"

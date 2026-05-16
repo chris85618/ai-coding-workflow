@@ -475,7 +475,8 @@ DomainEventBus (Protocol):
 | CLS-015 | `domain/models/repo_map.py` |
 | CLS-016 | `domain/services/hook_runner.py` |
 | CLS-017 | `domain/services/llm_strategy_selector.py` |
-| CLS-018 | `domain/models/model_config.py` |
+| CLS-020 | `frameworks/config/workflow_config.py`, `frameworks/config/sonarcloud/` |
+| CLS-021 | `adapters/llm/llm_adapter.py` |
 | ALG-001 | `domain/algorithms/convergence.py` |
 | ALG-002 | `domain/algorithms/micro_validation.py` |
 | ALG-003 | `domain/algorithms/blast_radius.py` |
@@ -488,3 +489,4 @@ DomainEventBus (Protocol):
 | INV-001..024 | `domain/contracts/invariants.py` |
 | UC-001..013 | `application/use_cases/*.py` |
 | SC-001..016 | `tests/features/*.feature` |
+| TC-001..015 | `tests/` |

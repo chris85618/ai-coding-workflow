@@ -1,6 +1,5 @@
-"""Frameworks Config — FeedbackConfig and SonarCloudConfig Pydantic models.
+"""SonarCloud Main Configuration Model.
 
-Implements ADR-STR-006: External YAML Configuration.
 Implements ADR-SEC-005: Configuration Security Gateway.
 """
 
@@ -8,12 +7,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-
-class FeedbackConfig(BaseModel):
-    """Nested feedback configuration for SonarCloud."""
-
-    auto_convert_to_debt: bool = True
-    default_debt_priority: str = "P2"
+from .feedback_config import FeedbackConfig
 
 
 class SonarCloudConfig(BaseModel):
