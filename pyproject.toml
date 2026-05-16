@@ -16,7 +16,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
-    "pytest-bdd>=8.0",
+    "pytest-bdd>=8.1.0",
     "pytest-cov>=6.0",
     "crosshair-tool>=0.0.82",
     "ruff>=0.11",
