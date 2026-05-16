@@ -6,7 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "langgraph>=0.4",
     "langchain-core>=0.3",
-    "icontract>=2.7",
+    "icontract>=2.7.3",
     "pydantic>=2.0",
     "python-sonarqube-api>=2.0.5",
     "python-dotenv>=1.0.0",
