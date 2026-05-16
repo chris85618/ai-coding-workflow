@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
-from agentic_workflow.domain.algorithms.context_budget import allocate_budget
+from agentic_workflow.domain.algorithms.context_budget import ContextBudgetAllocator
 from agentic_workflow.domain.models.model_config import ContextAllocation
 from agentic_workflow.domain.models.repo_map import RepoMap, SymbolDef
 
@@ -72,7 +72,7 @@ def given_large_task(ctx: dict[str, Any], task_tokens: int) -> None:
 @when("context is allocated")
 def when_allocate(ctx: dict[str, Any]) -> None:
     """Run context budget allocation."""
-    ctx["allocation"] = allocate_budget(
+    ctx["allocation"] = ContextBudgetAllocator.allocate(
         total_budget=ctx["budget"],
         repo_map=ctx["repo_map"],
         current_files=ctx["current_files"],
@@ -83,7 +83,7 @@ def when_allocate(ctx: dict[str, Any]) -> None:
 @when("all context sources are assembled")
 def when_assemble(ctx: dict[str, Any]) -> None:
     """Run allocation with all sources."""
-    ctx["allocation"] = allocate_budget(
+    ctx["allocation"] = ContextBudgetAllocator.allocate(
         total_budget=ctx["budget"],
         repo_map=ctx["repo_map"],
         current_files=ctx["current_files"],
@@ -98,9 +98,7 @@ def when_assemble(ctx: dict[str, Any]) -> None:
 def then_task_gets_pct(ctx: dict[str, Any], pct: int) -> None:
     """Assert task context allocation is within percentage of budget."""
     alloc: ContextAllocation = ctx["allocation"]
-    from agentic_workflow.domain.algorithms.context_budget import _estimate_tokens
-
-    task_tokens = _estimate_tokens(alloc.task)
+    task_tokens = ContextBudgetAllocator.estimate_tokens(alloc.task)
     max_allowed = ctx["budget"] * pct // 100
     # Allow generous bound (may be less)
     assert task_tokens <= max_allowed + 1
@@ -130,7 +128,5 @@ def then_total_not_exceed(ctx: dict[str, Any], budget: int) -> None:
 def then_map_at_most(ctx: dict[str, Any], limit: int) -> None:
     """Assert repo map gets at most limit tokens."""
     alloc: ContextAllocation = ctx["allocation"]
-    from agentic_workflow.domain.algorithms.context_budget import _estimate_tokens
-
-    map_tokens = _estimate_tokens(alloc.repo_map_text) if alloc.repo_map_text else 0
+    map_tokens = ContextBudgetAllocator.estimate_tokens(alloc.repo_map_text) if alloc.repo_map_text else 0
     assert map_tokens <= limit, f"Repo map got {map_tokens} tokens, max {limit}"

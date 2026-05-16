@@ -13,8 +13,6 @@ class PipelineCompletenessChecker:
     """Checks pipeline completeness by evaluating documentation assets.
 
     ALG-010 OO mandate: all logic is encapsulated in this class.
-    Module-level facade functions below delegate to this class for backward
-    compatibility with existing tests and callers.
     """
 
     # Ordered list of (rel_path, must_contain) tuples that define the 10 checks.
@@ -131,24 +129,3 @@ class PipelineCompletenessChecker:
             "Path A (Greenfield)",
             "Trigger Phase 2 (Project Analysis) to start planning.",
         )
-
-
-# ── Module-level facade (backward compatibility) ───────────────────────────────
-# Tests and existing callers import these directly; they delegate to the class.
-
-
-def _check_file_exists_and_contains(base_dir: Path, rel_path: str, must_contain: str | None = None) -> bool:
-    """Backward-compat facade — delegates to PipelineCompletenessChecker."""
-    checker = PipelineCompletenessChecker(base_dir)
-    return checker._file_exists_and_contains(rel_path, must_contain)
-
-
-def _check_glob_count(base_dir: Path, pattern: str) -> bool:
-    """Backward-compat facade — delegates to PipelineCompletenessChecker."""
-    checker = PipelineCompletenessChecker(base_dir)
-    return checker._glob_count(pattern)
-
-
-def calculate_completeness(base_dir: Path) -> dict[str, Any]:
-    """Backward-compat facade — delegates to PipelineCompletenessChecker."""
-    return PipelineCompletenessChecker(base_dir).calculate()

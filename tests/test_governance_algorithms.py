@@ -55,12 +55,9 @@ class TestCompletionCheck:
         assert result["ready"] is False
         assert any("debt" in f.lower() for f in result["failures"])
 
-    def test_facade_backward_compatibility(self) -> None:
-        """TC-006: Facade calls class method."""
-        # Test the module-level function calls the class method correctly
-        from agentic_workflow.domain.algorithms.completion_check import verify_readiness
-
-        result = verify_readiness(1.00, 0, 0)
+    def test_oo_class_verify_readiness(self) -> None:
+        """TC-006: Class method verify_readiness works directly."""
+        result = CompletionCheck.verify_readiness(1.00, 0, 0)
         assert result["ready"] is True
 
 

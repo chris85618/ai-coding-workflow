@@ -43,11 +43,3 @@ class CompletionCheck:
             failures.append(f"Pending P0/P1 technical debts: {pending_debts}.")
 
         return {"ready": len(failures) == 0, "failures": failures}
-
-
-# ── Module-level facade (backward compatibility) ───────────────────────────────
-
-
-def verify_readiness(test_coverage: float, open_risks: int, pending_debts: int = 0) -> dict[str, Any]:
-    """Backward-compat facade — delegates to CompletionCheck."""
-    return CompletionCheck.verify_readiness(test_coverage, open_risks, pending_debts)

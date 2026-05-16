@@ -4,7 +4,6 @@ Traceable to: FR-026, FEA-011, CLS-015, INV-024
 Deterministic: tree-sitter AST parsing + networkx PageRank.
 No LLM, no external I/O beyond filesystem reads.
 OO Design: RepoMapBuilder class encapsulates all logic (ALG-010 OO mandate).
-Module-level functions retained as backward-compat facades.
 
 Dependencies: tree-sitter, tree-sitter-python, networkx
 Falls back to simple scan if tree-sitter is unavailable.
@@ -216,38 +215,3 @@ class RepoMapBuilder:
             token_count=token_count,
             file_ranks=ranks,
         )
-
-
-# ── Module-level facades (backward compatibility) ──────────────────────────────
-
-
-def _extract_symbols_ast(file_path: str, source: str) -> list[SymbolDef]:
-    """Backward-compat facade — delegates to RepoMapBuilder."""
-    return RepoMapBuilder.extract_symbols_ast(file_path, source)
-
-
-def _build_import_graph(py_files: list[str], project_path: str) -> dict[str, list[str]]:
-    """Backward-compat facade — delegates to RepoMapBuilder."""
-    return RepoMapBuilder.build_import_graph(py_files, project_path)
-
-
-def _pagerank(graph: dict[str, list[str]], damping: float = 0.85, iterations: int = 20) -> dict[str, float]:
-    """Backward-compat facade — delegates to RepoMapBuilder."""
-    return RepoMapBuilder.pagerank(graph, damping, iterations)
-
-
-@icontract.require(
-    lambda project_path: os.path.isdir(project_path),
-    "project_path must be an existing directory",
-)
-@icontract.require(
-    lambda token_budget: token_budget > 0,
-    "token_budget must be positive",
-)
-@icontract.ensure(
-    lambda result, token_budget: result.token_count <= token_budget,
-    "RepoMap token count must not exceed budget (INV-024)",
-)
-def repo_map_build(project_path: str, token_budget: int) -> RepoMap:
-    """Backward-compat facade — delegates to RepoMapBuilder."""
-    return RepoMapBuilder.build(project_path, token_budget)

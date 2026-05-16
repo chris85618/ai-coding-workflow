@@ -11,7 +11,7 @@ from typing import Any
 import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
-from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 from agentic_workflow.domain.models.repo_map import RepoMap
 
 # ── Scenarios ─────────────────────────────────────────────────────────────────
@@ -89,13 +89,13 @@ def given_empty_project(ctx: dict[str, Any], tmp_path: Path) -> None:
 @when("repo map is generated")
 def when_generate_repo_map(ctx: dict[str, Any]) -> None:
     """Generate repo map from the project."""
-    ctx["result"] = repo_map_build(ctx["project_path"], ctx["budget"])
+    ctx["result"] = RepoMapBuilder.build(ctx["project_path"], ctx["budget"])
 
 
 @when("repo map is generated with context personalization")
 def when_generate_with_personalization(ctx: dict[str, Any]) -> None:
     """Generate repo map — context personalization is implicit via PageRank."""
-    ctx["result"] = repo_map_build(ctx["project_path"], ctx["budget"])
+    ctx["result"] = RepoMapBuilder.build(ctx["project_path"], ctx["budget"])
 
 
 # ── Then steps ────────────────────────────────────────────────────────────────

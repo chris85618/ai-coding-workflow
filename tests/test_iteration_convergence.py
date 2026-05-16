@@ -10,10 +10,7 @@ from typing import Any
 import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
-from agentic_workflow.domain.algorithms.convergence import (
-    check_convergence,
-    should_auto_pass,
-)
+from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
 from agentic_workflow.domain.models.enums import FixedPointResult, StageStatus
 from agentic_workflow.domain.models.stage import Stage
 
@@ -78,7 +75,7 @@ def given_all_yagni(ctx: dict[str, Any]) -> None:
         "YAGNI: premature optimization",
     ]
     # When used as a 'When' step, also run the convergence check
-    ctx["result"] = check_convergence(
+    ctx["result"] = ConvergenceDetector.check_convergence(
         iteration_count=ctx["stage"].iteration_count,
         findings_per_iter=ctx.get("findings_history", []),
         current_findings=ctx["current_findings"],
@@ -148,7 +145,7 @@ def given_micro_validation_fails(ctx: dict[str, Any]) -> None:
 @when("fixed point check executes")
 def when_fixed_point_check(ctx: dict[str, Any]) -> None:
     """Step: run check."""
-    ctx["result"] = check_convergence(
+    ctx["result"] = ConvergenceDetector.check_convergence(
         iteration_count=ctx["stage"].iteration_count,
         findings_per_iter=ctx.get("findings_history", []),
         current_findings=ctx.get("current_findings", []),
@@ -158,7 +155,7 @@ def when_fixed_point_check(ctx: dict[str, Any]) -> None:
 @when("the 11th iteration would begin")
 def when_11th_iteration(ctx: dict[str, Any]) -> None:
     """Step: 11th iteration."""
-    ctx["result"] = check_convergence(
+    ctx["result"] = ConvergenceDetector.check_convergence(
         iteration_count=ctx["stage"].iteration_count,
         findings_per_iter=ctx["findings_history"],
         current_findings=ctx["current_findings"],
@@ -204,7 +201,7 @@ def then_fixed_point_reached(ctx: dict[str, Any]) -> None:
 @then("the stage auto-passes without human confirmation")
 def then_auto_passes(ctx: dict[str, Any]) -> None:
     """Step: auto passes."""
-    assert should_auto_pass(ctx["result"]) is True
+    assert ConvergenceDetector.should_auto_pass(ctx["result"]) is True
 
 
 @then("stage artifacts are written to docs/")
@@ -223,7 +220,7 @@ def then_warning_logged(ctx: dict[str, Any], msg: str) -> None:
 @then("the stage auto-advances")
 def then_auto_advances(ctx: dict[str, Any]) -> None:
     """Step: auto advances."""
-    assert should_auto_pass(ctx["result"]) is True
+    assert ConvergenceDetector.should_auto_pass(ctx["result"]) is True
 
 
 @then("no human intervention is requested")
@@ -247,7 +244,7 @@ def then_not_reached(ctx: dict[str, Any]) -> None:
 @then("Agent alpha automatically re-critiques")
 def then_alpha_recritiques(ctx: dict[str, Any]) -> None:
     """Step: recritiques."""
-    assert not should_auto_pass(ctx["result"])
+    assert not ConvergenceDetector.should_auto_pass(ctx["result"])
 
 
 @then("iteration count increments by 1")

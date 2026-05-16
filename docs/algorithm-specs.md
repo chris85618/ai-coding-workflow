@@ -5,7 +5,7 @@
 
 ---
 
-## ALG-001: 迭代收斂演算法
+## ALG-001: 迭代收斂演算法 (ConvergenceDetector)
 
 **描述**：Agent α/β 迭代迴圈的收斂判定邏輯。
 **追溯**：FR-012, FR-013 (implements)
@@ -26,7 +26,24 @@
 - docs/workflow-state.md 已更新
 
 ```
-converge(stage, dimensions[]):
+ConvergenceDetector.check_convergence(iteration, findings_history, current_findings):
+  IF iteration >= MAX_ITERATIONS:
+    RETURN FixedPointResult.MAX_ITERATIONS
+  
+  # 不動點偵測
+  non_yagni = [f for f in current_findings if not f.is_yagni]
+  IF NOT non_yagni:
+    RETURN FixedPointResult.REACHED
+  
+  # 發散偵測 (Divergence detection)
+  IF is_diverging(findings_history):
+    RETURN FixedPointResult.DIVERGING
+    
+  RETURN FixedPointResult.NOT_REACHED
+
+ConvergenceDetector.should_auto_pass(result):
+  RETURN result IN {REACHED, DIVERGING, MAX_ITERATIONS}
+```
   iteration = 0
   MAX_ITERATIONS = 10  # 硬上限，防止無限迴圈
   
@@ -71,7 +88,7 @@ converge(stage, dimensions[]):
 
 ---
 
-## ALG-002: 微驗證序列
+## ALG-002: 微驗證序列 (MicroValidation)
 
 **描述**：左移微驗證的執行序列和判定邏輯（Step 0-7 + Step 5.5/5.7）。
 **追溯**：FR-005, FR-006, FR-007 (implements)
@@ -91,7 +108,7 @@ converge(stage, dimensions[]):
 - 返回 `FAIL(escalate=True)`：某步驟 3 次修復失敗，HITL 已上報，驗證流程終止
 
 ```
-micro_validate(change):
+MicroValidation.run_all(changed_content, changed_ids):
   MAX_AUTO_FIX = 3
   
   checks = [
@@ -132,7 +149,7 @@ micro_validate(change):
 
 ---
 
-## ALG-003: 影響分析爆炸半徑
+## ALG-003: 影響分析爆炸半徑 (BlastRadiusClassifier)
 
 **描述**：計算修改的影響範圍和嚴重度分類。
 **追溯**：FR-008, FR-009 (implements)
@@ -153,7 +170,7 @@ micro_validate(change):
 - 返回完整 `ImpactRecord`，包含 blast_radius、severity、downstream 列表、timestamp
 
 ```
-impact_analysis(change):
+BlastRadiusClassifier.classify(blast_radius, cross_stage):
   # 正向遞迴展開
   downstream = expand_forward(change.id, depth=0, visited={})
   
@@ -193,7 +210,7 @@ impact_analysis(change):
 
 ---
 
-## ALG-004: RICE 優先排序
+## ALG-004: RICE 優先排序 (RiceScorer)
 
 **描述**：技術債的 RICE 分數計算和四象限分類。
 **追溯**：FR-010, FR-011 (implements)
@@ -213,7 +230,7 @@ impact_analysis(change):
 - DEBT-xxx 已更新 riceScore 欄位，docs/tech-debt-register.md 反映最新排序
 
 ```
-rice_score(debt_item):
+RiceScorer.score(reach, impact, confidence, effort):
   reach = count_affected_components(debt_item)  # 1-100
   impact = assess_improvement(debt_item)        # 0.5, 1.0, 2.0, 3.0
   confidence = assess_certainty(debt_item)      # 0.5-1.0
@@ -239,7 +256,7 @@ rice_score(debt_item):
 
 ---
 
-## ALG-005: 追溯鏈遍歷
+## ALG-005: 追溯鏈遍歷 (TraceabilityNavigator)
 
 **描述**：正向和反向追溯鏈的遍歷演算法。
 **追溯**：FR-005 (implements)
@@ -300,7 +317,7 @@ verify_chain(id):
 
 ---
 
-## ALG-009: Markdown ↔ JSON 雙向轉換演算法
+## ALG-009: Markdown ↔ JSON 雙向轉換 (MarkdownPydanticConverter)
 
 **描述**：確定型優先的 Markdown 與結構化 JSON 解析與轉換。
 **追溯**：FR-031 (implements)
@@ -319,7 +336,7 @@ verify_chain(id):
 - 若寫回，目標 Markdown 的指定區段已更新。
 
 ```
-parse_markdown(content, schema):
+MarkdownPydanticConverter.parse(content, schema):
   try:
     json_data = deterministic_parse(content, schema)
     if validate(json_data, schema):
@@ -334,8 +351,6 @@ parse_markdown(content, schema):
 
 ---
 
-## 追溯矩陣更新
-
 | ALG-xxx | 追溯至 | 連結類型 |
 |---------|-------|---------|
 | ALG-001 | FR-012, FR-013 | implements |
@@ -348,6 +363,46 @@ parse_markdown(content, schema):
 | ALG-008 | FR-029 | implements |
 | ALG-009 | FR-031 | implements |
 | ALG-010 | FR-002, NFR-002 | implements |
+
+---
+
+## ALG-006: 儲存庫映射構建 (RepoMapBuilder)
+
+**描述**：基於 AST 與 PageRank 的代碼庫知識圖譜構建演算法。
+**追溯**：FR-001, FR-026 (implements)
+
+**核心邏輯**：
+1. **符號提取**：遞迴遍歷目錄，使用 AST 提取類別、函數定義與導入關係。
+2. **圖構建**：建立檔案間的依賴邊（Imports）。
+3. **排名計算**：執行 `PageRank` 演算法，計算各節點的「重要性」分數。
+4. **內容選擇**：根據權限、檔案大小與 Token 預算（ALG-007）選擇輸出的標記 (Tag) 列表。
+
+```
+RepoMapBuilder.build(root_path, budget_tokens):
+  graph = build_import_graph(root_path)
+  ranks = pagerank(graph)
+  map_text = summarize_high_rank_files(ranks, budget_tokens)
+  return map_text
+```
+
+---
+
+## ALG-007: 上下文預算分配 (ContextBudgetAllocator)
+
+**描述**：動態分配 LLM Context Window 至各類別知識（Repo Map、History、Current File）。
+**追溯**：FR-030 (implements)
+
+**分配權重**：
+- `Current File`: 40% (High precision needed)
+- `History`: 30% (Sequential context)
+- `Repo Map`: 20% (Systemic context)
+- `Buffer`: 10%
+
+```
+ContextBudgetAllocator.allocate(total_window, source_lengths):
+  budget = distribute_weighted(total_window, weights)
+  return budget
+```
 
 ---
 

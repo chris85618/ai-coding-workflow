@@ -1,12 +1,12 @@
 """DEBT-003: repo_map_builder.py boundary branch coverage.
 
 Covers uncovered lines:
-- L40-41: SyntaxError branch in _extract_symbols_ast
+- L40-41: SyntaxError branch in _extract_symbols_ast (now class method)
 - L54: AsyncFunctionDef branch
-- L94-95: OSError branch in _build_import_graph
-- L119-120: empty graph branch in _pagerank
-- L175-176: no .py files branch in repo_map_build
-- L183-184: OSError on file read in repo_map_build
+- L94-95: OSError branch in build_import_graph
+- L119-120: empty graph branch in _pagerank (now class method)
+- L175-176: no .py files branch in build
+- L183-184: OSError on file read in build
 - RepoMap model: prune_to_budget (budget<=0), get_context_string (empty + multi-file)
 
 Traceable to: DEBT-003, ALG-006, INV-024, FR-018
@@ -22,7 +22,7 @@ from unittest.mock import patch
 import pytest
 
 # ===========================================================================
-# _extract_symbols_ast — boundary branches
+# _extract_symbols_ast (class method) — boundary branches
 # ===========================================================================
 
 
@@ -31,10 +31,10 @@ class TestExtractSymbolsAst:
 
     def _fn(self, file_path: str, source: str) -> list[Any]:
         from agentic_workflow.domain.algorithms.repo_map_builder import (
-            _extract_symbols_ast,
+            RepoMapBuilder,
         )
 
-        return _extract_symbols_ast(file_path, source)
+        return RepoMapBuilder.extract_symbols_ast(file_path, source)
 
     def test_syntax_error_returns_empty(self) -> None:
         """L40-41: SyntaxError in ast.parse → return empty list."""
@@ -70,7 +70,7 @@ class TestExtractSymbolsAst:
 
 
 # ===========================================================================
-# _build_import_graph — OSError branch
+# build_import_graph — OSError branch
 # ===========================================================================
 
 
@@ -79,10 +79,10 @@ class TestBuildImportGraph:
 
     def _fn(self, py_files: list[str], project_path: str) -> dict[str, list[str]]:
         from agentic_workflow.domain.algorithms.repo_map_builder import (
-            _build_import_graph,
+            RepoMapBuilder,
         )
 
-        return _build_import_graph(py_files, project_path)
+        return RepoMapBuilder.build_import_graph(py_files, project_path)
 
     def test_oserror_on_file_read_is_skipped(self, tmp_path: Path) -> None:
         """L94-95: OSError when reading a file → skip that file, continue."""
@@ -121,7 +121,7 @@ class TestBuildImportGraph:
 
 
 # ===========================================================================
-# _pagerank — empty graph branch
+# _pagerank (class method) — empty graph branch
 # ===========================================================================
 
 
@@ -129,9 +129,9 @@ class TestPagerank:
     """Unit tests for the simplified PageRank implementation."""
 
     def _fn(self, graph: dict[str, list[str]], damping: float = 0.85, iterations: int = 20) -> dict[str, float]:
-        from agentic_workflow.domain.algorithms.repo_map_builder import _pagerank
+        from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 
-        return _pagerank(graph, damping, iterations)
+        return RepoMapBuilder.pagerank(graph, damping, iterations)
 
     def test_empty_graph_returns_empty(self) -> None:
         """L119-120: empty graph → return {}."""
@@ -159,25 +159,25 @@ class TestPagerank:
 
 
 # ===========================================================================
-# repo_map_build — edge cases
+# build — edge cases
 # ===========================================================================
 
 
 class TestRepoMapBuild:
-    """Integration-level tests for repo_map_build."""
+    """Integration-level tests for build."""
 
     def test_no_python_files_returns_empty(self, tmp_path: Path) -> None:
         """L175-176: no .py files → RepoMap with 0 tokens and empty symbols."""
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 
         (tmp_path / "README.md").write_text("# readme")
-        result = repo_map_build(str(tmp_path), token_budget=1000)
+        result = RepoMapBuilder.build(str(tmp_path), token_budget=1000)
         assert result.token_count == 0
         assert len(result.symbols) == 0
 
     def test_oserror_on_symbol_read_skipped(self, tmp_path: Path) -> None:
         """L183-184: OSError when reading file for symbols → skip, continue."""
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 
         # Create one good file
         (tmp_path / "good.py").write_text("def f(): pass\n")
@@ -190,26 +190,26 @@ class TestRepoMapBuild:
             return original_read_text(self, *a, **kw)
 
         with patch.object(Path, "read_text", patched_read_text):
-            result = repo_map_build(str(tmp_path), token_budget=1000)
+            result = RepoMapBuilder.build(str(tmp_path), token_budget=1000)
         # Should still have symbol from good.py
         assert result.token_count >= 0
 
     def test_tight_token_budget_prunes_symbols(self, tmp_path: Path) -> None:
         """Token budget of 1 forces pruning after first symbol."""
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 
         for i in range(10):
             (tmp_path / f"mod_{i}.py").write_text(f"class BigClass{i}:\n    pass\n" * 5)
-        result = repo_map_build(str(tmp_path), token_budget=1)
+        result = RepoMapBuilder.build(str(tmp_path), token_budget=1)
         assert result.token_count <= 1
 
     def test_test_files_excluded(self, tmp_path: Path) -> None:
         """Files starting with test_ are not scanned for symbols."""
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 
         (tmp_path / "test_something.py").write_text("def test_foo() -> None: pass\n")
         (tmp_path / "module.py").write_text("def real_func(): pass\n")
-        result = repo_map_build(str(tmp_path), token_budget=500)
+        result = RepoMapBuilder.build(str(tmp_path), token_budget=500)
         # test_something.py should not appear as any symbol's file_path
         test_file_paths = [s.file_path for s in result.symbols if os.path.basename(s.file_path).startswith("test_")]
         assert test_file_paths == [], f"test_ files appeared in map: {test_file_paths}"
@@ -218,19 +218,19 @@ class TestRepoMapBuild:
         """Icontract precondition: non-existent project_path raises ViolationError."""
         import icontract
 
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 
         with pytest.raises((icontract.ViolationError, ValueError)):
-            repo_map_build("/nonexistent/path/xyz", token_budget=1000)
+            RepoMapBuilder.build("/nonexistent/path/xyz", token_budget=1000)
 
     def test_zero_budget_raises(self, tmp_path: Path) -> None:
         """Icontract precondition: token_budget=0 raises ViolationError."""
         import icontract
 
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 
         with pytest.raises((icontract.ViolationError, ValueError)):
-            repo_map_build(str(tmp_path), token_budget=0)
+            RepoMapBuilder.build(str(tmp_path), token_budget=0)
 
 
 # ===========================================================================

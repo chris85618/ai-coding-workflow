@@ -7,9 +7,7 @@ Traceable to: FR-001, ALG-006.
 from pathlib import Path
 
 from agentic_workflow.domain.algorithms.pipeline_completeness import (
-    _check_file_exists_and_contains,
-    _check_glob_count,
-    calculate_completeness,
+    PipelineCompletenessChecker,
 )
 
 
@@ -41,60 +39,60 @@ FULL_DOCS = {
 ADR_GATE_FILE = "docs/adr/ADR-GATE-001.md"
 
 
-# ── _check_file_exists_and_contains ──────────────────────────────────────────
+# ── _file_exists_and_contains ──────────────────────────────────────────
 class TestCheckFileExistsAndContains:
-    """Test _check_file_exists_and_contains utility."""
+    """Test _file_exists_and_contains utility."""
 
     def test_file_missing_returns_false(self, tmp_path: Path) -> None:
         """Verify missing file returns False."""
-        assert _check_file_exists_and_contains(tmp_path, "missing.md") is False
+        assert PipelineCompletenessChecker(tmp_path)._file_exists_and_contains("missing.md") is False
 
     def test_directory_not_file_returns_false(self, tmp_path: Path) -> None:
         """Verify directory path returns False."""
         d = tmp_path / "adir"
         d.mkdir()
-        assert _check_file_exists_and_contains(tmp_path, "adir") is False
+        assert PipelineCompletenessChecker(tmp_path)._file_exists_and_contains("adir") is False
 
     def test_file_exists_no_content_check(self, tmp_path: Path) -> None:
         """Verify existence check without content requirement."""
         (tmp_path / "f.md").write_text("x", encoding="utf-8")
-        assert _check_file_exists_and_contains(tmp_path, "f.md") is True
+        assert PipelineCompletenessChecker(tmp_path)._file_exists_and_contains("f.md") is True
 
     def test_file_contains_string(self, tmp_path: Path) -> None:
         """Verify content matching."""
         (tmp_path / "f.md").write_text("BG-001 here", encoding="utf-8")
-        assert _check_file_exists_and_contains(tmp_path, "f.md", "BG-001") is True
+        assert PipelineCompletenessChecker(tmp_path)._file_exists_and_contains("f.md", "BG-001") is True
 
     def test_file_missing_string(self, tmp_path: Path) -> None:
         """Verify non-matching content returns False."""
         (tmp_path / "f.md").write_text("nothing", encoding="utf-8")
-        assert _check_file_exists_and_contains(tmp_path, "f.md", "BG-001") is False
+        assert PipelineCompletenessChecker(tmp_path)._file_exists_and_contains("f.md", "BG-001") is False
 
 
-# ── _check_glob_count ─────────────────────────────────────────────────────────
+# ── _glob_count ─────────────────────────────────────────────────────────
 class TestCheckGlobCount:
-    """Test _check_glob_count utility."""
+    """Test _glob_count utility."""
 
     def test_no_matches_returns_false(self, tmp_path: Path) -> None:
         """Verify glob with no matches returns False."""
-        assert _check_glob_count(tmp_path, "*.xyz") is False
+        assert PipelineCompletenessChecker(tmp_path)._glob_count("*.xyz") is False
 
     def test_with_match_returns_true(self, tmp_path: Path) -> None:
         """Verify glob with matches returns True."""
         (tmp_path / "file.md").write_text("x", encoding="utf-8")
-        assert _check_glob_count(tmp_path, "*.md") is True
+        assert PipelineCompletenessChecker(tmp_path)._glob_count("*.md") is True
 
 
-# ── calculate_completeness ────────────────────────────────────────────────────
+# ── calculate ────────────────────────────────────────────────────
 class TestCalculateCompleteness:
-    """Test calculate_completeness core logic."""
+    """Test calculate core logic."""
 
     def test_complete_returns_score_10(self, tmp_path: Path) -> None:
         """Verify 100% completeness logic."""
         _make_repo(tmp_path, FULL_DOCS)
         (tmp_path / ADR_GATE_FILE).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / ADR_GATE_FILE).write_text("gate", encoding="utf-8")
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         assert result["completeness_score"] == 10
         assert result["completeness_ratio"] == 1.0
         assert result["decision"] == "complete"
@@ -114,7 +112,7 @@ class TestCalculateCompleteness:
             "docs/iteration-log.md": "log",
         }
         _make_repo(tmp_path, partial)
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         # 8 docs present = all 8 checks pass, but no ADR-GATE file
         # checks: workflow(1) + charter(1) + stakeholder(1) + scope(1) + req(1) + uc(1)
         #         + traceability(1) + adr-section(1) + iteration-log(1)
@@ -127,7 +125,7 @@ class TestCalculateCompleteness:
         """Verify Path B detection."""
         """Completeness > 0 but < 0.6, with src/*.py → Path B."""
         _make_repo(tmp_path, {"docs/workflow-state.md": "content"}, src_files=["src/main.py"])
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         assert result["completeness_score"] == 1
         assert result["decision"] == "Path B (Brownfield)"
         assert "Phase 1" in result["next_action"]
@@ -136,7 +134,7 @@ class TestCalculateCompleteness:
         """Verify Path A detection."""
         """Completeness > 0 but < 0.6, no src → Path A."""
         _make_repo(tmp_path, {"docs/workflow-state.md": "content"})
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         assert result["completeness_score"] == 1
         assert result["decision"] == "Path A (Greenfield)"
         assert "Phase 2" in result["next_action"]
@@ -145,14 +143,14 @@ class TestCalculateCompleteness:
         """Verify Brownfield with zero docs."""
         """Completeness == 0, with src/*.py → Path B."""
         _make_repo(tmp_path, {}, src_files=["src/core.py"])
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         assert result["completeness_score"] == 0
         assert result["decision"] == "Path B (Brownfield)"
 
     def test_zero_completeness_without_src_is_greenfield(self, tmp_path: Path) -> None:
         """Verify Greenfield with zero docs."""
         """Completeness == 0, no src → Path A."""
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         assert result["completeness_score"] == 0
         assert result["decision"] == "Path A (Greenfield)"
 
@@ -162,12 +160,12 @@ class TestCalculateCompleteness:
         js = tmp_path / "lib" / "index.js"
         js.parent.mkdir(parents=True)
         js.write_text("// code", encoding="utf-8")
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         assert result["decision"] == "Path B (Brownfield)"
 
     def test_checks_breakdown_is_list_of_bools(self, tmp_path: Path) -> None:
         """Verify output structure of checks breakdown."""
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         assert isinstance(result["checks_breakdown"], list)
         assert all(isinstance(v, bool) for v in result["checks_breakdown"])
         assert len(result["checks_breakdown"]) == 10
@@ -188,7 +186,7 @@ class TestCalculateCompleteness:
             # no traceability-matrix.md, no iteration-log.md, no ADR-GATE
         }
         _make_repo(tmp_path, docs)
-        result = calculate_completeness(tmp_path)
+        result = PipelineCompletenessChecker(tmp_path).calculate()
         assert result["completeness_score"] == 6
         assert result["completeness_ratio"] == 0.6
         assert result["decision"] == "partial"

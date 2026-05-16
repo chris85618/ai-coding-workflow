@@ -4,7 +4,6 @@ Traceable to: FR-008, FR-009, INV-012
 INV-012: blast_radius 0 → COSMETIC; blast_radius > 0 allows any severity.
 Deterministic: pure calculation, no LLM.
 OO Design: BlastRadiusClassifier class encapsulates all logic (ALG-010 OO mandate).
-Module-level function retained as backward-compat facade.
 """
 
 from __future__ import annotations
@@ -52,15 +51,3 @@ class BlastRadiusClassifier:
         if blast_radius >= cls.MEDIUM_RADIUS:
             return Severity.MEDIUM
         return Severity.LOW
-
-
-# ── Module-level facade (backward compatibility) ───────────────────────────────
-
-
-@icontract.ensure(
-    lambda result, blast_radius: (blast_radius == 0 and result == Severity.COSMETIC) or blast_radius > 0,
-    "Zero blast radius must classify as COSMETIC (INV-012)",
-)
-def classify_severity(blast_radius: int, cross_stage: int) -> Severity:
-    """Backward-compat facade — delegates to BlastRadiusClassifier."""
-    return BlastRadiusClassifier.classify(blast_radius, cross_stage)

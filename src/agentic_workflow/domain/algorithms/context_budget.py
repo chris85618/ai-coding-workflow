@@ -4,7 +4,6 @@ Traceable to: FR-030, INV-021
 Deterministic: priority-based token allocation across context sources.
 No LLM, no I/O.
 OO Design: ContextBudgetAllocator class encapsulates all logic (ALG-010 OO mandate).
-Module-level functions retained as backward-compat facades.
 
 Priority order: task_context > current_files > repo_map
   - task_context gets up to 50% of total budget
@@ -102,31 +101,3 @@ class ContextBudgetAllocator:
             repo_map_text=map_text,
             total_tokens=min(total, total_budget),
         )
-
-
-# ── Module-level facades (backward compatibility) ──────────────────────────────
-
-_CHARS_PER_TOKEN = ContextBudgetAllocator.CHARS_PER_TOKEN
-
-
-def _estimate_tokens(text: str) -> int:
-    """Backward-compat facade — delegates to ContextBudgetAllocator."""
-    return ContextBudgetAllocator.estimate_tokens(text)
-
-
-@icontract.require(
-    lambda total_budget: total_budget > 0,
-    "Total budget must be positive",
-)
-@icontract.ensure(
-    lambda result, total_budget: result.total_tokens <= total_budget,
-    "Total allocated tokens must not exceed budget (INV-021)",
-)
-def allocate_budget(
-    total_budget: int,
-    repo_map: RepoMap,
-    current_files: list[str],
-    task_context: str,
-) -> ContextAllocation:
-    """Backward-compat facade — delegates to ContextBudgetAllocator."""
-    return ContextBudgetAllocator.allocate(total_budget, repo_map, current_files, task_context)

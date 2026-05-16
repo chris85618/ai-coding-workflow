@@ -17,7 +17,7 @@ from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
 from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
 from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
 from agentic_workflow.domain.algorithms.pipeline_completeness import (
-    calculate_completeness,
+    PipelineCompletenessChecker,
 )
 from agentic_workflow.domain.algorithms.sonarcloud_gate import SonarCloudGate
 from agentic_workflow.domain.models.enums import (
@@ -59,7 +59,7 @@ def node_pipeline_completeness(state: WorkflowState) -> WorkflowState:
     Returns:
         Partial state update with completeness metadata.
     """
-    completeness_data = calculate_completeness(Path("."))
+    completeness_data = PipelineCompletenessChecker(Path(".")).calculate()
 
     # Store the results into state metadata
     metadata = state.get("metadata", {})

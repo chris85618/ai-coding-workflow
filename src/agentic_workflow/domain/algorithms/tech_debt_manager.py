@@ -5,7 +5,7 @@ Replaces: skills/workflow-skills/tech-debt-collect.md,
           skills/workflow-skills/tech-debt-framework.md
 """
 
-from typing import Any
+from agentic_workflow.domain.algorithms.rice_scoring import RiceScorer
 
 
 class TechDebtManager:
@@ -16,7 +16,7 @@ class TechDebtManager:
         """Calculates RICE score: (Reach x Impact x Confidence) / Effort."""
         if effort <= 0:
             return 0.0
-        return (reach * impact * confidence) / effort
+        return RiceScorer.score(reach, impact, confidence, effort)
 
     @classmethod
     def classify_quadrant(cls, impact: float, effort: float) -> str:

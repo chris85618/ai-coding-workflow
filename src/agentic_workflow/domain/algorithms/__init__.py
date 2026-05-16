@@ -1,7 +1,7 @@
 """Pure deterministic algorithms — no LLM, no I/O.
 
 OO Design: all algorithms implemented as classes (ALG-010 OO mandate).
-Module-level facade functions retained for backward compatibility.
+Facade functions removed in favor of direct class method usage.
 
 ALG-001: ConvergenceDetector (convergence — iteration fixed-point detection)
 ALG-002: MicroValidation (6-step validation sequence)

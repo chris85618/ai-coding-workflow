@@ -18,21 +18,13 @@ from typing import Any
 
 import pytest
 
-from agentic_workflow.domain.algorithms.blast_radius import classify_severity
-from agentic_workflow.domain.algorithms.convergence import (
-    check_convergence,
-    should_auto_pass,
-)
+from agentic_workflow.domain.algorithms.blast_radius import BlastRadiusClassifier
+from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
 from agentic_workflow.domain.algorithms.model_selector import (
     StrategyConfig,
     select_model,
 )
-from agentic_workflow.domain.algorithms.repo_map_builder import (
-    _build_import_graph,
-    _extract_symbols_ast,
-    _pagerank,
-    repo_map_build,
-)
+from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 from agentic_workflow.domain.models.enums import (
     FixedPointResult,
     GateDecision,
@@ -60,7 +52,7 @@ class TestConvergenceBranches:
     def test_diverging_result(self) -> None:
         """DIVERGING: finding count increasing over 3 iterations."""
         history = [["A"], ["A", "B"], ["A", "B", "C"]]
-        result = check_convergence(
+        result = ConvergenceDetector.check_convergence(
             iteration_count=3,
             findings_per_iter=history,
             current_findings=["A", "B", "C", "D"],
@@ -70,7 +62,7 @@ class TestConvergenceBranches:
     def test_not_reached_short_history(self) -> None:
         """NOT_REACHED: insufficient history for divergence detection."""
         history = [["A"]]
-        result = check_convergence(
+        result = ConvergenceDetector.check_convergence(
             iteration_count=1,
             findings_per_iter=history,
             current_findings=["CRITICAL: issue"],
@@ -79,7 +71,7 @@ class TestConvergenceBranches:
 
     def test_max_iterations_boundary(self) -> None:
         """MAX_ITERATIONS: iteration_count >= 10."""
-        result = check_convergence(
+        result = ConvergenceDetector.check_convergence(
             iteration_count=10,
             findings_per_iter=[],
             current_findings=["CRITICAL: still here"],
@@ -88,15 +80,15 @@ class TestConvergenceBranches:
 
     def test_should_auto_pass_not_reached(self) -> None:
         """NOT_REACHED should NOT auto-pass."""
-        assert should_auto_pass(FixedPointResult.NOT_REACHED) is False
+        assert ConvergenceDetector.should_auto_pass(FixedPointResult.NOT_REACHED) is False
 
     def test_diverging_auto_pass(self) -> None:
         """DIVERGING should auto-pass per ADR-STR-003."""
-        assert should_auto_pass(FixedPointResult.DIVERGING) is True
+        assert ConvergenceDetector.should_auto_pass(FixedPointResult.DIVERGING) is True
 
     def test_max_iterations_auto_pass(self) -> None:
         """MAX_ITERATIONS should auto-pass with warning."""
-        assert should_auto_pass(FixedPointResult.MAX_ITERATIONS) is True
+        assert ConvergenceDetector.should_auto_pass(FixedPointResult.MAX_ITERATIONS) is True
 
 
 # -> blast_radius.py ->->->->->->->->->->->->->->->->->->->->->->->->->->->->->?
@@ -107,21 +99,21 @@ class TestBlastRadiusBranches:
 
     def test_medium_severity(self) -> None:
         """blast_radius 2-4 ->MEDIUM."""
-        assert classify_severity(2, 0) == Severity.MEDIUM
-        assert classify_severity(3, 0) == Severity.MEDIUM
-        assert classify_severity(4, 0) == Severity.MEDIUM
+        assert BlastRadiusClassifier.classify(2, 0) == Severity.MEDIUM
+        assert BlastRadiusClassifier.classify(3, 0) == Severity.MEDIUM
+        assert BlastRadiusClassifier.classify(4, 0) == Severity.MEDIUM
 
     def test_high_from_cross_stage(self) -> None:
         """cross_stage >= 2 ->HIGH."""
-        assert classify_severity(1, 2) == Severity.HIGH
+        assert BlastRadiusClassifier.classify(1, 2) == Severity.HIGH
 
     def test_low_severity(self) -> None:
         """blast_radius 1, cross_stage 0 ->LOW."""
-        assert classify_severity(1, 0) == Severity.LOW
+        assert BlastRadiusClassifier.classify(1, 0) == Severity.LOW
 
     def test_critical_from_cross_stage(self) -> None:
         """cross_stage >= 3 ->CRITICAL."""
-        assert classify_severity(1, 3) == Severity.CRITICAL
+        assert BlastRadiusClassifier.classify(1, 3) == Severity.CRITICAL
 
 
 # -> pipeline.py ->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->?
@@ -344,30 +336,30 @@ class TestRepoMapBuilderBranches:
 
     def test_empty_directory_returns_empty(self, tmp_path: Path) -> None:
         """No Python files ->empty RepoMap."""
-        result = repo_map_build(str(tmp_path), 1000)
+        result = RepoMapBuilder.build(str(tmp_path), 1000)
         assert result.token_count == 0
         assert len(result.symbols) == 0
 
     def test_single_file(self, tmp_path: Path) -> None:
         """Single file produces symbols."""
         (tmp_path / "a.py").write_text("class A:\n    pass\n\ndef foo(): pass\n")
-        result = repo_map_build(str(tmp_path), 1000)
+        result = RepoMapBuilder.build(str(tmp_path), 1000)
         assert len(result.symbols) >= 2  # class + function
 
     def test_pagerank_empty(self) -> None:
         """PageRank on empty graph returns empty dict."""
-        ranks = _pagerank({})
+        ranks = RepoMapBuilder.pagerank({})
         assert ranks == {}
 
     def test_extract_symbols_syntax_error(self) -> None:
         """Syntax error in file returns empty symbol list."""
-        symbols = _extract_symbols_ast("bad.py", "def :(")
+        symbols = RepoMapBuilder.extract_symbols_ast("bad.py", "def :(")
         assert symbols == []
 
     def test_import_graph_unreadable_file(self, tmp_path: Path) -> None:
         """Import graph handles missing files gracefully."""
         fake = str(tmp_path / "nonexistent.py")
-        graph = _build_import_graph([fake], str(tmp_path))
+        graph = RepoMapBuilder.build_import_graph([fake], str(tmp_path))
         assert fake in graph  # still in graph, just empty deps
 
     def test_budget_prunes_symbols(self, tmp_path: Path) -> None:
@@ -377,7 +369,7 @@ class TestRepoMapBuilderBranches:
                 f"class BigClass{i}:\n    def method(self): pass\n\n" * 10  # makes each file larger
             )
         # Very small budget
-        result = repo_map_build(str(tmp_path), 50)
+        result = RepoMapBuilder.build(str(tmp_path), 50)
         assert result.token_count <= 50
 
 
@@ -522,12 +514,12 @@ class TestFinalCoverageGaps:
         If counts are flat (e.g. [3, 3, 3]) the all() is True but counts[-1]==counts[0],
         so the condition short-circuits and we fall through to NOT_REACHED (L54).
         """
-        from agentic_workflow.domain.algorithms.convergence import check_convergence
+        from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
         from agentic_workflow.domain.models.enums import FixedPointResult
 
         # Three identical-length histories ->plateau, not diverging
         history = [["A", "B", "C"], ["A", "B", "C"], ["A", "B", "C"]]
-        result = check_convergence(
+        result = ConvergenceDetector.check_convergence(
             iteration_count=3,
             findings_per_iter=history,
             current_findings=["CRITICAL: still here"],
@@ -536,13 +528,13 @@ class TestFinalCoverageGaps:
 
     def test_convergence_decreasing_then_increasing_not_diverging(self) -> None:
         """L48->4: [3,2,3] ->not monotonically non-decreasing ->NOT_REACHED."""
-        from agentic_workflow.domain.algorithms.convergence import check_convergence
+        from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
         from agentic_workflow.domain.models.enums import FixedPointResult
 
         # [3, 2, 3]: all(counts[i] <= counts[i+1]) is False for i=0 (3 > 2)
         # ->all() returns False ->skip DIVERGING branch ->fall to NOT_REACHED
         history = [["A", "B", "C"], ["A", "B"], ["A", "B", "C"]]
-        result = check_convergence(
+        result = ConvergenceDetector.check_convergence(
             iteration_count=3,
             findings_per_iter=history,
             current_findings=["CRITICAL: still here"],
@@ -568,13 +560,13 @@ class TestFinalCoverageGaps:
         matches but whose base is not in path_map.
         """
         from agentic_workflow.domain.algorithms.repo_map_builder import (
-            _build_import_graph,
+            RepoMapBuilder,
         )
 
         a = tmp_path / "alpha.py"
         # Import an external module (not in path_map)
         a.write_text("import os\nimport sys\nfrom pathlib import Path\n")
-        result = _build_import_graph([str(a)], str(tmp_path))
+        result = RepoMapBuilder.build_import_graph([str(a)], str(tmp_path))
         # All imports map to external modules ->no edges added, but no crash
         assert result[str(a)] == []
 
@@ -583,15 +575,15 @@ class TestFinalCoverageGaps:
     def test_repo_map_build_oserror_on_second_read(self, tmp_path: Path) -> None:
         """L183-184: OSError during symbol-extraction read ->file is skipped.
 
-        In repo_map_build:
+        In RepoMapBuilder.build:
           L180-185: symbol extraction loop (reads each file first)
-          L188: _build_import_graph (reads each file second)
+          L188: build_import_graph (reads each file second)
         So to trigger L183-184, we raise OSError on the FIRST read of bad.py
         (the symbol extraction pass), then allow the second read (import graph).
         """
         from unittest.mock import patch
 
-        from agentic_workflow.domain.algorithms.repo_map_builder import repo_map_build
+        from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
 
         good_file = tmp_path / "good.py"
         bad_file = tmp_path / "bad.py"
@@ -610,7 +602,7 @@ class TestFinalCoverageGaps:
             return original_read_text(self, *args, **kwargs)
 
         with patch.object(Path, "read_text", patched_read):
-            result = repo_map_build(str(tmp_path), token_budget=1000)
+            result = RepoMapBuilder.build(str(tmp_path), token_budget=1000)
 
         # good.py symbols must still appear; bad.py symbols were skipped
         good_syms = [s for s in result.symbols if "good" in s.file_path]

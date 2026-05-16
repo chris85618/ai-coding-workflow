@@ -3,7 +3,6 @@
 Traceable to: FR-012, FR-013, CLS-003, INV-004, INV-005-v2
 Deterministic: no LLM, no I/O. Pure state machine logic.
 OO Design: ConvergenceDetector class encapsulates all logic (ALG-010 OO mandate).
-Module-level functions retained as backward-compat facades.
 """
 
 from __future__ import annotations
@@ -85,22 +84,3 @@ class ConvergenceDetector:
             FixedPointResult.DIVERGING,
             FixedPointResult.MAX_ITERATIONS,
         )
-
-
-# ── Module-level facades (backward compatibility) ──────────────────────────────
-
-
-@icontract.require(lambda iteration_count: iteration_count >= 0)
-def check_convergence(
-    iteration_count: int,
-    findings_per_iter: list[list[str]],
-    current_findings: list[str],
-) -> FixedPointResult:
-    """Backward-compat facade — delegates to ConvergenceDetector."""
-    return ConvergenceDetector.check_convergence(iteration_count, findings_per_iter, current_findings)
-
-
-@icontract.require(lambda result: isinstance(result, FixedPointResult))
-def should_auto_pass(result: FixedPointResult) -> bool:
-    """Backward-compat facade — delegates to ConvergenceDetector."""
-    return ConvergenceDetector.should_auto_pass(result)

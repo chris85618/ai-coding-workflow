@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
-from agentic_workflow.domain.algorithms.rice_scoring import rice_score
+from agentic_workflow.domain.algorithms.rice_scoring import RiceScorer
 
 
 @scenario("tech_debt.feature", "SonarCloud finding converts to tech debt")
@@ -56,7 +56,7 @@ def given_rice_params(ctx: dict[str, Any], reach: int, impact: float, confidence
 def when_register_debt(ctx: dict[str, Any]) -> None:
     """Step: register tech debt."""
     ctx["debt_id"] = "DEBT-002"
-    ctx["rice"] = rice_score(reach=20, impact=2.0, confidence=0.8, effort=4.0)
+    ctx["rice"] = RiceScorer.score(reach=20, impact=2.0, confidence=0.8, effort=4.0)
     ctx["quadrant"] = "STRATEGIC"
     ctx["written"] = True
 
@@ -64,7 +64,7 @@ def when_register_debt(ctx: dict[str, Any]) -> None:
 @when("RICE score is calculated")
 def when_rice_calculated(ctx: dict[str, Any]) -> None:
     """Step: calculate RICE score."""
-    ctx["score"] = rice_score(
+    ctx["score"] = RiceScorer.score(
         reach=ctx["reach"],
         impact=ctx["impact"],
         confidence=ctx["confidence"],
