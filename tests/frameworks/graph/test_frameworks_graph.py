@@ -33,7 +33,12 @@ def test_build_graph() -> None:
     from agentic_workflow.frameworks.dependency_container import DependencyContainer
 
     # Initialize container with mocks to satisfy nodes
-    container = DependencyContainer(pipeline_repo=MagicMock(), doc_io=MagicMock(), reasoner=MagicMock())
+    container = DependencyContainer(
+        pipeline_repo=MagicMock(),
+        checkpoint_repo=MagicMock(),
+        doc_io=MagicMock(),
+        reasoner=MagicMock(),
+    )
     set_container(container)
 
     app = MasterGraphBuilder.build()

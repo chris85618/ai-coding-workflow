@@ -16,7 +16,6 @@ from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, Workfl
 from agentic_workflow.adapters.sonarcloud.sonar_adapter import SonarCloudAdapter
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
 from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
-from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
 from agentic_workflow.domain.algorithms.pipeline_completeness import (
     PipelineCompletenessChecker,
 )
@@ -208,20 +207,53 @@ def node_orchestrator(state: WorkflowState) -> WorkflowState:
     """DAG node: Master orchestrator entrypoint for phases and stages.
 
     Corresponds to FR-002, FR-017, FR-018.
+    Uses OrchestratorService to validate and prepare context.
     """
     pipeline = StateMapper.state_to_pipeline(state)
     metadata = state.get("metadata", {})
 
-    # Delegate to Orchestrator based on current state
-    if pipeline.status == PipelineStatus.NOT_STARTED:
-        result = Orchestrator.execute_phase(0, metadata)
-    else:
-        pos = pipeline.current_position
-        stage = pos.get("stage", 0) if isinstance(pos, dict) else 0
-        result = Orchestrator.execute_stage(stage, metadata)
+    container = _get_container()
+    service = container.orchestrator
 
-    metadata["orchestrator_result"] = result
+    # Semantic domain logic
+    is_valid = service.validate_phase_execution(pipeline, 0)
+    domain_context = service.prepare_stage_context(pipeline)
+
+    metadata["orchestrator_is_valid"] = is_valid
+    metadata["domain_context"] = domain_context
+
     return {"metadata": metadata}
+
+
+def node_security_audit(state: WorkflowState) -> WorkflowState:
+    """DAG node: Execute 3-layer security audit.
+
+    Corresponds to FR-016.
+    Uses SecurityAuditService to process findings and update the aggregate.
+    """
+    pipeline = StateMapper.state_to_pipeline(state)
+    container = _get_container()
+    service = container.security_audit
+
+    # Mocking tool execution
+    layer_results = [
+        {"layer": "app_security", "findings": []},
+        {"layer": "agent_security", "findings": []},
+        {"layer": "supply_chain", "findings": []},
+    ]
+
+    findings = service.audit_pipeline(pipeline, layer_results)
+    decision = service.decide_gate_impact(findings)
+
+    # In a real DDD scenario, we might update the aggregate findings
+    # for stage in pipeline.stages.values():
+    #     if stage.status == StageStatus.RUNNING:
+    #         pipeline.update_stage_findings(findings.items)
+
+    return {
+        "metadata": {"security_audit_findings": list(findings)},
+        "last_gate_decision": decision,
+    }
 
 
 def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:

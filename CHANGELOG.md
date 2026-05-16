@@ -6,6 +6,21 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.1.6] — 2026-05-17
+
+### Summary
+Domain Governance & Persistence Hardening.
+Semanticized governance algorithms and fully encapsulated LangGraph persistence via Repository Checkpointer.
+
+### Added
+- **Governance**: `OrchestratorService` and `SecurityAuditService` (Semantic Domain Services).
+- **Persistence**: `RepositoryCheckpointer` (LangGraph ↔ Repository bridge).
+- **Workflow**: `node_security_audit` integrated into the Master DAG.
+
+### Fixed
+- Decoupled Orchestrator from procedural dict-based logic to Pipeline aggregate.
+- Wired LangGraph checkpointing to use the clean architecture `CheckpointRepository`.
+
 ## [0.1.5] — 2026-05-17
 
 ### Summary

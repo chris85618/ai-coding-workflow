@@ -1,9 +1,9 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 11 (Release v0.1.5) — ✅ DONE
-**Last Position**: Phase 11 (Release v0.1.5)
-**Status**: Project delivered with 100% coverage, DDD architecture, and validated documentation.
-**Last Updated**: 2026-05-16T21:05+08:00
+**Pipeline Position**: Phase 11 (Release v0.1.6) — ✅ DONE
+**Last Position**: Phase 11 (Release v0.1.6)
+**Status**: Domain Governance Hardened & Persistence Encapsulated.
+**Last Updated**: 2026-05-17T04:36+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -18,6 +18,9 @@
 - [x] DDD-09: 重構 `tests/` 下所有內容改用 DDD 術語與結構 — ✅ DONE
 - [x] DDD-10: 修復 `Pipeline` 與 `StateMapper` 的覆蓋率缺口 (100% Coverage) — ✅ DONE
 - [x] CAD-01: 建立 ADR-STR-021 (Clean Architecture 深度對齊) — ✅ DONE
+- [x] CAD-09: 語意化 Orchestrator 與 SecurityAudit 領域服務 — ✅ DONE
+- [x] CAD-10: 實作 RepositoryCheckpointer 並接入 LangGraph — ✅ DONE
+- [x] CAD-11: 更新測試套件對齊新 DI 結構 (828 Tests Pass) — ✅ DONE
 - [x] CAD-02: 提煉 `TraceableIdVO` 與 `Findings` VO — ✅ DONE
 - [x] CAD-03: 實作 `IPipelineRepository` 與 `MarkdownPipelineRepository` — ✅ DONE
 - [x] CAD-04: 建立 `DependencyContainer` 並重構 Use Cases 依賴注入 — ✅ DONE

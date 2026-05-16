@@ -33,6 +33,7 @@ class TestStartPipelineNode:
         self.mock_repo = MagicMock()
         self.container = DependencyContainer(
             pipeline_repo=self.mock_repo,
+            checkpoint_repo=MagicMock(),
             doc_io=MagicMock(),
             reasoner=MagicMock(),
         )

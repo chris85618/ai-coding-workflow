@@ -5,7 +5,7 @@ Master pipeline graph builder covering the 11-phase/stage dev pipeline.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     try:
@@ -13,11 +13,13 @@ if TYPE_CHECKING:
     except ImportError:
         from typing import Any as CompiledGraph
 
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, StateGraph
 
 from agentic_workflow.adapters.langgraph.nodes import (
     node_auto_gate,
     node_complete_pipeline,
+    node_security_audit,
     node_sonarcloud_gate,
     node_start_pipeline,
 )
@@ -42,8 +44,11 @@ class MasterGraphBuilder:
     """
 
     @classmethod
-    def build(cls) -> CompiledGraph:
+    def build(cls, checkpointer: BaseCheckpointSaver[Any] | None = None) -> CompiledGraph:
         """Build and compile the master workflow graph.
+
+        Args:
+            checkpointer: Optional LangGraph checkpointer for state persistence.
 
         Returns:
             Compiled LangGraph application for the full pipeline.
@@ -69,6 +74,7 @@ class MasterGraphBuilder:
 
         workflow.add_node("phase_9", phase_9_ship)
         workflow.add_node("phase_10", phase_10_retro)
+        workflow.add_node("security_audit", node_security_audit)
 
         # Gate & Advance (Generic)
         workflow.add_node("gate", node_auto_gate)
@@ -86,9 +92,10 @@ class MasterGraphBuilder:
         workflow.add_edge("stage_6", "stage_7")
         workflow.add_edge("stage_7", "stage_8")
         workflow.add_edge("stage_8", "sonar_gate")
-        workflow.add_edge("sonar_gate", "phase_9")
+        workflow.add_edge("sonar_gate", "security_audit")
+        workflow.add_edge("security_audit", "phase_9")
         workflow.add_edge("phase_9", "phase_10")
         workflow.add_edge("phase_10", "complete")
         workflow.add_edge("complete", END)
 
-        return workflow.compile()
+        return workflow.compile(checkpointer=checkpointer)
