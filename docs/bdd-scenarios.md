@@ -227,6 +227,14 @@ Scenario: SonarCloud 發現轉技術債
   Then DEBT-xxx 已建立
   And RICE 分數已計算 [INV-015]
   And 四象限分類完成
+### SC-021: 驗證自定義 OpenAI Endpoint 注入 (FEA-029)
+
+**Scenario**: 使用者配置了 OpenAI 相容的 Provider 並指定 base_url
+  **Given** 系統配置中 `models["openai_compatible"]` 的 `base_url` 為 `"https://api.openrouter.ai/v1"`
+  **And** 任務類型為 `TaskType.RESOLVE` 且映射至該模型
+  **When** 透過 `LangChainLLMAdapter` 請求完成
+  **Then** 內部呼叫的 `ChatOpenAI` 實例應具有正確的 `openai_api_base` (或 `base_url`) 屬性
+  **And** 請求應成功發送至該自定義 Endpoint
   And 寫入 docs/tech-debt-register.md
 
 Scenario: RICE 分數計算正確

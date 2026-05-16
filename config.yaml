@@ -39,6 +39,15 @@ models:
     temperature: 0.0             # 零溫度 = 最大確定性
     api_key: "${OPENAI_API_KEY}"
 
+  compatible_provider:
+    # 用途：使用 OpenAI 相容的第三方 Provider (如 OpenRouter, DeepSeek, Local LLM)
+    # 觸發：手動將任務映射至此模型
+    # 優點：靈活切換不同後端，支援在地化或高性價比模型
+    provider: "openai"
+    name: "${COMPATIBLE_MODEL:-meta-llama/llama-3-70b-instruct}"
+    base_url: "${COMPATIBLE_BASE_URL:-https://api.example.com/v1}"
+    api_key: "${COMPATIBLE_API_KEY}"
+
 # ============================================================
 # 提示詞範本（Prompt Engineering）
 # system: 角色定義（每次呼叫都會附加）

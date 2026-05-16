@@ -1,5 +1,11 @@
 # Deployment Log
 
+## [0.1.6] — 2026-05-17T05:51+08:00
+- **Pipeline Position**: Phase 11 (Feature Implementation)
+- **Branch**: `master`
+- **Changes**: FEA-029 (OpenAI-compatible Provider support), extended ModelConfig and OpenAIProvider with `base_url`.
+- **Validation**: TC-LLM-021 verified, all tests passed. ADR-STR-023 accepted.
+
 ## [0.1.5] — 2026-05-16T20:45+08:00
 - **Pipeline Position**: Phase 10 -> 11 Transition
 - **Branch**: `master`

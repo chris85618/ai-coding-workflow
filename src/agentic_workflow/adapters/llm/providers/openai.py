@@ -36,5 +36,6 @@ class OpenAIProvider(LLMProvider):
                 temperature=model_cfg.temperature,
                 max_tokens=model_cfg.max_tokens,
                 openai_api_key=model_cfg.api_key,
+                base_url=model_cfg.base_url,
             ),
         )

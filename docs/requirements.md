@@ -143,6 +143,21 @@
 **描述**：品質閘門執行失敗時，應自動將 SonarCloud 傳回的 Smells/Bugs/Vulnerabilities 轉化為系統內的 `DEBT-SONAR-xxx` 並登錄於 `docs/tech-debt-register.md`。
 **追溯**：FEA-006 (decomposes)
 
+### FR-065: 擴充 ModelConfig 支援 base_url
+
+**描述**：`ModelConfig` 值物件（Domain）與 Pydantic 模型（Framework）應新增 `base_url` 選擇性欄位，以支援非預設的 API Endpoints。
+**追溯**：FEA-029 (decomposes)
+
+### FR-066: OpenAIProvider 整合 base_url
+
+**描述**：`OpenAIProvider` 應將 `ModelConfig` 中的 `base_url` 傳遞給底層的 LangChain `ChatOpenAI` 實例，以支援 OpenRouter 等相容服務。
+**追溯**：FEA-029 (decomposes)
+
+### FR-067: YAML 配置支援 base_url
+
+**描述**：`WorkflowConfigLoader` 應能從 `config.yaml` 中讀取 `base_url` 欄位，並支援透過環境變數置換（如 `${OPENROUTER_BASE_URL}`）。
+**追溯**：FEA-029 (decomposes)
+
 ---
 
 | FR-045 | 系統應固化 Mypy 常用執行參數至 pyproject.toml | Stage 3 | FEA-021 |
@@ -204,4 +219,7 @@
 ### NFR-006: WBS 更新無阻塞
 
 **描述**：workflow-state.md 的更新操作不得阻塞主工作流（微動作執行）。更新應在微動作完成後同步寫入，不引入額外驗證迴圈。
-**追溯**：FEA-010 (constrains)
+### NFR-012: base_url 配置安全隔離
+
+**描述**：自定義 `base_url` 應優先透過環境變數注入（配合 ADR-SEC-005），避免在 `config.yaml` 中寫入硬編碼的敏感 Endpoint URL。
+**追溯**：FEA-029 (constrains)

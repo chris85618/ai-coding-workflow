@@ -19,6 +19,7 @@ class ModelConfig(BaseModel):
     temperature: float = 0.0
     max_tokens: int = 4096
     api_key: str | None = None
+    base_url: str | None = Field(default=None, alias="base_url")
 
     @property
     def name(self) -> str:

@@ -47,7 +47,7 @@ class LangChainLLMAdapter(LLMGateway):
         self._model_cache: dict[tuple[Any, ...], BaseChatModel] = {}
 
     def _get_model(self, model_cfg: ModelConfig) -> BaseChatModel:
-        key = (model_cfg.provider, model_cfg.model, model_cfg.temperature)
+        key = (model_cfg.provider, model_cfg.model, model_cfg.temperature, model_cfg.base_url)
         if key not in self._model_cache:
             provider = self._registry.get_provider(model_cfg.provider)
             self._model_cache[key] = provider.create_model(model_cfg)

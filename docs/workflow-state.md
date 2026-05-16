@@ -30,6 +30,11 @@
 - [x] CAD-08: 重構 `ImpactAnalysis` 為 Domain Service — ✅ DONE
 - [x] CAD-09: 重構 `BlastRadius` 為 Specification — ✅ DONE
 - [x] CAD-10: 補齊 DI Container 與 Use Case 單元測試 — ✅ DONE
+- [x] LLM-01: 擴充 Domain `ModelConfig` VO 支援 `base_url` — ✅ DONE
+- [x] LLM-02: 擴充 Framework `ModelConfig` Pydantic 支援 `base_url` — ✅ DONE
+- [x] LLM-03: 修改 `OpenAIProvider` 整合 `base_url` — ✅ DONE
+- [x] LLM-04: 更新測試案例驗證自定義 Endpoint 注入 — ✅ DONE
+- [x] LLM-05: 更新 `config.yaml` 範例與 `.env.example` — ✅ DONE
 
 ## 🚦 Gate Status
 

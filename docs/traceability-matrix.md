@@ -12,7 +12,7 @@
 
 | BG | FEA | 連結 | 語意 |
 |----|-----|------|------|
-| BG-001 | FEA-001, FEA-009, FEA-010, FEA-011 | derives | ✅ |
+| BG-001 | FEA-001, FEA-009, FEA-010, FEA-011, FEA-029 | derives | ✅ |
 | BG-002 | FEA-002, FEA-003 | derives | ✅ |
 | BG-003 | FEA-005, FEA-010 | derives | ✅ |
 | BG-004 | FEA-004, FEA-006, FEA-007, FEA-008 | derives | ✅ |
@@ -58,6 +58,8 @@
 | FEA-026 | FR-054, FR-055, FR-056, FR-057, FR-058, FR-059, FR-060, FR-061, FR-062 | decomposes | ✅ (Clean Architecture Deep Alignment) |
 | FEA-027 | FR-063 | decomposes | ✅ (Dependabot Integration) |
 | FEA-028 | FR-064 | decomposes | ✅ (Visual Monitoring Badges) |
+| FEA-029 | FR-065, FR-066, FR-067 | decomposes | ✅ (OpenAI-compatible Provider) |
+| FEA-029 | NFR-012 | constrains | ✅ |
 
 ### FR → UC
 
@@ -102,6 +104,7 @@
 | FR-043 | UC-016 | realizes | ✅ |
 | FR-045 | UC-003 | realizes | ✅ (Mypy CLI Flag Internalization) |
 | FR-046 | UC-018 | realizes | ✅ (Pre-commit Ruff Format) |
+| FR-065, FR-066, FR-067 | UC-019 | realizes | ✅ |
 
 ### Stakeholder → BG
 
@@ -121,6 +124,7 @@
 | [ADR-STR-020](adr/ADR-STR-020.md) | 領域驅動設計 (DDD) 實施準則 | STR | Accepted | FR-051, FR-052, FR-053 | justifies |
 | [ADR-STR-021](adr/ADR-STR-021.md) | Clean Architecture & DDD 深度對齊實施 | STR | Proposed | FR-054~060 | justifies |
 | [ADR-STR-022](adr/ADR-STR-022.md) | Dependabot 依賴治理策略 | STR | Accepted | FR-063 | justifies |
+| [ADR-STR-023](adr/ADR-STR-023.md) | 支援 OpenAI 相容 Provider 之配置策略 | STR | Proposed | FR-065, FR-066, FR-067 | justifies |
 
 > 類別統計：STR=8, GOV=26, SEC=1, SCP=0, GATE=0, OPS=0, **合計=35**
 | [ADR-GOV-001](adr/ADR-GOV-001.md) | Decision Unit 理論 + 資訊新穎性門檻 | GOV | Accepted | FR-001, NFR-001 | justifies |
@@ -303,6 +307,7 @@
 | SC-009 | UC-009 | INV-016 | covers, verifies | ✅ |
 | SC-010 | UC-010 | INV-001, INV-018 | covers, verifies | ✅ |
 | SC-011 | UC-011 | INV-009, INV-019 | covers, verifies | ✅ |
+| SC-021 | UC-019 | INV-022 | covers, verifies | ✅ (NEW: FEA-029) |
 | SC-012 | UC-012 | INV-024 | covers, verifies | ✅ (NEW: RepoMap) |
 | SC-013 | UC-013 | INV-020 | covers, verifies | ✅ (NEW: Hook execution) |
 | SC-014 | UC-003 | INV-022 | covers, verifies | ✅ (NEW: Strategy LLM) |
@@ -337,6 +342,7 @@
 | TC-013 | SC-018 | validates | ✅ |
 | TC-014 | SC-019 | validates | ✅ |
 | TC-015 | SC-020 | validates | ✅ |
+| TC-LLM-021 | SC-021 | validates | ✅ (FEA-029: Custom OpenAI Endpoint) |
 | TC-UC-001 | UC-001 | validates | ✅ (NEW: StartPipelineUseCase) |
 | TC-UC-002 | UC-001, UC-003 | validates | ✅ (NEW: AdvancePipelineUseCase) |
 | TC-UC-003 | UC-003 | validates | ✅ (NEW: RunIterationUseCase) |
@@ -496,13 +502,13 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 |------|---------|--------|--------|--------|--------|
 | Phase 2.0 | BG-xxx | 5 | — (源頭) | 5/5 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
-| Phase 2.2 | FEA-xxx | 22 | 22/22 | 22/22 | 100% |
+| Phase 2.2 | FEA-xxx | 23 | 23/23 | 23/23 | 100% |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
-| Stage 3 | FR-xxx | 39+3v2 | 42/42 | 42/42 | 100% |
-| Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
-| Stage 3 | UC-xxx | 14 | 14/14 | 14/14 | 100% |
-| Stage 3 | ADR-STR-xxx | 12 | 12/12 | — | 100% |
+| Stage 3 | FR-xxx | 42+3v2 | 45/45 | 45/45 | 100% |
+| Stage 3 | NFR-xxx | 10 | 10/10 | — (約束) | 100% |
+| Stage 3 | UC-xxx | 15 | 15/15 | 15/15 | 100% |
+| Stage 3 | ADR-STR-xxx | 13 | 13/13 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 27 | 27/27 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
@@ -513,10 +519,10 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 8 | TC-xxx | 21 | 21/21 | 21/21 | 100% |
 | Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
-| Skill 修改 | ADR→Skill | 28 | 28/28 | — (映射) | 100% |
+| Skill 修改 | ADR→Skill | 29 | 29/29 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **348** | — | — | **100%** |
+| **合計** | — | **356** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)

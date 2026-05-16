@@ -113,6 +113,29 @@ class TestLLMProviders:
         adapter = LangChainLLMAdapter(cfg)
         assert adapter.is_available() is True
 
+    def test_openai_compatible_base_url(self) -> None:
+        """TC-LLM-021: Verify that base_url is passed to ChatOpenAI for compatible providers (FEA-029)."""
+        from agentic_workflow.adapters.llm.providers.openai import OpenAIProvider
+        from agentic_workflow.domain.value_objects import ModelConfig
+
+        custom_url = "https://api.openrouter.ai/v1"
+        cfg = ModelConfig(
+            provider="openai",
+            model="meta-llama/llama-3-70b-instruct",
+            base_url=custom_url,
+            api_key="sk-or-test",
+        )
+        provider = OpenAIProvider()
+
+        mock_chat_cls = MagicMock()
+        with patch.dict("sys.modules", {"langchain_openai": MagicMock(ChatOpenAI=mock_chat_cls)}):
+            provider.create_model(cfg)
+            # Verify constructor arguments
+            args, kwargs = mock_chat_cls.call_args
+            assert kwargs["base_url"] == custom_url
+            assert kwargs["model"] == "meta-llama/llama-3-70b-instruct"
+            assert kwargs["openai_api_key"] == "sk-or-test"
+
 
 # ===========================================================================
 # GitKraken: commit failure + git_status + git_commit_raw

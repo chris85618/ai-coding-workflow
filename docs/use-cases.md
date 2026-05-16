@@ -180,6 +180,18 @@
 
 ---
 
+## UC-019: 配置 OpenAI 相容 Provider (含自定義 base_url)
+
+**描述**：開發者在 `config.yaml` 中配置非官方 OpenAI Provider（如 OpenRouter），系統自動解析自定義 `base_url` 並正確實例化模型。
+**追溯**：FR-065, FR-066, FR-067 (realizes)
+
+**前置條件**：目標 Provider 符合 OpenAI API 規範，且開發者已獲得 API Key。
+**不變量**：`base_url` 必須是有效的 URL 格式 [INV-001]；`provider` 必須為 "openai"。
+**後置條件**：`OpenAIProvider` 成功建立 `BaseChatModel` 實例，且請求導向正確 Endpoint。
+**主要流程**：修改 `config.yaml` 增加 `base_url` → 系統載入配置 → 實例化 `OpenAIProvider` → 建立 `ChatOpenAI(base_url=...)`。
+
+---
+
 ## 追溯矩陣更新
 
 | FR-xxx | UC-xxx | 連結類型 |
@@ -212,3 +224,6 @@
 | FR-043 | UC-016 | realizes |
 | FR-044 | UC-017 | realizes |
 | FR-046 | UC-018 | realizes |
+| FR-065 | UC-019 | realizes |
+| FR-066 | UC-019 | realizes |
+| FR-067 | UC-019 | realizes |
