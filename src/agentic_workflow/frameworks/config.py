@@ -57,7 +57,7 @@ class SonarCloudConfig(BaseModel):
     organization: str | None = None
     feedback: FeedbackConfig = Field(default_factory=FeedbackConfig)
     on_missing_config: str = "warn_and_disable"
-    
+
     @property
     def is_valid(self) -> bool:
         """Check if essential parameters are present."""

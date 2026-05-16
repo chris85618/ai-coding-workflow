@@ -77,6 +77,28 @@ class TestEvaluate:
         result = SonarCloudGate.evaluate(metrics)
         assert result["passed"] is True
 
+    def test_reliability_rating_numeric_passing(self) -> None:
+        """Numeric path: actual=1.0 (API format) maps to 'A', passes."""
+        metrics = _passing_metrics()
+        metrics["reliability_rating"] = {"global": 1.0, "new": 1.0}
+        result = SonarCloudGate.evaluate(metrics)
+        assert result["passed"] is True
+
+    def test_reliability_rating_numeric_fails(self) -> None:
+        """Numeric path: actual=2.0 maps to 'B', fails against threshold 'A'."""
+        metrics = _passing_metrics()
+        metrics["reliability_rating"] = {"global": 2.0, "new": 1.0}
+        result = SonarCloudGate.evaluate(metrics)
+        assert result["passed"] is False
+        assert any("reliability_rating" in f for f in result["failures"])
+
+    def test_reliability_rating_numeric_unknown_maps_f(self) -> None:
+        """Numeric path: unrecognised value maps to 'F', fails against 'A'."""
+        metrics = _passing_metrics()
+        metrics["reliability_rating"] = {"global": 9.0, "new": 1.0}
+        result = SonarCloudGate.evaluate(metrics)
+        assert result["passed"] is False
+
     def test_non_numeric_non_string_expected_value_skipped(self) -> None:
         """Branch 55→40: expected_val is neither float/int nor str."""
         # Override THRESHOLDS temporarily with a non-numeric non-string value

@@ -98,10 +98,14 @@ class SonarCloudGate:
             if metric != "coverage" and actual > expected:
                 return f"{metric} ({scope}) failed: {actual} > {expected}"
         elif isinstance(expected, str):
-            # Map numeric ratings back to chars (1=A, 2=B, etc.)
-            rating_map = {1.0: "A", 2.0: "B", 3.0: "C", 4.0: "D", 5.0: "E"}
-            actual_str = rating_map.get(float(actual), "F")
-            if actual_str > expected: # Lower is better, but char 'B' > 'A'
+            # Support numeric ratings (1.0=A from API) and
+            # letter strings ('A' from tests).
+            if isinstance(actual, str):
+                actual_str = actual
+            else:
+                rating_map = {1.0: "A", 2.0: "B", 3.0: "C", 4.0: "D", 5.0: "E"}
+                actual_str = rating_map.get(float(actual), "F")
+            if actual_str > expected:  # Lower is better, but char 'B' > 'A'
                 return f"{metric} ({scope}) failed: {actual_str} > {expected}"
         return None
 
