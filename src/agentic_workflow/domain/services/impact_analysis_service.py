@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from agentic_workflow.domain.algorithms.traceability_validator.traceability_node import TraceabilityNode
+from typing import Any
 
 
 class ImpactAnalysisService:
@@ -13,8 +10,6 @@ class ImpactAnalysisService:
 
     def analyze_change(
         self,
-        modified_id: str,
-        nodes: list[TraceabilityNode],
         *,
         _downstream: list[str] | None = None,
         _upstream: list[str] | None = None,

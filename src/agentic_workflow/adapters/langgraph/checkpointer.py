@@ -46,9 +46,10 @@ class RepositoryCheckpointer(BaseCheckpointSaver[Any]):
     def get_tuple(self, config: RunnableConfig) -> CheckpointTuple | None:
         """Get a checkpoint tuple from the repository."""
         thread_id = config.get("configurable", {}).get("thread_id", "default")
-        checkpoint_id = config.get("configurable", {}).get("checkpoint_id")
 
-        state = self.repository.load_latest(thread_id) if checkpoint_id else self.repository.load_latest(thread_id)
+        # In our current repository adapter, we simplify to latest.
+        # Future enhancement: implement load_version(thread_id, checkpoint_id)
+        state = self.repository.load_latest(thread_id)
 
         if state is None:
             return None

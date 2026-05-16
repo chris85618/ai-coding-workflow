@@ -3,9 +3,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TypeVar
-
-T = TypeVar("T")
 
 
 class Specification[T](ABC):
@@ -29,7 +26,7 @@ class Specification[T](ABC):
         return NotSpecification(self)
 
 
-class AndSpecification(Specification[T]):
+class AndSpecification[T](Specification[T]):
     """Composite specification for AND logic."""
 
     def __init__(self, left: Specification[T], right: Specification[T]):
@@ -42,7 +39,7 @@ class AndSpecification(Specification[T]):
         return self._left.is_satisfied_by(candidate) and self._right.is_satisfied_by(candidate)
 
 
-class OrSpecification(Specification[T]):
+class OrSpecification[T](Specification[T]):
     """Composite specification for OR logic."""
 
     def __init__(self, left: Specification[T], right: Specification[T]):
@@ -55,7 +52,7 @@ class OrSpecification(Specification[T]):
         return self._left.is_satisfied_by(candidate) or self._right.is_satisfied_by(candidate)
 
 
-class NotSpecification(Specification[T]):
+class NotSpecification[T](Specification[T]):
     """Composite specification for NOT logic."""
 
     def __init__(self, spec: Specification[T]):

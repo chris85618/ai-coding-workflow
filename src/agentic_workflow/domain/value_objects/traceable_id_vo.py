@@ -24,7 +24,7 @@ class TraceableIdVO:
         if not match:
             raise ValueError(f"Invalid Traceable ID format: {self.value}. Expected PREFIX-001.")
 
-        prefix_str, seq_str = match.groups()
+        prefix_str, _ = match.groups()
         # Verify prefix is valid in the system
         try:
             IDPrefix(prefix_str)
