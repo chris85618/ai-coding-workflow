@@ -1,8 +1,8 @@
 # Traceability Matrix — Unified Agentic Workflow System
 
 **Generated**: 2026-05-13T21:31:00+08:00
-**Last Validated**: 2026-05-16T07:30:00+08:00 (ADR-SEC-005 安全性增強與 DEBT-007 結案)
-**Validation Status**: ✅ ALG-010 (OO Mandate), ADR-STR-007 (Single Build Path), test coverage 100.00% (636 passing); 306 條追溯紀錄，零孤兒
+**Last Validated**: 2026-05-16T08:49:00+08:00 (ADR-STR-009 line-length 設定 + src/ 模組重構)
+**Validation Status**: ✅ ALG-010 (OO Mandate), ADR-STR-007 (Single Build Path), ruff check ✅, mypy ✅; 318 條追溯紀錄，零孤兒
 
 ---
 
@@ -130,6 +130,7 @@
 | [ADR-GOV-024](adr/ADR-GOV-024.md) | 強制循序輸出協議 | GOV | Accepted | FR-001, FR-005, FR-019 | justifies |
 | [ADR-GOV-025](adr/ADR-GOV-025.md) | ISO 31000 風險管理框架 + DEBT/RISK 完整追溯制度 | GOV | Accepted | FR-010, FR-011, FR-022, FR-023 | justifies |
 | [ADR-GOV-026](adr/ADR-GOV-026.md) | 零容忍警告政策與嚴格 Scope 制度 (Logic-Fix First) | GOV | Accepted | NFR-001, FR-004, FR-005, FR-033 | justifies |
+| [ADR-STR-001](adr/ADR-STR-001.md) | 模組化架構 — 每個 Class 獨立檔案原則 | STR | Accepted | NFR-002, NFR-003 | justifies |
 | [ADR-STR-002](adr/ADR-STR-002.md) | Clean Architecture for LangGraph Migration | STR | Accepted | FR-001, FR-002, FR-003 | justifies |
 | [ADR-STR-003](adr/ADR-STR-003.md) | 自主執行模型 (No HITL Gates) | STR | Accepted | FR-012, FR-013, FR-014-v2, FR-019-v2, FR-021-v2 | justifies |
 | [ADR-STR-004](adr/ADR-STR-004.md) | AI Tool Feature Absorption — Strategy Pattern + Hooks + RepoMap | STR | Accepted | FR-026, FR-027, FR-028, FR-029, FR-030, NFR-008 | justifies |
@@ -137,9 +138,10 @@
 | [ADR-STR-006](adr/ADR-STR-006.md) | 外部化 YAML 配置 (Models & Prompts Only) | STR | Amended | FR-032, NFR-010 | justifies |
 | [ADR-STR-007](adr/ADR-STR-007.md) | 單一建圖路徑 — OO Builder 為唯一合法建圖機制 | STR | Accepted | NFR-003, RISK-004 | justifies |
 | [ADR-STR-008](adr/ADR-STR-008.md) | Token Budget & Long Response Continuation Mechanism | STR | Accepted | FR-034 | justifies |
+| [ADR-STR-009](adr/ADR-STR-009.md) | Ruff Line-Length = 120 (禁止 noqa 抑制) | STR | Accepted | NFR-002, NFR-003 | justifies |
 | [ADR-OPS-001](adr/ADR-OPS-001.md) | SonarCloud 閉環回饋與降級機制 | OPS | Accepted | FR-015, FR-035, FR-036 | justifies |
 
-> 類別統計：STR=8, GOV=26, SEC=0, SCP=0, GATE=0, OPS=0, **合計=34**
+> 類別統計：STR=9, GOV=26, SEC=1, SCP=0, GATE=0, OPS=1, **合計=37**
 
 ### ALG → FR
 
@@ -413,9 +415,14 @@
 | ADR-GOV-024 | `AGENTS.md` (#15 + Step 輸出協議 + Step 0-12 輸出標注) | modified-by |
 | ADR-GOV-025 | `risk_manager.py` (CREATE), `risk-register.md` (CREATE), `tech-debt-register.md` (CREATE), `tech_debt_manager.py` (Step 5), `ADR-TEMPLATE.md` (關聯產出物), `AGENTS.md` (Routing+12.5), `security_audit.py` (Step 5), `orchestrator.py` (Step 3.5), `orchestrator.py` (Step 5.5), `root_cause_leftshift.py` (Step 7.5), `orchestrator.py` (Step 4.5) | modified-by |
 | ADR-GOV-026 | `pyproject.toml`, `test_invariants_verifier.py`, `graph.py`, `nodes.py`, `warning_policy_verifier.py` | modified-by |
+| ADR-STR-001 | `src/agentic_workflow/` (全目錄結構重構，每 Class 獨立檔案) | modified-by |
 | ADR-STR-007 | `adapters/langgraph/graph_builder.py` (DELETED), `tests/test_graph_builder.py` (DELETED), `config.yaml` (workflow_graph removed), `docs/adr/ADR-STR-006.md` (amended), `invariants_verifier.py`, `test_invariants_verifier.py`, `tests/step_defs/test_langgraph_dag.py`, `README.md`, `CHANGELOG.md` | modified-by |
+| ADR-STR-008 | `adapters/llm/langchain_adapter.py` (TokenLimitExceededError + continuation) | modified-by |
+| ADR-STR-009 | `ruff.toml` (line-length 88→120), `pyproject.toml` (line-length 88→120) | modified-by |
+| ADR-OPS-001 | `domain/algorithms/sonarcloud_gate.py`, `adapters/langgraph/nodes.py` (node_sonarcloud_gate) | modified-by |
+| ADR-SEC-005 | `frameworks/config.py` → `frameworks/config/` (重構), `adapters/langgraph/nodes.py` | modified-by |
 
-> ADR-GOV-001/002/014/015/017/018/019/021, ADR-STR-001 為治理原則定義，嵌入 AGENTS.md Core Directives
+> ADR-GOV-001/002/014/015/017/018/019/021 為治理原則定義，嵌入 AGENTS.md Core Directives
 
 ### ADR 取代關係圖
 
@@ -452,7 +459,7 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 3 | FR-xxx | 34+3v2 | 37/37 | 37/37 | 100% |
 | Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 13 | 13/13 | 13/13 | 100% |
-| Stage 3 | ADR-STR-xxx | 7 | 7/7 | — | 100% |
+| Stage 3 | ADR-STR-xxx | 9 | 9/9 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 26 | 26/26 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
@@ -462,11 +469,11 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 8 | TC-xxx | 15 | 15/15 | 15/15 | 100% |
 | Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
-| Skill 修改 | ADR→Skill | 20 | 20/20 | — (映射) | 100% |
+| Skill 修改 | ADR→Skill | 26 | 26/26 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **315** | — | — | **100%** |
+| **合計** | — | **323** | — | — | **100%** |
 
-> **Status**: TDD/BDD 追溯修復 (TC-015/SC-020/INV-025/CLS-021)。638 測試, 100% coverage。315 條追溯紀錄，零孤兒。
+> **Status**: ADR-STR-009 登記 + src/ 模組重構 + ADR→Skill 映射補齊。318 條追溯紀錄，零孤兒。
 > **未應對風險**: 2 (RISK-001/004 MEDIUM)
 > **技術債**: 0 (All resolved)

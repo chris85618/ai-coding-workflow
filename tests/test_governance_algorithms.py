@@ -126,9 +126,7 @@ class TestIterationLoop:
 
     def test_run_iteration_not_converged(self, monkeypatch: Any) -> None:
         """TC-016: Non-convergence loop check."""
-        monkeypatch.setattr(
-            IterationLoop, "agent_alpha_critique", lambda *_: [{"severity": "HIGH"}]
-        )
+        monkeypatch.setattr(IterationLoop, "agent_alpha_critique", lambda *_: [{"severity": "HIGH"}])
         result = IterationLoop.run_iteration("output", [])
         assert "next_output" in result or "status" in result
 

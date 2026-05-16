@@ -114,8 +114,7 @@ class SequentialThinkingMCPAdapter(MCPGateway):
             NotImplementedError: Always.
         """
         raise NotImplementedError(
-            "SequentialThinkingMCPAdapter does not support git commits. "
-            "Use GitKrakenMCPAdapter for auto_commit()."
+            "SequentialThinkingMCPAdapter does not support git commits. Use GitKrakenMCPAdapter for auto_commit()."
         )
 
     def is_connected(self) -> bool:

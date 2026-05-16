@@ -12,9 +12,7 @@ class TechDebtManager:
     """Manages collection, scoring, and framework for technical debt."""
 
     @classmethod
-    def calculate_rice_score(
-        cls, reach: int, impact: float, confidence: float, effort: float
-    ) -> float:
+    def calculate_rice_score(cls, reach: int, impact: float, confidence: float, effort: float) -> float:
         """Calculates RICE score: (Reach x Impact x Confidence) / Effort."""
         if effort <= 0:
             return 0.0

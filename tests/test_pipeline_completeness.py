@@ -14,9 +14,7 @@ from agentic_workflow.domain.algorithms.pipeline_completeness import (
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
-def _make_repo(
-    tmp_path: Path, files: dict[str, str], src_files: list[str] | None = None
-) -> Path:
+def _make_repo(tmp_path: Path, files: dict[str, str], src_files: list[str] | None = None) -> Path:
     """Creates a minimal repo structure in tmp_path."""
     for rel, content in files.items():
         target = tmp_path / rel
@@ -128,9 +126,7 @@ class TestCalculateCompleteness:
     def test_starting_with_src_is_brownfield(self, tmp_path: Path) -> None:
         """Verify Path B detection."""
         """Completeness > 0 but < 0.6, with src/*.py → Path B."""
-        _make_repo(
-            tmp_path, {"docs/workflow-state.md": "content"}, src_files=["src/main.py"]
-        )
+        _make_repo(tmp_path, {"docs/workflow-state.md": "content"}, src_files=["src/main.py"])
         result = calculate_completeness(tmp_path)
         assert result["completeness_score"] == 1
         assert result["decision"] == "Path B (Brownfield)"

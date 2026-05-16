@@ -54,10 +54,7 @@ class Pipeline:
         "Pipeline must be running to advance",
     )
     @icontract.require(
-        lambda self: (
-            self.last_gate_decision
-            in (GateDecision.PASS, GateDecision.PASS_WITH_WARNINGS)
-        ),
+        lambda self: self.last_gate_decision in (GateDecision.PASS, GateDecision.PASS_WITH_WARNINGS),
         "Auto-gate must PASS before advance (INV-002-v2)",
     )
     @icontract.snapshot(

@@ -18,9 +18,7 @@ def test_resume_from_checkpoint() -> None:
     """SC-010: Resume from checkpoint automatically."""
 
 
-@scenario(
-    "workflow_resume.feature", "No checkpoint with existing docs starts from Phase 0"
-)
+@scenario("workflow_resume.feature", "No checkpoint with existing docs starts from Phase 0")
 def test_no_checkpoint_with_docs() -> None:
     """SC-010: No checkpoint + existing docs → Phase 0."""
 

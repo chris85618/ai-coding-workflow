@@ -37,13 +37,10 @@ def given_code_smell(ctx: dict[str, Any]) -> None:
 
 @given(
     parsers.parse(
-        "reach is {reach:d} and impact is {impact:f} and "
-        "confidence is {confidence:f} and effort is {effort:d}"
+        "reach is {reach:d} and impact is {impact:f} and confidence is {confidence:f} and effort is {effort:d}"
     )
 )
-def given_rice_params(
-    ctx: dict[str, Any], reach: int, impact: float, confidence: float, effort: int
-) -> None:
+def given_rice_params(ctx: dict[str, Any], reach: int, impact: float, confidence: float, effort: int) -> None:
     """Step: RICE parameters provided."""
     ctx.update(
         {
@@ -102,20 +99,15 @@ def then_written(ctx: dict[str, Any]) -> None:
 @then(parsers.parse("the score equals {expected:f}"))
 def then_score_equals(ctx: dict[str, Any], expected: float) -> None:
     """Step: verify exact RICE score."""
-    assert abs(ctx["score"] - expected) < 1e-9, (
-        f"Got {ctx['score']}, expected {expected}"
-    )
+    assert abs(ctx["score"] - expected) < 1e-9, f"Got {ctx['score']}, expected {expected}"
 
 
 @then(
     parsers.parse(
-        "the quadrant is {quadrant} because impact is at least {min_impact:d} "
-        "and effort exceeds {min_effort:d}"
+        "the quadrant is {quadrant} because impact is at least {min_impact:d} and effort exceeds {min_effort:d}"
     )
 )
-def then_quadrant_is(
-    ctx: dict[str, Any], quadrant: str, min_impact: int, min_effort: int
-) -> None:
+def then_quadrant_is(ctx: dict[str, Any], quadrant: str, min_impact: int, min_effort: int) -> None:
     """Step: verify quadrant logic."""
     ctx["score"]  # ensure calculated
     assert ctx["impact"] >= min_impact

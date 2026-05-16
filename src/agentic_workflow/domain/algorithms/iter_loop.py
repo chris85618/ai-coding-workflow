@@ -11,9 +11,7 @@ class IterationLoop:
     """Executes the dual-agent (Agent alpha/beta) convergence loop."""
 
     @classmethod
-    def agent_alpha_critique(
-        cls, output: str, criteria: list[str]
-    ) -> list[dict[str, Any]]:
+    def agent_alpha_critique(cls, output: str, criteria: list[str]) -> list[dict[str, Any]]:
         """Agent alpha: exhaustive critique of the output against criteria."""
         # Simulated critique
         return []
@@ -39,18 +37,10 @@ class IterationLoop:
             return "REACHED"
 
         # Count non-YAGNI critical/high in current vs previous
-        curr_critical_high = sum(
-            1 for c in current_critiques if c.get("severity") in ["CRITICAL", "HIGH"]
-        )
-        prev_critical_high = sum(
-            1 for c in previous_critiques if c.get("severity") in ["CRITICAL", "HIGH"]
-        )
+        curr_critical_high = sum(1 for c in current_critiques if c.get("severity") in ["CRITICAL", "HIGH"])
+        prev_critical_high = sum(1 for c in previous_critiques if c.get("severity") in ["CRITICAL", "HIGH"])
 
-        if (
-            prev_critical_high is not None
-            and curr_critical_high >= prev_critical_high
-            and curr_critical_high > 0
-        ):
+        if prev_critical_high is not None and curr_critical_high >= prev_critical_high and curr_critical_high > 0:
             return "DIVERGING"
 
         return "NOT_REACHED"

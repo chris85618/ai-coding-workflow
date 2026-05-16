@@ -340,16 +340,12 @@ class TestTraceabilityValidator:
 
     def test_detect_orphans_tc_no_downstream_exempt(self) -> None:
         """TC-260: TC nodes orphan exemption."""
-        node = TraceabilityNode(
-            id="TC-001", type="TC", upstream=["SC-001"], downstream=[]
-        )
+        node = TraceabilityNode(id="TC-001", type="TC", upstream=["SC-001"], downstream=[])
         assert "TC-001" not in TraceabilityValidator.detect_orphans([node])
 
     def test_detect_orphans_fr_missing_upstream_is_orphan(self) -> None:
         """TC-261: FR nodes missing upstream orphan check."""
-        node = TraceabilityNode(
-            id="FR-001", type="FR", upstream=[], downstream=["UC-001"]
-        )
+        node = TraceabilityNode(id="FR-001", type="FR", upstream=[], downstream=["UC-001"])
         orphans = TraceabilityValidator.detect_orphans([node])
         assert "FR-001" in orphans
 
@@ -383,11 +379,7 @@ class TestRootCauseLeftShift:
 
     def test_has_analyze_method(self) -> None:
         """TC-265: RootCauseLeftShift methods exist."""
-        assert (
-            hasattr(RootCauseLeftShift, "analyze")
-            or hasattr(RootCauseLeftShift, "run_five_whys")
-            or True
-        )
+        assert hasattr(RootCauseLeftShift, "analyze") or hasattr(RootCauseLeftShift, "run_five_whys") or True
 
 
 # ── Orchestrator ───────────────────────────────────────────────────────────────
@@ -538,9 +530,7 @@ class TestNodes:
 
     def test_should_continue_iterating_max_reached(self) -> None:
         """TC-286: Continue logic max iterations."""
-        state = _fresh_state(
-            "running", stage_status="iterating", iteration_count=MAX_ITERATIONS
-        )
+        state = _fresh_state("running", stage_status="iterating", iteration_count=MAX_ITERATIONS)
         assert should_continue_iterating(state) == "gate"
 
     def test_should_continue_iterating_not_done(self) -> None:

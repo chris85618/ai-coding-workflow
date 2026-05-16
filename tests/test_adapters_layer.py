@@ -288,11 +288,7 @@ class TestHookConfigLoader:
         )
         from agentic_workflow.domain.models.enums import HookEvent
 
-        config = {
-            "hooks": [
-                {"event": "post_doc_write", "command": "git add .", "blocking": False}
-            ]
-        }
+        config = {"hooks": [{"event": "post_doc_write", "command": "git add .", "blocking": False}]}
         hooks = HookConfigLoader.from_dict(config)
         assert len(hooks) == 1
         assert hooks[0].event == HookEvent.POST_DOC_WRITE
@@ -628,9 +624,7 @@ class TestLangChainLLMAdapter:
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.models.model_config import ModelConfig
 
-        model = ModelConfig(
-            provider="openai", model="gpt-4o", temperature=0.0, api_key=api_key
-        )
+        model = ModelConfig(provider="openai", model="gpt-4o", temperature=0.0, api_key=api_key)
         return StrategyConfig(
             reasoning_model=model,
             editing_model=model,

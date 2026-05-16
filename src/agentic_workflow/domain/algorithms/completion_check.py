@@ -17,9 +17,7 @@ class CompletionCheck:
     COVERAGE_THRESHOLD: float = 1.00
 
     @classmethod
-    def verify_readiness(
-        cls, test_coverage: float, open_risks: int, pending_debts: int = 0
-    ) -> dict[str, Any]:
+    def verify_readiness(cls, test_coverage: float, open_risks: int, pending_debts: int = 0) -> dict[str, Any]:
         """Runs final checks before allowing Phase 9 ship.
 
         Args:
@@ -50,8 +48,6 @@ class CompletionCheck:
 # ── Module-level facade (backward compatibility) ───────────────────────────────
 
 
-def verify_readiness(
-    test_coverage: float, open_risks: int, pending_debts: int = 0
-) -> dict[str, Any]:
+def verify_readiness(test_coverage: float, open_risks: int, pending_debts: int = 0) -> dict[str, Any]:
     """Backward-compat facade — delegates to CompletionCheck."""
     return CompletionCheck.verify_readiness(test_coverage, open_risks, pending_debts)

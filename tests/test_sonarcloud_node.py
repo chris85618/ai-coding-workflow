@@ -66,9 +66,7 @@ class TestSonarCloudNode:
 
         # 3. Verify
         assert result["last_gate_decision"] == GateDecision.FAIL
-        assert result["metadata"]["pending_sonar_debts"] == [
-            {"id": "DEBT-SONAR-0", "priority": "P2"}
-        ]
+        assert result["metadata"]["pending_sonar_debts"] == [{"id": "DEBT-SONAR-0", "priority": "P2"}]
         assert "SonarCloud Quality Gate Failed" in str(result.get("last_error"))
 
     def test_node_warns_when_config_missing(self, mock_gate: Any) -> None:

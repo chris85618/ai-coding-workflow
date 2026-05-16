@@ -31,9 +31,7 @@ class ADRGovernance:
         return cohesiveness >= 0.8 and consequences_coupled and atomic
 
     @classmethod
-    def format_adr_template(
-        cls, category: str, adr_id: str, title: str, details: dict[str, Any]
-    ) -> str:
+    def format_adr_template(cls, category: str, adr_id: str, title: str, details: dict[str, Any]) -> str:
         """Generates the Markdown template for a new ADR."""
         prefix = cls.CATEGORIES.get(category, "ADR-MISC")
         full_id = f"{prefix}-{adr_id}"

@@ -33,9 +33,7 @@ class TestValidateFormat:
 
     def test_mixed_content_with_vibe(self) -> None:
         """Verify mixed content with vibe fails."""
-        assert (
-            MicroValidation.validate_format("clean code\nfrom vibe import x") is False
-        )
+        assert MicroValidation.validate_format("clean code\nfrom vibe import x") is False
 
 
 class TestValidateStructure:

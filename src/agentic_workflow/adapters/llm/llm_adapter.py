@@ -108,8 +108,7 @@ class LangChainLLMAdapter(LLMGateway):
                 continuations += 1
                 if continuations > max_continuations:
                     raise TokenLimitExceededError(
-                        f"Output exceeded max_tokens across "
-                        f"{max_continuations} continuations."
+                        f"Output exceeded max_tokens across {max_continuations} continuations."
                     )
                 continuations += 1
                 messages.append(response)

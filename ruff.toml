@@ -1,6 +1,6 @@
 # Ruff Configuration
 # See: https://docs.astral.sh/ruff/configuration/
-line-length = 88
+line-length = 120
 target-version = "py312"
 
 [format]

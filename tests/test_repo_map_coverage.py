@@ -128,9 +128,7 @@ class TestBuildImportGraph:
 class TestPagerank:
     """Unit tests for the simplified PageRank implementation."""
 
-    def _fn(
-        self, graph: dict[str, list[str]], damping: float = 0.85, iterations: int = 20
-    ) -> dict[str, float]:
+    def _fn(self, graph: dict[str, list[str]], damping: float = 0.85, iterations: int = 20) -> dict[str, float]:
         from agentic_workflow.domain.algorithms.repo_map_builder import _pagerank
 
         return _pagerank(graph, damping, iterations)
@@ -213,11 +211,7 @@ class TestRepoMapBuild:
         (tmp_path / "module.py").write_text("def real_func(): pass\n")
         result = repo_map_build(str(tmp_path), token_budget=500)
         # test_something.py should not appear as any symbol's file_path
-        test_file_paths = [
-            s.file_path
-            for s in result.symbols
-            if os.path.basename(s.file_path).startswith("test_")
-        ]
+        test_file_paths = [s.file_path for s in result.symbols if os.path.basename(s.file_path).startswith("test_")]
         assert test_file_paths == [], f"test_ files appeared in map: {test_file_paths}"
 
     def test_invalid_project_path_raises(self, tmp_path: Path) -> None:
@@ -257,9 +251,7 @@ class TestRepoMapModel:
     ) -> Any:
         from agentic_workflow.domain.models.repo_map import SymbolDef
 
-        return SymbolDef(
-            file_path=file_path, name=name, kind=kind, signature=sig, line_number=line
-        )
+        return SymbolDef(file_path=file_path, name=name, kind=kind, signature=sig, line_number=line)
 
     def test_prune_to_budget_zero_returns_empty(self) -> None:
         """L56-57: budget <= 0 → return empty RepoMap."""

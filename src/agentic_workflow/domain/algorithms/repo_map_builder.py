@@ -86,9 +86,7 @@ class RepoMapBuilder:
         return symbols
 
     @classmethod
-    def build_import_graph(
-        cls, py_files: list[str], project_path: str
-    ) -> dict[str, list[str]]:
+    def build_import_graph(cls, py_files: list[str], project_path: str) -> dict[str, list[str]]:
         """Build a file-level import dependency graph.
 
         Uses regex for fast import detection without full parsing.
@@ -100,9 +98,7 @@ class RepoMapBuilder:
         Returns:
             Dict mapping file_path -> list of imported file_paths.
         """
-        import_pattern = re.compile(
-            r"^(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))", re.MULTILINE
-        )
+        import_pattern = re.compile(r"^(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))", re.MULTILINE)
         graph: dict[str, list[str]] = {f: [] for f in py_files}
         path_map = {Path(f).stem: f for f in py_files}
 
@@ -113,9 +109,7 @@ class RepoMapBuilder:
                 continue
             for match in import_pattern.finditer(source):
                 module = match.group(1) or match.group(2)
-                if (
-                    module
-                ):  # pragma: no branch  # regex guarantees at least one group matches
+                if module:  # pragma: no branch  # regex guarantees at least one group matches
                     base = module.split(".")[-1]
                     if base in path_map:
                         graph[file_path].append(path_map[base])
@@ -152,11 +146,7 @@ class RepoMapBuilder:
             new_ranks: dict[str, float] = {}
             for node in nodes:
                 # Sum of rank contributions from nodes pointing to this node
-                incoming = sum(
-                    ranks[src] / max(len(dsts), 1)
-                    for src, dsts in graph.items()
-                    if node in dsts
-                )
+                incoming = sum(ranks[src] / max(len(dsts), 1) for src, dsts in graph.items() if node in dsts)
                 new_ranks[node] = (1 - d) / n + d * incoming
             ranks = new_ranks
 
@@ -241,9 +231,7 @@ def _build_import_graph(py_files: list[str], project_path: str) -> dict[str, lis
     return RepoMapBuilder.build_import_graph(py_files, project_path)
 
 
-def _pagerank(
-    graph: dict[str, list[str]], damping: float = 0.85, iterations: int = 20
-) -> dict[str, float]:
+def _pagerank(graph: dict[str, list[str]], damping: float = 0.85, iterations: int = 20) -> dict[str, float]:
     """Backward-compat facade — delegates to RepoMapBuilder."""
     return RepoMapBuilder.pagerank(graph, damping, iterations)
 

@@ -74,38 +74,28 @@ class TestCheckLessonReuse:
 
     def test_finds_existing_lesson_by_category(self) -> None:
         """Verify lesson reuse by category."""
-        result = RootCauseLeftShift.check_lesson_reuse(
-            RootCauseCategory.FORMAT_ERROR, self._lessons()
-        )
+        result = RootCauseLeftShift.check_lesson_reuse(RootCauseCategory.FORMAT_ERROR, self._lessons())
         assert result == "LESSON-001"
 
     def test_finds_process_gap_lesson(self) -> None:
         """Verify PROCESS_GAP reuse."""
-        result = RootCauseLeftShift.check_lesson_reuse(
-            RootCauseCategory.PROCESS_GAP, self._lessons()
-        )
+        result = RootCauseLeftShift.check_lesson_reuse(RootCauseCategory.PROCESS_GAP, self._lessons())
         assert result == "LESSON-002"
 
     def test_returns_none_when_no_match(self) -> None:
         """Verify None returned when no match."""
-        result = RootCauseLeftShift.check_lesson_reuse(
-            RootCauseCategory.COVERAGE_GAP, self._lessons()
-        )
+        result = RootCauseLeftShift.check_lesson_reuse(RootCauseCategory.COVERAGE_GAP, self._lessons())
         assert result is None
 
     def test_empty_lessons_returns_none(self) -> None:
         """Verify empty lesson list handling."""
-        result = RootCauseLeftShift.check_lesson_reuse(
-            RootCauseCategory.FORMAT_ERROR, []
-        )
+        result = RootCauseLeftShift.check_lesson_reuse(RootCauseCategory.FORMAT_ERROR, [])
         assert result is None
 
     def test_lesson_without_category_key_is_skipped(self) -> None:
         """Verify robustness against malformed lesson data."""
         lessons = [{"id": "LESSON-003"}]  # no category key
-        result = RootCauseLeftShift.check_lesson_reuse(
-            RootCauseCategory.FORMAT_ERROR, lessons
-        )
+        result = RootCauseLeftShift.check_lesson_reuse(RootCauseCategory.FORMAT_ERROR, lessons)
         assert result is None
 
 
@@ -153,9 +143,7 @@ class TestGenerateLessonMarkdown:
 
     def test_different_category_in_output(self) -> None:
         """Verify markdown handles different categories."""
-        md = RootCauseLeftShift.generate_lesson_markdown(
-            self._rca(category=RootCauseCategory.GOVERNANCE_BYPASS)
-        )
+        md = RootCauseLeftShift.generate_lesson_markdown(self._rca(category=RootCauseCategory.GOVERNANCE_BYPASS))
         assert "GOVERNANCE_BYPASS" in md
 
     def test_returns_string(self) -> None:

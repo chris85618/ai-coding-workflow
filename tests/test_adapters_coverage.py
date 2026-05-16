@@ -102,9 +102,7 @@ class TestLLMProviders:
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.models.model_config import ModelConfig
 
-        model = ModelConfig(
-            provider="anthropic", model="claude-3-5-sonnet", api_key="test-key"
-        )
+        model = ModelConfig(provider="anthropic", model="claude-3-5-sonnet", api_key="test-key")
         cfg = StrategyConfig(
             reasoning_model=model,
             editing_model=model,
@@ -161,9 +159,7 @@ class TestGitKrakenEdgeCases:
     @patch("subprocess.run")
     def test_call_tool_git_commit(self, mock_run: MagicMock) -> None:
         """Test git_commit tool call."""
-        mock_run.return_value = MagicMock(
-            returncode=0, stdout="[main abc123]", stderr=""
-        )
+        mock_run.return_value = MagicMock(returncode=0, stdout="[main abc123]", stderr="")
         result = self.adapter.call_tool("git_commit", {"message": "feat: x"})
         assert result["success"] is True
 
@@ -336,9 +332,7 @@ def when_verifier_checks_graph(context: dict[str, Any]) -> None:
         DAGInvariantVerifier,
     )
 
-    context["verification_result"] = DAGInvariantVerifier.run_all_verifications(
-        context["compiled_graph"]
-    )
+    context["verification_result"] = DAGInvariantVerifier.run_all_verifications(context["compiled_graph"])
 
 
 class TestFileRepositoryFindAll:

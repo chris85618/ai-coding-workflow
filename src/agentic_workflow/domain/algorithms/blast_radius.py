@@ -30,9 +30,7 @@ class BlastRadiusClassifier:
 
     @classmethod
     @icontract.ensure(
-        lambda result, blast_radius: (
-            (blast_radius == 0 and result == Severity.COSMETIC) or blast_radius > 0
-        ),
+        lambda result, blast_radius: (blast_radius == 0 and result == Severity.COSMETIC) or blast_radius > 0,
         "Zero blast radius must classify as COSMETIC (INV-012)",
     )
     def classify(cls, blast_radius: int, cross_stage: int) -> Severity:
@@ -60,9 +58,7 @@ class BlastRadiusClassifier:
 
 
 @icontract.ensure(
-    lambda result, blast_radius: (
-        (blast_radius == 0 and result == Severity.COSMETIC) or blast_radius > 0
-    ),
+    lambda result, blast_radius: (blast_radius == 0 and result == Severity.COSMETIC) or blast_radius > 0,
     "Zero blast radius must classify as COSMETIC (INV-012)",
 )
 def classify_severity(blast_radius: int, cross_stage: int) -> Severity:

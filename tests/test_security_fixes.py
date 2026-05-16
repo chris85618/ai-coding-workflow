@@ -28,9 +28,7 @@ class TestHookRunnerShellInjectionFix:
         from agentic_workflow.domain.services.hook_runner import HookDef, HookRunner
 
         runner = HookRunner()
-        hook = HookDef(
-            event=HookEvent.PRE_STAGE_START, command="echo {stage}", blocking=False
-        )
+        hook = HookDef(event=HookEvent.PRE_STAGE_START, command="echo {stage}", blocking=False)
         runner.register(hook)
         return runner, hook
 
@@ -40,16 +38,11 @@ class TestHookRunnerShellInjectionFix:
         mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
         runner, _ = self._make_runner()
         runner.execute(
-            __import__(
-                "agentic_workflow.domain.models.enums", fromlist=["HookEvent"]
-            ).HookEvent.PRE_STAGE_START,
+            __import__("agentic_workflow.domain.models.enums", fromlist=["HookEvent"]).HookEvent.PRE_STAGE_START,
             {"stage": "stage3"},
         )
         call_kwargs = mock_run.call_args
-        assert (
-            call_kwargs.kwargs.get("shell") is False
-            or call_kwargs[1].get("shell") is False
-        )
+        assert call_kwargs.kwargs.get("shell") is False or call_kwargs[1].get("shell") is False
 
     @patch("subprocess.run")
     def test_metachar_stripped_from_context(self, mock_run: MagicMock) -> None:
@@ -66,9 +59,7 @@ class TestHookRunnerShellInjectionFix:
         runner.execute(HookEvent.PRE_STAGE_START, {"stage": "stage3; rm -rf /"})
         call_kwargs = mock_run.call_args
         # Primary assertion: shell must be False regardless of cmd content
-        shell_val = call_kwargs.kwargs.get("shell") or (
-            call_kwargs[1].get("shell") if call_kwargs[1] else None
-        )
+        shell_val = call_kwargs.kwargs.get("shell") or (call_kwargs[1].get("shell") if call_kwargs[1] else None)
         assert shell_val is False
         # Secondary: cmd is a list, not a string (shell=False requires list form)
         cmd_arg = call_kwargs[0][0]
@@ -80,9 +71,7 @@ class TestHookRunnerShellInjectionFix:
         from agentic_workflow.domain.services.hook_runner import HookDef, HookRunner
 
         runner = HookRunner()
-        hook = HookDef(
-            event=HookEvent.PRE_STAGE_START, command="echo 'unclosed", blocking=False
-        )
+        hook = HookDef(event=HookEvent.PRE_STAGE_START, command="echo 'unclosed", blocking=False)
         runner.register(hook)
         results = runner.execute(HookEvent.PRE_STAGE_START, {})
         assert results[0].exit_code == 1

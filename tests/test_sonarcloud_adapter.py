@@ -39,9 +39,7 @@ def _make_adapter(
 ) -> tuple[SonarCloudAdapter, MagicMock]:
     """Return adapter + mock client, skipping real HTTP initialisation."""
     cfg = config or _make_config()
-    with patch(
-        "agentic_workflow.adapters.sonarcloud.sonar_adapter.SonarCloudClient"
-    ) as mock_cls:
+    with patch("agentic_workflow.adapters.sonarcloud.sonar_adapter.SonarCloudClient") as mock_cls:
         mock_client = MagicMock()
         mock_cls.return_value = mock_client
         adapter = SonarCloudAdapter(cfg)
@@ -110,9 +108,7 @@ class TestAdapterInit:
     def test_client_created_with_correct_url(self) -> None:
         """SonarCloudClient must be initialised with sonarcloud.io URL."""
         cfg = _make_config()
-        with patch(
-            "agentic_workflow.adapters.sonarcloud.sonar_adapter.SonarCloudClient"
-        ) as mock_cls:
+        with patch("agentic_workflow.adapters.sonarcloud.sonar_adapter.SonarCloudClient") as mock_cls:
             mock_cls.return_value = MagicMock()
             SonarCloudAdapter(cfg)
             mock_cls.assert_called_once_with(
@@ -133,9 +129,7 @@ class TestAdapterInit:
 class TestGetMetrics:
     """Tests for SonarCloudAdapter.get_metrics."""
 
-    def _stub_measures(
-        self, mock_client: MagicMock, measures: list[dict[str, Any]]
-    ) -> None:
+    def _stub_measures(self, mock_client: MagicMock, measures: list[dict[str, Any]]) -> None:
         """Wire mock client to return given measures list."""
         rv = {"component": {"measures": measures}}
         mock_client.measures.get_component_with_specified_measures.return_value = rv
@@ -171,9 +165,7 @@ class TestGetMetrics:
     def test_api_exception_raises_runtime_error(self) -> None:
         """Network/API failures must be wrapped in RuntimeError."""
         adapter, mock_client = _make_adapter()
-        mock_client.measures.get_component_with_specified_measures.side_effect = (
-            Exception("connection refused")
-        )
+        mock_client.measures.get_component_with_specified_measures.side_effect = Exception("connection refused")
         with pytest.raises(RuntimeError, match="SonarCloud API error"):
             adapter.get_metrics()
 
@@ -216,9 +208,7 @@ class TestGetMetrics:
 class TestGetIssues:
     """Tests for SonarCloudAdapter.get_issues."""
 
-    def _stub_issues(
-        self, mock_client: MagicMock, issues: list[dict[str, Any]]
-    ) -> None:
+    def _stub_issues(self, mock_client: MagicMock, issues: list[dict[str, Any]]) -> None:
         """Wire mock client to return given issues."""
         mock_client.issues.search_issues.return_value = {"issues": issues}
 
@@ -280,9 +270,7 @@ class TestGetIssues:
     def test_confirmed_issues_included_by_default(self) -> None:
         """CONFIRMED status is open — must be returned."""
         adapter, mock_client = _make_adapter()
-        self._stub_issues(
-            mock_client, [{"status": "CONFIRMED", "message": "confirmed"}]
-        )
+        self._stub_issues(mock_client, [{"status": "CONFIRMED", "message": "confirmed"}])
         result = adapter.get_issues()
         assert len(result) == 1
 

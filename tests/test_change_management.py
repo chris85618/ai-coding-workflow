@@ -13,30 +13,22 @@ class TestValidatePGVG:
 
     def test_valid_content_returns_no_failures(self) -> None:
         """TC-131: Valid content check."""
-        result = ChangeManagement.validate_pgvg(
-            "Normal content without issues.", "original", ChangeType.MODIFY
-        )
+        result = ChangeManagement.validate_pgvg("Normal content without issues.", "original", ChangeType.MODIFY)
         assert result == []
 
     def test_unbalanced_backticks_returns_failure(self) -> None:
         """TC-132: Unbalanced backticks detection."""
-        result = ChangeManagement.validate_pgvg(
-            "```code without closing", "original", ChangeType.CREATE
-        )
+        result = ChangeManagement.validate_pgvg("```code without closing", "original", ChangeType.CREATE)
         assert any("backtick" in f for f in result)
 
     def test_even_backticks_are_fine(self) -> None:
         """TC-133: Balanced backticks check."""
-        result = ChangeManagement.validate_pgvg(
-            "```code``` and ```more```", "original", ChangeType.FIX
-        )
+        result = ChangeManagement.validate_pgvg("```code``` and ```more```", "original", ChangeType.FIX)
         assert result == []
 
     def test_create_change_type_accepted(self) -> None:
         """TC-134: CREATE type validation."""
-        result = ChangeManagement.validate_pgvg(
-            "clean content", "orig", ChangeType.CREATE
-        )
+        result = ChangeManagement.validate_pgvg("clean content", "orig", ChangeType.CREATE)
         assert isinstance(result, list)
 
     def test_fix_change_type_accepted(self) -> None:
@@ -50,10 +42,7 @@ class TestVerifyCmGateDeclaration:
 
     def test_returns_false_if_no_declaration(self) -> None:
         """TC-136: Missing declaration check."""
-        assert (
-            ChangeManagement.verify_cm_gate_declaration("No gate here", ["file.py"])
-            is False
-        )
+        assert ChangeManagement.verify_cm_gate_declaration("No gate here", ["file.py"]) is False
 
     def test_returns_true_if_cmgate_and_files_present(self) -> None:
         """TC-137: Valid CM-GATE check."""
@@ -68,9 +57,7 @@ class TestVerifyCmGateDeclaration:
     def test_returns_false_if_file_missing_from_declaration(self) -> None:
         """TC-139: File missing from declaration check."""
         content = "CM-GATE: other.py | Type | Class"
-        assert (
-            ChangeManagement.verify_cm_gate_declaration(content, ["file.py"]) is False
-        )
+        assert ChangeManagement.verify_cm_gate_declaration(content, ["file.py"]) is False
 
     def test_empty_files_list_returns_true_if_gate_present(self) -> None:
         """TC-140: Empty files list with gate check."""
@@ -135,12 +122,7 @@ class TestAssertSessionEndHooks:
 
     def test_cross_cutting_with_step5_returns_true(self) -> None:
         """TC-148: Step 5 present for cross-cutting check."""
-        assert (
-            ChangeManagement.assert_session_end_hooks(
-                [self._valid_change(cross_cutting=True)]
-            )
-            is True
-        )
+        assert ChangeManagement.assert_session_end_hooks([self._valid_change(cross_cutting=True)]) is True
 
     def test_empty_list_returns_true(self) -> None:
         """TC-149: Empty changes list check."""

@@ -81,9 +81,7 @@ class TestGenerateNextId:
 
     def test_mixed_valid_invalid(self) -> None:
         """Verify mixed ID handling."""
-        result = TraceabilityValidator.generate_next_id(
-            "TC", ["TC-010", "TC-bad", "FR-020"]
-        )
+        result = TraceabilityValidator.generate_next_id("TC", ["TC-010", "TC-bad", "FR-020"])
         assert result == "TC-011"
 
     def test_three_digit_padding(self) -> None:

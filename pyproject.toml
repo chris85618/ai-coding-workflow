@@ -33,7 +33,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py312"
 
 [tool.ruff.format]
@@ -51,14 +51,7 @@ bdd_features_base_dir = "tests/features"
 addopts = "--cov=src/agentic_workflow --cov-branch --cov-report=term-missing --cov-report=xml:reports/coverage.xml --junitxml=reports/pytest.xml"
 filterwarnings = [
     # Default: every unhandled warning becomes a hard test error.
-    "error",
-    # ── Third-party allow-list ────────────────────────────────────────────────
-    # Each entry is scoped to the third-party package namespace only.
-    "ignore::DeprecationWarning:pkg_resources.*",
-    "ignore::DeprecationWarning:google.*",
-    "ignore::DeprecationWarning:pydantic.*",
-    "ignore::DeprecationWarning:langgraph.*",
-    "ignore::DeprecationWarning:langchain.*",
+    "error"
 ]
 
 [tool.coverage.run]

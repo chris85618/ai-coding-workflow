@@ -14,7 +14,6 @@ from agentic_workflow.adapters.langgraph.nodes import (
     node_orchestrator,
     node_pipeline_completeness,
     node_start_pipeline,
-    node_warning_policy_gate,
     should_continue_iterating,
 )
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
@@ -29,7 +28,6 @@ __all__ = [
     "node_orchestrator",
     "node_pipeline_completeness",
     "node_start_pipeline",
-    "node_warning_policy_gate",
     "should_continue_iterating",
     "StateMapper",
     "WorkflowState",

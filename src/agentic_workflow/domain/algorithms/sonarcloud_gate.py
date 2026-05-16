@@ -82,15 +82,11 @@ class SonarCloudGate:
             "failures": failures,
             "tech_debts": tech_debts,
             "next_action": "continue" if passed else "trigger_autonomous_fix",
-            "prompt_for_agent": "Analyze the SonarCloud failures and apply fixes."
-            if not passed
-            else None,
+            "prompt_for_agent": "Analyze the SonarCloud failures and apply fixes." if not passed else None,
         }
 
     @staticmethod
-    def _check_threshold(
-        metric: str, scope: str, actual: Any, expected: Any
-    ) -> str | None:
+    def _check_threshold(metric: str, scope: str, actual: Any, expected: Any) -> str | None:
         """Checks a single metric value against its threshold."""
         if isinstance(expected, (float, int)):
             if metric == "coverage" and actual < expected:
@@ -120,9 +116,7 @@ class SonarCloudGate:
                     {
                         "id": f"DEBT-SONAR-{idx}",
                         "title": issue.get("message", "SonarCloud Issue"),
-                        "priority": "P2"
-                        if issue.get("severity") in ["MAJOR", "CRITICAL", "BLOCKER"]
-                        else "P3",
+                        "priority": "P2" if issue.get("severity") in ["MAJOR", "CRITICAL", "BLOCKER"] else "P3",
                         "source": "SonarCloud Quality Gate",
                         "affected_file": issue.get("component", "unknown"),
                     }

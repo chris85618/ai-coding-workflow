@@ -61,11 +61,7 @@ def given_3_retries(ctx: dict[str, Any]) -> None:
 @when("SonarCloud scan executes")
 def when_scan_executes(ctx: dict[str, Any]) -> None:
     """Execute scan logic."""
-    ctx["gate_passed"] = (
-        ctx["coverage"] >= 80
-        and ctx.get("critical_vulns", 0) == 0
-        and ctx.get("debt_ratio", 0) <= 5.0
-    )
+    ctx["gate_passed"] = ctx["coverage"] >= 80 and ctx.get("critical_vulns", 0) == 0 and ctx.get("debt_ratio", 0) <= 5.0
 
 
 @when("auto-fix attempts to add test cases")

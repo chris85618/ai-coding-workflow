@@ -14,10 +14,7 @@ class TestEvaluateDecisionUnit:
 
     def test_all_conditions_met_returns_true(self) -> None:
         """TC-294: evaluate_decision_unit success path."""
-        assert (
-            ADRGovernance.evaluate_decision_unit("We decided X", 0.9, True, True)
-            is True
-        )
+        assert ADRGovernance.evaluate_decision_unit("We decided X", 0.9, True, True) is True
 
     def test_low_cohesiveness_returns_false(self) -> None:
         """TC-295: evaluate_decision_unit low cohesiveness."""
@@ -63,59 +60,43 @@ class TestFormatAdrTemplate:
 
     def test_known_category_structural(self) -> None:
         """TC-301: format_adr_template STRUCTURAL."""
-        md = ADRGovernance.format_adr_template(
-            "STRUCTURAL", "001", "Test ADR", self._details()
-        )
+        md = ADRGovernance.format_adr_template("STRUCTURAL", "001", "Test ADR", self._details())
         assert "ADR-STR-001" in md
         assert "Test ADR" in md
 
     def test_known_category_governance(self) -> None:
         """TC-302: format_adr_template GOVERNANCE."""
-        md = ADRGovernance.format_adr_template(
-            "GOVERNANCE", "002", "Gov ADR", self._details()
-        )
+        md = ADRGovernance.format_adr_template("GOVERNANCE", "002", "Gov ADR", self._details())
         assert "ADR-GOV-002" in md
 
     def test_known_category_security(self) -> None:
         """TC-303: format_adr_template SECURITY."""
-        md = ADRGovernance.format_adr_template(
-            "SECURITY", "003", "Sec ADR", self._details()
-        )
+        md = ADRGovernance.format_adr_template("SECURITY", "003", "Sec ADR", self._details())
         assert "ADR-SEC-003" in md
 
     def test_known_category_scope(self) -> None:
         """TC-304: format_adr_template SCOPE."""
-        md = ADRGovernance.format_adr_template(
-            "SCOPE", "004", "Scope ADR", self._details()
-        )
+        md = ADRGovernance.format_adr_template("SCOPE", "004", "Scope ADR", self._details())
         assert "ADR-SCP-004" in md
 
     def test_known_category_gate(self) -> None:
         """TC-305: format_adr_template GATE."""
-        md = ADRGovernance.format_adr_template(
-            "GATE", "005", "Gate ADR", self._details()
-        )
+        md = ADRGovernance.format_adr_template("GATE", "005", "Gate ADR", self._details())
         assert "ADR-GATE-005" in md
 
     def test_known_category_operational(self) -> None:
         """TC-306: format_adr_template OPERATIONAL."""
-        md = ADRGovernance.format_adr_template(
-            "OPERATIONAL", "006", "Ops ADR", self._details()
-        )
+        md = ADRGovernance.format_adr_template("OPERATIONAL", "006", "Ops ADR", self._details())
         assert "ADR-OPS-006" in md
 
     def test_unknown_category_uses_misc(self) -> None:
         """TC-307: format_adr_template MISC fallback."""
-        md = ADRGovernance.format_adr_template(
-            "UNKNOWN_TYPE", "007", "Misc ADR", self._details()
-        )
+        md = ADRGovernance.format_adr_template("UNKNOWN_TYPE", "007", "Misc ADR", self._details())
         assert "ADR-MISC-007" in md
 
     def test_template_contains_all_sections(self) -> None:
         """TC-308: Template section verification."""
-        md = ADRGovernance.format_adr_template(
-            "STRUCTURAL", "001", "Title", self._details()
-        )
+        md = ADRGovernance.format_adr_template("STRUCTURAL", "001", "Title", self._details())
         assert "背景" in md
         assert "決策" in md
         assert "理由" in md

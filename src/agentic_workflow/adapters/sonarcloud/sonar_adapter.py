@@ -85,9 +85,7 @@ class SonarCloudAdapter:
         except Exception as exc:
             raise RuntimeError(f"SonarCloud API error: {exc}") from exc
 
-        measures: list[dict[str, Any]] = component.get("component", {}).get(
-            "measures", []
-        )
+        measures: list[dict[str, Any]] = component.get("component", {}).get("measures", [])
 
         result: dict[str, dict[str, Any]] = {}
         for m in measures:
@@ -117,9 +115,7 @@ class SonarCloudAdapter:
         except Exception as exc:
             raise RuntimeError(f"SonarCloud API error: {exc}") from exc
 
-        issues: list[dict[str, Any]] = (
-            response.get("issues", []) if isinstance(response, dict) else list(response)
-        )
+        issues: list[dict[str, Any]] = response.get("issues", []) if isinstance(response, dict) else list(response)
 
         if include_closed:
             return issues

@@ -8,9 +8,7 @@ from pytest_bdd import given, parsers, scenarios, then, when
 
 from agentic_workflow.frameworks.config import load_config
 
-scenarios(
-    os.path.join(os.path.dirname(__file__), "features", "config_interpolation.feature")
-)
+scenarios(os.path.join(os.path.dirname(__file__), "features", "config_interpolation.feature"))
 
 
 @pytest.fixture

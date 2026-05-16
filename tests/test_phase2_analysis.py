@@ -40,10 +40,7 @@ def given_phases_complete(ctx: dict[str, Any]) -> None:
 @given("FEA IDs are defined")
 def given_fea_defined(ctx: dict[str, Any]) -> None:
     """Step: FEA defined."""
-    ctx["feas"] = [
-        TraceableID(prefix=IDPrefix.FEA, sequence=i, title=f"Feature {i}")
-        for i in range(1, 4)
-    ]
+    ctx["feas"] = [TraceableID(prefix=IDPrefix.FEA, sequence=i, title=f"Feature {i}") for i in range(1, 4)]
 
 
 @when("Phase 2 four steps execute")
@@ -54,9 +51,7 @@ def when_phase2_executes(ctx: dict[str, Any]) -> None:
     ctx["stakeholders"] = [TraceableID(prefix=IDPrefix.S, sequence=1, title="S-001")]
     ctx["feas"] = [TraceableID(prefix=IDPrefix.FEA, sequence=1, title="FEA-001")]
     # Link BG → FEA
-    link = TraceLink(
-        source_id="BG-001", target_id="FEA-001", link_type=LinkType.DECOMPOSES
-    )
+    link = TraceLink(source_id="BG-001", target_id="FEA-001", link_type=LinkType.DECOMPOSES)
     ctx["bgs"][0].downstream_links.append(link)
     ctx["matrix_initialized"] = True
 

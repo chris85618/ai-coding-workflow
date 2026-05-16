@@ -33,11 +33,7 @@ class ImpactAnalysis:
         affected_lateral_ids = _lateral if _lateral is not None else []
 
         # We would normally traverse the graph here
-        blast_radius = (
-            len(affected_downstream)
-            + len(inconsistent_upstream)
-            + len(affected_lateral_ids)
-        )
+        blast_radius = len(affected_downstream) + len(inconsistent_upstream) + len(affected_lateral_ids)
 
         # Determine severity
         if blast_radius == 0:

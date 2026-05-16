@@ -25,9 +25,7 @@ class MicroValidation:
         # Check if IDs match prefix pattern (delegated to TraceabilityValidator)
         if not changed_ids:
             return True
-        return all(
-            TraceabilityValidator.validate_id_format(node_id) for node_id in changed_ids
-        )
+        return all(TraceabilityValidator.validate_id_format(node_id) for node_id in changed_ids)
 
     @classmethod
     def run_all(cls, changed_content: str, changed_ids: list[str]) -> dict[str, Any]:
@@ -49,8 +47,5 @@ class MicroValidation:
                 "Trigger impact-analysis-exec.py" if passed else "rework",
                 "Trigger root-cause-leftshift.py",
             ],
-            "prompt_for_agent": "Fix the micro-validation failures: "
-            + ", ".join(failures)
-            if not passed
-            else None,
+            "prompt_for_agent": "Fix the micro-validation failures: " + ", ".join(failures) if not passed else None,
         }

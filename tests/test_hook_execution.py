@@ -139,9 +139,7 @@ def when_hook_executes(ctx: dict[str, Any]) -> None:
 @when("a Python file is written to docs/")
 def when_file_written(ctx: dict[str, Any]) -> None:
     """Step: file written."""
-    ctx["results"] = ctx["runner"].execute(
-        ctx["event"], {"file": ctx.get("py_file", "test.py")}
-    )
+    ctx["results"] = ctx["runner"].execute(ctx["event"], {"file": ctx.get("py_file", "test.py")})
 
 
 @when("POST_STAGE_COMPLETE fires")

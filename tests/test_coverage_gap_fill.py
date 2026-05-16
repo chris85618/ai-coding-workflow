@@ -374,8 +374,7 @@ class TestRepoMapBuilderBranches:
         """Token budget limits symbol count (INV-024)."""
         for i in range(20):
             (tmp_path / f"mod_{i:02d}.py").write_text(
-                f"class BigClass{i}:\n    def method(self): pass\n\n"
-                * 10  # makes each file larger
+                f"class BigClass{i}:\n    def method(self): pass\n\n" * 10  # makes each file larger
             )
         # Very small budget
         result = repo_map_build(str(tmp_path), 50)

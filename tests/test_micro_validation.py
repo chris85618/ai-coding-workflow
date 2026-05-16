@@ -106,9 +106,7 @@ def given_link_attempt(ctx: dict[str, Any]) -> None:
 def given_fr001_exists(ctx: dict[str, Any]) -> None:
     """Step: FR-001 exists."""
     """Register FR-001 in the registry."""
-    ctx["registry"][("FR", 1)] = TraceableID(
-        prefix=IDPrefix.FR, sequence=1, title="Existing"
-    )
+    ctx["registry"][("FR", 1)] = TraceableID(prefix=IDPrefix.FR, sequence=1, title="Existing")
 
 
 @given("a BG ID and a TC ID")
@@ -156,9 +154,7 @@ def when_self_link(ctx: dict[str, Any]) -> None:
     """Step: self-link attempt."""
     """Attempt self-link creation."""
     try:
-        ctx["link"] = TraceLink(
-            source_id="FR-001", target_id="FR-001", link_type=LinkType.DERIVES
-        )
+        ctx["link"] = TraceLink(source_id="FR-001", target_id="FR-001", link_type=LinkType.DERIVES)
     except ValueError as e:
         ctx["error"] = e
 
@@ -184,9 +180,7 @@ def when_create_invalid_link(ctx: dict[str, Any], link_type: str) -> None:
         ltype = LinkType(link_type)
         # Domain rule: BG has no upstream, TC has no downstream
         # realizes: TC→SC or FR→UC only — BG→TC is nonsensical
-        ctx["error"] = ValueError(
-            f"BG cannot realize TC (INV-009): invalid link type {ltype}"
-        )
+        ctx["error"] = ValueError(f"BG cannot realize TC (INV-009): invalid link type {ltype}")
     except ValueError as e:
         ctx["error"] = e
 
@@ -285,9 +279,7 @@ def then_link_rejected(ctx: dict[str, Any]) -> None:
 def then_self_link_message(ctx: dict[str, Any]) -> None:
     """Step: verify self-link message."""
     """Assert error message contains expected text."""
-    assert (
-        "self-link" in str(ctx["error"]).lower() or "self" in str(ctx["error"]).lower()
-    )
+    assert "self-link" in str(ctx["error"]).lower() or "self" in str(ctx["error"]).lower()
 
 
 @then("the creation is rejected")

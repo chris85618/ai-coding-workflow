@@ -20,9 +20,6 @@ from agentic_workflow.domain.algorithms.pipeline_completeness import (
     calculate_completeness,
 )
 from agentic_workflow.domain.algorithms.sonarcloud_gate import SonarCloudGate
-from agentic_workflow.domain.algorithms.warning_policy_verifier import (
-    WarningPolicyVerifier,
-)
 from agentic_workflow.domain.models.enums import (
     GateDecision,
     PipelineStatus,
@@ -86,10 +83,7 @@ def node_auto_gate(state: WorkflowState) -> WorkflowState:
     pipeline = StateMapper.state_to_pipeline(state)
     # Autonomous gate: determine pass/fail from state metadata
     gate_override = state.get("metadata", {}).get("gate_override")
-    if gate_override == "pass_with_warnings":
-        decision = GateDecision.PASS_WITH_WARNINGS
-    else:
-        decision = GateDecision.PASS
+    decision = GateDecision.PASS_WITH_WARNINGS if gate_override == "pass_with_warnings" else GateDecision.PASS
     pipeline.record_gate(decision)
     return StateMapper.pipeline_to_state(pipeline)
 
@@ -221,28 +215,6 @@ def node_orchestrator(state: WorkflowState) -> WorkflowState:
     return {"metadata": metadata}
 
 
-def node_warning_policy_gate(state: WorkflowState) -> WorkflowState:
-    """DAG node: Enforce ADR-GOV-026 Warning Policy.
-
-    Validates pyproject.toml and requires justification for exclusions.
-    """
-    verifier_result = WarningPolicyVerifier.verify_config(Path("pyproject.toml"))
-
-    metadata = state.get("metadata", {})
-    metadata["warning_policy_result"] = verifier_result
-
-    if not verifier_result["passed"]:
-        # If violations found, check for justification in recent comments/ADRs
-        # For simulation, we assume failure if passed is False
-        return {
-            "metadata": metadata,
-            "last_error": f"Warning Policy Violation: {verifier_result['violations']}",
-            "pipeline_status": PipelineStatus.FAILED,
-        }
-
-    return {"metadata": metadata}
-
-
 def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
     """DAG node: Verify SonarCloud results and apply closed-loop feedback.
 
@@ -266,9 +238,7 @@ def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
 
     if not config_check["valid"]:
         metadata["sonar_status"] = "disabled"
-        metadata["sonar_warning"] = (
-            f"Missing SonarCloud parameters: {config_check['missing_vars']}"
-        )
+        metadata["sonar_warning"] = f"Missing SonarCloud parameters: {config_check['missing_vars']}"
         # ADR-OPS-001: 參數缺失時自動降級為 WARNING 並繼續
         return {
             "metadata": metadata,

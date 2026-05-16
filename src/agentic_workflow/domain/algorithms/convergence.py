@@ -57,14 +57,9 @@ class ConvergenceDetector:
 
         # Divergence detection: count increasing over last DIVERGENCE_WINDOW iters
         if len(findings_per_iter) >= cls.DIVERGENCE_WINDOW:
-            recent_counts = [
-                len(f) for f in findings_per_iter[-cls.DIVERGENCE_WINDOW :]
-            ]
+            recent_counts = [len(f) for f in findings_per_iter[-cls.DIVERGENCE_WINDOW :]]
             if (
-                all(
-                    recent_counts[i] <= recent_counts[i + 1]
-                    for i in range(len(recent_counts) - 1)
-                )
+                all(recent_counts[i] <= recent_counts[i + 1] for i in range(len(recent_counts) - 1))
                 and recent_counts[-1] > recent_counts[0]
             ):
                 return FixedPointResult.DIVERGING
@@ -102,9 +97,7 @@ def check_convergence(
     current_findings: list[str],
 ) -> FixedPointResult:
     """Backward-compat facade — delegates to ConvergenceDetector."""
-    return ConvergenceDetector.check_convergence(
-        iteration_count, findings_per_iter, current_findings
-    )
+    return ConvergenceDetector.check_convergence(iteration_count, findings_per_iter, current_findings)
 
 
 @icontract.require(lambda result: isinstance(result, FixedPointResult))

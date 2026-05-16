@@ -35,9 +35,7 @@ class FakeMCPGateway:
         """Stage files for commit."""
         self._staged_files = list(files)
 
-    def auto_commit(
-        self, directory: str, message: str, files: list[str]
-    ) -> CommitResult:
+    def auto_commit(self, directory: str, message: str, files: list[str]) -> CommitResult:
         """Simulate atomic git commit. Returns CommitResult."""
         if not files:
             return CommitResult(committed=False, message="", files=[])

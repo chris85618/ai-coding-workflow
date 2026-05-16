@@ -82,9 +82,7 @@ def given_compiled_langgraph(context: dict[str, Any]) -> None:
 @when("the DAG Invariant Verifier checks the graph")
 def when_verifier_checks_graph(context: dict[str, Any]) -> None:
     """BDD step: run structural verification."""
-    context["verification_result"] = DAGInvariantVerifier.run_all_verifications(
-        context["compiled_graph"]
-    )
+    context["verification_result"] = DAGInvariantVerifier.run_all_verifications(context["compiled_graph"])
 
 
 @then("all structural invariants should pass")

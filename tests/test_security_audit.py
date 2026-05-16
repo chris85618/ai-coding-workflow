@@ -42,11 +42,7 @@ def given_l1_passes(ctx: dict[str, Any]) -> None:
 @when("the three layer security audit executes")
 def when_audit(ctx: dict[str, Any]) -> None:
     """Execute audit logic."""
-    ctx["result"] = (
-        "PASS"
-        if all(v == "PASS" for v in [ctx.get("l1"), ctx.get("l2"), ctx.get("l3")])
-        else "FAIL"
-    )
+    ctx["result"] = "PASS" if all(v == "PASS" for v in [ctx.get("l1"), ctx.get("l2"), ctx.get("l3")]) else "FAIL"
 
 
 @when("Layer 2 discovers a HIGH severity issue")

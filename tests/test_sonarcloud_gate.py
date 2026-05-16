@@ -144,9 +144,7 @@ class TestExtractTechDebt:
 
     def test_todo_issue_creates_debt(self) -> None:
         """Verify TODO issue extraction."""
-        issues: list[dict[str, Any]] = [
-            {"type": "TODO", "message": "Fix this", "severity": "MAJOR"}
-        ]
+        issues: list[dict[str, Any]] = [{"type": "TODO", "message": "Fix this", "severity": "MAJOR"}]
         debts = SonarCloudGate.extract_tech_debt(issues)
         assert len(debts) == 1
         assert "DEBT-SONAR-0" in debts[0]["id"]
@@ -154,27 +152,21 @@ class TestExtractTechDebt:
 
     def test_fixme_issue_creates_debt(self) -> None:
         """Verify FIXME issue extraction."""
-        issues: list[dict[str, Any]] = [
-            {"type": "FIXME", "message": "Refactor", "severity": "MINOR"}
-        ]
+        issues: list[dict[str, Any]] = [{"type": "FIXME", "message": "Refactor", "severity": "MINOR"}]
         debts = SonarCloudGate.extract_tech_debt(issues)
         assert len(debts) == 1
         assert debts[0]["priority"] == "P3"
 
     def test_code_smell_creates_debt(self) -> None:
         """Verify CODE_SMELL issue extraction."""
-        issues: list[dict[str, Any]] = [
-            {"type": "CODE_SMELL", "message": "Smell", "severity": "CRITICAL"}
-        ]
+        issues: list[dict[str, Any]] = [{"type": "CODE_SMELL", "message": "Smell", "severity": "CRITICAL"}]
         debts = SonarCloudGate.extract_tech_debt(issues)
         assert len(debts) == 1
         assert debts[0]["priority"] == "P2"
 
     def test_non_matching_type_skipped(self) -> None:
         """Verify non-debt types are skipped."""
-        issues: list[dict[str, Any]] = [
-            {"type": "UNKNOWN", "message": "Not a debt type"}
-        ]
+        issues: list[dict[str, Any]] = [{"type": "UNKNOWN", "message": "Not a debt type"}]
         debts = SonarCloudGate.extract_tech_debt(issues)
         assert debts == []
 

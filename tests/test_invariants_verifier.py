@@ -100,9 +100,7 @@ class TestRunAllVerifications:
         """TC-010: Failure returns passed=False."""
         """Covers the len(failures) != 0 → passed=False branch."""
         g = _mock_graph()
-        with patch.object(
-            DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["orphan_node"]
-        ):
+        with patch.object(DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["orphan_node"]):
             result = DAGInvariantVerifier.run_all_verifications(g)
         assert result["passed"] is False
         assert "orphan_node" in result["failures"]
@@ -111,17 +109,13 @@ class TestRunAllVerifications:
         """TC-011: Accumulates multiple failures."""
         g = _mock_graph()
         with (
-            patch.object(
-                DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["n1"]
-            ),
+            patch.object(DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["n1"]),
             patch.object(
                 DAGInvariantVerifier,
                 "verify_gate_decision_coupling",
                 return_value=["g1"],
             ),
-            patch.object(
-                DAGInvariantVerifier, "verify_iteration_cycle", return_value=["c1"]
-            ),
+            patch.object(DAGInvariantVerifier, "verify_iteration_cycle", return_value=["c1"]),
         ):
             result = DAGInvariantVerifier.run_all_verifications(g)
         assert result["passed"] is False
@@ -149,9 +143,7 @@ class TestMainBlock:
         """TC-013: Main block fail path."""
         """Simulate the __main__ fail path."""
         mock_graph = _mock_graph()
-        with patch.object(
-            DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["bad_node"]
-        ):
+        with patch.object(DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["bad_node"]):
             result = DAGInvariantVerifier.run_all_verifications(mock_graph)
         assert result["passed"] is False
         msg = f"Stage 6 Formal Verification FAILED: {result['failures']}"

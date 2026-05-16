@@ -43,9 +43,7 @@ class PipelineCompletenessChecker:
 
     # ── Private helpers ────────────────────────────────────────────────────────
 
-    def _file_exists_and_contains(
-        self, rel_path: str, must_contain: str | None = None
-    ) -> bool:
+    def _file_exists_and_contains(self, rel_path: str, must_contain: str | None = None) -> bool:
         """Return True if the file exists and optionally contains a string.
 
         Args:
@@ -87,10 +85,7 @@ class PipelineCompletenessChecker:
             Dict with keys: completeness_score, completeness_ratio, decision,
             next_action, checks_breakdown.
         """
-        checks = [
-            self._file_exists_and_contains(rel, contain)
-            for rel, contain in self._CHECKS
-        ]
+        checks = [self._file_exists_and_contains(rel, contain) for rel, contain in self._CHECKS]
         checks.append(self._glob_count(self._GLOB_CHECK))
 
         passed = sum(1 for c in checks if c)
@@ -119,8 +114,7 @@ class PipelineCompletenessChecker:
         if passed >= self._TOTAL_CHECKS:
             return (
                 "complete",
-                "Check workflow-state.md position. "
-                "Trigger workflow-resume.md if pending work exists.",
+                "Check workflow-state.md position. Trigger workflow-resume.md if pending work exists.",
             )
         if completeness >= 0.6:
             return (
@@ -143,9 +137,7 @@ class PipelineCompletenessChecker:
 # Tests and existing callers import these directly; they delegate to the class.
 
 
-def _check_file_exists_and_contains(
-    base_dir: Path, rel_path: str, must_contain: str | None = None
-) -> bool:
+def _check_file_exists_and_contains(base_dir: Path, rel_path: str, must_contain: str | None = None) -> bool:
     """Backward-compat facade — delegates to PipelineCompletenessChecker."""
     checker = PipelineCompletenessChecker(base_dir)
     return checker._file_exists_and_contains(rel_path, must_contain)

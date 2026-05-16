@@ -120,12 +120,8 @@ def then_a_ranks_higher(ctx: dict[str, Any]) -> None:
     """Assert A.py has higher rank than B.py (C imports A, not B)."""
     ranks = ctx["result"].file_ranks
     # A.py should have higher rank because C.py imports it
-    a_rank = ranks.get("A.py", 0.0) or max(
-        (v for k, v in ranks.items() if "A" in k), default=0.0
-    )
-    b_rank = ranks.get("B.py", 0.0) or max(
-        (v for k, v in ranks.items() if "B" in k), default=0.0
-    )
+    a_rank = ranks.get("A.py", 0.0) or max((v for k, v in ranks.items() if "A" in k), default=0.0)
+    b_rank = ranks.get("B.py", 0.0) or max((v for k, v in ranks.items() if "B" in k), default=0.0)
     # With PageRank: A is imported by C, so A gets higher rank
     assert a_rank >= b_rank, f"Expected A ({a_rank}) >= B ({b_rank})"
 

@@ -46,9 +46,7 @@ class FileTraceableIDRepository(TraceableIDRepository):
         try:
             resolved.relative_to(self._root.resolve())
         except ValueError as err:
-            raise ValueError(
-                f"Path traversal detected for ID {id_str!r} (SEC-003)"
-            ) from err
+            raise ValueError(f"Path traversal detected for ID {id_str!r} (SEC-003)") from err
         return resolved
 
     def save(self, traceable_id: TraceableID) -> None:

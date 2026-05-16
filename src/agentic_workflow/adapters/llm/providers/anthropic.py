@@ -24,8 +24,7 @@ class AnthropicProvider(LLMProvider):
             from langchain_anthropic import ChatAnthropic
         except ImportError as exc:
             raise ImportError(
-                "langchain-anthropic is required for Anthropic provider. "
-                "Install with: pip install langchain-anthropic"
+                "langchain-anthropic is required for Anthropic provider. Install with: pip install langchain-anthropic"
             ) from exc
 
         from typing import cast

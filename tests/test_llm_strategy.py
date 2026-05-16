@@ -85,9 +85,7 @@ def given_provider_disabled(ctx: dict[str, Any], provider: str) -> None:
 @given("reasoning_model uses anthropic")
 def given_reasoning_uses_anthropic(ctx: dict[str, Any]) -> None:
     """Step: reasoning uses anthropic."""
-    ctx.setdefault(
-        "reasoning_model", ModelConfig(provider="anthropic", model="claude-opus-4")
-    )
+    ctx.setdefault("reasoning_model", ModelConfig(provider="anthropic", model="claude-opus-4"))
 
 
 @given(parsers.parse("strategy config has {n:d} providers enabled"))
@@ -104,9 +102,7 @@ def when_task_type(ctx: dict[str, Any], task_type: str) -> None:
     """Step: select model for task type."""
     task = TaskType(task_type.lower())
 
-    reasoning = ctx.get(
-        "reasoning_model", ModelConfig(provider="anthropic", model="claude-opus-4")
-    )
+    reasoning = ctx.get("reasoning_model", ModelConfig(provider="anthropic", model="claude-opus-4"))
     editing = ctx.get("editing_model", ModelConfig(provider="openai", model="gpt-4o"))
     cheap = ctx.get("cheap_model", ModelConfig(provider="openai", model="gpt-4o-mini"))
     fallback = ModelConfig(provider="openai", model="gpt-4o")

@@ -217,9 +217,7 @@ class TestContextBudgetAllocator:
         from agentic_workflow.domain.models.repo_map import RepoMap
 
         with pytest.raises(icontract.ViolationError):
-            self.cls.allocate(
-                0, RepoMap(symbols=(), token_count=0, file_ranks={}), [], "task"
-            )
+            self.cls.allocate(0, RepoMap(symbols=(), token_count=0, file_ranks={}), [], "task")
 
 
 # ── PipelineCompletenessChecker ────────────────────────────────────────────────

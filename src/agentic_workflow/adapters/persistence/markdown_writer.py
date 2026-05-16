@@ -40,9 +40,7 @@ class MarkdownDocumentIO(DocumentIOGateway):
         try:
             resolved.relative_to(self._root)
         except ValueError:
-            raise ValueError(
-                f"Path traversal detected: {doc_path!r} escapes repo root (SEC-002)"
-            ) from None
+            raise ValueError(f"Path traversal detected: {doc_path!r} escapes repo root (SEC-002)") from None
         return resolved
 
     def read(self, doc_path: str) -> str:

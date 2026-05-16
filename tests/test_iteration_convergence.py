@@ -35,23 +35,17 @@ def test_not_reached_continues() -> None:
     """SC-003: CRITICAL findings → NOT_REACHED → continue."""
 
 
-@scenario(
-    "iteration_convergence.feature", "MAJOR impact logged but execution continues"
-)
+@scenario("iteration_convergence.feature", "MAJOR impact logged but execution continues")
 def test_major_impact_continues() -> None:
     """SC-003: MAJOR impact → log + continue autonomously."""
 
 
-@scenario(
-    "iteration_convergence.feature", "Stage status transitions are unidirectional"
-)
+@scenario("iteration_convergence.feature", "Stage status transitions are unidirectional")
 def test_status_unidirectional() -> None:
     """SC-003: PENDING → ITERATING → PASSED is unidirectional (INV-003)."""
 
 
-@scenario(
-    "iteration_convergence.feature", "Micro-validation failure auto-retries then skips"
-)
+@scenario("iteration_convergence.feature", "Micro-validation failure auto-retries then skips")
 def test_micro_validation_retry() -> None:
     """SC-003: 3x retry failure → log + continue."""
 
@@ -174,9 +168,7 @@ def when_11th_iteration(ctx: dict[str, Any]) -> None:
 @when("the result is processed")
 def when_result_processed(ctx: dict[str, Any]) -> None:
     """Step: process result."""
-    ctx["warnings"].append(
-        "WARNING: MAJOR impact detected — blast radius details logged"
-    )
+    ctx["warnings"].append("WARNING: MAJOR impact detected — blast radius details logged")
     ctx["continues"] = True
 
 

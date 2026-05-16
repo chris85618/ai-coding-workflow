@@ -24,8 +24,7 @@ class OpenAIProvider(LLMProvider):
             from langchain_openai import ChatOpenAI
         except ImportError as exc:
             raise ImportError(
-                "langchain-openai is required for OpenAI provider. "
-                "Install with: pip install langchain-openai"
+                "langchain-openai is required for OpenAI provider. Install with: pip install langchain-openai"
             ) from exc
 
         from typing import cast
