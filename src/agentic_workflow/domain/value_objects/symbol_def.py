@@ -1,7 +1,4 @@
-"""CLS-015: SymbolDef — A single symbol definition extracted from source code.
-
-Traceable to: ALG-006 (RepoMapBuilder creates this)
-"""
+"""Value Object for a single symbol definition extracted from source code."""
 
 from __future__ import annotations
 

@@ -8,8 +8,8 @@ import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
 from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
-from agentic_workflow.domain.models.enums import FixedPointResult, StageStatus
-from agentic_workflow.domain.models.stage import Stage
+from agentic_workflow.domain.entities.stage import Stage
+from agentic_workflow.domain.enums import FixedPointResult, StageStatus
 
 
 class TestIterationConvergenceScenarios:

@@ -15,9 +15,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from agentic_workflow.adapters.llm.provider_registry import LLMProviderRegistry
 from agentic_workflow.application.ports.gateways import LLMGateway
 from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-from agentic_workflow.domain.models.enums import TaskType
-from agentic_workflow.domain.models.model_config import ModelConfig
+from agentic_workflow.domain.enums import TaskType
 from agentic_workflow.domain.services.llm_strategy_selector import LLMStrategySelector
+from agentic_workflow.domain.value_objects import ModelConfig
 
 if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
@@ -73,7 +73,7 @@ class LangChainLLMAdapter(LLMGateway):
             TokenLimitExceededError: If token limit is reached and auto-continue
                 is disabled or maxed out.
         """
-        from agentic_workflow.domain.models.exceptions import TokenLimitExceededError
+        from agentic_workflow.domain.exceptions import TokenLimitExceededError
 
         model_cfg = self._selector.select(task_type)
         lc_model = self._get_model(model_cfg)

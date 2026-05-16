@@ -7,11 +7,11 @@ from typing import Any
 import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
-from agentic_workflow.domain.models.enums import (
+from agentic_workflow.domain.aggregates.pipeline import Pipeline
+from agentic_workflow.domain.enums import (
     GateDecision,
     PipelineStatus,
 )
-from agentic_workflow.domain.models.pipeline import Pipeline
 
 
 class TestPipelineStartScenarios:
@@ -123,6 +123,8 @@ def when_pipeline_starts(ctx: dict[str, Any]) -> None:
 def when_advance_called(ctx: dict[str, Any]) -> None:
     """Step: call advance()."""
     try:
+        if ctx["pipeline"].last_gate_decision is None:
+            ctx["pipeline"].record_gate(GateDecision.PASS)
         ctx["pipeline"].advance()
         ctx["advanced"] = True
     except Exception as e:
@@ -171,7 +173,7 @@ def then_no_duplicate_ids(ctx: dict[str, Any]) -> None:
 @then(parsers.parse("the pipeline position is strictly greater than {pos}"))
 def then_position_greater(ctx: dict[str, Any], pos: str) -> None:
     """Step: verify position advance."""
-    from agentic_workflow.domain.models.pipeline import _STAGE_ORDER
+    from agentic_workflow.domain.aggregates.pipeline import _STAGE_ORDER
 
     start = ctx.get("start_position", "phase2")
     current = ctx["pipeline"].current_position

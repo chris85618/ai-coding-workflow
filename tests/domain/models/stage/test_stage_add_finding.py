@@ -1,6 +1,6 @@
 """Cover Stage.add_finding() logic."""
 
-from agentic_workflow.domain.models.stage import Stage
+from agentic_workflow.domain.entities.stage import Stage
 
 
 class TestStageAddFinding:

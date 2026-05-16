@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from agentic_workflow.domain.models.model_config import ModelConfig
+from agentic_workflow.domain.value_objects import ModelConfig
 
 
 @dataclass

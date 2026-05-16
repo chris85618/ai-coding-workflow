@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 
 import icontract
 
-from agentic_workflow.domain.models.enums.hook_event import HookEvent
+from agentic_workflow.domain.enums.hook_event import HookEvent
 from agentic_workflow.domain.services.hook_runner.hook_def import HookDef
 from agentic_workflow.domain.services.hook_runner.hook_result import HookResult
 

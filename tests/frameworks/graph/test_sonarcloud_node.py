@@ -12,7 +12,7 @@ import pytest
 
 from agentic_workflow.adapters.langgraph.nodes import node_sonarcloud_gate
 from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
-from agentic_workflow.domain.models.enums import GateDecision
+from agentic_workflow.domain.enums import GateDecision
 
 
 class TestSonarCloudNode:

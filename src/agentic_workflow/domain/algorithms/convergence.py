@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import icontract
 
-from agentic_workflow.domain.models.enums import FixedPointResult
+from agentic_workflow.domain.enums import FixedPointResult
 
 MAX_ITERATIONS = 10
 DIVERGENCE_WINDOW = 3

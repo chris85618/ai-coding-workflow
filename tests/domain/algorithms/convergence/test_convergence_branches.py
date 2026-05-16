@@ -1,7 +1,7 @@
 """Cover missing branches in ALG-001 convergence.py."""
 
 from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
-from agentic_workflow.domain.models.enums import FixedPointResult
+from agentic_workflow.domain.enums import FixedPointResult
 
 
 class TestConvergenceBranches:

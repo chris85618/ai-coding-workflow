@@ -2,7 +2,7 @@
 
 import pytest
 
-from agentic_workflow.domain.models.repo_map import RepoMap
+from agentic_workflow.domain.value_objects import RepoMap
 
 
 class TestContextBudgetAllocator:

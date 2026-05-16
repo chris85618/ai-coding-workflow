@@ -11,17 +11,16 @@ from typing import Any
 
 import pytest
 
+from agentic_workflow.domain.aggregates.pipeline import Pipeline
 from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-from agentic_workflow.domain.models.enums import (
+from agentic_workflow.domain.entities.stage import Stage
+from agentic_workflow.domain.enums import (
     GateDecision,
     HookEvent,
 )
-from agentic_workflow.domain.models.model_config import ModelConfig
-from agentic_workflow.domain.models.pipeline import Pipeline
-from agentic_workflow.domain.models.repo_map import RepoMap, SymbolDef
-from agentic_workflow.domain.models.stage import Stage
 from agentic_workflow.domain.services.hook_runner import HookDef, HookRunner
 from agentic_workflow.domain.services.llm_strategy_selector import LLMStrategySelector
+from agentic_workflow.domain.value_objects import ModelConfig, RepoMap, SymbolDef
 
 # ── Project fixtures ──────────────────────────────────────────────────────────
 

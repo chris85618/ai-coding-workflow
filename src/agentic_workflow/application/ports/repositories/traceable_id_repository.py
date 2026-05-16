@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from agentic_workflow.domain.models.traceable_id import TraceableID
+    from agentic_workflow.domain.entities.traceable_id import TraceableID
 
 
 class TraceableIDRepository(ABC):

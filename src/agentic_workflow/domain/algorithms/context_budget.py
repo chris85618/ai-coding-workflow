@@ -15,8 +15,7 @@ from __future__ import annotations
 
 import icontract
 
-from agentic_workflow.domain.models.model_config import ContextAllocation
-from agentic_workflow.domain.models.repo_map import RepoMap
+from agentic_workflow.domain.value_objects import ContextAllocation, RepoMap
 
 
 class ContextBudgetAllocator:

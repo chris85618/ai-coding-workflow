@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 from agentic_workflow.application.ports.repositories import TraceableIDRepository
 
 if TYPE_CHECKING:
-    from agentic_workflow.domain.models.traceable_id import TraceableID
+    from agentic_workflow.domain.entities.traceable_id import TraceableID
 
 
 class FileTraceableIDRepository(TraceableIDRepository):
@@ -89,8 +89,9 @@ class FileTraceableIDRepository(TraceableIDRepository):
         Returns:
             The TraceableID if found, else None.
         """
-        from agentic_workflow.domain.models.enums import IDPrefix, LinkType
-        from agentic_workflow.domain.models.traceable_id import TraceableID, TraceLink
+        from agentic_workflow.domain.entities.traceable_id import TraceableID
+        from agentic_workflow.domain.enums import IDPrefix, LinkType
+        from agentic_workflow.domain.value_objects import TraceLink
 
         path = self._path_for(id_str)
         if not path.exists():

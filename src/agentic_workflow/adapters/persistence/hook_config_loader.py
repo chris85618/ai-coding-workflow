@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from agentic_workflow.domain.models.enums import HookEvent
+from agentic_workflow.domain.enums import HookEvent
 from agentic_workflow.domain.services.hook_runner import HookDef
 
 

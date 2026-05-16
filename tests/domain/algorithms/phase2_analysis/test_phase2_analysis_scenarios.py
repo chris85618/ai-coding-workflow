@@ -7,8 +7,9 @@ from typing import Any
 import pytest
 from pytest_bdd import given, scenario, then, when
 
-from agentic_workflow.domain.models.enums import IDPrefix, LinkType
-from agentic_workflow.domain.models.traceable_id import TraceableID, TraceLink
+from agentic_workflow.domain.entities.traceable_id import TraceableID
+from agentic_workflow.domain.enums import IDPrefix, LinkType
+from agentic_workflow.domain.value_objects import TraceLink
 
 
 class TestPhase2AnalysisScenarios:

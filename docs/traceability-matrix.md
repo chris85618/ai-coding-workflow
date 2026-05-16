@@ -16,6 +16,7 @@
 | BG-002 | FEA-002, FEA-003 | derives | ✅ |
 | BG-003 | FEA-005, FEA-010 | derives | ✅ |
 | BG-004 | FEA-004, FEA-006, FEA-007, FEA-008 | derives | ✅ |
+| BG-005 | FEA-025 | derives | ✅ (DDD Transition) |
 
 ### FEA → FR/NFR
 
@@ -52,15 +53,16 @@
 | FEA-022 | FR-046 | decomposes | ✅ (Git Hook Ruff Format) |
 | FEA-023 | FR-047, FR-048, FR-049 | decomposes | ✅ (Test Refactor & Quality Hardening) |
 | FEA-024 | FR-050 | decomposes | ✅ (Granular Test Architecture) |
+| FEA-025 | FR-051, FR-052, FR-053 | decomposes | ✅ (DDD Core Models) |
 
 ### FR → UC
 
 | FR | UC | 連結 | 語意 |
 |----|-----|------|------|
-| FR-001 | UC-001 | realizes | ✅ |
-| FR-050 | UC-003 | realizes | ✅ (One-Class-Per-File Test Architecture) |
-| FR-002 | UC-001, UC-002 | realizes | ✅ |
-| FR-003 | UC-003 | realizes | ✅ |
+| FR-001 | UC-001 | StartPipelineUseCase | ✅ |
+| FR-050 | UC-003 | One-Class-Per-File Test Architecture | ✅ |
+| FR-002 | UC-001, UC-002 | StartPipelineUseCase | ✅ |
+| FR-003 | UC-003 | RunIterationUseCase | ✅ |
 | FR-004 | UC-002, UC-004 | realizes | ✅ |
 | FR-005 | UC-004, UC-009 | realizes | ✅ |
 | FR-006 | UC-004 | realizes | ✅ |
@@ -113,6 +115,7 @@
 | ADR | 標題 | 類別 | 狀態 | FR/NFR | 連結 |
 |-----|------|------|------|--------|------|
 | [ADR-SEC-005](adr/ADR-SEC-005.md) | 配置網關安全性與 Clean Architecture 存取限制 | SEC | Accepted | FR-032, NFR-004, NFR-011 | justifies |
+| [ADR-STR-020](adr/ADR-STR-020.md) | 領域驅動設計 (DDD) 實施準則 | STR | Accepted | FR-051, FR-052, FR-053 | justifies |
 
 > 類別統計：STR=8, GOV=26, SEC=1, SCP=0, GATE=0, OPS=0, **合計=35**
 | [ADR-GOV-001](adr/ADR-GOV-001.md) | Decision Unit 理論 + 資訊新穎性門檻 | GOV | Accepted | FR-001, NFR-001 | justifies |
@@ -207,11 +210,11 @@
 
 | CLS | 追溯至 | 連結 | 語意 |
 |-----|--------|------|------|
-| CLS-001 | UC-001, UC-003 | models | ✅ |
-| CLS-002 | UC-003 | models | ✅ |
-| CLS-003 | ALG-001, UC-003 | implements, models | ✅ |
-| CLS-004 | UC-004 | models | ✅ |
-| CLS-005 | UC-004 | models | ✅ |
+| CLS-001 | Pipeline | domain/aggregates/pipeline.py | ✅ (Aggregate Root) |
+| CLS-002 | Stage | domain/entities/stage.py | ✅ (Entity) |
+| CLS-003 | RunIterationUseCase | application/use_cases/run_iteration.py | ✅ |
+| CLS-004 | TraceableID | domain/entities/traceable_id.py | ✅ (Entity) |
+| CLS-005 | TraceLink | domain/value_objects/trace_link.py | ✅ (Value Object) |
 | CLS-006 | ALG-002, UC-004 | implements, models | ✅ |
 | CLS-007 | ALG-003, UC-005 | implements, models | ✅ |
 | CLS-008 | UC-007 | models | ✅ |
@@ -221,13 +224,15 @@
 | CLS-012 | UC-002 | models | ✅ |
 | CLS-013 | UC-010 | models | ✅ (v2: checkpoint-based) |
 | CLS-014 | UC-011 | models | ✅ |
-| CLS-015 | FEA-011, ALG-006 | models | ✅ (NEW: RepoMap, from Aider) |
+| CLS-015 | RepoMap | domain/value_objects/repo_map.py | ✅ (Value Object) |
 | CLS-016 | FEA-011, UC-013 | models | ✅ (HookRunner, from Claude Code) |
 | CLS-017 | FEA-011, UC-003, FR-029 | models | ✅ (NEW: LLMStrategySelector) |
 | CLS-018 | CLS-017 | models | ✅ (NEW: ModelConfig VO) |
 | CLS-019 | UC-014, FR-031 | models | ✅ (NEW: Markdown Parser) |
 | CLS-020 | UC-015, FR-032 | models | ✅ (NEW: YAML Configurator) |
 | CLS-021 | FR-034 | models | ✅ (NEW: TokenLimitExceededError) |
+| CLS-022 | SymbolDef | domain/value_objects/symbol_def.py | ✅ (Value Object) |
+| CLS-023 | Findings | domain/value_objects/findings.py | ✅ (Value Object) |
 
 ### EVT → CLS
 

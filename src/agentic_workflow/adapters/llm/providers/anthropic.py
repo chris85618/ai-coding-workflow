@@ -12,7 +12,7 @@ from agentic_workflow.application.ports.llm_provider import LLMProvider
 if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
 
-    from agentic_workflow.domain.models.model_config import ModelConfig
+    from agentic_workflow.domain.value_objects import ModelConfig
 
 
 class AnthropicProvider(LLMProvider):

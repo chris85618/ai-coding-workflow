@@ -1,6 +1,6 @@
 """Cover missing branches in CLS-015 repo_map.py."""
 
-from agentic_workflow.domain.models.repo_map import RepoMap, SymbolDef
+from agentic_workflow.domain.value_objects import RepoMap, SymbolDef
 
 
 class TestRepoMapBranches:

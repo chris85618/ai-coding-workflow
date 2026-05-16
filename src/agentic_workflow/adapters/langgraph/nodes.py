@@ -14,6 +14,11 @@ from pathlib import Path
 
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
 from agentic_workflow.adapters.sonarcloud.sonar_adapter import SonarCloudAdapter
+from agentic_workflow.application.use_cases import (
+    AdvancePipelineUseCase,
+    RunIterationUseCase,
+    StartPipelineUseCase,
+)
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
 from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
 from agentic_workflow.domain.algorithms.orchestrator import Orchestrator
@@ -21,13 +26,13 @@ from agentic_workflow.domain.algorithms.pipeline_completeness import (
     PipelineCompletenessChecker,
 )
 from agentic_workflow.domain.algorithms.sonarcloud_gate import SonarCloudGate
-from agentic_workflow.domain.models.enums import (
+from agentic_workflow.domain.entities.stage import MAX_ITERATIONS
+from agentic_workflow.domain.enums import (
     GateDecision,
     PipelineStatus,
     StageStatus,
 )
-from agentic_workflow.domain.models.sonarcloud_config import SonarCloudConfig
-from agentic_workflow.domain.models.stage import MAX_ITERATIONS
+from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
 from agentic_workflow.frameworks.config import WorkflowConfigLoader
 
 
@@ -36,16 +41,9 @@ def node_start_pipeline(state: WorkflowState) -> WorkflowState:
 
     Transitions Pipeline from NOT_STARTED → RUNNING.
     Corresponds to UC-001 (start pipeline).
-
-    Args:
-        state: Current LangGraph workflow state.
-
-    Returns:
-        Partial state update with pipeline_status = "running".
     """
-    pipeline = StateMapper.state_to_pipeline(state)
-    if pipeline.status == PipelineStatus.NOT_STARTED:
-        pipeline.start()
+    use_case = StartPipelineUseCase()
+    pipeline = use_case.execute(state["pipeline_id"])
     return StateMapper.pipeline_to_state(pipeline)
 
 
@@ -53,12 +51,6 @@ def node_pipeline_completeness(state: WorkflowState) -> WorkflowState:
     """DAG node: Fast scan for pipeline completeness.
 
     Corresponds to Phase 0 Pipeline Completeness Check (FR-001).
-
-    Args:
-        state: Current LangGraph workflow state.
-
-    Returns:
-        Partial state update with completeness metadata.
     """
     completeness_data = PipelineCompletenessChecker(Path()).calculate()
 
@@ -73,13 +65,6 @@ def node_auto_gate(state: WorkflowState) -> WorkflowState:
     """DAG node: Evaluate auto-gate and record decision.
 
     Implements ADR-STR-003 (autonomous gate — no HITL).
-    Currently always returns PASS; plug in quality metrics later.
-
-    Args:
-        state: Current LangGraph workflow state.
-
-    Returns:
-        Partial state update with last_gate_decision populated.
     """
     pipeline = StateMapper.state_to_pipeline(state)
     # Autonomous gate: determine pass/fail from state metadata
@@ -93,37 +78,33 @@ def node_advance_stage(state: WorkflowState) -> WorkflowState:
     """DAG node: Advance pipeline to the next stage.
 
     Requires last_gate_decision == PASS (INV-002-v2).
-
-    Args:
-        state: Current LangGraph workflow state.
-
-    Returns:
-        Partial state update with updated current_position.
     """
     pipeline = StateMapper.state_to_pipeline(state)
-    pipeline.advance()
+    gate_str = state.get("last_gate_decision")
+    decision = GateDecision(gate_str) if gate_str else GateDecision.PASS
+
+    use_case = AdvancePipelineUseCase()
+    use_case.execute(pipeline, decision)
+
     return StateMapper.pipeline_to_state(pipeline)
 
 
 def node_iterate_stage(state: WorkflowState) -> WorkflowState:
     """DAG node: Perform one α/β iteration on the current stage.
 
-    Increments iteration_count and transitions stage to ITERATING.
     Implements FR-012 (autonomous α/β loop).
-
-    Args:
-        state: Current LangGraph workflow state.
-
-    Returns:
-        Partial state with incremented iteration_count and stage_status.
     """
-    stage = StateMapper.state_to_stage(state)
-    if stage is None:
-        return WorkflowState(last_error="No active stage in state")
-    if stage.status == StageStatus.PENDING:
-        stage.transition(StageStatus.ITERATING)
-    stage.increment_iteration()
-    return StateMapper.stage_to_state(stage)
+    if not state.get("current_stage_id"):
+        return WorkflowState(last_error="No active stage found in state")
+
+    pipeline = StateMapper.state_to_pipeline(state)
+    metadata = state.get("metadata", {})
+    findings = metadata.get("recent_findings", [])
+
+    use_case = RunIterationUseCase()
+    use_case.execute(pipeline, findings)
+
+    return StateMapper.pipeline_to_state(pipeline)
 
 
 def node_complete_pipeline(state: WorkflowState) -> WorkflowState:
@@ -136,7 +117,7 @@ def node_complete_pipeline(state: WorkflowState) -> WorkflowState:
         Partial state with pipeline_status = "completed".
     """
     pipeline = StateMapper.state_to_pipeline(state)
-    if pipeline.status == PipelineStatus.RUNNING:
+    if pipeline.status != PipelineStatus.COMPLETED:
         pipeline.complete()
     return StateMapper.pipeline_to_state(pipeline)
 

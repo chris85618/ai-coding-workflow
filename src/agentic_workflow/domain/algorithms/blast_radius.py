@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import icontract
 
-from agentic_workflow.domain.models.enums import Severity
+from agentic_workflow.domain.enums import Severity
 
 
 class BlastRadiusClassifier:

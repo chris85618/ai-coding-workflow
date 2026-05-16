@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from agentic_workflow.domain.models.repo_map import RepoMap
+from agentic_workflow.domain.value_objects import RepoMap
 
 
 class TestRepoMapBuilder:

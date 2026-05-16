@@ -2,8 +2,8 @@
 
 import pytest
 
-from agentic_workflow.domain.models.enums import GateDecision, PipelineStatus
-from agentic_workflow.domain.models.pipeline import Pipeline
+from agentic_workflow.domain.aggregates.pipeline import Pipeline
+from agentic_workflow.domain.enums import GateDecision, PipelineStatus
 
 
 class TestPipelineBranches:

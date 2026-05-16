@@ -1,7 +1,7 @@
 """Cover missing severity branches in ALG-003."""
 
 from agentic_workflow.domain.algorithms.blast_radius import BlastRadiusClassifier
-from agentic_workflow.domain.models.enums import Severity
+from agentic_workflow.domain.enums import Severity
 
 
 class TestBlastRadiusBranches:

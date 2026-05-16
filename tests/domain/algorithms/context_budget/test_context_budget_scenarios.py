@@ -8,8 +8,7 @@ import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
 from agentic_workflow.domain.algorithms.context_budget import ContextBudgetAllocator
-from agentic_workflow.domain.models.model_config import ContextAllocation
-from agentic_workflow.domain.models.repo_map import RepoMap, SymbolDef
+from agentic_workflow.domain.value_objects import ContextAllocation, RepoMap, SymbolDef
 
 
 class TestContextBudgetScenarios:

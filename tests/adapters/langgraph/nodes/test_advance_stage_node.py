@@ -2,7 +2,7 @@
 
 from agentic_workflow.adapters.langgraph.nodes import node_advance_stage
 from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
-from agentic_workflow.domain.models.enums import GateDecision
+from agentic_workflow.domain.enums import GateDecision
 
 
 def _fresh_state() -> WorkflowState:

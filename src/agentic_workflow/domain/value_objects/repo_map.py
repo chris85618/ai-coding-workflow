@@ -1,14 +1,10 @@
-"""CLS-015: RepoMap — Value Object for repository symbol map.
-
-Traceable to: ALG-006 (RepoMapBuilder creates this)
-INV-024 ensures token_count <= budget.
-"""
+"""Value Object for repository symbol map."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from agentic_workflow.domain.models.repo_map.symbol_def import SymbolDef
+from agentic_workflow.domain.value_objects.symbol_def import SymbolDef
 
 _CHARS_PER_TOKEN = 4
 

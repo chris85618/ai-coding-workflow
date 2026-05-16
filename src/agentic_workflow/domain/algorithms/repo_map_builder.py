@@ -18,7 +18,8 @@ from pathlib import Path
 
 import icontract
 
-from agentic_workflow.domain.models.repo_map import RepoMap, SymbolDef
+from agentic_workflow.domain.value_objects import RepoMap
+from agentic_workflow.domain.value_objects.symbol_def import SymbolDef
 
 _CHARS_PER_TOKEN = 4
 

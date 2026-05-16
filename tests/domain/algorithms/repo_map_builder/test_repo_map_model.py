@@ -1,6 +1,6 @@
 """Unit tests for RepoMap value object methods."""
 
-from agentic_workflow.domain.models.repo_map import RepoMap, SymbolDef
+from agentic_workflow.domain.value_objects import RepoMap, SymbolDef
 
 
 class TestRepoMapModel:

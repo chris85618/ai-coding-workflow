@@ -1,7 +1,7 @@
 """Cover plateau and non-monotonic branches in convergence detection."""
 
 from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
-from agentic_workflow.domain.models.enums import FixedPointResult
+from agentic_workflow.domain.enums import FixedPointResult
 
 
 class TestConvergenceNonDiverging:

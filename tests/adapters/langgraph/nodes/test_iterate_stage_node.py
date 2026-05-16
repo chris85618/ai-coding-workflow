@@ -5,7 +5,7 @@ from agentic_workflow.adapters.langgraph.nodes import (
     should_continue_iterating,
 )
 from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
-from agentic_workflow.domain.models.stage import MAX_ITERATIONS
+from agentic_workflow.domain.entities.stage import MAX_ITERATIONS
 
 
 def _fresh_state(

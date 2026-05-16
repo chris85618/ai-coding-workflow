@@ -7,7 +7,7 @@ the closed-loop feedback system (ADR-OPS-001).
 
 from typing import Any
 
-from agentic_workflow.domain.models.sonarcloud_config import SonarCloudConfig
+from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
 
 
 class SonarCloudGate:

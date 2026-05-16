@@ -1,6 +1,6 @@
 """Cover exact-budget boundary in CLS-015."""
 
-from agentic_workflow.domain.models.repo_map import RepoMap, SymbolDef
+from agentic_workflow.domain.value_objects import RepoMap, SymbolDef
 
 
 class TestRepoMapPruneExactFit:

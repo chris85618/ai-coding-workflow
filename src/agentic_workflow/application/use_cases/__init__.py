@@ -1,14 +1,16 @@
 """Use Cases — One class per UC, one public execute() method.
 
 UC-001: StartPipeline
-UC-002: AnalyzeProject
+UC-003: AdvancePipeline
 UC-003: RunIteration
-UC-004: ValidateChange
-UC-005: AnalyzeImpact
-UC-006: AuditSecurity
-UC-007: CheckQuality
-UC-008: ManageDebt
-UC-009: CheckCompletion
-UC-010: ResumeWorkflow
-UC-011: TraceCrosslinks
 """
+
+from agentic_workflow.application.use_cases.advance_pipeline import AdvancePipelineUseCase
+from agentic_workflow.application.use_cases.run_iteration import RunIterationUseCase
+from agentic_workflow.application.use_cases.start_pipeline import StartPipelineUseCase
+
+__all__ = [
+    "StartPipelineUseCase",
+    "AdvancePipelineUseCase",
+    "RunIterationUseCase",
+]

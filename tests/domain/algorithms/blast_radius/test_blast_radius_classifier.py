@@ -1,6 +1,6 @@
 """ALG-003 OO class interface."""
 
-from agentic_workflow.domain.models.enums import Severity
+from agentic_workflow.domain.enums import Severity
 
 
 class TestBlastRadiusClassifier:

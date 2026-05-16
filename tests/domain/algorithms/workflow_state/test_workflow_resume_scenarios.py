@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
-from agentic_workflow.domain.models.enums import GateDecision
+from agentic_workflow.domain.enums import GateDecision
 
 
 class TestWorkflowResumeScenarios:

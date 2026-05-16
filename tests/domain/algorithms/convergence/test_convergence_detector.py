@@ -1,6 +1,6 @@
 """ALG-001 OO class interface."""
 
-from agentic_workflow.domain.models.enums import FixedPointResult
+from agentic_workflow.domain.enums import FixedPointResult
 
 
 class TestConvergenceDetector:

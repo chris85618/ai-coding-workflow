@@ -1,24 +1,15 @@
-"""CLS-005: TraceLink — A directional trace link between two TraceableIDs.
-
-Traceable to: INV-008, INV-009
-INV-008: source != target (no self-link).
-INV-009: link_type must be valid for source→target prefix pair.
-"""
+"""Value Object for a directional trace link between two TraceableIDs."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from agentic_workflow.domain.models.enums.link_type import LinkType
+from agentic_workflow.domain.enums.link_type import LinkType
 
 
-@dataclass
+@dataclass(frozen=True)
 class TraceLink:
-    """CLS-005: A directional trace link between two TraceableIDs.
-
-    Traceable to: INV-008, INV-009
-    INV-008: source != target (no self-link).
-    INV-009: link_type must be valid for source→target prefix pair.
+    """A directional trace link between two TraceableIDs.
 
     Attributes:
         source_id: Source node identifier string.

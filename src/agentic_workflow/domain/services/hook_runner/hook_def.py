@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from agentic_workflow.domain.models.enums.hook_event import HookEvent
+from agentic_workflow.domain.enums.hook_event import HookEvent
 
 
 @dataclass(frozen=True)

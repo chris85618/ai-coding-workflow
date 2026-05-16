@@ -18,7 +18,7 @@ import pytest
 if TYPE_CHECKING:
     from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
     from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-    from agentic_workflow.domain.models.traceable_id import TraceableID
+    from agentic_workflow.domain.entities.traceable_id import TraceableID
 
 # ===========================================================================
 # Port interface smoke tests (ABC compliance)
@@ -63,7 +63,7 @@ class TestPortInterfaces:
         from typing import Any
 
         from agentic_workflow.application.ports.llm_provider import LLMProvider
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         with pytest.raises(TypeError):
             LLMProvider()  # type: ignore[abstract]
@@ -110,8 +110,8 @@ class TestFileTraceableIDRepository:
         self.repo = FileTraceableIDRepository(repo_root=self._tmp)
 
     def _make_id(self) -> TraceableID:
-        from agentic_workflow.domain.models.enums import IDPrefix
-        from agentic_workflow.domain.models.traceable_id import TraceableID
+        from agentic_workflow.domain.entities.traceable_id import TraceableID
+        from agentic_workflow.domain.enums import IDPrefix
 
         return TraceableID(prefix=IDPrefix.FR, sequence=1, title="Test FR")
 
@@ -272,7 +272,7 @@ class TestHookConfigLoader:
         from agentic_workflow.adapters.persistence.hook_config_loader import (
             HookConfigLoader,
         )
-        from agentic_workflow.domain.models.enums import HookEvent
+        from agentic_workflow.domain.enums import HookEvent
 
         loader = HookConfigLoader(str(cfg_path))
         hooks = loader.load()
@@ -286,7 +286,7 @@ class TestHookConfigLoader:
         from agentic_workflow.adapters.persistence.hook_config_loader import (
             HookConfigLoader,
         )
-        from agentic_workflow.domain.models.enums import HookEvent
+        from agentic_workflow.domain.enums import HookEvent
 
         config = {"hooks": [{"event": "post_doc_write", "command": "git add .", "blocking": False}]}
         hooks = HookConfigLoader.from_dict(config)
@@ -458,8 +458,8 @@ class TestStateMapper:
     def test_pipeline_roundtrip(self) -> None:
         """Test bidirectional mapping for Pipeline."""
         from agentic_workflow.adapters.langgraph.state_mapper import StateMapper
-        from agentic_workflow.domain.models.enums import PipelineStatus
-        from agentic_workflow.domain.models.pipeline import Pipeline
+        from agentic_workflow.domain.aggregates.pipeline import Pipeline
+        from agentic_workflow.domain.enums import PipelineStatus
 
         pipeline = Pipeline(pipeline_id="test-pipe")
         pipeline.start()
@@ -471,8 +471,8 @@ class TestStateMapper:
     def test_stage_roundtrip(self) -> None:
         """Test bidirectional mapping for Stage."""
         from agentic_workflow.adapters.langgraph.state_mapper import StateMapper
-        from agentic_workflow.domain.models.enums import StageStatus
-        from agentic_workflow.domain.models.stage import Stage
+        from agentic_workflow.domain.entities.stage import Stage
+        from agentic_workflow.domain.enums import StageStatus
 
         stage = Stage(stage_id="stage3", name="Technical Planning")
         state = StateMapper.stage_to_state(stage)
@@ -494,8 +494,8 @@ class TestStateMapper:
     def test_pipeline_with_gate(self) -> None:
         """Test mapping includes gate decision."""
         from agentic_workflow.adapters.langgraph.state_mapper import StateMapper
-        from agentic_workflow.domain.models.enums import GateDecision
-        from agentic_workflow.domain.models.pipeline import Pipeline
+        from agentic_workflow.domain.aggregates.pipeline import Pipeline
+        from agentic_workflow.domain.enums import GateDecision
 
         pipeline = Pipeline(pipeline_id="g-test")
         pipeline.start()
@@ -551,7 +551,7 @@ class TestLangGraphNodes:
     def test_node_advance_stage(self) -> None:
         """Test advance_stage node logic."""
         from agentic_workflow.adapters.langgraph.nodes import node_advance_stage
-        from agentic_workflow.domain.models.enums import GateDecision
+        from agentic_workflow.domain.enums import GateDecision
 
         state = self._base_state()
         state["pipeline_status"] = "running"
@@ -602,7 +602,7 @@ class TestLangGraphNodes:
     def test_should_continue_iterating_gate_on_max(self) -> None:
         """Test transition logic after max iterations."""
         from agentic_workflow.adapters.langgraph.nodes import should_continue_iterating
-        from agentic_workflow.domain.models.stage import MAX_ITERATIONS
+        from agentic_workflow.domain.entities.stage import MAX_ITERATIONS
 
         state = self._base_state()
         state["current_stage_id"] = "stage3"
@@ -622,7 +622,7 @@ class TestLangChainLLMAdapter:
 
     def _make_config(self, api_key: str | None = None) -> StrategyConfig:
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         model = ModelConfig(provider="openai", model="gpt-4o", temperature=0.0, api_key=api_key)
         return StrategyConfig(
@@ -651,7 +651,7 @@ class TestLangChainLLMAdapter:
     def test_get_model_config(self) -> None:
         """Test mapping TaskType to ModelConfig."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
-        from agentic_workflow.domain.models.enums import TaskType
+        from agentic_workflow.domain.enums import TaskType
 
         adapter = LangChainLLMAdapter(self._make_config())
         cfg = adapter.get_model_config(TaskType.CRITIQUE)
@@ -661,7 +661,7 @@ class TestLangChainLLMAdapter:
     def test_complete_calls_model(self, mock_create: MagicMock) -> None:
         """Test complete method invokes model."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
-        from agentic_workflow.domain.models.enums import TaskType
+        from agentic_workflow.domain.enums import TaskType
 
         mock_model = MagicMock()
         mock_model.invoke.return_value = MagicMock(content="test response")

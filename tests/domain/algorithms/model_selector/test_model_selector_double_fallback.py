@@ -2,8 +2,8 @@
 
 from agentic_workflow.domain.algorithms.model_selector import select_model
 from agentic_workflow.domain.algorithms.model_selector.strategy_config import StrategyConfig
-from agentic_workflow.domain.models.enums import TaskType
-from agentic_workflow.domain.models.model_config import ModelConfig
+from agentic_workflow.domain.enums import TaskType
+from agentic_workflow.domain.value_objects import ModelConfig
 
 
 class TestModelSelectorDoubleFallback:

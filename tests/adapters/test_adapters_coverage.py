@@ -16,7 +16,7 @@ from pytest_bdd import given, scenario, then, when
 
 if TYPE_CHECKING:
     from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
-    from agentic_workflow.domain.models.traceable_id import TraceableID
+    from agentic_workflow.domain.entities.traceable_id import TraceableID
 
 # ===========================================================================
 # LLM Adapter: _build_langchain_model error paths
@@ -45,7 +45,7 @@ class TestLLMProviders:
     def test_openai_import_error(self) -> None:
         """Test handling of missing langchain_openai in OpenAIProvider."""
         from agentic_workflow.adapters.llm.providers.openai import OpenAIProvider
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         cfg = ModelConfig(provider="openai", model="gpt-4o")
         provider = OpenAIProvider()
@@ -58,7 +58,7 @@ class TestLLMProviders:
     def test_anthropic_import_error(self) -> None:
         """Test handling of missing langchain_anthropic in AnthropicProvider."""
         from agentic_workflow.adapters.llm.providers.anthropic import AnthropicProvider
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         cfg = ModelConfig(provider="anthropic", model="claude-opus")
         provider = AnthropicProvider()
@@ -73,8 +73,8 @@ class TestLLMProviders:
         """Same (provider, model, temp) key should reuse cached model."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-        from agentic_workflow.domain.models.enums import TaskType
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.enums import TaskType
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         mock_model = MagicMock()
         mock_model.invoke.return_value = MagicMock(content="resp")
@@ -99,7 +99,7 @@ class TestLLMProviders:
         """Test Anthropic provider availability via config."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         model = ModelConfig(provider="anthropic", model="claude-3-5-sonnet", api_key="test-key")
         cfg = StrategyConfig(
@@ -228,7 +228,7 @@ class TestLangGraphNodeEdgeCases:
 
     def _running_state(self) -> WorkflowState:
         from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
-        from agentic_workflow.domain.models.enums import GateDecision
+        from agentic_workflow.domain.enums import GateDecision
 
         return WorkflowState(
             pipeline_id="pipe-test",
@@ -346,8 +346,8 @@ class TestFileRepositoryFindAll:
         self.repo = FileTraceableIDRepository(repo_root=self._tmp)
 
     def _make_id(self, seq: int, title: str) -> TraceableID:
-        from agentic_workflow.domain.models.enums import IDPrefix
-        from agentic_workflow.domain.models.traceable_id import TraceableID
+        from agentic_workflow.domain.entities.traceable_id import TraceableID
+        from agentic_workflow.domain.enums import IDPrefix
 
         return TraceableID(prefix=IDPrefix.FR, sequence=seq, title=title)
 
@@ -383,8 +383,8 @@ class TestLLMAdapterTokenLimit:
         """Test auto-continuation for long model responses."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-        from agentic_workflow.domain.models.enums import TaskType
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.enums import TaskType
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         m = ModelConfig(provider="openai", model="gpt-4o")
         cfg = StrategyConfig(
@@ -419,9 +419,9 @@ class TestLLMAdapterTokenLimit:
         """Test fast-fail for structured task types."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-        from agentic_workflow.domain.models.enums import TaskType
-        from agentic_workflow.domain.models.exceptions import TokenLimitExceededError
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.enums import TaskType
+        from agentic_workflow.domain.exceptions import TokenLimitExceededError
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         m = ModelConfig(provider="openai", model="gpt-4o")
         cfg = StrategyConfig(
@@ -454,8 +454,8 @@ class TestLLMAdapterTokenLimit:
         """Test stop_reason mapping for Anthropic provider."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-        from agentic_workflow.domain.models.enums import TaskType
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.enums import TaskType
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         m = ModelConfig(provider="anthropic", model="claude-opus")
         cfg = StrategyConfig(
@@ -486,9 +486,9 @@ class TestLLMAdapterTokenLimit:
         """Test error when max continuations reached."""
         from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-        from agentic_workflow.domain.models.enums import TaskType
-        from agentic_workflow.domain.models.exceptions import TokenLimitExceededError
-        from agentic_workflow.domain.models.model_config import ModelConfig
+        from agentic_workflow.domain.enums import TaskType
+        from agentic_workflow.domain.exceptions import TokenLimitExceededError
+        from agentic_workflow.domain.value_objects import ModelConfig
 
         m = ModelConfig(provider="openai", model="gpt-4o")
         cfg = StrategyConfig(
@@ -524,7 +524,7 @@ class TestSonarCloudConfigCoverage:
 
     def test_missing_vars_full(self) -> None:
         """TC-SONAR-002: Report all missing vars if config is empty."""
-        from agentic_workflow.domain.models.sonarcloud_config import (
+        from agentic_workflow.domain.value_objects.sonarcloud_config import (
             SonarCloudConfig,
         )
 
@@ -537,7 +537,7 @@ class TestSonarCloudConfigCoverage:
 
     def test_missing_vars_none(self) -> None:
         """TC-SONAR-003: Report no missing vars if config is complete."""
-        from agentic_workflow.domain.models.sonarcloud_config import (
+        from agentic_workflow.domain.value_objects.sonarcloud_config import (
             SonarCloudConfig,
         )
 

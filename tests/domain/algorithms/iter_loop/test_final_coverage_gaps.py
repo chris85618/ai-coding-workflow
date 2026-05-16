@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
 from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
-from agentic_workflow.domain.models.enums import FixedPointResult
+from agentic_workflow.domain.enums import FixedPointResult
 
 
 class TestFinalCoverageGaps:

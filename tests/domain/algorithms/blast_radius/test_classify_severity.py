@@ -1,7 +1,7 @@
 """Tests for BlastRadiusClassifier.classify — 100% statement + branch coverage."""
 
 from agentic_workflow.domain.algorithms.blast_radius import BlastRadiusClassifier
-from agentic_workflow.domain.models.enums import Severity
+from agentic_workflow.domain.enums import Severity
 
 
 class TestClassifySeverity:
