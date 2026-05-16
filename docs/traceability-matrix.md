@@ -328,6 +328,9 @@
 | TC-013 | SC-018 | validates | ✅ |
 | TC-014 | SC-019 | validates | ✅ |
 | TC-015 | SC-020 | validates | ✅ |
+| TC-UC-001 | UC-001 | validates | ✅ (NEW: StartPipelineUseCase) |
+| TC-UC-002 | UC-001, UC-003 | validates | ✅ (NEW: AdvancePipelineUseCase) |
+| TC-UC-003 | UC-003 | validates | ✅ (NEW: RunIterationUseCase) |
 
 ### FR → Skill 實作映射
 
@@ -494,13 +497,13 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 6 | INV-xxx | 25 | 25/25 | 25/25 | 100% |
 | Stage 7 | SC-xxx | 21 | 21/21 | 21/21 | 100% |
 | **自動化** | FR→Hook | 1 | 1/1 | — (實作) | 100% |
-| Stage 8 | TC-xxx | 16 | 16/16 | 16/16 | 100% |
+| Stage 8 | TC-xxx | 19 | 19/19 | 19/19 | 100% |
 | Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 28 | 28/28 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **338** | — | — | **100%** |
+| **合計** | — | **341** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)
