@@ -157,10 +157,10 @@
 **描述**：系統應能自動從 `pyproject.toml` 提取專案元資料（name, version, description）以填充 MkDocs 文件站點資訊，避免手動同步。
 **追溯**：FEA-016 (decomposes)
 
-### FR-044: 巨集驅動的設定檔置換
-
-**描述**：系統應支援透過巨集（Macro）根據不同環境（Dev/Staging/Prod）自動置換設定檔中的佔位符，確保部署的一致性。
-**追溯**：FEA-017 (decomposes)
+| FR-044 | 巨集驅動的設定檔置換 | 系統應支援透過巨集（Macro）根據不同環境（Dev/Staging/Prod）自動置換設定檔中的佔位符，確保部署的一致性。 | FEA-017 |
+| FR-047 | 測試結構對稱性 | `tests/` 目錄必須 1:1 對照 `src/agentic_workflow/` 結構，移除中間層 `agentic_workflow/` 目錄。 | FEA-023 |
+| FR-048 | 測試品質硬化門檻 | 測試程式碼必須通過 Ruff check, Mypy strict, Ruff format 並達成 100% 覆蓋率。 | FEA-023 |
+| FR-049 | 測試命名空間隔離 | 確保 `tests/` 下不包含與 `src/` 相同的頂層套件目錄，以防止 Python 導入路徑衝突。 | FEA-023 |
 
 ---
 

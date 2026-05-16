@@ -1,7 +1,13 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Stage 8 (TDD + 測試 + 修復) - 已完成 FEA-017
-**Last Updated**: 2026-05-16T11:00+08:00
+**Pipeline Position**: Stage 8 (TDD + Testing) - Granular Test Architecture Finalized
+**Last Session Summary**: 
+- Finalized modular test suite architecture with "One-Class-Per-File" compliance (FEA-024).
+- Refactored all BDD scenario methods to use `@staticmethod`, resolving `pytest` fixture injection issues.
+- Systematically resolved namespace conflicts and removed redundant legacy test files.
+- Verified 100% test suite pass rate (789/789) and maintained 100.00% code coverage.
+- Confirmed full compliance with `ruff check`, `mypy`, and `ruff format`.
+**Last Updated**: 2026-05-16T18:45+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -21,6 +27,7 @@
 - [x] S10-07: 重定位 `main.py` 至 `docs/macros.py` 並實施安全過濾 (FEA-018) — ✅ DONE
 - [x] S10-08: 實施 Git Pre-commit Hook 自動化配置同步 (ADR-GOV-027) — ✅ DONE
 - [x] S10-09: 重構 README.md 入口文檔並建立 `ARCHITECTURE.md` (ADR-GOV-028) — ✅ DONE
+- [x] S10-10: 實施「單一類別原則」進行測試細粒度化重構 (FEA-024) — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -57,3 +64,5 @@
 14. **MkDocs 插件整合**: 導入 `pyproject-mkdocs-plugin` (FEA-016)，實施 ADR-STR-015 以同步 `pyproject.toml` 元資料，補齊相關追溯鏈 (FR-043, UC-016)。
 15. **修正 Ruff 配置**: 將 `src-path` 修正為 `src` (ADR-STR-018)，修復 Ruff 在解析 `pyproject.toml` 時的未知欄位錯誤。
 16. **Mypy 配置硬化**: 實施 ADR-STR-019，將 `--ignore-missing-imports` 與 `--explicit-package-bases` 參數固化至 `pyproject.toml` (FEA-021, FR-045)。
+17. **測試架構重構**: 完成 `tests/` 目錄結構對齊 (FEA-023)，移除 `agentic_workflow/` 關鍵字嵌套，解決命名空間衝突。
+18. **細粒度化重構完成**: 實施 FEA-024，將測試類別拆分為單一檔案 (One-Class-Per-File)，修復 BDD `@staticmethod` 注入問題，確保 100% 覆蓋率 (789/789 passed)。

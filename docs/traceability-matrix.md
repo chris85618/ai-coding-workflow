@@ -50,12 +50,15 @@
 | FEA-020 | FR-043 | decomposes | ✅ (Project Documentation Restructuring) |
 | FEA-021 | FR-045 | decomposes | ✅ (Mypy Config Hardening) |
 | FEA-022 | FR-046 | decomposes | ✅ (Git Hook Ruff Format) |
+| FEA-023 | FR-047, FR-048, FR-049 | decomposes | ✅ (Test Refactor & Quality Hardening) |
+| FEA-024 | FR-050 | decomposes | ✅ (Granular Test Architecture) |
 
 ### FR → UC
 
 | FR | UC | 連結 | 語意 |
 |----|-----|------|------|
 | FR-001 | UC-001 | realizes | ✅ |
+| FR-050 | UC-003 | realizes | ✅ (One-Class-Per-File Test Architecture) |
 | FR-002 | UC-001, UC-002 | realizes | ✅ |
 | FR-003 | UC-003 | realizes | ✅ |
 | FR-004 | UC-002, UC-004 | realizes | ✅ |
@@ -305,6 +308,7 @@
 | TC-SONAR-003 | 驗證 SonarCloudConfig 完整參數檢核 | FR-032 | SonarCloudConfig | ✅ |
 | TC-SONAR-004 | 驗證 SonarCloud 節點切換邏輯 (Mocked) | FR-015, FR-035, ADR-OPS-001 | node_sonarcloud_gate | ✅ |
 | TC-001 | SC-001 | validates | ✅ |
+| TC-016 | SC-021 | validates | ✅ (Granular Test Set Verification) |
 | TC-002 | SC-002 | validates | ✅ |
 | TC-003 | SC-003 | validates | ✅ |
 | TC-004 | SC-004 | validates | ✅ |
@@ -471,10 +475,10 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 |------|---------|--------|--------|--------|--------|
 | Phase 2.0 | BG-xxx | 4 | — (源頭) | 4/4 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
-| Phase 2.2 | FEA-xxx | 19 | 19/19 | 19/19 | 100% |
+| Phase 2.2 | FEA-xxx | 20 | 20/20 | 20/20 | 100% |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
-| Stage 3 | FR-xxx | 36+3v2 | 39/39 | 39/39 | 100% |
+| Stage 3 | FR-xxx | 37+3v2 | 40/40 | 40/40 | 100% |
 | Stage 3 | NFR-xxx | 9 | 9/9 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 14 | 14/14 | 14/14 | 100% |
 | Stage 3 | ADR-STR-xxx | 11 | 11/11 | — | 100% |
@@ -483,15 +487,15 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
 | Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
 | Stage 6 | INV-xxx | 25 | 25/25 | 25/25 | 100% |
-| Stage 7 | SC-xxx | 20 | 20/20 | 20/20 | 100% |
+| Stage 7 | SC-xxx | 21 | 21/21 | 21/21 | 100% |
 | **自動化** | FR→Hook | 1 | 1/1 | — (實作) | 100% |
-| Stage 8 | TC-xxx | 15 | 15/15 | 15/15 | 100% |
+| Stage 8 | TC-xxx | 16 | 16/16 | 16/16 | 100% |
 | Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 28 | 28/28 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **333** | — | — | **100%** |
+| **合計** | — | **338** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)
