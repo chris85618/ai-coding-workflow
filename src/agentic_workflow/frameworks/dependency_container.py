@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from agentic_workflow.application.ports.doc_io.document_io_gateway import DocumentIOGateway
 from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentReasoner
@@ -11,8 +11,32 @@ from agentic_workflow.application.ports.repositories.pipeline_repository import 
 from agentic_workflow.application.use_cases.advance_pipeline import AdvancePipelineUseCase
 from agentic_workflow.application.use_cases.run_iteration import RunIterationUseCase
 from agentic_workflow.application.use_cases.start_pipeline import StartPipelineUseCase
-from agentic_workflow.domain.services.orchestrator_service import OrchestratorService
-from agentic_workflow.domain.services.security_audit_service import SecurityAuditService
+from agentic_workflow.domain.services.orchestrator_service import (
+    IOrchestratorService,
+    OrchestratorService,
+)
+from agentic_workflow.domain.services.security_audit_service import (
+    ISecurityAuditService,
+    SecurityAuditService,
+)
+from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
+from agentic_workflow.frameworks.config import WorkflowConfigLoader
+
+
+def _load_default_sonar_config() -> SonarCloudConfig:
+    """Helper to load default sonar configuration for container field initialization."""
+    try:
+        raw = WorkflowConfigLoader.load().sonarcloud
+        return SonarCloudConfig(
+            token=raw.token,
+            project_key=raw.project_key,
+            organization=raw.organization,
+            auto_convert_to_debt=raw.feedback.auto_convert_to_debt,
+            default_debt_priority=raw.feedback.default_debt_priority,
+            on_missing_config=raw.on_missing_config,
+        )
+    except Exception:
+        return SonarCloudConfig()
 
 
 @dataclass
@@ -27,6 +51,9 @@ class DependencyContainer:
     checkpoint_repo: CheckpointRepository
     doc_io: DocumentIOGateway
     reasoner: IAgentReasoner
+    orchestrator: IOrchestratorService = field(default_factory=OrchestratorService)
+    security_audit: ISecurityAuditService = field(default_factory=SecurityAuditService)
+    sonar_config: SonarCloudConfig = field(default_factory=_load_default_sonar_config)
 
     # Use Cases
     @property
@@ -43,13 +70,3 @@ class DependencyContainer:
     def run_iteration(self) -> RunIterationUseCase:
         """Get the RunIterationUseCase instance."""
         return RunIterationUseCase(self.pipeline_repo)
-
-    @property
-    def orchestrator(self) -> OrchestratorService:
-        """Get the OrchestratorService instance."""
-        return OrchestratorService()
-
-    @property
-    def security_audit(self) -> SecurityAuditService:
-        """Get the SecurityAuditService instance."""
-        return SecurityAuditService()

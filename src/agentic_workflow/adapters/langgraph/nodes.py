@@ -11,6 +11,7 @@ Each node is a pure function: (WorkflowState) -> WorkflowState (partial).
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING, Protocol
 
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
 from agentic_workflow.adapters.sonarcloud.sonar_adapter import SonarCloudAdapter
@@ -27,20 +28,60 @@ from agentic_workflow.domain.enums import (
     StageStatus,
 )
 from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
-from agentic_workflow.frameworks.config import WorkflowConfigLoader
-from agentic_workflow.frameworks.dependency_container import DependencyContainer
+
+if TYPE_CHECKING:
+    from agentic_workflow.application.use_cases.advance_pipeline import AdvancePipelineUseCase
+    from agentic_workflow.application.use_cases.run_iteration import RunIterationUseCase
+    from agentic_workflow.application.use_cases.start_pipeline import StartPipelineUseCase
+    from agentic_workflow.domain.services.orchestrator_service import IOrchestratorService
+    from agentic_workflow.domain.services.security_audit_service import ISecurityAuditService
+
+
+class WorkflowContainerProtocol(Protocol):
+    """Protocol for the dependency container, adhering to Dependency Inversion Principle."""
+
+    @property
+    def start_pipeline(self) -> StartPipelineUseCase:
+        """Get the start pipeline use case."""
+        ...
+
+    @property
+    def advance_pipeline(self) -> AdvancePipelineUseCase:
+        """Get the advance pipeline use case."""
+        ...
+
+    @property
+    def run_iteration(self) -> RunIterationUseCase:
+        """Get the run iteration use case."""
+        ...
+
+    @property
+    def orchestrator(self) -> IOrchestratorService:
+        """Get the orchestrator service."""
+        ...
+
+    @property
+    def security_audit(self) -> ISecurityAuditService:
+        """Get the security audit service."""
+        ...
+
+    @property
+    def sonar_config(self) -> SonarCloudConfig:
+        """Get the sonar cloud config value object."""
+        ...
+
 
 # Simulating a global container for the graph execution context
-_CONTAINER: DependencyContainer | None = None
+_CONTAINER: WorkflowContainerProtocol | None = None
 
 
-def set_container(container: DependencyContainer | None) -> None:
+def set_container(container: WorkflowContainerProtocol | None) -> None:
     """Initialize the global container for nodes."""
     global _CONTAINER
     _CONTAINER = container
 
 
-def _get_container() -> DependencyContainer:
+def _get_container() -> WorkflowContainerProtocol:
     if _CONTAINER is None:
         raise RuntimeError("DependencyContainer not initialized")
     return _CONTAINER
@@ -263,18 +304,9 @@ def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
     Checks for required config, evaluates results, and converts failures to DEBT.
     """
     metadata = state.get("metadata", {})
-    # 1. Verify Configuration (from centralized config system)
-    wf_config = WorkflowConfigLoader.load()
-    sonar_config_raw = wf_config.sonarcloud
-    # Map frameworks config to domain config
-    sonar_config = SonarCloudConfig(
-        token=sonar_config_raw.token,
-        project_key=sonar_config_raw.project_key,
-        organization=sonar_config_raw.organization,
-        auto_convert_to_debt=sonar_config_raw.feedback.auto_convert_to_debt,
-        default_debt_priority=sonar_config_raw.feedback.default_debt_priority,
-        on_missing_config=sonar_config_raw.on_missing_config,
-    )
+    # 1. Verify Configuration (from injected container)
+    container = _get_container()
+    sonar_config = container.sonar_config
     config_check = SonarCloudGate.verify_configuration(sonar_config)
 
     if not config_check["valid"]:
@@ -292,7 +324,7 @@ def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
 
     if sonar_metrics is None or sonar_issues is None:
         try:
-            adapter = SonarCloudAdapter(sonar_config_raw)
+            adapter = SonarCloudAdapter(sonar_config)
             if sonar_metrics is None:
                 sonar_metrics = adapter.get_metrics()
             if sonar_issues is None:

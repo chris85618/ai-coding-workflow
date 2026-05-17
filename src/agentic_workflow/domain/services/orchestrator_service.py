@@ -6,17 +6,29 @@ Ensures that phase and stage executions satisfy domain rules.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import Any
 
 from agentic_workflow.domain.aggregates.pipeline import Pipeline
 from agentic_workflow.domain.enums import PipelineStatus
 
 
-class OrchestratorService:
+class IOrchestratorService(ABC):
+    """Interface for Orchestrator Service to satisfy Dependency Inversion."""
+
+    @abstractmethod
+    def validate_phase_execution(self, pipeline: Pipeline, phase_id: int) -> bool:
+        """Validate phase."""
+
+    @abstractmethod
+    def prepare_stage_context(self, pipeline: Pipeline) -> dict[str, Any]:
+        """Prepare context."""
+
+
+class OrchestratorService(IOrchestratorService):
     """Domain service for orchestrating complex pipeline transitions."""
 
-    @staticmethod
-    def validate_phase_execution(pipeline: Pipeline, phase_id: int) -> bool:
+    def validate_phase_execution(self, pipeline: Pipeline, phase_id: int) -> bool:
         """Validates if a specific phase can be executed.
 
         Args:
@@ -30,8 +42,7 @@ class OrchestratorService:
         # In our aggregate, this is tracked by stage indices or findings.
         return pipeline.status != PipelineStatus.FAILED
 
-    @staticmethod
-    def prepare_stage_context(pipeline: Pipeline) -> dict[str, Any]:
+    def prepare_stage_context(self, pipeline: Pipeline) -> dict[str, Any]:
         """Prepares domain-rich context for the current stage.
 
         Args:

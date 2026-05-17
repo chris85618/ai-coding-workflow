@@ -14,13 +14,15 @@ class TestOrchestratorService:
         """Fails if pipeline is in FAILED status."""
         pipeline = MagicMock(spec=Pipeline)
         pipeline.status = PipelineStatus.FAILED
-        assert OrchestratorService.validate_phase_execution(pipeline, 0) is False
+        service = OrchestratorService()
+        assert service.validate_phase_execution(pipeline, 0) is False
 
     def test_validate_phase_execution_pass(self) -> None:
         """Passes if pipeline is running."""
         pipeline = MagicMock(spec=Pipeline)
         pipeline.status = PipelineStatus.RUNNING
-        assert OrchestratorService.validate_phase_execution(pipeline, 0) is True
+        service = OrchestratorService()
+        assert service.validate_phase_execution(pipeline, 0) is True
 
     def test_prepare_stage_context(self) -> None:
         """Prepares context dictionary."""
@@ -32,7 +34,8 @@ class TestOrchestratorService:
         stage.findings = ["Finding 1"]
         pipeline.current_stage = stage
 
-        ctx = OrchestratorService.prepare_stage_context(pipeline)
+        service = OrchestratorService()
+        ctx = service.prepare_stage_context(pipeline)
         assert ctx["pipeline_id"] == "p-123"
         assert ctx["current_stage"] == "Phase 0"
         assert ctx["iteration"] == 1

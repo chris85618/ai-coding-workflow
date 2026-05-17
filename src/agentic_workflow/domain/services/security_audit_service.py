@@ -6,17 +6,29 @@ Traceable to: FR-016 (Three-Layer Security Audit)
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import Any
 
 from agentic_workflow.domain.aggregates.pipeline import Pipeline
 from agentic_workflow.domain.value_objects.findings import Findings
 
 
-class SecurityAuditService:
+class ISecurityAuditService(ABC):
+    """Interface for Security Audit Service to satisfy Dependency Inversion."""
+
+    @abstractmethod
+    def audit_pipeline(self, pipeline: Pipeline, layer_results: list[dict[str, Any]]) -> Findings:
+        """Process audit."""
+
+    @abstractmethod
+    def decide_gate_impact(self, findings: Findings) -> str:
+        """Decide impact."""
+
+
+class SecurityAuditService(ISecurityAuditService):
     """Domain service for orchestrating 3-layer security audits."""
 
-    @staticmethod
-    def audit_pipeline(pipeline: Pipeline, layer_results: list[dict[str, Any]]) -> Findings:
+    def audit_pipeline(self, pipeline: Pipeline, layer_results: list[dict[str, Any]]) -> Findings:
         """Processes audit results and returns domain Findings.
 
         Args:
@@ -36,8 +48,7 @@ class SecurityAuditService:
 
         return Findings(items=findings_list)
 
-    @staticmethod
-    def decide_gate_impact(findings: Findings) -> str:
+    def decide_gate_impact(self, findings: Findings) -> str:
         """Determines the gate decision based on findings severity.
 
         Args:

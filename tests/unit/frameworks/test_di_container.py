@@ -99,3 +99,12 @@ class TestDependencyContainer:
 
         assert isinstance(container.orchestrator, OrchestratorService)
         assert isinstance(container.security_audit, SecurityAuditService)
+
+    def test_load_default_sonar_config_exception(self) -> None:
+        """Verify that default SonarCloudConfig is returned on config load exception."""
+        from unittest.mock import patch
+        with patch("agentic_workflow.frameworks.config.WorkflowConfigLoader.load", side_effect=ValueError("Test")):
+            from agentic_workflow.frameworks.dependency_container import _load_default_sonar_config
+            config = _load_default_sonar_config()
+            assert config.token is None
+

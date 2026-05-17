@@ -13,6 +13,7 @@ import pytest
 from agentic_workflow.adapters.langgraph.nodes import node_sonarcloud_gate
 from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 from agentic_workflow.domain.enums import GateDecision
+from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
 
 
 class TestSonarCloudNode:
@@ -24,20 +25,25 @@ class TestSonarCloudNode:
         with patch("agentic_workflow.adapters.langgraph.nodes.SonarCloudGate") as mock:
             yield mock
 
-    @pytest.fixture
-    def mock_config_loader(self) -> Any:
-        """Mock the WorkflowConfigLoader."""
-        with patch("agentic_workflow.adapters.langgraph.nodes.WorkflowConfigLoader.load") as mock:
-            yield mock
+    @pytest.fixture(autouse=True)
+    def setup_container(self) -> Any:
+        """Set up a mock container for node tests."""
+        from agentic_workflow.adapters.langgraph.nodes import set_container
 
-    def test_node_passes_when_metrics_valid(self, mock_gate: Any, mock_config_loader: Any) -> None:
+        mock_container = MagicMock()
+        set_container(mock_container)
+        yield mock_container
+        set_container(None)
+
+    def test_node_passes_when_metrics_valid(self, mock_gate: Any, setup_container: Any) -> None:
         """TC-NODE-001: Node returns PASS if quality gate passes."""
         # 1. Setup Mock
-        mock_config = MagicMock()
-        mock_config.sonarcloud.token = "valid"
-        mock_config.sonarcloud.project_key = "valid"
-        mock_config.sonarcloud.organization = "valid"
-        mock_config_loader.return_value = mock_config
+        mock_sonar_config = SonarCloudConfig(
+            token="valid",
+            project_key="valid",
+            organization="valid",
+        )
+        setup_container.sonar_config = mock_sonar_config
 
         mock_gate.verify_configuration.return_value = {
             "valid": True,
@@ -63,12 +69,15 @@ class TestSonarCloudNode:
         assert result["last_gate_decision"] == GateDecision.PASS
         assert result["metadata"]["sonar_status"] == "passed"
 
-    def test_node_fails_and_extracts_debt(self, mock_gate: Any, mock_config_loader: Any) -> None:
+    def test_node_fails_and_extracts_debt(self, mock_gate: Any, setup_container: Any) -> None:
         """TC-NODE-002: Node returns FAIL and records tech debts if gate fails."""
         # 1. Setup Mock
-        mock_config = MagicMock()
-        mock_config.sonarcloud.token = "valid"
-        mock_config_loader.return_value = mock_config
+        mock_sonar_config = SonarCloudConfig(
+            token="valid",
+            project_key="valid",
+            organization="valid",
+        )
+        setup_container.sonar_config = mock_sonar_config
 
         mock_gate.verify_configuration.return_value = {
             "valid": True,
@@ -95,12 +104,15 @@ class TestSonarCloudNode:
         assert result["metadata"]["pending_sonar_debts"] == [{"id": "DEBT-SONAR-0", "priority": "P2"}]
         assert "SonarCloud Quality Gate Failed" in str(result.get("last_error"))
 
-    def test_node_warns_when_config_missing(self, mock_gate: Any, mock_config_loader: Any) -> None:
+    def test_node_warns_when_config_missing(self, mock_gate: Any, setup_container: Any) -> None:
         """TC-NODE-003: Node returns PASS_WITH_WARNINGS if config is missing."""
         # 1. Setup Mock
-        mock_config = MagicMock()
-        mock_config.sonarcloud.token = None
-        mock_config_loader.return_value = mock_config
+        mock_sonar_config = SonarCloudConfig(
+            token=None,
+            project_key=None,
+            organization=None,
+        )
+        setup_container.sonar_config = mock_sonar_config
 
         mock_gate.verify_configuration.return_value = {
             "valid": False,

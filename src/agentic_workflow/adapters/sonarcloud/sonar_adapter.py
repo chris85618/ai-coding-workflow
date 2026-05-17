@@ -7,7 +7,7 @@ from typing import Any
 
 from sonarqube import SonarCloudClient
 
-from agentic_workflow.frameworks.config import SonarCloudConfig
+from agentic_workflow.domain.value_objects import SonarCloudConfig
 
 METRIC_KEYS = [
     "coverage",

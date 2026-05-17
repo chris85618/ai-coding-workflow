@@ -43,7 +43,10 @@ class DAGInvariantVerifier:
 
 
 if __name__ == "__main__":  # pragma: no cover
-    from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
+    import importlib
+
+    builder_mod = importlib.import_module("agentic_workflow.frameworks.graph.master_graph_builder")
+    MasterGraphBuilder = builder_mod.MasterGraphBuilder
 
     graph = MasterGraphBuilder.build()
 

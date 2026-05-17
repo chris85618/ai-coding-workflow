@@ -16,7 +16,7 @@ from agentic_workflow.adapters.sonarcloud.sonar_adapter import (
     SonarCloudAdapter,
     _coerce_value,
 )
-from agentic_workflow.frameworks.config import SonarCloudConfig
+from agentic_workflow.domain.value_objects import SonarCloudConfig
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 

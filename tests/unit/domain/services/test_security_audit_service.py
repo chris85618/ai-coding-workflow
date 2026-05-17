@@ -22,24 +22,28 @@ class TestSecurityAuditService:
                 ],
             }
         ]
-        findings = SecurityAuditService.audit_pipeline(pipeline, layer_results)
+        service = SecurityAuditService()
+        findings = service.audit_pipeline(pipeline, layer_results)
         assert len(findings) == 2
         assert "[app] HIGH: SQL injection" in findings
 
     def test_decide_gate_impact_block(self) -> None:
         """Blocks on CRITICAL findings."""
         findings = Findings(items=["[layer] CRITICAL: Exploit found"])
-        decision = SecurityAuditService.decide_gate_impact(findings)
+        service = SecurityAuditService()
+        decision = service.decide_gate_impact(findings)
         assert decision == "block"
 
     def test_decide_gate_impact_rework(self) -> None:
         """Rework on HIGH findings."""
         findings = Findings(items=["[layer] HIGH: Risk detected"])
-        decision = SecurityAuditService.decide_gate_impact(findings)
+        service = SecurityAuditService()
+        decision = service.decide_gate_impact(findings)
         assert decision == "rework"
 
     def test_decide_gate_impact_pass(self) -> None:
         """Passes on MEDIUM or below."""
         findings = Findings(items=["[layer] MEDIUM: Minor issue"])
-        decision = SecurityAuditService.decide_gate_impact(findings)
+        service = SecurityAuditService()
+        decision = service.decide_gate_impact(findings)
         assert decision == "pass"
