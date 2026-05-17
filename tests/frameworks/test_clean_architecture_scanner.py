@@ -688,11 +688,7 @@ def test_scanner_fallback_on_tokenization_failure(
     # Line 1 covers pragma inside main (covers 184->198 False branch)
     # Line 2 covers line without '#' (covers 178->177 False branch)
     # Line 3 covers illegal pragma outside main (triggers violation)
-    code_pragma = (
-        "if __name__ == '__main__':  # pragma: no cover\n"
-        "    pass\n"
-        "x = 10  # pragma\n"
-    )
+    code_pragma = "if __name__ == '__main__':  # pragma: no cover\n    pass\nx = 10  # pragma\n"
     file_pragma = temp_project / "src" / "agentic_workflow" / "domain" / "fallback_prag.py"
     file_pragma.write_text(code_pragma, encoding="utf-8")
     violations = scanner.scan_file(str(file_pragma))
@@ -706,3 +702,126 @@ def test_scanner_fallback_on_tokenization_failure(
     violations = scanner.scan_file(str(file_type))
     assert len(violations) == 1, f"Expected 1 fallback violation, but got: {violations}"
     assert violations[0].category == "type_ignore_abuse"
+
+
+# ── Test Suite: ADR-STR-027 v2 — Framework Layer pragma full ban ──────────────
+
+
+def test_framework_pragma_no_branch_is_banned(scanner: CleanArchitectureBoundaryScanner, temp_project: Path) -> None:
+    """ADR-STR-027 v2: # pragma: no branch must be banned in frameworks layer.
+
+    This test EXPOSES the existing violations in:
+      - frameworks/graph/iteration_nodes.py
+      - frameworks/graph/master_pipeline_nodes.py
+      - frameworks/graph/micro_validation_nodes.py
+    """
+    code = "from x import y\ndef fn(state):\n    return state  # pragma: no branch\n"
+    fw_file = temp_project / "src" / "agentic_workflow" / "frameworks" / "fw_pragma.py"
+    fw_file.write_text(code, encoding="utf-8")
+    violations = scanner.scan_file(str(fw_file))
+    pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
+    assert len(pragma_violations) == 1, (
+        f"Expected exactly 1 pragma_no_cover_abuse in frameworks layer, "
+        f"but got {len(pragma_violations)}: {pragma_violations}"
+    )
+    assert "pragma" in pragma_violations[0].message.lower()
+
+
+def test_framework_pragma_no_cover_outside_main_is_banned(
+    scanner: CleanArchitectureBoundaryScanner, temp_project: Path
+) -> None:
+    """ADR-STR-027 v2: # pragma: no cover outside entry point must be banned in frameworks layer."""
+    code = "x = 10  # pragma: no cover\n"
+    fw_file = temp_project / "src" / "agentic_workflow" / "frameworks" / "fw_no_cover.py"
+    fw_file.write_text(code, encoding="utf-8")
+    violations = scanner.scan_file(str(fw_file))
+    pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
+    assert len(pragma_violations) == 1, (
+        f"Expected 1 pragma_no_cover_abuse in frameworks, but got {len(pragma_violations)}: {pragma_violations}"
+    )
+
+
+def test_framework_pragma_on_main_line_is_still_allowed(
+    scanner: CleanArchitectureBoundaryScanner, temp_project: Path
+) -> None:
+    """ADR-STR-027 v2: # pragma: no cover on 'if __name__ == __main__' line is the ONLY legal exception."""
+    code = "def run() -> None:\n    pass\n\nif __name__ == '__main__':  # pragma: no cover\n    run()\n"
+    fw_file = temp_project / "src" / "agentic_workflow" / "frameworks" / "fw_entry.py"
+    fw_file.write_text(code, encoding="utf-8")
+    violations = scanner.scan_file(str(fw_file))
+    pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
+    assert pragma_violations == [], f"Expected 0 pragma violations for entry-point pragma, but got: {pragma_violations}"
+
+
+def test_framework_scan_real_iteration_nodes_violations() -> None:
+    """ADR-STR-027 v2: Expose real violations in production frameworks/graph/iteration_nodes.py.
+
+    This test scans the REAL production file and expects violations.
+    It MUST fail until the production file is cleaned up.
+    """
+    import pathlib
+
+    project_root = pathlib.Path(__file__).resolve().parents[2]
+    scanner = CleanArchitectureBoundaryScanner(project_root=str(project_root))
+
+    target = project_root / "src" / "agentic_workflow" / "frameworks" / "graph" / "iteration_nodes.py"
+    violations = scanner.scan_file(str(target))
+    pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
+
+    assert len(pragma_violations) > 0, (
+        "Expected pragma_no_cover_abuse violations in iteration_nodes.py "
+        f"(ADR-STR-027 v2 enforcement), but found 0. "
+        f"All violations found: {violations}"
+    )
+
+
+def test_framework_scan_real_master_pipeline_nodes_violations() -> None:
+    """ADR-STR-027 v2: Expose real violations in production frameworks/graph/master_pipeline_nodes.py."""
+    import pathlib
+
+    project_root = pathlib.Path(__file__).resolve().parents[2]
+    scanner = CleanArchitectureBoundaryScanner(project_root=str(project_root))
+
+    target = project_root / "src" / "agentic_workflow" / "frameworks" / "graph" / "master_pipeline_nodes.py"
+    violations = scanner.scan_file(str(target))
+    pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
+
+    assert len(pragma_violations) > 0, (
+        "Expected pragma_no_cover_abuse violations in master_pipeline_nodes.py "
+        f"(ADR-STR-027 v2 enforcement), but found 0. "
+        f"All violations found: {violations}"
+    )
+
+
+def test_framework_scan_real_micro_validation_nodes_violations() -> None:
+    """ADR-STR-027 v2: Expose real violations in production frameworks/graph/micro_validation_nodes.py."""
+    import pathlib
+
+    project_root = pathlib.Path(__file__).resolve().parents[2]
+    scanner = CleanArchitectureBoundaryScanner(project_root=str(project_root))
+
+    target = project_root / "src" / "agentic_workflow" / "frameworks" / "graph" / "micro_validation_nodes.py"
+    violations = scanner.scan_file(str(target))
+    pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
+
+    assert len(pragma_violations) > 0, (
+        "Expected pragma_no_cover_abuse violations in micro_validation_nodes.py "
+        f"(ADR-STR-027 v2 enforcement), but found 0. "
+        f"All violations found: {violations}"
+    )
+
+
+def test_framework_scan_main_entry_point_no_violation() -> None:
+    """ADR-STR-027 v2: main.py entry point pragma must NOT produce violations."""
+    import pathlib
+
+    project_root = pathlib.Path(__file__).resolve().parents[2]
+    scanner = CleanArchitectureBoundaryScanner(project_root=str(project_root))
+
+    target = project_root / "src" / "agentic_workflow" / "frameworks" / "main.py"
+    violations = scanner.scan_file(str(target))
+    pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
+
+    assert pragma_violations == [], (
+        f"Expected 0 pragma violations in main.py (entry point exception), but got: {pragma_violations}"
+    )

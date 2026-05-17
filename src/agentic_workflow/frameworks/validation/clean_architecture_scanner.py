@@ -139,11 +139,11 @@ class CleanArchitectureBoundaryScanner:
                     comment_str = token.string
                     line_num, col_num = token.start
 
-                    # Check pragma
+                    # Check pragma — banned in ALL layers (ADR-STR-027 v2)
                     if PRAGMA_REGEX.match(comment_str):
                         line_text = content.splitlines()[line_num - 1]
                         normalized_line = "".join(line_text.split()).lower()
-                        # Allow pragma ONLY inside "if __name__ == '__main__':"
+                        # Allow pragma ONLY on the 'if __name__ == "__main__":' line itself
                         if not ("if" + "__name__" + "==" in normalized_line and "__main__" in normalized_line):
                             violations.append(
                                 BoundaryViolation(
@@ -153,7 +153,7 @@ class CleanArchitectureBoundaryScanner:
                                     category="pragma_no_cover_abuse",
                                     message=(
                                         "Illegal pragma: no cover bypass detected outside if __name__ == '__main__':. "
-                                        "All pragma comments are strictly banned outside python entry point."
+                                        "All pragma comments are strictly banned in all layers outside the entry point."
                                     ),
                                 )
                             )
@@ -179,6 +179,7 @@ class CleanArchitectureBoundaryScanner:
                     comment_idx = line.find("#")
                     comment_str = line[comment_idx:]
 
+                    # Check pragma — banned in ALL layers (ADR-STR-027 v2)
                     if PRAGMA_REGEX.match(comment_str):
                         normalized_line = "".join(line.split()).lower()
                         if not ("if" + "__name__" + "==" in normalized_line and "__main__" in normalized_line):
@@ -190,7 +191,7 @@ class CleanArchitectureBoundaryScanner:
                                     category="pragma_no_cover_abuse",
                                     message=(
                                         "Illegal pragma: no cover bypass detected outside if __name__ == '__main__':. "
-                                        "All pragma comments are strictly banned outside python entry point."
+                                        "All pragma comments are strictly banned in all layers outside the entry point."
                                     ),
                                 )
                             )
