@@ -683,7 +683,6 @@ def test_scanner_fallback_on_tokenization_failure(
     def mock_generate_tokens(*args: Any, **kwargs: Any) -> Any:
         raise tokenize.TokenError("Mocked tokenization failure")
 
-
     monkeypatch.setattr(tokenize, "generate_tokens", mock_generate_tokens)
 
     # 1. Ban all pragma comments outside main
