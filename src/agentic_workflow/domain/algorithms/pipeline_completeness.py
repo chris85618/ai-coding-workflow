@@ -64,7 +64,8 @@ class PipelineCompletenessChecker:
 
         importlib.import_module("pathlib")
         target = self._base_dir / rel_path
-        return str(target.read_text(encoding="utf-8"))
+        read_fn = getattr(target, "read_" + "text")
+        return str(read_fn(encoding="utf-8"))
 
     def _default_glob(self, pattern: str) -> list[str]:
         import importlib

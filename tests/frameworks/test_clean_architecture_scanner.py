@@ -502,3 +502,23 @@ def test_scanner_extra_coverage_edge_cases(scanner: CleanArchitectureBoundarySca
     file_ann.parent.mkdir(parents=True, exist_ok=True)
     file_ann.write_text(code_ann, encoding="utf-8")
     assert scanner.scan_file(str(file_ann)) == []
+
+
+def test_scanner_pragma_no_cover_abuse(scanner: CleanArchitectureBoundaryScanner, temp_project: Path) -> None:
+    """Verify that any use of pragma: no cover outside of if __name__ == '__main__': is flagged."""
+    # 1. Illegal use of pragma: no cover on regular line
+    illegal_code = "def my_func():  # pragma: no cover\n    pass\n"
+    illegal_file = temp_project / "src" / "agentic_workflow" / "domain" / "illegal.py"
+    illegal_file.write_text(illegal_code, encoding="utf-8")
+
+    violations = scanner.scan_file(str(illegal_file))
+    assert len(violations) == 1
+    assert violations[0].category == "pragma_no_cover_abuse"
+    assert "Illegal pragma: no cover bypass detected" in violations[0].message
+
+    # 2. Legal use of pragma: no cover on if __name__ == '__main__':
+    legal_code = "if __name__ == '__main__':  # pragma: no cover\n    main()\n"
+    legal_file = temp_project / "src" / "agentic_workflow" / "domain" / "legal.py"
+    legal_file.write_text(legal_code, encoding="utf-8")
+
+    assert scanner.scan_file(str(legal_file)) == []

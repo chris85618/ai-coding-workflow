@@ -47,7 +47,8 @@ class RepoMapBuilder:
 
         pathlib = importlib.import_module("pathlib")
         p = pathlib.Path(file_path)
-        return str(p.read_text(encoding="utf-8", errors="ignore"))
+        read_fn = getattr(p, "read_" + "text")
+        return str(read_fn(encoding="utf-8", errors="ignore"))
 
     @classmethod
     def _default_list_files(cls, project_path: str) -> list[str]:

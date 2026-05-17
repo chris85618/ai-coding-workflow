@@ -104,10 +104,26 @@ class CleanArchitectureBoundaryScanner:
                 )
             ]
 
+        violations: list[BoundaryViolation] = []
+        for idx, line in enumerate(content.splitlines(), start=1):
+            normalized_line = "".join(line.split()).lower()
+            if "pragma" + ":" + "nocover" in normalized_line and (
+                "if" + "__name__" + "==" not in normalized_line or "__main__" not in normalized_line
+            ):
+                violations.append(
+                    BoundaryViolation(
+                        file_path=str(path),
+                        line=idx,
+                        column=0,
+                        category="pragma_no_cover_abuse",
+                        message="Illegal pragma: no cover bypass detected outside if __name__ == '__main__':",
+                    )
+                )
+
         try:
             tree = ast.parse(content, filename=str(path))
         except SyntaxError as se:
-            return [
+            violations.append(
                 BoundaryViolation(
                     file_path=str(path),
                     line=se.lineno or 1,
@@ -115,7 +131,8 @@ class CleanArchitectureBoundaryScanner:
                     category="syntax_error",
                     message=f"Syntax error during parsing: {se.msg}",
                 )
-            ]
+            )
+            return violations
 
         current_module = self.resolve_module_path(path)
         visitor = BoundaryVisitor(
@@ -126,7 +143,8 @@ class CleanArchitectureBoundaryScanner:
             scanner=self,
         )
         visitor.visit(tree)
-        return visitor.violations
+        violations.extend(visitor.violations)
+        return violations
 
     def scan_directory(self, directory_path: str) -> list[BoundaryViolation]:
         """Scan all Python files in a directory recursively for violations."""
