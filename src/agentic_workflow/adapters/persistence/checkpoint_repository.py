@@ -8,11 +8,10 @@ Storage: JSON files in {repo_root}/.agentic/checkpoints/{pipeline_id}/
 from __future__ import annotations
 
 import json
-import os
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any, cast
 
+from agentic_workflow.adapters.filesystem import get_filesystem
 from agentic_workflow.application.ports.repositories import CheckpointRepository
 
 
@@ -35,13 +34,14 @@ class FileCheckpointRepository(CheckpointRepository):
         Args:
             repo_root: Path to the repository root directory.
         """
-        self._root = Path(repo_root) / ".agentic" / "checkpoints"
-        self._root.mkdir(parents=True, exist_ok=True)
+        self._fs = get_filesystem()
+        self._root = self._fs.resolve_path(self._fs.resolve_path(repo_root) + "/.agentic/checkpoints")
+        self._fs.mkdir(self._root, parents=True, exist_ok=True)
 
-    def _pipeline_dir(self, pipeline_id: str) -> Path:
+    def _pipeline_dir(self, pipeline_id: str) -> str:
         safe = pipeline_id.replace("/", "_").replace("\\", "_")
-        d = self._root / safe
-        d.mkdir(parents=True, exist_ok=True)
+        d = self._root + f"/{safe}"
+        self._fs.mkdir(d, parents=True, exist_ok=True)
         return d
 
     def save_checkpoint(self, pipeline_id: str, state: dict[str, Any]) -> str:
@@ -55,8 +55,8 @@ class FileCheckpointRepository(CheckpointRepository):
             Checkpoint identifier (ISO 8601 UTC timestamp string).
         """
         checkpoint_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
-        path = self._pipeline_dir(pipeline_id) / f"{checkpoint_id}.json"
-        path.write_text(json.dumps(state, indent=2, default=str), encoding="utf-8")
+        path = self._pipeline_dir(pipeline_id) + f"/{checkpoint_id}.json"
+        self._fs.write_text(path, json.dumps(state, indent=2, default=str), encoding="utf-8")
         return checkpoint_id
 
     def load_latest(self, pipeline_id: str) -> dict[str, Any] | None:
@@ -69,10 +69,12 @@ class FileCheckpointRepository(CheckpointRepository):
             State dictionary if a checkpoint exists, else None.
         """
         d = self._pipeline_dir(pipeline_id)
-        checkpoints = sorted(d.glob("*.json"), reverse=True)
+        checkpoints = sorted(self._fs.glob(d, "*.json"), reverse=True)
         if not checkpoints:
             return None
-        return cast("dict[str, Any]", json.loads(checkpoints[0].read_text(encoding="utf-8")))
+        # glob items are relative paths, resolve them
+        full_path = self._fs.resolve_path(d + f"/{checkpoints[0]}")
+        return cast("dict[str, Any]", json.loads(self._fs.read_text(full_path, encoding="utf-8")))
 
     def list_checkpoints(self, pipeline_id: str) -> list[str]:
         """List checkpoint identifiers newest first.
@@ -84,7 +86,12 @@ class FileCheckpointRepository(CheckpointRepository):
             List of checkpoint identifier strings.
         """
         d = self._pipeline_dir(pipeline_id)
-        return [f.stem for f in sorted(d.glob("*.json"), reverse=True)]
+        files = sorted(self._fs.glob(d, "*.json"), reverse=True)
+        stems = []
+        for f in files:
+            name = f.replace("\\", "/").split("/")[-1]
+            stems.append(name[:-5])
+        return stems
 
     def delete_checkpoint(self, pipeline_id: str, checkpoint_id: str) -> bool:
         """Delete a specific checkpoint file.
@@ -96,8 +103,7 @@ class FileCheckpointRepository(CheckpointRepository):
         Returns:
             True if deleted, False if not found.
         """
-        path = self._pipeline_dir(pipeline_id) / f"{checkpoint_id}.json"
-        if path.exists():
-            os.remove(path)
-            return True
+        path = self._pipeline_dir(pipeline_id) + f"/{checkpoint_id}.json"
+        if self._fs.exists(path):
+            return self._fs.remove(path)
         return False

@@ -3,7 +3,7 @@
 Traceable to: FR-007, FR-023
 """
 
-from pydantic import BaseModel
+from dataclasses import dataclass
 
 from agentic_workflow.domain.algorithms.root_cause_leftshift.intervention_type import (
     InterventionType,
@@ -13,7 +13,8 @@ from agentic_workflow.domain.algorithms.root_cause_leftshift.root_cause_category
 )
 
 
-class RootCauseAnalysisResult(BaseModel):
+@dataclass
+class RootCauseAnalysisResult:
     """Result of a root cause analysis."""
 
     category: RootCauseCategory

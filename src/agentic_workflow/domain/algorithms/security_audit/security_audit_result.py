@@ -3,12 +3,12 @@
 Traceable to: FR-016
 """
 
+from dataclasses import dataclass
 from typing import Any
 
-from pydantic import BaseModel
 
-
-class SecurityAuditResult(BaseModel):
+@dataclass
+class SecurityAuditResult:
     """Result of a security audit layer."""
 
     layer: str

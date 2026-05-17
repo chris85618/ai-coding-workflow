@@ -112,7 +112,24 @@ def node_pipeline_completeness(state: WorkflowState) -> WorkflowState:
 
     Corresponds to Phase 0 Pipeline Completeness Check (FR-001).
     """
-    completeness_data = PipelineCompletenessChecker(Path()).calculate()
+
+    def _exists(rel_path: str) -> bool:
+        target = Path() / rel_path
+        return target.is_file()
+
+    def _read_text(rel_path: str) -> str:
+        target = Path() / rel_path
+        return target.read_text(encoding="utf-8")
+
+    def _glob(pattern: str) -> list[str]:
+        return [str(p) for p in Path().glob(pattern)]
+
+    completeness_data = PipelineCompletenessChecker(
+        base_dir="",
+        exists_fn=_exists,
+        read_text_fn=_read_text,
+        glob_fn=_glob,
+    ).calculate()
 
     # Store the results into state metadata
     metadata = state.get("metadata", {})

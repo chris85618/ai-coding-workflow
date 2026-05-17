@@ -8,10 +8,9 @@ Storage: JSON file per ID prefix, located in {repo_root}/.agentic/ids/
 from __future__ import annotations
 
 import json
-import os
-from pathlib import Path
 from typing import TYPE_CHECKING
 
+from agentic_workflow.adapters.filesystem import get_filesystem
 from agentic_workflow.application.ports.repositories import TraceableIDRepository
 
 if TYPE_CHECKING:
@@ -32,19 +31,20 @@ class FileTraceableIDRepository(TraceableIDRepository):
 
     def __init__(self, repo_root: str = ".") -> None:
         """Initialize the repository at .agentic/ids relative to repo_root."""
-        self._root = Path(repo_root) / ".agentic" / "ids"
-        self._root.mkdir(parents=True, exist_ok=True)
+        self._fs = get_filesystem()
+        self._root = self._fs.resolve_path(self._fs.resolve_path(repo_root) + "/.agentic/ids")
+        self._fs.mkdir(self._root, parents=True, exist_ok=True)
 
-    def _path_for(self, id_str: str) -> Path:
+    def _path_for(self, id_str: str) -> str:
         """Return safe storage path for an ID string.
 
         Raises:
             ValueError: If the resolved path escapes the storage root (SEC-003).
         """
         safe = id_str.replace("/", "_").replace("\\", "_").replace("..", "__")
-        resolved = (self._root / f"{safe}.json").resolve()
+        resolved = self._fs.resolve_path(self._root + f"/{safe}.json")
         try:
-            resolved.relative_to(self._root.resolve())
+            self._fs.relative_to(resolved, self._root)
         except ValueError as err:
             raise ValueError(f"Path traversal detected for ID {id_str!r} (SEC-003)") from err
         return resolved
@@ -78,7 +78,7 @@ class FileTraceableIDRepository(TraceableIDRepository):
             ],
         }
         path = self._path_for(traceable_id.full_id)
-        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        self._fs.write_text(path, json.dumps(data, indent=2), encoding="utf-8")
 
     def find_by_id(self, id_str: str) -> TraceableID | None:
         """Load a TraceableID from disk by its string identifier.
@@ -94,9 +94,9 @@ class FileTraceableIDRepository(TraceableIDRepository):
         from agentic_workflow.domain.value_objects import TraceLink
 
         path = self._path_for(id_str)
-        if not path.exists():
+        if not self._fs.exists(path):
             return None
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(self._fs.read_text(path, encoding="utf-8"))
         upstream_links = [
             TraceLink(
                 source_id=lk["source_id"],
@@ -128,9 +128,11 @@ class FileTraceableIDRepository(TraceableIDRepository):
             List of all stored IDs.
         """
         results = []
-        for json_file in sorted(self._root.glob("*.json")):
-            # Reconstruct id_str from filename (e.g. FR-001.json → FR-001)
-            stem = json_file.stem.replace("_", "-")
+        # glob returns relative to self._root as list of strings
+        for json_file in sorted(self._fs.glob(self._root, "*.json")):
+            # Extract stem (e.g. FR-001.json → FR-001)
+            file_name = json_file.replace("\\", "/").split("/")[-1]
+            stem = file_name[:-5].replace("_", "-")
             obj = self.find_by_id(stem)
             if obj is not None:
                 results.append(obj)
@@ -146,7 +148,6 @@ class FileTraceableIDRepository(TraceableIDRepository):
             True if deleted, False if not found.
         """
         path = self._path_for(id_str)
-        if path.exists():
-            os.remove(path)
-            return True
+        if self._fs.exists(path):
+            return self._fs.remove(path)
         return False

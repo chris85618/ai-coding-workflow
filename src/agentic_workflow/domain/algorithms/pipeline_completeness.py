@@ -6,7 +6,6 @@ OO Design: PipelineCompletenessChecker class wraps all logic (ALG-010 OO mandate
 """
 
 from collections.abc import Callable
-from pathlib import Path
 from typing import Any
 
 
@@ -15,6 +14,11 @@ class PipelineCompletenessChecker:
 
     ALG-010 OO mandate: all logic is encapsulated in this class.
     """
+
+    # Class-level providers for default behaviors (registered by outer layers).
+    default_exists_fn: Callable[[Any, str], bool] | None = None
+    default_read_text_fn: Callable[[Any, str], str] | None = None
+    default_glob_fn: Callable[[Any, str], list[str]] | None = None
 
     # Ordered list of (rel_path, must_contain) tuples that define the 10 checks.
     _CHECKS: list[tuple[str, str | None]] = [
@@ -34,7 +38,7 @@ class PipelineCompletenessChecker:
 
     def __init__(
         self,
-        base_dir: Path,
+        base_dir: Any,
         exists_fn: Callable[[str], bool] | None = None,
         read_text_fn: Callable[[str], str] | None = None,
         glob_fn: Callable[[str], list[str]] | None = None,
@@ -42,39 +46,37 @@ class PipelineCompletenessChecker:
         """Initialise with the repository root directory and filesystem helper callbacks.
 
         Args:
-            base_dir: Absolute path to the repository root.
+            base_dir: Root directory of repository.
             exists_fn: Optional callback to check if a relative file exists.
             read_text_fn: Optional callback to read relative file content as string.
             glob_fn: Optional callback to glob relative paths.
         """
         self._base_dir = base_dir
-        self._exists_fn = exists_fn or self._default_exists
-        self._read_text_fn = read_text_fn or self._default_read_text
-        self._glob_fn = glob_fn or self._default_glob
 
-    def _default_exists(self, rel_path: str) -> bool:
-        import importlib
+        # We fall back to class-level providers registered by interface adapters.
+        self._exists_fn = exists_fn or (
+            lambda rel: (
+                PipelineCompletenessChecker.default_exists_fn(self._base_dir, rel)
+                if PipelineCompletenessChecker.default_exists_fn
+                else False
+            )
+        )
+        self._read_text_fn = read_text_fn or (
+            lambda rel: (
+                PipelineCompletenessChecker.default_read_text_fn(self._base_dir, rel)
+                if PipelineCompletenessChecker.default_read_text_fn
+                else ""
+            )
+        )
+        self._glob_fn = glob_fn or (
+            lambda pat: (
+                PipelineCompletenessChecker.default_glob_fn(self._base_dir, pat)
+                if PipelineCompletenessChecker.default_glob_fn
+                else []
+            )
+        )
 
-        importlib.import_module("pathlib")
-        target = self._base_dir / rel_path
-        return bool(target.exists() and target.is_file())
-
-    def _default_read_text(self, rel_path: str) -> str:
-        import importlib
-
-        importlib.import_module("pathlib")
-        target = self._base_dir / rel_path
-        read_fn = getattr(target, "read_" + "text")
-        return str(read_fn(encoding="utf-8"))
-
-    def _default_glob(self, pattern: str) -> list[str]:
-        import importlib
-
-        importlib.import_module("pathlib")
-        paths = self._base_dir.glob(pattern)
-        return [str(p) for p in paths]
-
-    # ── Private helpers ────────────────────────────────────────────────────────
+    # ── Checking logic ─────────────────────────────────────────────────────────
 
     def _file_exists_and_contains(self, rel_path: str, must_contain: str | None = None) -> bool:
         """Return True if the file exists and optionally contains a string.
@@ -86,12 +88,7 @@ class PipelineCompletenessChecker:
         Returns:
             Boolean indicating whether the check passed.
         """
-        if not self._exists_fn(rel_path):
-            return False
-        if must_contain:
-            content = self._read_text_fn(rel_path)
-            return must_contain in content
-        return True
+        return self._exists_fn(rel_path) and (not must_contain or must_contain in self._read_text_fn(rel_path))
 
     def _glob_count(self, pattern: str) -> bool:
         """Return True if at least one path matches the glob pattern.

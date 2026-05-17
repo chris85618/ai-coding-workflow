@@ -11,6 +11,9 @@ from typing import Any
 
 import pytest
 
+# Auto-register all concrete adapter implementations into domain class registries
+from agentic_workflow.adapters.filesystem import register_filesystem
+from agentic_workflow.adapters.subprocess import register_executor
 from agentic_workflow.domain.aggregates.pipeline import Pipeline
 from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
 from agentic_workflow.domain.entities.stage import Stage
@@ -21,6 +24,11 @@ from agentic_workflow.domain.enums import (
 from agentic_workflow.domain.services.hook_runner import HookDef, HookRunner
 from agentic_workflow.domain.services.llm_strategy_selector import LLMStrategySelector
 from agentic_workflow.domain.value_objects import ModelConfig, RepoMap, SymbolDef
+from agentic_workflow.frameworks.filesystem_io import OSFilesystemIO
+from agentic_workflow.frameworks.subprocess_executor import OSSubprocessExecutor
+
+register_filesystem(OSFilesystemIO())
+register_executor(OSSubprocessExecutor())
 
 # ── Project fixtures ──────────────────────────────────────────────────────────
 

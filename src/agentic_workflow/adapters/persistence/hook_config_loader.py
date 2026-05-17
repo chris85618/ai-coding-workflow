@@ -8,9 +8,9 @@ Configuration format follows Claude Code hook patterns (ADR-STR-004).
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 
+from agentic_workflow.adapters.filesystem import get_filesystem
 from agentic_workflow.domain.enums import HookEvent
 from agentic_workflow.domain.services.hook_runner import HookDef
 
@@ -43,7 +43,8 @@ class HookConfigLoader:
         Args:
             config_path: Path to the hook configuration file.
         """
-        self._path = Path(config_path)
+        self._fs = get_filesystem()
+        self._path = self._fs.resolve_path(config_path)
 
     def load(self) -> list[HookDef]:
         """Parse and return hook definitions from the config file.
@@ -56,7 +57,7 @@ class HookConfigLoader:
             KeyError: If a hook entry references an unknown event name.
             json.JSONDecodeError: If the file contains invalid JSON.
         """
-        raw = json.loads(self._path.read_text(encoding="utf-8"))
+        raw = json.loads(self._fs.read_text(self._path, encoding="utf-8"))
         hooks: list[HookDef] = []
         for entry in raw.get("hooks", []):
             hooks.append(

@@ -55,6 +55,16 @@ class DependencyContainer:
     security_audit: ISecurityAuditService = field(default_factory=SecurityAuditService)
     sonar_config: SonarCloudConfig = field(default_factory=_load_default_sonar_config)
 
+    def __post_init__(self) -> None:
+        """Register the filesystem and executor implementations under frameworks."""
+        from agentic_workflow.adapters.filesystem import register_filesystem
+        from agentic_workflow.adapters.subprocess import register_executor
+        from agentic_workflow.frameworks.filesystem_io import OSFilesystemIO
+        from agentic_workflow.frameworks.subprocess_executor import OSSubprocessExecutor
+
+        register_filesystem(OSFilesystemIO())
+        register_executor(OSSubprocessExecutor())
+
     # Use Cases
     @property
     def start_pipeline(self) -> StartPipelineUseCase:

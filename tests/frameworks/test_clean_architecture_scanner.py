@@ -151,12 +151,13 @@ import DependencyContainer
     file_path.write_text(code, encoding="utf-8")
 
     violations = scanner.scan_file(str(file_path))
-    assert len(violations) == 3
+    assert len(violations) == 4
 
     categories = [v.category for v in violations]
     messages = [v.message for v in violations]
     assert "static_import" in categories
     assert "di_container_abuse" in categories
+    assert "external_dependency_violation" in categories
     assert any("cannot access layer 'frameworks'" in m for m in messages)
     assert any("cannot access layer 'adapters'" in m for m in messages)
 
@@ -196,7 +197,8 @@ def load_graph():
     assert len(violations) >= 2
     categories = [v.category for v in violations]
     messages = [v.message for v in violations]
-    assert all(c == "dynamic_import" for c in categories)
+    non_ext_categories = [c for c in categories if c != "external_dependency_violation"]
+    assert all(c == "dynamic_import" for c in non_ext_categories)
     assert any("frameworks" in m for m in messages)
     assert any("adapters" in m for m in messages)
 
@@ -215,9 +217,10 @@ def load_any(module_name: str):
     file_path.write_text(code, encoding="utf-8")
 
     violations = scanner.scan_file(str(file_path))
-    assert len(violations) == 1
-    assert violations[0].category == "dynamic_import"
-    assert "variable argument is prohibited" in violations[0].message
+    non_ext_violations = [v for v in violations if v.category != "external_dependency_violation"]
+    assert len(non_ext_violations) == 1
+    assert non_ext_violations[0].category == "dynamic_import"
+    assert "variable argument is prohibited" in non_ext_violations[0].message
 
 
 def test_category3_exec_eval(scanner: CleanArchitectureBoundaryScanner, temp_project: Path) -> None:
@@ -252,8 +255,9 @@ def hijack():
     file_path.write_text(code, encoding="utf-8")
 
     violations = scanner.scan_file(str(file_path))
-    assert len(violations) == 3
-    categories = [v.category for v in violations]
+    non_ext_violations = [v for v in violations if v.category != "external_dependency_violation"]
+    assert len(non_ext_violations) == 3
+    categories = [v.category for v in non_ext_violations]
     assert all(c == "sys_modules" for c in categories)
 
 
@@ -311,9 +315,10 @@ class ConfigChecker:
     file_path.write_text(code, encoding="utf-8")
 
     violations = scanner.scan_file(str(file_path))
-    assert len(violations) == 2
-    categories = [v.category for v in violations]
-    messages = [v.message for v in violations]
+    non_ext_violations = [v for v in violations if v.category != "external_dependency_violation"]
+    assert len(non_ext_violations) == 2
+    categories = [v.category for v in non_ext_violations]
+    messages = [v.message for v in non_ext_violations]
     assert all(c == "env_access" for c in categories)
     assert any("os.getenv" in m for m in messages)
     assert any("os.environ" in m for m in messages)
@@ -335,9 +340,10 @@ class Reader:
     file_path.write_text(code, encoding="utf-8")
 
     violations = scanner.scan_file(str(file_path))
-    assert len(violations) == 2
-    categories = [v.category for v in violations]
-    messages = [v.message for v in violations]
+    non_ext_violations = [v for v in violations if v.category != "external_dependency_violation"]
+    assert len(non_ext_violations) == 2
+    categories = [v.category for v in non_ext_violations]
+    messages = [v.message for v in non_ext_violations]
     assert all(c == "file_io" for c in categories)
     assert any("open()" in m for m in messages)
     assert any("write_text" in m for m in messages)
@@ -441,9 +447,10 @@ def test_sys_modules_index_mocking(scanner: CleanArchitectureBoundaryScanner, te
     )
     visitor.visit(tree)
 
-    assert len(visitor.violations) == 1
-    assert visitor.violations[0].category == "sys_modules"
-    assert "frameworks" in visitor.violations[0].message
+    sys_violations = [v for v in visitor.violations if v.category == "sys_modules"]
+    assert len(sys_violations) == 1
+    assert sys_violations[0].category == "sys_modules"
+    assert "frameworks" in sys_violations[0].message
 
     # Construct a subscript node with slice = None to test that branch
     no_slice_node = ast.Subscript(

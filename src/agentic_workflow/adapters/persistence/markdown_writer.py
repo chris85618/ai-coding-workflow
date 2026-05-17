@@ -7,8 +7,7 @@ Reads/writes Markdown files relative to a configured repository root.
 
 from __future__ import annotations
 
-from pathlib import Path
-
+from agentic_workflow.adapters.filesystem import get_filesystem
 from agentic_workflow.application.ports.doc_io import DocumentIOGateway
 
 
@@ -28,17 +27,18 @@ class MarkdownDocumentIO(DocumentIOGateway):
         Args:
             repo_root: Path to the repository root directory.
         """
-        self._root = Path(repo_root).resolve()
+        self._fs = get_filesystem()
+        self._root = self._fs.resolve_path(repo_root)
 
-    def _resolve(self, doc_path: str) -> Path:
+    def _resolve(self, doc_path: str) -> str:
         """Resolve doc_path relative to repo_root.
 
         Raises:
             ValueError: If the resolved path escapes repo_root (SEC-002).
         """
-        resolved = (self._root / doc_path).resolve()
+        resolved = self._fs.resolve_path(self._root + f"/{doc_path}")
         try:
-            resolved.relative_to(self._root)
+            self._fs.relative_to(resolved, self._root)
         except ValueError:
             raise ValueError(f"Path traversal detected: {doc_path!r} escapes repo root (SEC-002)") from None
         return resolved
@@ -56,7 +56,7 @@ class MarkdownDocumentIO(DocumentIOGateway):
             FileNotFoundError: If the document does not exist.
         """
         path = self._resolve(doc_path)
-        return path.read_text(encoding="utf-8")
+        return self._fs.read_text(path, encoding="utf-8")
 
     def write(self, doc_path: str, content: str) -> None:
         """Write (create or overwrite) a Markdown document.
@@ -66,8 +66,9 @@ class MarkdownDocumentIO(DocumentIOGateway):
             content: Full document content to write.
         """
         path = self._resolve(doc_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        parent = "/".join(path.replace("\\", "/").split("/")[:-1])
+        self._fs.mkdir(parent, parents=True, exist_ok=True)
+        self._fs.write_text(path, content, encoding="utf-8")
 
     def append(self, doc_path: str, content: str) -> None:
         """Append content to an existing document.
@@ -79,9 +80,9 @@ class MarkdownDocumentIO(DocumentIOGateway):
             content: Content to append.
         """
         path = self._resolve(doc_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("a", encoding="utf-8") as f:
-            f.write(content)
+        parent = "/".join(path.replace("\\", "/").split("/")[:-1])
+        self._fs.mkdir(parent, parents=True, exist_ok=True)
+        self._fs.append_text(path, content, encoding="utf-8")
 
     def exists(self, doc_path: str) -> bool:
         """Check whether a document exists.
@@ -92,4 +93,4 @@ class MarkdownDocumentIO(DocumentIOGateway):
         Returns:
             True if the file exists.
         """
-        return self._resolve(doc_path).exists()
+        return self._fs.exists(self._resolve(doc_path))

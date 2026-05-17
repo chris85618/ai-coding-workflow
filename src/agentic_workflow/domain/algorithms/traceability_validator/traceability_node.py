@@ -3,14 +3,15 @@
 Traceable to: FR-004
 """
 
-from pydantic import BaseModel
+from dataclasses import dataclass, field
 
 
-class TraceabilityNode(BaseModel):
+@dataclass
+class TraceabilityNode:
     """Represents a node in the traceability matrix."""
 
     id: str
     type: str
-    upstream: list[str] = []
-    downstream: list[str] = []
-    links: dict[str, list[str]] = {}
+    upstream: list[str] = field(default_factory=list)
+    downstream: list[str] = field(default_factory=list)
+    links: dict[str, list[str]] = field(default_factory=dict)
