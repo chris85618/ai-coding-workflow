@@ -35,6 +35,9 @@
 - [x] LLM-03: 修改 `OpenAIProvider` 整合 `base_url` — ✅ DONE
 - [x] LLM-04: 更新測試案例驗證自定義 Endpoint 注入 — ✅ DONE
 - [x] LLM-05: 更新 `config.yaml` 範例與 `.env.example` — ✅ DONE
+- [x] CAD-12: 徹底重構 `nodes.py` 與 `sonar_adapter.py` 以使用 `SonarCloudConfig` 與 `InvariantsConfig` 依賴反轉，消除全域 singleton — ✅ DONE
+- [x] CAD-13: 修正 Mock 引起的 truthiness 問題，以真實 value objects 取代測試中的 MagicMock 確保可靠測試 — ✅ DONE
+- [x] CAD-14: 達成 100.00% 程式碼覆蓋率與 842 個測試案例全數通過，Mypy 與 Ruff 無任何錯誤 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -47,8 +50,7 @@
 - [✅] Stage 6: 形式化驗證設計 (INV-xxx Migration)
 - [✅] Stage 7: BDD/ATDD
 - [✅] Stage 8: TDD + 測試 + 修復 (100% Pass)
-- [✅] Phase 9: Ship & Deploy (v0.1.3)
-- [🔄] Phase 10: 反思與學習 (DDD Refactoring in Progress)
+- [🔄] Phase 10: 反思與學習 (Dependency Inversion Hardening)
 
 ## 📌 Pending Escalations
 
@@ -56,9 +58,6 @@
 
 ## 📝 Session Summary
 
-1. **100% Test Coverage reached**: Resolved the final coverage gaps in `Pipeline` aggregate and LangGraph `nodes.py`, achieving 100% statement and branch coverage across the entire `agentic_workflow` package.
-2. **Static Analysis Compliance**: Fully resolved 30+ `ruff` and `mypy` errors across domain, application, and adapter layers. Standardized docstrings and return type annotations.
-3. **Hardened DDD Aggregates**: Refactored `Pipeline` to use a validated `current_stage` property, consolidating logic and ensuring 100% coverage of stage access invariants.
-4. **Adapter Testing Hardening**: Standardized `DependencyContainer` initialization across all node tests and added dedicated error-path coverage tests for uninitialized container scenarios.
-5. **Traceability Validation**: Verified all changes against `docs/traceability-matrix.md`, ensuring no orphaned requirements or untested domain invariants.
-6. **Dependency Governance & Monitoring**: Established `.github/dependabot.yml` for automated security updates and integrated visual monitoring badges (Build, Coverage, Maintainability) into README.md.
+1. **Dependency Inversion & Decoupling**: Refactored `nodes.py`, `sonar_adapter.py`, and `invariants_verifier.py` to completely eliminate illegal cross-layer framework imports and inject `SonarCloudConfig` and `InvariantsConfig` configurations.
+2. **Reliable Mock & Testing Alignment**: Solved mock truthiness issues in `test_sonarcloud_node.py` and `test_sonarcloud_node_switching.py` by using real config instances. Added coverage tests to secure 100.00% package coverage.
+3. **100% Quality & Coverage**: All 842 tests passed with zero linting or type-checking errors, maintaining a strict 100.00% code coverage.
