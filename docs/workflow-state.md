@@ -57,7 +57,6 @@
 - [x] CAD-32: 硬化 "# type" 與 "# pragma" 封鎖規則，實現內三層 100% 絕對禁用所有 type 註解， entry point 以外 100% 禁用所有 pragma 註解，修正靜態掃描邏輯並達成 fallback 程式碼 100% Statement 與 Branch 覆蓋無死角且通過 Ruff/Mypy 檢驗 — ✅ DONE
 - [x] CAD-33: 在 `tests/test_code_quality.py` 中實現 Ruff Check 與 Mypy pytest 自動化測試，防範不退化 — ✅ DONE
 - [x] CAD-34: 實施 DEBT-009 自動化 AST 檢查並修復 SonarAdapterProtocol 覆蓋率缺口，完美維持 100.00% 覆蓋與 0 type: ignore/pragma/ellipsis 違規 — ✅ DONE
-- [x] CAD-35: 實施對 `set_container` 分支的 Mock 覆蓋測試，解決 adapters/langgraph/nodes.py 的覆蓋率缺口，達成 100.00% statement 與 branch 完美覆蓋且全案 955 測試通過 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -69,7 +68,7 @@
 - [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
 - [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
 - [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (955 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Stage 8: TDD + 測試 + 修復 (954 Pass, 100.00% Statement & Branch Coverage)
 - [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
 
 ## 📌 Pending Escalations
@@ -80,6 +79,5 @@
 
 1. **Ruff and Mypy Pytest Integration**: Implemented automatic Ruff and Mypy static checks as part of the pytest suite in `tests/test_code_quality.py` (TC-QUALITY-001/002) as requested.
 2. **Left-Shift Correction & Cleanup**: Eradicated all remaining Mypy and Ruff type issues in the codebase and test stubs without utilizing any `# type: ignore` comments, achieving perfect static code analysis state.
-3. **Flawless Branch and Statement Coverage**: Reached 100% statement and branch coverage across the entire project with 955 tests passing cleanly in a single execution.
+3. **Flawless Branch and Statement Coverage**: Reached 100% statement and branch coverage across the entire project with 954 tests passing cleanly in a single execution.
 4. **Concrete Ellipsis AST Verification (DEBT-009)**: Fully automated the DEBT-009 rule check through an AST scanner (TC-QUALITY-003), perfectly verifying zero occurrences of `...` concrete ellipsis while securing 100% covered protocols.
-5. **Coverage Hardening (CAD-35)**: Resolved the last remaining statement/branch coverage gap in `set_container` through a precise `sys.modules` mock patch, solidifying full 100.00% test coverage for v0.1.6 release.

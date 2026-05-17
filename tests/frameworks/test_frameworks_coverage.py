@@ -838,9 +838,7 @@ class TestLangGraphNodes:
         container.sonar_config.is_valid = True
         container.sonar_config.project_key = "key"
         container.sonar_config.token = "token"
-        container.sonar_adapter.get_metrics.return_value = {
-            "coverage": {"global": 40.0}
-        }
+        container.sonar_adapter.get_metrics.return_value = {"coverage": {"global": 40.0}}
         container.sonar_adapter.get_issues.return_value = []
         set_container(container)
         try:
@@ -855,9 +853,7 @@ class TestLangGraphNodes:
         container.sonar_config.is_valid = True
         container.sonar_config.project_key = "key"
         container.sonar_config.token = "token"
-        container.sonar_adapter.get_metrics.return_value = {
-            "coverage": {"global": 95.0}
-        }
+        container.sonar_adapter.get_metrics.return_value = {"coverage": {"global": 95.0}}
         container.sonar_adapter.get_issues.return_value = []
         set_container(container)
         try:
@@ -904,9 +900,7 @@ class TestLangGraphNodes:
         # 7. Only sonar_issues populated
         container = MagicMock(spec=WorkflowContainerProtocol)
         container.sonar_config.is_valid = True
-        container.sonar_adapter.get_metrics.return_value = {
-            "coverage": {"global": 95.0}
-        }
+        container.sonar_adapter.get_metrics.return_value = {"coverage": {"global": 95.0}}
         set_container(container)
         try:
             res7 = node_sonarcloud_gate(
@@ -923,6 +917,7 @@ class TestLangGraphNodes:
     def test_set_container_uncovered_branch(self) -> None:
         """Covers the branch where frameworks set_container is different."""
         import sys
+
         target = "agentic_workflow.frameworks.langgraph.nodes"
 
         # Save original module if it exists
