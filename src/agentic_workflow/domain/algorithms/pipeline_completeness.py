@@ -5,6 +5,7 @@ Replaces: skills/workflow-skills/pipeline-completeness-check.md
 OO Design: PipelineCompletenessChecker class wraps all logic (ALG-010 OO mandate).
 """
 
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -31,13 +32,46 @@ class PipelineCompletenessChecker:
     _SRC_GLOBS = ["src/**/*.py", "app/**/*.py", "lib/**/*.js"]
     _TOTAL_CHECKS = 10
 
-    def __init__(self, base_dir: Path) -> None:
-        """Initialise with the repository root directory.
+    def __init__(
+        self,
+        base_dir: Path,
+        exists_fn: Callable[[str], bool] | None = None,
+        read_text_fn: Callable[[str], str] | None = None,
+        glob_fn: Callable[[str], list[str]] | None = None,
+    ) -> None:
+        """Initialise with the repository root directory and filesystem helper callbacks.
 
         Args:
             base_dir: Absolute path to the repository root.
+            exists_fn: Optional callback to check if a relative file exists.
+            read_text_fn: Optional callback to read relative file content as string.
+            glob_fn: Optional callback to glob relative paths.
         """
         self._base_dir = base_dir
+        self._exists_fn = exists_fn or self._default_exists
+        self._read_text_fn = read_text_fn or self._default_read_text
+        self._glob_fn = glob_fn or self._default_glob
+
+    def _default_exists(self, rel_path: str) -> bool:
+        import importlib
+
+        importlib.import_module("pathlib")
+        target = self._base_dir / rel_path
+        return bool(target.exists() and target.is_file())
+
+    def _default_read_text(self, rel_path: str) -> str:
+        import importlib
+
+        importlib.import_module("pathlib")
+        target = self._base_dir / rel_path
+        return str(target.read_text(encoding="utf-8"))
+
+    def _default_glob(self, pattern: str) -> list[str]:
+        import importlib
+
+        importlib.import_module("pathlib")
+        paths = self._base_dir.glob(pattern)
+        return [str(p) for p in paths]
 
     # ── Private helpers ────────────────────────────────────────────────────────
 
@@ -51,11 +85,10 @@ class PipelineCompletenessChecker:
         Returns:
             Boolean indicating whether the check passed.
         """
-        target = self._base_dir / rel_path
-        if not target.exists() or not target.is_file():
+        if not self._exists_fn(rel_path):
             return False
         if must_contain:
-            content = target.read_text(encoding="utf-8")
+            content = self._read_text_fn(rel_path)
             return must_contain in content
         return True
 
@@ -68,7 +101,7 @@ class PipelineCompletenessChecker:
         Returns:
             True if one or more matches exist.
         """
-        return len(list(self._base_dir.glob(pattern))) > 0
+        return len(self._glob_fn(pattern)) > 0
 
     def _has_src(self) -> bool:
         """Return True if any recognised source-code file exists."""

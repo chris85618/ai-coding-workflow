@@ -14,7 +14,7 @@ from __future__ import annotations
 import ast
 import os
 import re
-from pathlib import Path
+from collections.abc import Callable
 
 import icontract
 
@@ -40,6 +40,26 @@ class RepoMapBuilder:
     CHARS_PER_TOKEN: int = _CHARS_PER_TOKEN
     PAGERANK_DAMPING: float = 0.85
     PAGERANK_ITERATIONS: int = 20
+
+    @classmethod
+    def _default_read_text(cls, file_path: str) -> str:
+        import importlib
+
+        pathlib = importlib.import_module("pathlib")
+        p = pathlib.Path(file_path)
+        return str(p.read_text(encoding="utf-8", errors="ignore"))
+
+    @classmethod
+    def _default_list_files(cls, project_path: str) -> list[str]:
+        import importlib
+
+        os_mod = importlib.import_module("os")
+        py_files = []
+        for root, _, files in os_mod.walk(project_path):
+            for fname in files:
+                if fname.endswith(".py") and not fname.startswith("test_"):
+                    py_files.append(os_mod.path.join(root, fname))
+        return py_files
 
     @classmethod
     def extract_symbols_ast(cls, file_path: str, source: str) -> list[SymbolDef]:
@@ -86,7 +106,12 @@ class RepoMapBuilder:
         return symbols
 
     @classmethod
-    def build_import_graph(cls, py_files: list[str], project_path: str) -> dict[str, list[str]]:
+    def build_import_graph(
+        cls,
+        py_files: list[str],
+        project_path: str,
+        read_text_fn: Callable[[str], str] | None = None,
+    ) -> dict[str, list[str]]:
         """Build a file-level import dependency graph.
 
         Uses regex for fast import detection without full parsing.
@@ -94,18 +119,20 @@ class RepoMapBuilder:
         Args:
             py_files: List of absolute Python file paths.
             project_path: Root project directory path.
+            read_text_fn: Optional callback to read file contents.
 
         Returns:
             Dict mapping file_path -> list of imported file_paths.
         """
+        read_fn = read_text_fn or cls._default_read_text
         import_pattern = re.compile(r"^(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))", re.MULTILINE)
         graph: dict[str, list[str]] = {f: [] for f in py_files}
-        path_map = {Path(f).stem: f for f in py_files}
+        path_map = {os.path.splitext(os.path.basename(f))[0]: f for f in py_files}
 
         for file_path in py_files:
             try:
-                source = Path(file_path).read_text(encoding="utf-8", errors="ignore")
-            except OSError:
+                source = read_fn(file_path)
+            except Exception:
                 continue
             for match in import_pattern.finditer(source):
                 module = match.group(1) or match.group(2)
@@ -165,22 +192,29 @@ class RepoMapBuilder:
         lambda result, token_budget: result.token_count <= token_budget,
         "RepoMap token count must not exceed budget (INV-024)",
     )
-    def build(cls, project_path: str, token_budget: int) -> RepoMap:
+    def build(
+        cls,
+        project_path: str,
+        token_budget: int,
+        list_files_fn: Callable[[str], list[str]] | None = None,
+        read_text_fn: Callable[[str], str] | None = None,
+    ) -> RepoMap:
         """Build a ranked repository map within a token budget.
 
         Args:
             project_path: Root directory of the project to map.
             token_budget: Maximum token count for the resulting map.
+            list_files_fn: Optional callback to list target files under path.
+            read_text_fn: Optional callback to read target file contents.
 
         Returns:
             RepoMap containing ranked symbols within token budget.
         """
+        list_fn = list_files_fn or cls._default_list_files
+        read_fn = read_text_fn or cls._default_read_text
+
         # Step 1: Discover Python files
-        py_files: list[str] = []
-        for root, _dirs, files in os.walk(project_path):
-            for fname in files:
-                if fname.endswith(".py") and not fname.startswith("test_"):
-                    py_files.append(os.path.join(root, fname))
+        py_files = list_fn(project_path)
 
         if not py_files:
             return RepoMap(symbols=(), token_count=0, file_ranks={})
@@ -189,13 +223,13 @@ class RepoMapBuilder:
         all_symbols: list[SymbolDef] = []
         for file_path in py_files:
             try:
-                source = Path(file_path).read_text(encoding="utf-8", errors="ignore")
-            except OSError:
+                source = read_fn(file_path)
+            except Exception:
                 continue
             all_symbols.extend(cls.extract_symbols_ast(file_path, source))
 
         # Step 3: Build import graph + PageRank
-        graph = cls.build_import_graph(py_files, project_path)
+        graph = cls.build_import_graph(py_files, project_path, read_text_fn=read_fn)
         ranks = cls.pagerank(graph)
 
         # Step 4: Sort symbols by file rank (descending)
