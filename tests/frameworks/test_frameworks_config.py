@@ -94,7 +94,7 @@ class TestCoerceValueExceptBranch:
 
     def test_attribute_error_returns_raw_string(self) -> None:
         """Lines 47-48: AttributeError on .replace → returns raw value."""
-        from agentic_workflow.adapters.sonarcloud.sonar_adapter import _coerce_value
+        from agentic_workflow.frameworks.sonarcloud.sonar_adapter import _coerce_value
 
         # Pass an object with no .replace — triggers AttributeError,
         # falls through except and returns the original value unchanged.

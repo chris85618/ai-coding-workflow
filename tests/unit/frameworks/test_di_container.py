@@ -109,3 +109,29 @@ class TestDependencyContainer:
 
             config = _load_default_sonar_config()
             assert config.token is None
+
+    def test_sonar_adapter_property(
+        self,
+        mock_repo: MagicMock,
+        mock_io: MagicMock,
+        mock_reasoner: MagicMock,
+        mock_checkpoint_repo: MagicMock,
+    ) -> None:
+        """sonar_adapter property builds a SonarCloudAdapter from sonar_config."""
+        from unittest.mock import patch
+
+        container = DependencyContainer(
+            pipeline_repo=mock_repo,
+            checkpoint_repo=mock_checkpoint_repo,
+            doc_io=mock_io,
+            reasoner=mock_reasoner,
+        )
+
+        # Patch SonarCloudClient inside the adapter so no real HTTP is attempted
+        with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient"):
+            adapter = container.sonar_adapter
+
+        # Adapter module is imported and instance is created
+        from agentic_workflow.frameworks.sonarcloud.sonar_adapter import SonarCloudAdapter
+
+        assert isinstance(adapter, SonarCloudAdapter)

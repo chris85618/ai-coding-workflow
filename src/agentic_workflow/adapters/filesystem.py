@@ -6,7 +6,6 @@ Defines the abstract interface for filesystem IO, decoupling adapters and domain
 
 from __future__ import annotations
 
-import contextlib
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -118,8 +117,3 @@ def default_is_dir(path: str) -> bool:
 def default_extract_symbols_ast(file_path: str, source: str) -> list[SymbolDef]:
     """Extract class and function symbols from source code via AST analysis."""
     return get_filesystem().extract_symbols_ast(file_path, source)
-
-
-# Force coverage for get_filesystem when _instance is None at module load time
-with contextlib.suppress(RuntimeError):
-    get_filesystem()

@@ -36,7 +36,7 @@ class TestLLMProviders:
 
     def test_unsupported_provider_raises(self) -> None:
         """Test registry error when provider is not supported."""
-        from agentic_workflow.adapters.llm.provider_registry import LLMProviderRegistry
+        from agentic_workflow.frameworks.llm.provider_registry import LLMProviderRegistry
 
         registry = LLMProviderRegistry()
         with pytest.raises(ValueError, match="Unsupported LLM provider"):
@@ -44,8 +44,8 @@ class TestLLMProviders:
 
     def test_openai_import_error(self) -> None:
         """Test handling of missing langchain_openai in OpenAIProvider."""
-        from agentic_workflow.adapters.llm.providers.openai import OpenAIProvider
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.providers.openai import OpenAIProvider
 
         cfg = ModelConfig(provider="openai", model="gpt-4o")
         provider = OpenAIProvider()
@@ -57,8 +57,8 @@ class TestLLMProviders:
 
     def test_anthropic_import_error(self) -> None:
         """Test handling of missing langchain_anthropic in AnthropicProvider."""
-        from agentic_workflow.adapters.llm.providers.anthropic import AnthropicProvider
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.providers.anthropic import AnthropicProvider
 
         cfg = ModelConfig(provider="anthropic", model="claude-opus")
         provider = AnthropicProvider()
@@ -68,13 +68,13 @@ class TestLLMProviders:
         ):
             provider.create_model(cfg)
 
-    @patch("agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model")
+    @patch("agentic_workflow.frameworks.llm.providers.openai.OpenAIProvider.create_model")
     def test_model_cache_reuse(self, mock_create: MagicMock) -> None:
         """Same (provider, model, temp) key should reuse cached model."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.enums import TaskType
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         mock_model = MagicMock()
         mock_model.invoke.return_value = MagicMock(content="resp")
@@ -97,9 +97,9 @@ class TestLLMProviders:
 
     def test_anthropic_is_available(self) -> None:
         """Test Anthropic provider availability via config."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         model = ModelConfig(provider="anthropic", model="claude-3-5-sonnet", api_key="test-key")
         cfg = StrategyConfig(
@@ -115,8 +115,8 @@ class TestLLMProviders:
 
     def test_openai_compatible_base_url(self) -> None:
         """TC-LLM-021: Verify that base_url is passed to ChatOpenAI for compatible providers (FEA-029)."""
-        from agentic_workflow.adapters.llm.providers.openai import OpenAIProvider
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.providers.openai import OpenAIProvider
 
         custom_url = "https://api.openrouter.ai/v1"
         cfg = ModelConfig(
@@ -155,53 +155,49 @@ class TestGitKrakenEdgeCases:
     """Additional branch coverage for GitKrakenMCPAdapter."""
 
     def setup_method(self) -> None:
-        """Set up test environment."""
+        """Set up test environment with a mock executor."""
         from agentic_workflow.adapters.mcp.gitkraken_adapter import GitKrakenMCPAdapter
 
-        self.adapter = GitKrakenMCPAdapter()
+        self.mock_executor = MagicMock()
+        self.adapter = GitKrakenMCPAdapter(executor=self.mock_executor)
 
-    @patch("subprocess.run")
-    def test_auto_commit_raises_on_commit_failure(self, mock_run: MagicMock) -> None:
+    def test_auto_commit_raises_on_commit_failure(self) -> None:
         """Test error handling on git commit failure."""
-        mock_run.side_effect = [
-            MagicMock(returncode=0, stdout="", stderr=""),  # git add
-            MagicMock(returncode=1, stdout="", stderr="commit error"),  # git commit
+        # git add succeeds, git commit fails
+        self.mock_executor.run_cmd_list.side_effect = [
+            (0, "", ""),  # git add
+            (1, "", "commit error"),  # git commit
         ]
         with pytest.raises(RuntimeError, match="git commit failed"):
             self.adapter.auto_commit("msg", ["f.py"])
 
-    @patch("subprocess.run")
-    def test_call_tool_git_status(self, mock_run: MagicMock) -> None:
+    def test_call_tool_git_status(self) -> None:
         """Test git_status tool call."""
-        mock_run.return_value = MagicMock(returncode=0, stdout="M file.py\n", stderr="")
+        self.mock_executor.run_cmd_list.return_value = (0, "M file.py\n", "")
         result = self.adapter.call_tool("git_status", {"repo_path": "."})
         assert result["success"] is True
         assert "file.py" in result["output"]
 
-    @patch("subprocess.run")
-    def test_call_tool_git_commit(self, mock_run: MagicMock) -> None:
+    def test_call_tool_git_commit(self) -> None:
         """Test git_commit tool call."""
-        mock_run.return_value = MagicMock(returncode=0, stdout="[main abc123]", stderr="")
+        self.mock_executor.run_cmd_list.return_value = (0, "[main abc123]", "")
         result = self.adapter.call_tool("git_commit", {"message": "feat: x"})
         assert result["success"] is True
 
-    @patch("subprocess.run")
-    def test_get_head_sha_failure(self, mock_run: MagicMock) -> None:
+    def test_get_head_sha_failure(self) -> None:
         """If rev-parse fails, returns 'unknown'."""
-        mock_run.side_effect = [
-            MagicMock(returncode=0, stdout="", stderr=""),  # add
-            MagicMock(returncode=0, stdout="", stderr=""),  # commit
-            MagicMock(returncode=1, stdout="", stderr="error"),  # rev-parse
+        self.mock_executor.run_cmd_list.side_effect = [
+            (0, "", ""),  # add
+            (0, "", ""),  # commit
+            (1, "", "error"),  # rev-parse
         ]
         sha = self.adapter.auto_commit("msg", ["f.py"])
         assert sha == "unknown"
 
     def test_is_connected_timeout(self) -> None:
-        """Test connection timeout handling."""
-        import subprocess
-
-        with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("git", 5)):
-            assert self.adapter.is_connected() is False
+        """Test connection timeout is handled by executor returning failure code."""
+        self.mock_executor.run_cmd_list.return_value = (1, "", "Command timed out after 5 seconds")
+        assert self.adapter.is_connected() is False
 
 
 # ===========================================================================
@@ -391,7 +387,7 @@ class TestFileRepositoryFindAll:
     def setup_method(self) -> None:
         """Set up test environment."""
         self._tmp = tempfile.mkdtemp()
-        from agentic_workflow.adapters.persistence.file_repository import (
+        from agentic_workflow.frameworks.persistence.file_repository import (
             FileTraceableIDRepository,
         )
 
@@ -433,10 +429,10 @@ class TestLLMAdapterTokenLimit:
 
     def test_auto_continuation(self) -> None:
         """Test auto-continuation for long model responses."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.enums import TaskType
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         m = ModelConfig(provider="openai", model="gpt-4o")
         cfg = StrategyConfig(
@@ -459,7 +455,7 @@ class TestLLMAdapterTokenLimit:
         mock_model.invoke.side_effect = [resp1, resp2]
 
         with patch(
-            "agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model",
+            "agentic_workflow.frameworks.llm.providers.openai.OpenAIProvider.create_model",
             return_value=mock_model,
         ):
             # CRITIQUE supports auto-continuation
@@ -469,11 +465,11 @@ class TestLLMAdapterTokenLimit:
 
     def test_structured_fast_fail(self) -> None:
         """Test fast-fail for structured task types."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.enums import TaskType
         from agentic_workflow.domain.exceptions import TokenLimitExceededError
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         m = ModelConfig(provider="openai", model="gpt-4o")
         cfg = StrategyConfig(
@@ -494,7 +490,7 @@ class TestLLMAdapterTokenLimit:
 
         with (
             patch(
-                "agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model",
+                "agentic_workflow.frameworks.llm.providers.openai.OpenAIProvider.create_model",
                 return_value=mock_model,
             ),
             pytest.raises(TokenLimitExceededError, match="Auto-continuation disabled"),
@@ -504,10 +500,10 @@ class TestLLMAdapterTokenLimit:
 
     def test_stop_reason_anthropic(self) -> None:
         """Test stop_reason mapping for Anthropic provider."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.enums import TaskType
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         m = ModelConfig(provider="anthropic", model="claude-opus")
         cfg = StrategyConfig(
@@ -528,7 +524,7 @@ class TestLLMAdapterTokenLimit:
         mock_model.invoke.return_value = resp
 
         with patch(
-            "agentic_workflow.adapters.llm.providers.anthropic.AnthropicProvider.create_model",
+            "agentic_workflow.frameworks.llm.providers.anthropic.AnthropicProvider.create_model",
             return_value=mock_model,
         ):
             result = adapter.complete("prompt", TaskType.COMPREHEND)
@@ -536,11 +532,11 @@ class TestLLMAdapterTokenLimit:
 
     def test_max_continuations_exceeded(self) -> None:
         """Test error when max continuations reached."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
         from agentic_workflow.domain.enums import TaskType
         from agentic_workflow.domain.exceptions import TokenLimitExceededError
         from agentic_workflow.domain.value_objects import ModelConfig
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         m = ModelConfig(provider="openai", model="gpt-4o")
         cfg = StrategyConfig(
@@ -563,7 +559,7 @@ class TestLLMAdapterTokenLimit:
 
         with (
             patch(
-                "agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model",
+                "agentic_workflow.frameworks.llm.providers.openai.OpenAIProvider.create_model",
                 return_value=mock_model,
             ),
             pytest.raises(TokenLimitExceededError, match="across 3 continuations"),
@@ -612,6 +608,7 @@ class TestWorkflowContainerProtocol:
         assert proto.orchestrator.fget(None) is None
         assert proto.security_audit.fget(None) is None
         assert proto.sonar_config.fget(None) is None
+        assert proto.sonar_adapter.fget(None) is None
 
     def test_set_container_without_target_in_sys_modules(self) -> None:
         """Cover the False branch when target module is not in sys.modules."""

@@ -22,16 +22,26 @@ class OSSubprocessExecutor(SubprocessExecutor):
         except ValueError as exc:
             return 1, "", f"Invalid hook command syntax: {exc}"
 
+        return self.run_cmd_list(cmd_list)
+
+    def run_cmd_list(
+        self,
+        cmd: list[str],
+        cwd: str | None = None,
+        timeout: int = 30,
+    ) -> tuple[int, str, str]:
+        """Execute a command list with optional working directory."""
         try:
             proc = subprocess.run(
-                cmd_list,
+                cmd,
                 shell=False,
                 capture_output=True,
                 text=True,
-                timeout=30,
+                cwd=cwd,
+                timeout=timeout,
             )
             return proc.returncode, proc.stdout, proc.stderr
         except subprocess.TimeoutExpired:
-            return 1, "", "Hook timed out after 30 seconds"
+            return 1, "", f"Command timed out after {timeout} seconds"
         except FileNotFoundError:
-            return 1, "", f"Hook command not found: {cmd_list[0]!r}"
+            return 1, "", f"Command not found: {cmd[0]!r}"

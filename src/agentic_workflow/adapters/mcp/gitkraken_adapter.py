@@ -3,21 +3,21 @@
 Implements: MCPGateway port (git operations subset)
 Traceable to: FR-028 (MCP tool invocation), INV-023 (atomic commits),
 EVT-009 (GitCommitCreated), ADR-STR-004
-Uses subprocess to call the GitKraken MCP server via its CLI interface.
+Uses SubprocessExecutor port for all OS-level process execution (DIP, ADR-STR-027).
 """
 
 from __future__ import annotations
 
-import subprocess
 from typing import Any, cast
 
+from agentic_workflow.adapters.subprocess import SubprocessExecutor, get_executor
 from agentic_workflow.application.ports.gateways import MCPGateway
 
 
 class GitKrakenMCPAdapter(MCPGateway):
     """GitKraken MCP server adapter.
 
-    Wraps git operations (add, commit) via subprocess.
+    Wraps git operations (add, commit) via SubprocessExecutor port.
     Emits EVT-009 (GitCommitCreated) on successful ``auto_commit``.
 
     INV-023: All staged files must appear in the commit — verified by
@@ -26,21 +26,25 @@ class GitKrakenMCPAdapter(MCPGateway):
     Args:
         event_bus: Optional DomainEventBus to publish EVT-009 events.
         git_binary: Path to the git binary (default: "git").
+        executor: SubprocessExecutor port; defaults to registered instance.
     """
 
     def __init__(
         self,
         event_bus: object | None = None,
         git_binary: str = "git",
+        executor: SubprocessExecutor | None = None,
     ) -> None:
         """Initializes the GitKraken MCP adapter.
 
         Args:
             event_bus: Optional DomainEventBus for event publishing.
             git_binary: Path to the git executable.
+            executor: SubprocessExecutor implementation (injected for DIP).
         """
         self._event_bus = event_bus
         self._git = git_binary
+        self._executor: SubprocessExecutor = executor if executor is not None else get_executor()
 
     def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Invoke a GitKraken MCP tool (stub — extend per tool definition).
@@ -116,63 +120,43 @@ class GitKrakenMCPAdapter(MCPGateway):
         Returns:
             True if ``git rev-parse`` succeeds in the working directory.
         """
-        try:
-            result = subprocess.run(
-                [self._git, "rev-parse", "--git-dir"],
-                capture_output=True,
-                timeout=5,
-            )
-            return result.returncode == 0
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            return False
+        code, _, _ = self._executor.run_cmd_list(
+            [self._git, "rev-parse", "--git-dir"],
+            cwd=".",
+            timeout=5,
+        )
+        return code == 0
 
     # --- Private helpers ---
 
     def _git_add(self, files: list[str], repo_path: str) -> dict[str, Any]:
         if not files:
             return {"success": True, "output": "No files to stage"}
-        result = subprocess.run(
+        code, out, err = self._executor.run_cmd_list(
             [self._git, "add", "--", *files],
-            capture_output=True,
-            text=True,
             cwd=repo_path,
         )
-        return {
-            "success": result.returncode == 0,
-            "output": result.stdout + result.stderr,
-        }
+        return {"success": code == 0, "output": out + err}
 
     def _git_commit_raw(self, message: str, repo_path: str) -> dict[str, Any]:
-        result = subprocess.run(
+        code, out, err = self._executor.run_cmd_list(
             [self._git, "commit", "-m", message],
-            capture_output=True,
-            text=True,
             cwd=repo_path,
         )
-        return {
-            "success": result.returncode == 0,
-            "output": result.stdout + result.stderr,
-        }
+        return {"success": code == 0, "output": out + err}
 
     def _git_status(self, repo_path: str) -> dict[str, Any]:
-        result = subprocess.run(
+        code, out, err = self._executor.run_cmd_list(
             [self._git, "status", "--porcelain"],
-            capture_output=True,
-            text=True,
             cwd=repo_path,
         )
-        return {
-            "success": result.returncode == 0,
-            "output": result.stdout,
-        }
+        return {"success": code == 0, "output": out}
 
     def _get_head_sha(self, repo_path: str) -> str:
-        result = subprocess.run(
+        code, out, _ = self._executor.run_cmd_list(
             [self._git, "rev-parse", "HEAD"],
-            capture_output=True,
-            text=True,
             cwd=repo_path,
         )
-        if result.returncode != 0:
+        if code != 0:
             return "unknown"
-        return result.stdout.strip()
+        return out.strip()

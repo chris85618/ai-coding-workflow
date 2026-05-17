@@ -3,10 +3,10 @@
 import sys
 from unittest.mock import MagicMock, patch
 
-from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
 from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
 from agentic_workflow.domain.enums import TaskType
 from agentic_workflow.domain.value_objects import ModelConfig
+from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
 
 def _get_cfg(provider: str) -> StrategyConfig:

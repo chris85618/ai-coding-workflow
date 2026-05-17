@@ -678,9 +678,11 @@ def test_scanner_fallback_on_tokenization_failure(
 ) -> None:
     """Verify scanner falls back to regex line-by-line check if tokenize fails."""
     import tokenize
+    from typing import Any
 
-    def mock_generate_tokens(*args, **kwargs):
+    def mock_generate_tokens(*args: Any, **kwargs: Any) -> Any:
         raise tokenize.TokenError("Mocked tokenization failure")
+
 
     monkeypatch.setattr(tokenize, "generate_tokens", mock_generate_tokens)
 
@@ -753,11 +755,10 @@ def test_framework_pragma_on_main_line_is_still_allowed(
     assert pragma_violations == [], f"Expected 0 pragma violations for entry-point pragma, but got: {pragma_violations}"
 
 
-def test_framework_scan_real_iteration_nodes_violations() -> None:
-    """ADR-STR-027 v2: Expose real violations in production frameworks/graph/iteration_nodes.py.
+def test_framework_scan_real_iteration_nodes_clean() -> None:
+    """ADR-STR-027 v2 regression: iteration_nodes.py must have zero pragma violations.
 
-    This test scans the REAL production file and expects violations.
-    It MUST fail until the production file is cleaned up.
+    Verifies that the previously exposed violations have been remediated.
     """
     import pathlib
 
@@ -768,15 +769,13 @@ def test_framework_scan_real_iteration_nodes_violations() -> None:
     violations = scanner.scan_file(str(target))
     pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
 
-    assert len(pragma_violations) > 0, (
-        "Expected pragma_no_cover_abuse violations in iteration_nodes.py "
-        f"(ADR-STR-027 v2 enforcement), but found 0. "
-        f"All violations found: {violations}"
+    assert pragma_violations == [], (
+        f"iteration_nodes.py must have 0 pragma violations after remediation, but found: {pragma_violations}"
     )
 
 
-def test_framework_scan_real_master_pipeline_nodes_violations() -> None:
-    """ADR-STR-027 v2: Expose real violations in production frameworks/graph/master_pipeline_nodes.py."""
+def test_framework_scan_real_master_pipeline_nodes_clean() -> None:
+    """ADR-STR-027 v2 regression: master_pipeline_nodes.py must have zero pragma violations."""
     import pathlib
 
     project_root = pathlib.Path(__file__).resolve().parents[2]
@@ -786,15 +785,13 @@ def test_framework_scan_real_master_pipeline_nodes_violations() -> None:
     violations = scanner.scan_file(str(target))
     pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
 
-    assert len(pragma_violations) > 0, (
-        "Expected pragma_no_cover_abuse violations in master_pipeline_nodes.py "
-        f"(ADR-STR-027 v2 enforcement), but found 0. "
-        f"All violations found: {violations}"
+    assert pragma_violations == [], (
+        f"master_pipeline_nodes.py must have 0 pragma violations after remediation, but found: {pragma_violations}"
     )
 
 
-def test_framework_scan_real_micro_validation_nodes_violations() -> None:
-    """ADR-STR-027 v2: Expose real violations in production frameworks/graph/micro_validation_nodes.py."""
+def test_framework_scan_real_micro_validation_nodes_clean() -> None:
+    """ADR-STR-027 v2 regression: micro_validation_nodes.py must have zero pragma violations."""
     import pathlib
 
     project_root = pathlib.Path(__file__).resolve().parents[2]
@@ -804,10 +801,8 @@ def test_framework_scan_real_micro_validation_nodes_violations() -> None:
     violations = scanner.scan_file(str(target))
     pragma_violations = [v for v in violations if v.category == "pragma_no_cover_abuse"]
 
-    assert len(pragma_violations) > 0, (
-        "Expected pragma_no_cover_abuse violations in micro_validation_nodes.py "
-        f"(ADR-STR-027 v2 enforcement), but found 0. "
-        f"All violations found: {violations}"
+    assert pragma_violations == [], (
+        f"micro_validation_nodes.py must have 0 pragma violations after remediation, but found: {pragma_violations}"
     )
 
 

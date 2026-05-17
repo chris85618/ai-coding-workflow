@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agentic_workflow.adapters.llm.anthropic_reasoner import AnthropicReasoner
 from agentic_workflow.domain.value_objects.model_config import ModelConfig
+from agentic_workflow.frameworks.llm.anthropic_reasoner import AnthropicReasoner
 
 
 class TestAnthropicReasoner:
@@ -18,7 +18,7 @@ class TestAnthropicReasoner:
             provider="anthropic", model="claude-3-opus", temperature=0.7, max_tokens=1000, api_key="test-key"
         )
 
-    @patch("agentic_workflow.adapters.llm.providers.anthropic.AnthropicProvider.create_model")
+    @patch("agentic_workflow.frameworks.llm.providers.anthropic.AnthropicProvider.create_model")
     def test_reason(self, mock_create: MagicMock, mock_config: ModelConfig) -> None:
         """Verify the reason method calls the underlying model."""
         mock_model = MagicMock()
@@ -34,7 +34,7 @@ class TestAnthropicReasoner:
         assert result == "Hello from Claude"
         mock_model.invoke.assert_called_once()
 
-    @patch("agentic_workflow.adapters.llm.providers.anthropic.AnthropicProvider.create_model")
+    @patch("agentic_workflow.frameworks.llm.providers.anthropic.AnthropicProvider.create_model")
     def test_extract_structured_success(self, mock_create: MagicMock, mock_config: ModelConfig) -> None:
         """Verify structured extraction using with_structured_output."""
         mock_model = MagicMock()
@@ -50,7 +50,7 @@ class TestAnthropicReasoner:
         assert result == {"key": "value"}
         mock_model.with_structured_output.assert_called_once()
 
-    @patch("agentic_workflow.adapters.llm.providers.anthropic.AnthropicProvider.create_model")
+    @patch("agentic_workflow.frameworks.llm.providers.anthropic.AnthropicProvider.create_model")
     def test_extract_structured_fallback(self, mock_create: MagicMock, mock_config: ModelConfig) -> None:
         """Verify fallback when with_structured_output is missing."""
         mock_model = MagicMock()
@@ -64,7 +64,7 @@ class TestAnthropicReasoner:
         assert "error" in result
         assert "not implemented" in result["error"]
 
-    @patch("agentic_workflow.adapters.llm.providers.anthropic.AnthropicProvider.create_model")
+    @patch("agentic_workflow.frameworks.llm.providers.anthropic.AnthropicProvider.create_model")
     def test_reason_with_system_message(self, mock_create: MagicMock, mock_config: ModelConfig) -> None:
         """Verify the reason method with system message."""
         mock_model = MagicMock()

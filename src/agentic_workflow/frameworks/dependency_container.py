@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from agentic_workflow.adapters.langgraph.nodes import SonarAdapterProtocol
+
 
 from agentic_workflow.application.ports.doc_io.document_io_gateway import DocumentIOGateway
 from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentReasoner
@@ -80,3 +85,10 @@ class DependencyContainer:
     def run_iteration(self) -> RunIterationUseCase:
         """Get the RunIterationUseCase instance."""
         return RunIterationUseCase(self.pipeline_repo)
+
+    @property
+    def sonar_adapter(self) -> SonarAdapterProtocol:
+        """Get the SonarCloudAdapter for the current sonar_config."""
+        from agentic_workflow.frameworks.sonarcloud.sonar_adapter import SonarCloudAdapter
+
+        return SonarCloudAdapter(self.sonar_config)

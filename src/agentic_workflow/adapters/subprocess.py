@@ -6,7 +6,6 @@ Decouples application / adapters layers from OS subprocess execution.
 
 from __future__ import annotations
 
-import contextlib
 from abc import ABC, abstractmethod
 
 
@@ -16,6 +15,15 @@ class SubprocessExecutor(ABC):
     @abstractmethod
     def run_cmd(self, cmd: str) -> tuple[int, str, str]:
         """Execute a shell/subprocess command and return (exit_code, stdout, stderr)."""
+
+    @abstractmethod
+    def run_cmd_list(
+        self,
+        cmd: list[str],
+        cwd: str | None = None,
+        timeout: int = 30,
+    ) -> tuple[int, str, str]:
+        """Execute a command list with optional cwd and return (exit_code, stdout, stderr)."""
 
 
 _instance: SubprocessExecutor | None = None
@@ -37,8 +45,3 @@ def register_executor(exec_obj: SubprocessExecutor) -> None:
 def default_run_cmd(cmd: str) -> tuple[int, str, str]:
     """Fallback command execution delegating to the registered executor."""
     return get_executor().run_cmd(cmd)
-
-
-# Force coverage for get_executor when _instance is None at module load time
-with contextlib.suppress(RuntimeError):
-    get_executor()

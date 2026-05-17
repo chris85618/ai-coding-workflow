@@ -2,7 +2,7 @@
 
 import tempfile
 
-from agentic_workflow.adapters.persistence.file_repository import FileTraceableIDRepository
+from agentic_workflow.frameworks.persistence.file_repository import FileTraceableIDRepository
 
 
 class TestFileRepositoryPathTraversal:

@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from agentic_workflow.adapters.persistence.file_repository import (
+from agentic_workflow.frameworks.persistence.file_repository import (
     FileTraceableIDRepository,
 )
 

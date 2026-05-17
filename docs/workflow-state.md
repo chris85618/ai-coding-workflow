@@ -3,7 +3,7 @@
 **Pipeline Position**: Phase 11 (Release v0.1.6) — ✅ DONE
 **Last Position**: Phase 11 (Release v0.1.6)
 **Status**: Domain Governance & Invariants Dependency Inversion Hardened.
-**Last Updated**: 2026-05-17T19:20+08:00
+**Last Updated**: 2026-05-17T20:28+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -44,7 +44,7 @@
 - [x] CAD-18: 建立 16 個涵蓋全面違規模式與正常場景之測試套件 `test_clean_architecture_scanner.py` — ✅ DONE
 - [x] CAD-19: 建立 CLI 執行指令碼 `tasks/clean_architecture_scan.py` 以利 pipeline 整合與主動防護 — ✅ DONE
 - [x] CAD-20: 成功重構 Domain 層違規演算法並達成生產 Codebase 0 violations 狀態，專案 857 個測試案例 100% 通過 — ✅ DONE
-- [x] CAD-21: 擴充 AST 掃描器測試覆蓋率，消除 AST subscript / type annotations / walk filters 所有分支缺口，達成 100.00% statement 與 branch 完美覆蓋且完全不使用 pragma no cover — ✅ DONE
+- [x] CAD-21: 改善 AST 掃描器測試覆蓋率，消除 AST subscript / type annotations / walk filters 所有分支缺口，達成 100.00% statement 與 branch 完美覆蓋且完全不使用 pragma no cover — ✅ DONE
 - [x] CAD-22: 改善 AST Scanner 嵌套相對/絕對導入 (ImportFrom) 解析邏輯，確保其完整解析，並新增 `pydantic` 白名單消除 domain 層誤判 violations — ✅ DONE
 - [x] CAD-24: 重新設計導入路徑並移除 checkpointer 中所有 `# type: ignore`，100% 通過 Mypy 與 Ruff — ✅ DONE
 - [x] CAD-25: 修改 ADR-STR-027 與技術債登錄表，正式宣示全面絕對禁止 `# type: ignore`（0 Exceptions） — ✅ DONE
@@ -53,6 +53,33 @@
 - [x] CAD-28: 排除測試覆蓋率缺口，執行 `fget` 測試反射以達成測試套件 919 案 100.00% Statement 與 Branch 全面覆蓋。 — ✅ DONE
 - [x] CAD-29: 消除測試套件中所有 Mypy 類型錯誤且完全不使用 `# type: ignore`，確保測試的高強度類型安全性。 — ✅ DONE
 - [x] CAD-30: 修改 AST 掃描器硬化 "# type" 與 "# pragma" 封鎖規則，實現內三層 100% 絕對禁用所有 type 註解， entry point 以外 100% 禁用所有 pragma 註解 — ✅ DONE
+- [x] CAD-31: 補齊 scanner 所有註解後綴 Permutations 測試，測試套件 920 案 100.00% Statement 與 Branch 覆蓋無死角且通過 Ruff/Mypy 檢驗 — ✅ DONE
+- [x] CAD-32: 硬化 "# type" 與 "# pragma" 封鎖規則，實現內三層 100% 絕對禁用所有 type 註解， entry point 以外 100% 禁用所有 pragma 註解，修正靜態掃描邏輯並達成 fallback 程式碼 100% Statement 與 Branch 覆蓋無死角且通過 Ruff/Mypy 檢驗 — ✅ DONE
+- [x] CAD-33: 在 `tests/test_code_quality.py` 中實現 Ruff Check 與 Mypy pytest 自動化測試，防範不退化 — ✅ DONE
+
+## 🚦 Gate Status
+
+- [✅] Phase 0: 環境啟動
+- [✅] Phase 1: 程式碼理解
+- [✅] Phase 2: 專案分析
+- [✅] Stage 3: 技術規劃 (ADR-STR-025)
+- [✅] Stage 4: 演算法設計
+- [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
+- [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
+- [✅] Stage 7: BDD/ATDD
+- [✅] Stage 8: TDD + 測試 + 修復 (952 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
+
+## 📌 Pending Escalations
+
+- 無
+
+## 📝 Session Summary
+
+1. **Ruff and Mypy Pytest Integration**: Implemented automatic Ruff and Mypy static checks as part of the pytest suite in `tests/test_code_quality.py` (TC-QUALITY-001/002) as requested.
+2. **Left-Shift Correction & Cleanup**: Eradicated all remaining Mypy and Ruff type issues in the codebase and test stubs without utilizing any `# type: ignore` comments, achieving perfect static code analysis state.
+3. **Flawless Branch and Statement Coverage**: Reached 100% statement and branch coverage across the entire project with 952 tests passing cleanly in a single execution.
+��則，實現內三層 100% 絕對禁用所有 type 註解， entry point 以外 100% 禁用所有 pragma 註解 — ✅ DONE
 - [x] CAD-31: 補齊 scanner 所有註解後綴 Permutations 測試，測試套件 920 案 100.00% Statement 與 Branch 覆蓋無死角且通過 Ruff/Mypy 檢驗 — ✅ DONE
 - [x] CAD-32: 硬化 "# type" 與 "# pragma" 封鎖規則，實現內三層 100% 絕對禁用所有 type 註解， entry point 以外 100% 禁用所有 pragma 註解，修正靜態掃描邏輯並達成 fallback 程式碼 100% Statement 與 Branch 覆蓋無死角且通過 Ruff/Mypy 檢驗 — ✅ DONE
 

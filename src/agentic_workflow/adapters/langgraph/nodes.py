@@ -10,11 +10,10 @@ Each node is a pure function: (WorkflowState) -> WorkflowState (partial).
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
+from agentic_workflow.adapters.filesystem import get_filesystem
 from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
-from agentic_workflow.adapters.sonarcloud.sonar_adapter import SonarCloudAdapter
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
 from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
 from agentic_workflow.domain.algorithms.pipeline_completeness import (
@@ -35,6 +34,18 @@ if TYPE_CHECKING:
     from agentic_workflow.application.use_cases.start_pipeline import StartPipelineUseCase
     from agentic_workflow.domain.services.orchestrator_service import IOrchestratorService
     from agentic_workflow.domain.services.security_audit_service import ISecurityAuditService
+
+
+class SonarAdapterProtocol(Protocol):
+    """Minimal structural protocol for the SonarCloud adapter (DIP — no import of sonarqube)."""
+
+    def get_metrics(self) -> dict[str, dict[str, Any]]:
+        """Fetch project measures."""
+        ...
+
+    def get_issues(self, include_closed: bool = False) -> list[dict[str, Any]]:
+        """Fetch project issues."""
+        ...
 
 
 class WorkflowContainerProtocol(Protocol):
@@ -68,6 +79,11 @@ class WorkflowContainerProtocol(Protocol):
     @property
     def sonar_config(self) -> SonarCloudConfig:
         """Get the sonar cloud config value object."""
+        pass
+
+    @property
+    def sonar_adapter(self) -> SonarAdapterProtocol:
+        """Get the SonarCloud adapter (injected, no direct sonarqube import)."""
         pass
 
 
@@ -116,18 +132,19 @@ def node_pipeline_completeness(state: WorkflowState) -> WorkflowState:
     """DAG node: Fast scan for pipeline completeness.
 
     Corresponds to Phase 0 Pipeline Completeness Check (FR-001).
+    Uses FilesystemIO port for all file operations (DIP, ADR-STR-027).
     """
+    _fs = get_filesystem()
 
     def _exists(rel_path: str) -> bool:
-        target = Path() / rel_path
-        return target.is_file()
+        resolved = _fs.resolve_path(rel_path)
+        return _fs.exists(resolved) and not _fs.is_dir(resolved)
 
     def _read_text(rel_path: str) -> str:
-        target = Path() / rel_path
-        return target.read_text(encoding="utf-8")
+        return _fs.read_text(_fs.resolve_path(rel_path))
 
     def _glob(pattern: str) -> list[str]:
-        return [str(p) for p in Path().glob(pattern)]
+        return _fs.glob(".", pattern)
 
     completeness_data = PipelineCompletenessChecker(
         base_dir="",
@@ -308,11 +325,6 @@ def node_security_audit(state: WorkflowState) -> WorkflowState:
     findings = service.audit_pipeline(pipeline, layer_results)
     decision = service.decide_gate_impact(findings)
 
-    # In a real DDD scenario, we might update the aggregate findings
-    # for stage in pipeline.stages.values():
-    #     if stage.status == StageStatus.RUNNING:
-    #         pipeline.update_stage_findings(findings.items)
-
     return {
         "metadata": {"security_audit_findings": list(findings)},
         "last_gate_decision": decision,
@@ -324,6 +336,7 @@ def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
 
     Implements FR-015, FR-035, FR-036.
     Checks for required config, evaluates results, and converts failures to DEBT.
+    SonarCloudAdapter is injected via container (ADR-STR-027 DIP).
     """
     metadata = state.get("metadata", {})
     # 1. Verify Configuration (from injected container)
@@ -346,7 +359,7 @@ def node_sonarcloud_gate(state: WorkflowState) -> WorkflowState:
 
     if sonar_metrics is None or sonar_issues is None:
         try:
-            adapter = SonarCloudAdapter(sonar_config)
+            adapter = container.sonar_adapter
             if sonar_metrics is None:
                 sonar_metrics = adapter.get_metrics()
             if sonar_issues is None:

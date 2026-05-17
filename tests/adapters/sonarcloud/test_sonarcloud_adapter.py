@@ -9,14 +9,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agentic_workflow.adapters.sonarcloud.sonar_adapter import (
+from agentic_workflow.domain.value_objects import SonarCloudConfig
+from agentic_workflow.frameworks.sonarcloud.sonar_adapter import (
     CLOSED_STATUSES,
     KEY_MAP,
     METRIC_KEYS,
     SonarCloudAdapter,
     _coerce_value,
 )
-from agentic_workflow.domain.value_objects import SonarCloudConfig
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -39,7 +39,7 @@ def _make_adapter(
 ) -> tuple[SonarCloudAdapter, MagicMock]:
     """Return adapter + mock client, skipping real HTTP initialisation."""
     cfg = config or _make_config()
-    with patch("agentic_workflow.adapters.sonarcloud.sonar_adapter.SonarCloudClient") as mock_cls:
+    with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient") as mock_cls:
         mock_client = MagicMock()
         mock_cls.return_value = mock_client
         adapter = SonarCloudAdapter(cfg)
@@ -108,7 +108,7 @@ class TestAdapterInit:
     def test_client_created_with_correct_url(self) -> None:
         """SonarCloudClient must be initialised with sonarcloud.io URL."""
         cfg = _make_config()
-        with patch("agentic_workflow.adapters.sonarcloud.sonar_adapter.SonarCloudClient") as mock_cls:
+        with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient") as mock_cls:
             mock_cls.return_value = MagicMock()
             SonarCloudAdapter(cfg)
             mock_cls.assert_called_once_with(

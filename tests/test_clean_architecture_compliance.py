@@ -53,14 +53,19 @@ def _format_violation_report(violations: list[BoundaryViolation]) -> str:
     for v in violations:
         by_category[v.category].append(v)
 
-    lines = [f"\n{'=' * 80}", f"  CLEAN ARCHITECTURE COMPLIANCE FAILURE — {len(violations)} violation(s)", f"{'=' * 80}"]
+    lines = [
+        f"\n{'=' * 80}",
+        f"  CLEAN ARCHITECTURE COMPLIANCE FAILURE — {len(violations)} violation(s)",
+        f"{'=' * 80}",
+    ]
     for category, vs in sorted(by_category.items()):
         lines.append(f"\n[{category}] — {len(vs)} violation(s):")
         for v in vs:
             try:
                 rel = pathlib.Path(v.file_path).relative_to(PROJECT_ROOT)
             except ValueError:
-                rel = v.file_path
+                rel = pathlib.Path(v.file_path)
+
             lines.append(f"  {rel}:{v.line}:{v.column}")
             lines.append(f"    └─ {v.message}")
     lines.append(f"\n{'=' * 80}")

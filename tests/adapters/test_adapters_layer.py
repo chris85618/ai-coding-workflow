@@ -103,7 +103,7 @@ class TestFileTraceableIDRepository:
     def setup_method(self) -> None:
         """Set up for TestFileTraceableIDRepository."""
         self._tmp = tempfile.mkdtemp()
-        from agentic_workflow.adapters.persistence.file_repository import (
+        from agentic_workflow.frameworks.persistence.file_repository import (
             FileTraceableIDRepository,
         )
 
@@ -154,7 +154,7 @@ class TestFileCheckpointRepository:
     def setup_method(self) -> None:
         """Set up for TestFileCheckpointRepository."""
         self._tmp = tempfile.mkdtemp()
-        from agentic_workflow.adapters.persistence.checkpoint_repository import (
+        from agentic_workflow.frameworks.persistence.checkpoint_repository import (
             FileCheckpointRepository,
         )
 
@@ -269,10 +269,10 @@ class TestHookConfigLoader:
         cfg_path = Path(self._tmp) / "hooks.json"
         cfg_path.write_text(json.dumps(config), encoding="utf-8")
 
-        from agentic_workflow.adapters.persistence.hook_config_loader import (
+        from agentic_workflow.domain.enums import HookEvent
+        from agentic_workflow.frameworks.persistence.hook_config_loader import (
             HookConfigLoader,
         )
-        from agentic_workflow.domain.enums import HookEvent
 
         loader = HookConfigLoader(str(cfg_path))
         hooks = loader.load()
@@ -283,10 +283,10 @@ class TestHookConfigLoader:
 
     def test_from_dict(self) -> None:
         """Test construction from dictionary."""
-        from agentic_workflow.adapters.persistence.hook_config_loader import (
+        from agentic_workflow.domain.enums import HookEvent
+        from agentic_workflow.frameworks.persistence.hook_config_loader import (
             HookConfigLoader,
         )
-        from agentic_workflow.domain.enums import HookEvent
 
         config = {"hooks": [{"event": "post_doc_write", "command": "git add .", "blocking": False}]}
         hooks = HookConfigLoader.from_dict(config)
@@ -296,7 +296,7 @@ class TestHookConfigLoader:
 
     def test_from_dict_empty(self) -> None:
         """Test construction from empty dictionary."""
-        from agentic_workflow.adapters.persistence.hook_config_loader import (
+        from agentic_workflow.frameworks.persistence.hook_config_loader import (
             HookConfigLoader,
         )
 
@@ -662,32 +662,32 @@ class TestLangChainLLMAdapter:
 
     def test_is_available_with_api_key(self) -> None:
         """Test availability when API key present in config."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         adapter = LangChainLLMAdapter(self._make_config(api_key="sk-test"))
         assert adapter.is_available() is True
 
     def test_is_available_without_api_key(self) -> None:
         """Test availability when API key missing in config."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         adapter = LangChainLLMAdapter(self._make_config(api_key=None))
         assert adapter.is_available() is False
 
     def test_get_model_config(self) -> None:
         """Test mapping TaskType to ModelConfig."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.enums import TaskType
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         adapter = LangChainLLMAdapter(self._make_config())
         cfg = adapter.get_model_config(TaskType.CRITIQUE)
         assert cfg.provider == "openai"
 
-    @patch("agentic_workflow.adapters.llm.providers.openai.OpenAIProvider.create_model")
+    @patch("agentic_workflow.frameworks.llm.providers.openai.OpenAIProvider.create_model")
     def test_complete_calls_model(self, mock_create: MagicMock) -> None:
         """Test complete method invokes model."""
-        from agentic_workflow.adapters.llm.llm_adapter import LangChainLLMAdapter
         from agentic_workflow.domain.enums import TaskType
+        from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 
         mock_model = MagicMock()
         mock_model.invoke.return_value = MagicMock(content="test response")
@@ -697,3 +697,74 @@ class TestLangChainLLMAdapter:
         result = adapter.complete("Hello", TaskType.RESOLVE)
         assert result == "test response"
         mock_model.invoke.assert_called_once()
+
+
+# ===========================================================================
+# FilesystemIO: registry functions
+# ===========================================================================
+
+
+class TestFilesystemRegistry:
+    """Tests for get_filesystem / register_filesystem registry contract."""
+
+    def test_get_filesystem_raises_when_not_registered(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """get_filesystem() must raise RuntimeError when no implementation is registered.
+
+        This test replaces the contextlib.suppress coverage hack that was previously
+        in filesystem.py (ADR-STR-027 v2 — pragma/hack removal).
+        """
+        import agentic_workflow.adapters.filesystem as fs_module
+
+        monkeypatch.setattr(fs_module, "_instance", None)
+        with pytest.raises(RuntimeError, match="not registered"):
+            fs_module.get_filesystem()
+
+    def test_register_and_get_filesystem(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """register_filesystem() makes get_filesystem() return the registered instance."""
+        import agentic_workflow.adapters.filesystem as fs_module
+        from agentic_workflow.adapters.filesystem import FilesystemIO, register_filesystem
+        from agentic_workflow.domain.value_objects import SymbolDef
+
+        class _StubFS(FilesystemIO):
+            def exists(self, path: str) -> bool:
+                return False
+
+            def read_text(self, path: str, encoding: str = "utf-8", errors: str | None = None) -> str:
+                return ""
+
+            def write_text(self, path: str, content: str, encoding: str = "utf-8") -> None:
+                pass
+
+            def append_text(self, path: str, content: str, encoding: str = "utf-8") -> None:
+                pass
+
+            def mkdir(self, path: str, parents: bool = True, exist_ok: bool = True) -> None:
+                pass
+
+            def glob(self, dir_path: str, pattern: str) -> list[str]:
+                return []
+
+            def remove(self, path: str) -> bool:
+                return False
+
+            def is_dir(self, path: str) -> bool:
+                return False
+
+            def list_files(self, project_path: str) -> list[str]:
+                return []
+
+            def extract_symbols_ast(self, file_path: str, source: str) -> list[SymbolDef]:
+                return []
+
+            def resolve_path(self, path: str) -> str:
+                return path
+
+            def relative_to(self, path: str, base_path: str) -> str:
+                return path
+
+        stub = _StubFS()
+        monkeypatch.setattr(fs_module, "_instance", None)
+        register_filesystem(stub)
+        assert fs_module.get_filesystem() is stub
+        # Restore original instance after test
+        monkeypatch.undo()

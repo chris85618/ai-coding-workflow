@@ -47,8 +47,6 @@ class CleanArchitectureBoundaryScanner:
         "enum",
         "abc",
         "collections",
-        "datetime",
-        "uuid",
         "math",
         "random",
         "warnings",

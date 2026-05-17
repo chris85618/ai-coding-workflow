@@ -4,11 +4,11 @@ from typing import Any, cast
 from unittest.mock import MagicMock
 
 import pytest
+from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.base import Checkpoint, CheckpointMetadata
-from langgraph.config import RunnableConfig  # type: ignore
 
-from agentic_workflow.adapters.langgraph.checkpointer import RepositoryCheckpointer
 from agentic_workflow.application.ports.repositories.checkpoint_repository import CheckpointRepository
+from agentic_workflow.frameworks.langgraph.checkpointer import RepositoryCheckpointer
 
 
 class TestRepositoryCheckpointer:
