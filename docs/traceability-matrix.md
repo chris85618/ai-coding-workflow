@@ -169,10 +169,11 @@
 | [ADR-STR-016](adr/ADR-STR-016.md) | 巨集驅動的配置與元資料同步 | STR | Accepted | FEA-017, FR-044 | justifies |
 | [ADR-STR-017](adr/ADR-STR-017.md) | 配置與文件巨集的生命週期隔離 | STR | Accepted | FEA-018, FR-044 | justifies |
 | [ADR-STR-019](adr/ADR-STR-019.md) | Mypy 常用執行參數固化 | STR | Accepted | FEA-021, FR-045 | justifies |
+| [ADR-STR-027](adr/ADR-STR-027.md) | 架構邊界防護與註解封鎖硬化 | STR | Accepted | FR-054~060 | justifies |
 | [ADR-GOV-028](adr/ADR-GOV-028.md) | 專案文件入口規範與 README 重構 | GOV | Accepted | FEA-020, FR-043 | justifies |
 | [ADR-GOV-029](adr/ADR-GOV-029.md) | Git Pre-commit Hook 整合 Ruff 格式化 | GOV | Accepted | FEA-022, FR-046 | justifies |
 
-> 類別統計：STR=12, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=41**
+> 類別統計：STR=13, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=42**
 
 ### ALG → FR
 
@@ -511,7 +512,7 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 3 | FR-xxx | 42+3v2 | 45/45 | 45/45 | 100% |
 | Stage 3 | NFR-xxx | 10 | 10/10 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 15 | 15/15 | 15/15 | 100% |
-| Stage 3 | ADR-STR-xxx | 13 | 13/13 | — | 100% |
+| Stage 3 | ADR-STR-xxx | 14 | 14/14 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 27 | 27/27 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
@@ -525,7 +526,7 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Skill 修改 | ADR→Skill | 29 | 29/29 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **356** | — | — | **100%** |
+| **合計** | — | **357** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)

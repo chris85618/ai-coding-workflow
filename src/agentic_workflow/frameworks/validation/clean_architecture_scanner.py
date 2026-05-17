@@ -7,9 +7,17 @@ and direct file I/O within prohibited layers.
 """
 
 import ast
+import io
 import os
+import re
+import tokenize
 from pathlib import Path
 from typing import NamedTuple
+
+# Match comment starting with '#' followed by optional whitespace, then 'pragma', then a word boundary
+PRAGMA_REGEX = re.compile(r"^#\s*pragma\b", re.IGNORECASE)
+# Match comment starting with '#' followed by optional whitespace, then 'type', then a word boundary
+TYPE_REGEX = re.compile(r"^#\s*type\b", re.IGNORECASE)
 
 
 class BoundaryViolation(NamedTuple):
@@ -123,37 +131,83 @@ class CleanArchitectureBoundaryScanner:
             ]
 
         violations: list[BoundaryViolation] = []
-        for idx, line in enumerate(content.splitlines(), start=1):
-            normalized_line = "".join(line.split()).lower()
-            if "pragma" + ":" + "nocover" in normalized_line and (
-                "if" + "__name__" + "==" not in normalized_line or "__main__" not in normalized_line
-            ):
-                violations.append(
-                    BoundaryViolation(
-                        file_path=str(path),
-                        line=idx,
-                        column=0,
-                        category="pragma_no_cover_abuse",
-                        message="Illegal pragma: no cover bypass detected outside if __name__ == '__main__':",
-                    )
-                )
+        # Scan comments for forbidden type and pragma commands using regex
+        try:
+            tokens = tokenize.generate_tokens(io.StringIO(content).readline)
+            for token in tokens:
+                if token.type == tokenize.COMMENT:
+                    comment_str = token.string
+                    line_num, col_num = token.start
 
-            if current_rank <= 3 and "#" in line:
-                comment_part = line.split("#", 1)[1]
-                normalized_comment = "".join(comment_part.split()).lower()
-                if "type:ignore" in normalized_comment:
-                    violations.append(
-                        BoundaryViolation(
-                            file_path=str(path),
-                            line=idx,
-                            column=line.index("#"),
-                            category="type_ignore_abuse",
-                            message=(
-                                "Illegal use of '# type: ignore' comment in inner layer. "
-                                "Type ignore comments are strictly banned in inner layers."
-                            ),
+                    # Check pragma
+                    if PRAGMA_REGEX.match(comment_str):
+                        line_text = content.splitlines()[line_num - 1]
+                        normalized_line = "".join(line_text.split()).lower()
+                        # Allow pragma ONLY inside "if __name__ == '__main__':"
+                        if not ("if" + "__name__" + "==" in normalized_line and "__main__" in normalized_line):
+                            violations.append(
+                                BoundaryViolation(
+                                    file_path=str(path),
+                                    line=line_num,
+                                    column=col_num,
+                                    category="pragma_no_cover_abuse",
+                                    message=(
+                                        "Illegal pragma: no cover bypass detected outside if __name__ == '__main__':. "
+                                        "All pragma comments are strictly banned outside python entry point."
+                                    ),
+                                )
+                            )
+
+                    # Check type in inner layers (rank <= 3)
+                    if current_rank <= 3 and TYPE_REGEX.match(comment_str):
+                        violations.append(
+                            BoundaryViolation(
+                                file_path=str(path),
+                                line=line_num,
+                                column=col_num,
+                                category="type_ignore_abuse",
+                                message=(
+                                    "Illegal use of '# type' comment in inner layer. "
+                                    "Type comments are strictly banned in inner layers."
+                                ),
+                            )
                         )
-                    )
+        except Exception:
+            # Fallback to pure regex line-by-line if tokenization fails
+            for idx, line in enumerate(content.splitlines(), start=1):
+                if "#" in line:
+                    comment_idx = line.find("#")
+                    comment_str = line[comment_idx:]
+
+                    if PRAGMA_REGEX.match(comment_str):
+                        normalized_line = "".join(line.split()).lower()
+                        if not ("if" + "__name__" + "==" in normalized_line and "__main__" in normalized_line):
+                            violations.append(
+                                BoundaryViolation(
+                                    file_path=str(path),
+                                    line=idx,
+                                    column=comment_idx,
+                                    category="pragma_no_cover_abuse",
+                                    message=(
+                                        "Illegal pragma: no cover bypass detected outside if __name__ == '__main__':. "
+                                        "All pragma comments are strictly banned outside python entry point."
+                                    ),
+                                )
+                            )
+
+                    if current_rank <= 3 and TYPE_REGEX.match(comment_str):
+                        violations.append(
+                            BoundaryViolation(
+                                file_path=str(path),
+                                line=idx,
+                                column=comment_idx,
+                                category="type_ignore_abuse",
+                                message=(
+                                    "Illegal use of '# type' comment in inner layer. "
+                                    "Type comments are strictly banned in inner layers."
+                                ),
+                            )
+                        )
 
         try:
             tree = ast.parse(content, filename=str(path))

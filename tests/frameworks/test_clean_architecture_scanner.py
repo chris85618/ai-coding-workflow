@@ -597,3 +597,112 @@ def test_scanner_blocked_locator_in_outer_layer(scanner: CleanArchitectureBounda
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text(code, encoding="utf-8")
     assert scanner.scan_file(str(file_path)) == []
+
+
+def test_scanner_hardened_type_and_pragma(scanner: CleanArchitectureBoundaryScanner, temp_project: Path) -> None:
+    """Verify type/pragma comments are banned in inner layers / outside main, allowing normal comments."""
+    # 1. Ban all pragma comments outside main (all branch permutations)
+    pragma_cases = [
+        ("x = 10  # pragma\n", True),
+        ("x = 10  # pragma: no branch\n", True),
+        ("x = 10  # pragma no cover\n", True),
+        ("x = 10  # pragmatics of the logic\n", False),
+        ("x = 10  # This is fine\n# pragma: no cover\n", True),
+    ]
+    for idx, (code_pragma, should_violate) in enumerate(pragma_cases):
+        file_pragma = temp_project / "src" / "agentic_workflow" / "domain" / f"prag_{idx}.py"
+        file_pragma.write_text(code_pragma, encoding="utf-8")
+        violations = scanner.scan_file(str(file_pragma))
+        if should_violate:
+            assert len(violations) == 1, (
+                f"Expected exactly 1 violation for pragma case {idx} ({code_pragma!r}), "
+                f"but got {len(violations)} violations: {violations}"
+            )
+            assert violations[0].category == "pragma_no_cover_abuse", (
+                f"Expected category 'pragma_no_cover_abuse', but got {violations[0].category!r}"
+            )
+            assert "All pragma comments are strictly banned" in violations[0].message, (
+                f"Expected standard pragma error message, but got: {violations[0].message!r}"
+            )
+        else:
+            assert len(violations) == 0, (
+                f"Expected 0 violations for legal pragma case {idx} ({code_pragma!r}), but got violations: {violations}"
+            )
+
+    # 2. Ban all type comments in inner layers (all branch permutations)
+    type_cases = [
+        ("x = 10  # type\n", True),
+        ("x = 10  # type: List[int]\n", True),
+        ("x = 10  # type List[int]\n", True),
+        ("x = 10  # typechecker helper\n", False),
+        ("x = 10  # normal comment\n# type: ignore\n", True),
+    ]
+    for idx, (code_type, should_violate) in enumerate(type_cases):
+        file_type = temp_project / "src" / "agentic_workflow" / "domain" / f"tp_{idx}.py"
+        file_type.write_text(code_type, encoding="utf-8")
+        violations = scanner.scan_file(str(file_type))
+        if should_violate:
+            assert len(violations) == 1, (
+                f"Expected exactly 1 violation for type case {idx} ({code_type!r}), "
+                f"but got {len(violations)} violations: {violations}"
+            )
+            assert violations[0].category == "type_ignore_abuse", (
+                f"Expected category 'type_ignore_abuse', but got {violations[0].category!r}"
+            )
+            assert "Type comments are strictly banned" in violations[0].message, (
+                f"Expected standard type error message, but got: {violations[0].message!r}"
+            )
+        else:
+            assert len(violations) == 0, (
+                f"Expected 0 violations for legal type case {idx} ({code_type!r}), but got violations: {violations}"
+            )
+
+    # 3. Allow normal comments containing 'type' or 'pragma' as part of other words
+    code_ok = "# This type of logic is fine\n# We should be pragmatic about design\nx = 10\n"
+    file_ok = temp_project / "src" / "agentic_workflow" / "domain" / "ok.py"
+    file_ok.write_text(code_ok, encoding="utf-8")
+    violations_ok = scanner.scan_file(str(file_ok))
+    assert violations_ok == [], f"Expected 0 violations for ok.py, but got: {violations_ok}"
+
+    # 4. Verify frameworks layer file with comments doesn't check type comments
+    code_fw = "x = 10  # type: List[int] in frameworks is allowed\n# Just a normal comment in frameworks\n"
+    file_fw = temp_project / "src" / "agentic_workflow" / "frameworks" / "fw.py"
+    file_fw.parent.mkdir(parents=True, exist_ok=True)
+    file_fw.write_text(code_fw, encoding="utf-8")
+    violations_fw = scanner.scan_file(str(file_fw))
+    assert violations_fw == [], f"Expected 0 violations for fw.py, but got: {violations_fw}"
+
+
+def test_scanner_fallback_on_tokenization_failure(
+    scanner: CleanArchitectureBoundaryScanner, temp_project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Verify scanner falls back to regex line-by-line check if tokenize fails."""
+    import tokenize
+
+    def mock_generate_tokens(*args, **kwargs):
+        raise tokenize.TokenError("Mocked tokenization failure")
+
+    monkeypatch.setattr(tokenize, "generate_tokens", mock_generate_tokens)
+
+    # 1. Ban all pragma comments outside main
+    # Line 1 covers pragma inside main (covers 184->198 False branch)
+    # Line 2 covers line without '#' (covers 178->177 False branch)
+    # Line 3 covers illegal pragma outside main (triggers violation)
+    code_pragma = (
+        "if __name__ == '__main__':  # pragma: no cover\n"
+        "    pass\n"
+        "x = 10  # pragma\n"
+    )
+    file_pragma = temp_project / "src" / "agentic_workflow" / "domain" / "fallback_prag.py"
+    file_pragma.write_text(code_pragma, encoding="utf-8")
+    violations = scanner.scan_file(str(file_pragma))
+    assert len(violations) == 1, f"Expected 1 fallback violation, but got: {violations}"
+    assert violations[0].category == "pragma_no_cover_abuse"
+
+    # 2. Ban all type comments in inner layers
+    code_type = "x = 10  # type: ignore\n"
+    file_type = temp_project / "src" / "agentic_workflow" / "domain" / "fallback_tp.py"
+    file_type.write_text(code_type, encoding="utf-8")
+    violations = scanner.scan_file(str(file_type))
+    assert len(violations) == 1, f"Expected 1 fallback violation, but got: {violations}"
+    assert violations[0].category == "type_ignore_abuse"
