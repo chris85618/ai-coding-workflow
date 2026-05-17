@@ -286,3 +286,138 @@ class TestGetIssues:
         result = adapter.get_issues()
         assert len(result) == 1
         assert result[0]["message"] == "gen1"
+
+
+# ── get_all_available_metrics ──────────────────────────────────────────────────
+
+
+class TestGetAllAvailableMetrics:
+    """Tests for SonarCloudAdapter.get_all_available_metrics."""
+
+    def test_returns_metrics_list(self) -> None:
+        """search_metrics return values must be converted to a list."""
+        adapter, mock_client = _make_adapter()
+        mock_client.metrics.search_metrics.return_value = [
+            {"key": "coverage", "name": "Coverage"},
+            {"key": "complexity", "name": "Complexity"},
+        ]
+        result = adapter.get_all_available_metrics()
+        assert result == [
+            {"key": "coverage", "name": "Coverage"},
+            {"key": "complexity", "name": "Complexity"},
+        ]
+
+    def test_api_exception_raises_runtime_error(self) -> None:
+        """Network/API failures must be wrapped in RuntimeError."""
+        adapter, mock_client = _make_adapter()
+        mock_client.metrics.search_metrics.side_effect = Exception("HTTP 500")
+        with pytest.raises(RuntimeError, match="SonarCloud API error"):
+            adapter.get_all_available_metrics()
+
+
+# ── get_detailed_component_measures ───────────────────────────────────────────
+
+
+class TestGetDetailedComponentMeasures:
+    """Tests for SonarCloudAdapter.get_detailed_component_measures."""
+
+    def test_empty_keys_returns_empty_list(self) -> None:
+        """Passing an empty list of keys immediately returns empty list."""
+        adapter, mock_client = _make_adapter()
+        assert adapter.get_detailed_component_measures([]) == []
+        mock_client.measures.get_component_with_specified_measures.assert_not_called()
+
+    def test_missing_project_key_raises_runtime_error(self) -> None:
+        """If project_key is missing in config, raise RuntimeError."""
+        adapter, _ = _make_adapter(_make_config(project_key=""))
+        with pytest.raises(RuntimeError, match="project_key configuration is missing"):
+            adapter.get_detailed_component_measures(["coverage"])
+
+    def test_fetches_measures_in_chunks(self) -> None:
+        """Keys are chunked into groups of 50 to prevent URL length issues."""
+        adapter, mock_client = _make_adapter()
+        mock_client.measures.get_component_with_specified_measures.side_effect = [
+            {"component": {"measures": [{"metric": f"m{k}", "value": "1.0"} for k in range(50)]}},
+            {"component": {"measures": [{"metric": f"m{k}", "value": "1.0"} for k in range(50, 100)]}},
+            {"component": {"measures": [{"metric": f"m{k}", "value": "1.0"} for k in range(100, 110)]}},
+        ]
+
+        keys = [f"m{k}" for k in range(110)]
+        result = adapter.get_detailed_component_measures(keys)
+
+        assert len(result) == 110
+        assert mock_client.measures.get_component_with_specified_measures.call_count == 3
+
+    def test_api_exception_raises_runtime_error(self) -> None:
+        """Network/API failures inside a chunk must be wrapped in RuntimeError."""
+        adapter, mock_client = _make_adapter()
+        mock_client.measures.get_component_with_specified_measures.side_effect = Exception("Timeout")
+        with pytest.raises(RuntimeError, match="SonarCloud API error"):
+            adapter.get_detailed_component_measures(["coverage"])
+
+
+# ── get_all_metrics_with_values ───────────────────────────────────────────────
+
+
+class TestGetAllMetricsWithValues:
+    """Tests for SonarCloudAdapter.get_all_metrics_with_values."""
+
+    def test_merges_metrics_and_measures(self) -> None:
+        """Definitions and measures are combined and coerced properly."""
+        adapter, mock_client = _make_adapter()
+        mock_client.metrics.search_metrics.return_value = [
+            {"key": "coverage", "name": "Coverage", "type": "FLOAT"},
+            {"key": "complexity", "name": "Complexity", "type": "INT"},
+            {"key": "alert_status", "name": "Gate Status", "type": "DATA"},
+        ]
+        mock_client.measures.get_component_with_specified_measures.return_value = {
+            "component": {
+                "measures": [
+                    {"metric": "coverage", "value": "92.5"},
+                    {"metric": "complexity", "value": "10", "bestValue": True},
+                    {"metric": "alert_status", "value": "OK"},
+                ]
+            }
+        }
+
+        result = adapter.get_all_metrics_with_values()
+        assert len(result) == 3
+
+        # Match keys
+        cov = next(r for r in result if r["key"] == "coverage")
+        comp = next(r for r in result if r["key"] == "complexity")
+        stat = next(r for r in result if r["key"] == "alert_status")
+
+        assert cov["value"] == 92.5
+        assert comp["value"] == 10.0
+        assert comp["bestValue"] is True
+        assert stat["value"] == "OK"
+
+    def test_handling_metric_without_key(self) -> None:
+        """Metric dictionary lacking 'key' is ignored."""
+        adapter, mock_client = _make_adapter()
+        mock_client.metrics.search_metrics.return_value = [
+            {"name": "No Key Metric"},
+            {"key": "coverage", "name": "Coverage"},
+        ]
+        mock_client.measures.get_component_with_specified_measures.return_value = {
+            "component": {"measures": [{"metric": "coverage", "value": "100"}]}
+        }
+        result = adapter.get_all_metrics_with_values()
+        assert len(result) == 1
+        assert result[0]["key"] == "coverage"
+
+    def test_handling_no_measure_value(self) -> None:
+        """Metric key has no matching measure value -> value is None."""
+        adapter, mock_client = _make_adapter()
+        mock_client.metrics.search_metrics.return_value = [
+            {"key": "coverage", "name": "Coverage"},
+        ]
+        mock_client.measures.get_component_with_specified_measures.return_value = {
+            "component": {"measures": []}
+        }
+        result = adapter.get_all_metrics_with_values()
+        assert len(result) == 1
+        assert result[0]["key"] == "coverage"
+        assert result[0]["value"] is None
+

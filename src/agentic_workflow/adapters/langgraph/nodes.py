@@ -47,6 +47,19 @@ class SonarAdapterProtocol(Protocol):
         """Fetch project issues."""
         pass
 
+    def get_all_available_metrics(self) -> list[dict[str, Any]]:
+        """Fetch all available metric definitions."""
+        pass
+
+    def get_detailed_component_measures(self, metric_keys: list[str]) -> list[dict[str, Any]]:
+        """Fetch detailed component measures for the given keys."""
+        pass
+
+    def get_all_metrics_with_values(self) -> list[dict[str, Any]]:
+        """Fetch all available metric definitions and their values."""
+        pass
+
+
 
 class WorkflowContainerProtocol(Protocol):
     """Protocol for the dependency container, adhering to Dependency Inversion Principle."""

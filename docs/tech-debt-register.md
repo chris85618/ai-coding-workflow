@@ -1,7 +1,7 @@
 # Tech Debt Register — Unified Agentic Workflow System
 
-> **Last Updated**: 2026-05-17T18:05+08:00
-> **Total Active Items**: 1 (DEBT-009)
+> **Last Updated**: 2026-05-17T23:36+08:00
+> **Total Active Items**: 0
 > **Sprint Allocation**: 20% capacity
 > **維護 Skill**: `skills/workflow-skills/tech-debt-collect.md`, `skills/workflow-skills/tech-debt-framework.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § DEBT → FR
@@ -39,7 +39,7 @@
 | 欄位 | 值 |
 |------|-----|
 | **ID** | DEBT-009 |
-| **狀態** | open |
+| **狀態** | resolved |
 | **來源** | 程式碼品質 |
 | **影響元件** | `src/` |
 | **優先等級** | P2 |
@@ -51,9 +51,9 @@
 | **對應 LESSON** | N/A |
 | **建立日期** | 2026-05-17T17:50+08:00 |
 | **預計處理 Sprint** | 下個 Sprint |
-| **解決日期** | N/A |
+| **解決日期** | 2026-05-17T23:36+08:00 |
 
-**債務描述**：具體類別或函數的 dry run 實作中使用了省略號 `...` 代替標準的 `pass`，降低了可讀性且容易與 Protocols/抽象介面混淆。需將其實作全面重構為標準的 `pass`，確保 `...` 僅被用於抽象介面宣告中。
+**債務描述**：具體類別或函數的 dry run 實作中使用了省略號 `...` 代替標準 of `pass`，降低了可讀性且容易與 Protocols/抽象介面混淆。現已實作 AST 靜態檢查（TC-QUALITY-003）並全數重構為 `pass`，確保 `...` 僅限於抽象協定宣告。
 
 ---
 

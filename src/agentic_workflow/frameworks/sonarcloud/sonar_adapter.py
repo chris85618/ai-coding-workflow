@@ -120,3 +120,92 @@ class SonarCloudAdapter:
         if include_closed:
             return issues
         return [i for i in issues if i.get("status") not in CLOSED_STATUSES]
+
+    def get_all_available_metrics(self) -> list[dict[str, Any]]:
+        """Fetch all available metric definitions from SonarCloud.
+
+        Returns:
+            List of metric dictionaries containing keys like 'key', 'name', 'type', etc.
+
+        Raises:
+            RuntimeError: If the SonarCloud API call fails.
+        """
+        try:
+            res = self.client.metrics.search_metrics()
+            return list(res)
+        except Exception as exc:
+            raise RuntimeError(f"SonarCloud API error: {exc}") from exc
+
+    def get_detailed_component_measures(self, metric_keys: list[str]) -> list[dict[str, Any]]:
+        """Fetch detailed component measures for the given metric keys.
+
+        Args:
+            metric_keys: A list of metric keys to query.
+
+        Returns:
+            A list of measure dictionaries (each containing 'metric', 'value', etc.).
+
+        Raises:
+            RuntimeError: If the SonarCloud API call fails.
+        """
+        if not metric_keys:
+            return []
+
+        if not self.config.project_key:
+            raise RuntimeError("SonarCloud API error: project_key configuration is missing")
+
+        chunk_size = 50
+        all_measures: list[dict[str, Any]] = []
+
+        for i in range(0, len(metric_keys), chunk_size):
+            chunk = metric_keys[i : i + chunk_size]
+            try:
+                component = self.client.measures.get_component_with_specified_measures(
+                    component=self.config.project_key,
+                    fields="metrics,periods",
+                    metricKeys=",".join(chunk),
+                )
+            except Exception as exc:
+                raise RuntimeError(f"SonarCloud API error: {exc}") from exc
+
+            measures = component.get("component", {}).get("measures", [])
+            all_measures.extend(measures)
+
+        return all_measures
+
+    def get_all_metrics_with_values(self) -> list[dict[str, Any]]:
+        """Fetch all available metric definitions and their values for this project.
+
+        Returns:
+            List of dictionaries, each containing:
+            - Metric metadata (key, name, description, domain, type, etc.)
+            - Value details (global, periods, etc. under 'value')
+
+        Raises:
+            RuntimeError: If any SonarCloud API call fails.
+        """
+        metrics = self.get_all_available_metrics()
+        metric_keys = [m["key"] for m in metrics if "key" in m]
+
+        measures = self.get_detailed_component_measures(metric_keys)
+        measures_map = {m["metric"]: m for m in measures if "metric" in m}
+
+        result: list[dict[str, Any]] = []
+        for m in metrics:
+            key = m.get("key")
+            if not key:
+                continue
+
+            detail = dict(m)
+            measure = measures_map.get(key)
+            if measure:
+                detail["value"] = _coerce_value(measure.get("value"))
+                if "bestValue" in measure:
+                    detail["bestValue"] = measure["bestValue"]
+            else:
+                detail["value"] = None
+
+            result.append(detail)
+
+        return result
+

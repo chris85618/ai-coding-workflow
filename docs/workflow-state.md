@@ -2,8 +2,8 @@
 
 **Pipeline Position**: Phase 11 (Release v0.1.6) — ✅ DONE
 **Last Position**: Phase 11 (Release v0.1.6)
-**Status**: Domain Governance & Invariants Dependency Inversion Hardened.
-**Last Updated**: 2026-05-17T20:28+08:00
+**Status**: SonarQube Metrics Integration Implemented & 100% Coverage Hardened.
+**Last Updated**: 2026-05-17T23:36+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -57,6 +57,9 @@
 - [x] CAD-32: 硬化 "# type" 與 "# pragma" 封鎖規則，實現內三層 100% 絕對禁用所有 type 註解， entry point 以外 100% 禁用所有 pragma 註解，修正靜態掃描邏輯並達成 fallback 程式碼 100% Statement 與 Branch 覆蓋無死角且通過 Ruff/Mypy 檢驗 — ✅ DONE
 - [x] CAD-33: 在 `tests/test_code_quality.py` 中實現 Ruff Check 與 Mypy pytest 自動化測試，防範不退化 — ✅ DONE
 - [x] CAD-34: 實施 DEBT-009 自動化 AST 檢查並修復 SonarAdapterProtocol 覆蓋率缺口，完美維持 100.00% 覆蓋與 0 type: ignore/pragma/ellipsis 違規 — ✅ DONE
+- [x] SONAR-01: 於 SonarCloudAdapter 實作 get_all_available_metrics、get_detailed_component_measures 與 get_all_metrics_with_values 方法 — ✅ DONE
+- [x] SONAR-02: 在 tests/adapters/test_adapters_coverage.py 中新增對應測試以確保 100% Statement 與 Branch 覆蓋 — ✅ DONE
+- [x] SONAR-03: 撰寫 scripts/fetch_sonar_metrics_detail.py 工具指令碼以支援所有指標及其對應細節的 Markdown 格式拉取與美化輸出 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -68,7 +71,7 @@
 - [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
 - [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
 - [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (954 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Stage 8: TDD + 測試 + 修復 (967 Pass, 100.00% Statement & Branch Coverage)
 - [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
 
 ## 📌 Pending Escalations
@@ -77,7 +80,8 @@
 
 ## 📝 Session Summary
 
-1. **Ruff and Mypy Pytest Integration**: Implemented automatic Ruff and Mypy static checks as part of the pytest suite in `tests/test_code_quality.py` (TC-QUALITY-001/002) as requested.
-2. **Left-Shift Correction & Cleanup**: Eradicated all remaining Mypy and Ruff type issues in the codebase and test stubs without utilizing any `# type: ignore` comments, achieving perfect static code analysis state.
-3. **Flawless Branch and Statement Coverage**: Reached 100% statement and branch coverage across the entire project with 954 tests passing cleanly in a single execution.
-4. **Concrete Ellipsis AST Verification (DEBT-009)**: Fully automated the DEBT-009 rule check through an AST scanner (TC-QUALITY-003), perfectly verifying zero occurrences of `...` concrete ellipsis while securing 100% covered protocols.
+1. **SonarQube Metrics Pulling**: Implemented methods in `SonarCloudAdapter` to pull all available metrics definition and their detailed component measures from SonarCloud API, merging them seamlessly into a comprehensive output.
+2. **100% Test Coverage Secured**: Extended `test_adapters_coverage.py` to cover the new `SonarAdapterProtocol` methods, securing 100.00% statement and branch coverage across the entire project (all 967 tests passing).
+3. **Markdown Output Script**: Created `scripts/fetch_sonar_metrics_detail.py` utility that automatically loads configuration, performs API calls, groups metrics by domain, and formats them into a neat Markdown table.
+4. **Code Quality and Type Checking**: Verified the code with Ruff and Mypy, showing 100% clean output without a single type issue.
+

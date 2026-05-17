@@ -72,4 +72,3 @@ class TestFinalCoverageGaps:
         assert IterationLoop.route_hitl_gate("fail") == "alpha"
         assert IterationLoop.route_hitl_gate("pass") == "pass"
         assert IterationLoop.route_hitl_gate(None) == "pass"
-
