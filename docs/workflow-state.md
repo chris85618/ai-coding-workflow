@@ -79,29 +79,3 @@
 1. **Ruff and Mypy Pytest Integration**: Implemented automatic Ruff and Mypy static checks as part of the pytest suite in `tests/test_code_quality.py` (TC-QUALITY-001/002) as requested.
 2. **Left-Shift Correction & Cleanup**: Eradicated all remaining Mypy and Ruff type issues in the codebase and test stubs without utilizing any `# type: ignore` comments, achieving perfect static code analysis state.
 3. **Flawless Branch and Statement Coverage**: Reached 100% statement and branch coverage across the entire project with 952 tests passing cleanly in a single execution.
-��則，實現內三層 100% 絕對禁用所有 type 註解， entry point 以外 100% 禁用所有 pragma 註解 — ✅ DONE
-- [x] CAD-31: 補齊 scanner 所有註解後綴 Permutations 測試，測試套件 920 案 100.00% Statement 與 Branch 覆蓋無死角且通過 Ruff/Mypy 檢驗 — ✅ DONE
-- [x] CAD-32: 硬化 "# type" 與 "# pragma" 封鎖規則，實現內三層 100% 絕對禁用所有 type 註解， entry point 以外 100% 禁用所有 pragma 註解，修正靜態掃描邏輯並達成 fallback 程式碼 100% Statement 與 Branch 覆蓋無死角且通過 Ruff/Mypy 檢驗 — ✅ DONE
-
-## 🚦 Gate Status
-
-- [✅] Phase 0: 環境啟動
-- [✅] Phase 1: 程式碼理解
-- [✅] Phase 2: 專案分析
-- [✅] Stage 3: 技術規劃 (ADR-STR-025)
-- [✅] Stage 4: 演算法設計
-- [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
-- [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
-- [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (921 Pass, 100.00% Statement & Branch Coverage)
-- [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
-
-## 📌 Pending Escalations
-
-- 無
-
-## 📝 Session Summary
-
-1. **Hardened "# type" and "# pragma" Banning**: Rewrote the static scanner to enforce precise tokenization and fallback regex pattern scanning to disallow all "# type" variations in inner layers and "# pragma" outside the entry point.
-2. **Fixed Static Scanning Logic**: Resolved issues where comments inside multiline strings or multi-statement blocks were skipped, ensuring 100% boundary check reliability.
-3. **Flawless Branch and Statement Coverage**: Reached 100% test coverage with 921 tests passing cleanly by adding tokenization fallback tests verifying edge cases.
