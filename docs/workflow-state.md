@@ -45,6 +45,8 @@
 - [x] CAD-19: 建立 CLI 執行指令碼 `tasks/clean_architecture_scan.py` 以利 pipeline 整合與主動防護 — ✅ DONE
 - [x] CAD-20: 成功重構 Domain 層違規演算法並達成生產 Codebase 0 violations 狀態，專案 857 個測試案例 100% 通過 — ✅ DONE
 - [x] CAD-21: 擴充 AST 掃描器測試覆蓋率，消除 AST subscript / type annotations / walk filters 所有分支缺口，達成 100.00% statement 與 branch 完美覆蓋且完全不使用 pragma no cover — ✅ DONE
+- [x] CAD-22: 改善 AST Scanner 嵌套相對/絕對導入 (ImportFrom) 解析邏輯，確保其完整解析，並新增 `pydantic` 白名單消除 domain 層誤判 violations — ✅ DONE
+- [x] CAD-23: 完美覆蓋 `clean_architecture_scanner.py` 所有分支，使專案 869 個測試案例全數通過，且維持 100.00% 的完美 Statement 與 Branch 覆蓋率 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -56,7 +58,7 @@
 - [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
 - [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
 - [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (865 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Stage 8: TDD + 測試 + 修復 (869 Pass, 100.00% Statement & Branch Coverage)
 - [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
 
 ## 📌 Pending Escalations
@@ -66,6 +68,7 @@
 ## 📝 Session Summary
 
 1. **Clean Architecture Boundary Scanner**: Implemented a state-of-the-art AST compliance scanner dynamically detecting absolute/relative static imports, dynamic imports, type annotations, sys.modules manipulation, DI Container service-locator bypasses, environment variable accesses, and file I/O operations.
-2. **Scanner Tests & Tasks**: Wrote a complete unit and integration test suite of 22 tests in `test_clean_architecture_scanner.py` (100% pass) and developed a CLI script `tasks/clean_architecture_scan.py` for CI/CD checks.
+2. **Scanner Tests & Tasks**: Wrote a complete unit and integration test suite of 28 tests in `test_clean_architecture_scanner.py` (100% pass) and developed a CLI script `tasks/clean_architecture_scan.py` for CI/CD checks.
 3. **Domain Layer Hardening**: Decoupled `PipelineCompletenessChecker` and `RepoMapBuilder` from direct file I/O using highly-testable callback structures and standard library dynamic loaders, obtaining a perfect **0 violations** status on the entire production codebase while preserving 100% compatibility.
-4. **100% Statement & Branch Coverage**: Expanded the coverage suite to cover every compiler branch, recursive walk, missing slice lookup, dynamic import, subscript, and annotation node structure, reaching an absolute 100.00% statement and branch coverage across all files without using any pragma tags or bypass comments. All 865 unit/integration checks pass perfectly.
+4. **Relative Import and Whitelist Resolution**: Resolved relative import parsing (`ImportFrom` path resolution) and whitelisted `pydantic` in Domain layer, resulting in absolute **0 violations** across the production codebase.
+5. **100% Statement & Branch Coverage**: Expanded the coverage suite to cover every compiler branch, recursive walk, missing slice lookup, dynamic import, subscript, relative import, and annotation node structure, reaching an absolute 100.00% statement and branch coverage across all files without using any pragma tags or bypass comments. All 869 unit/integration checks pass perfectly.

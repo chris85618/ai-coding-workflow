@@ -31,6 +31,35 @@ class CleanArchitectureBoundaryScanner:
     # Blocked classes/symbols in inner layers to prevent DI container/locator abuse
     BLOCKED_LOCATORS = {"DependencyContainer", "Container", "ServiceLocator"}
 
+    # Whitelist of allowed base module/package names in domain layer
+    ALLOWED_DOMAIN_DEPENDENCIES = {
+        "typing",
+        "dataclasses",
+        "re",
+        "enum",
+        "abc",
+        "collections",
+        "shlex",
+        "subprocess",
+        "ast",
+        "pathlib",
+        "os",
+        "importlib",
+        "datetime",
+        "uuid",
+        "sys",
+        "json",
+        "math",
+        "random",
+        "warnings",
+        "traceback",
+        "inspect",
+        "types",
+        "icontract",
+        "DependencyContainer",
+        "pydantic",
+    }
+
     def __init__(self, project_root: str | None = None) -> None:
         """Initialize the scanner with an optional project root."""
         self.project_root = Path(project_root).resolve() if project_root else Path.cwd().resolve()
@@ -209,10 +238,39 @@ class BoundaryVisitor(ast.NodeVisitor):
                     f"via module '{module_name}'.",
                 )
 
+    def _check_domain_dependency_whitelist(self, node: ast.AST, module_name: str) -> None:
+        """Check that imports in 'domain' layer are restricted to the whitelist or self-domain."""
+        if self.current_layer != "domain":
+            return
+        if module_name == "agentic_workflow" or module_name.startswith("agentic_workflow."):
+            return
+
+        base_module = module_name.split(".")[0]
+        if base_module in {"__future__", ""}:
+            return
+
+        if base_module not in self.scanner.ALLOWED_DOMAIN_DEPENDENCIES:
+            whitelist_sorted = sorted(self.scanner.ALLOWED_DOMAIN_DEPENDENCIES)
+            self._add_violation(
+                node,
+                "external_dependency_violation",
+                f"Illegal external dependency: Layer 'domain' is not allowed to import "
+                f"external/third-party module '{module_name}'. Whitelist: {whitelist_sorted}",
+            )
+
+    def _get_attribute_chain(self, node: ast.AST) -> list[str]:
+        """Recursively retrieve all segments of an attribute lookup chain."""
+        if isinstance(node, ast.Name):
+            return [node.id]
+        elif isinstance(node, ast.Attribute):
+            return self._get_attribute_chain(node.value) + [node.attr]
+        return []
+
     def visit_Import(self, node: ast.Import) -> None:
         """Inspect absolute imports."""
         for alias in node.names:
             self._check_module_dependency(node, alias.name)
+            self._check_domain_dependency_whitelist(node, alias.name)
             # Prevent DI locator/container import
             for locator in self.scanner.BLOCKED_LOCATORS:
                 if locator in alias.name and self.current_rank < 3:
@@ -230,15 +288,19 @@ class BoundaryVisitor(ast.NodeVisitor):
         if node.level > 0:
             resolved = self.scanner.resolve_relative_import(self.current_module, module_name, node.level)
             self._check_module_dependency(node, resolved)
+            self._check_domain_dependency_whitelist(node, resolved)
+            module_name_resolved = resolved
         else:
-            # Absolute import must have a module name in valid python code
-            self._check_module_dependency(node, module_name)  # type: ignore
+            assert module_name is not None
+            self._check_module_dependency(node, module_name)
+            self._check_domain_dependency_whitelist(node, module_name)
+            module_name_resolved = module_name
 
         # Inspect imported names
         for alias in node.names:
-            if module_name:
-                full_name = f"{module_name}.{alias.name}"
-                self._check_module_dependency(node, full_name)
+            full_name = f"{module_name_resolved}.{alias.name}"
+            self._check_module_dependency(node, full_name)
+            self._check_domain_dependency_whitelist(node, full_name)
 
             # Prevent DI locator/container import
             if alias.name in self.scanner.BLOCKED_LOCATORS and self.current_rank < 3:
@@ -315,6 +377,18 @@ class BoundaryVisitor(ast.NodeVisitor):
                 "file_io",
                 f"Direct file operation '{node.func.attr}' is prohibited in 'domain' layer. Use Repository ports.",
             )
+
+        # 7. Check for outer layer class instantiation (adapters/frameworks) inside domain/application (rank < 3)
+        if self.current_rank < 3:
+            chain = self._get_attribute_chain(node.func)
+            if any(segment in {"adapters", "frameworks"} for segment in chain):
+                dot_path = ".".join(chain)
+                self._add_violation(
+                    node,
+                    "illegal_instantiation",
+                    f"Illegal outer-layer class instantiation: Core layer '{self.current_layer}' "
+                    f"is prohibited from directly instantiating outer layer class '{dot_path}'.",
+                )
 
         self.generic_visit(node)
 

@@ -522,3 +522,71 @@ def test_scanner_pragma_no_cover_abuse(scanner: CleanArchitectureBoundaryScanner
     legal_file.write_text(legal_code, encoding="utf-8")
 
     assert scanner.scan_file(str(legal_file)) == []
+
+
+def test_scanner_domain_whitelist(scanner: CleanArchitectureBoundaryScanner, temp_project: Path) -> None:
+    """Verify that domain imports of non-whitelisted external packages are flagged."""
+    # 1. Allowed standard library and own domain imports
+    allowed_code = (
+        "from __future__ import annotations\n"
+        "import typing\n"
+        "from dataclasses import dataclass\n"
+        "import icontract\n"
+        "from agentic_workflow.domain.value_objects import RepoMap\n"
+        "from . import sibling\n"
+    )
+    allowed_file = temp_project / "src" / "agentic_workflow" / "domain" / "allowed_deps.py"
+    allowed_file.write_text(allowed_code, encoding="utf-8")
+    assert scanner.scan_file(str(allowed_file)) == []
+
+    # 2. Forbidden third-party package import (e.g. requests)
+    forbidden_code = "import requests\n"
+    forbidden_file = temp_project / "src" / "agentic_workflow" / "domain" / "forbidden_deps.py"
+    forbidden_file.write_text(forbidden_code, encoding="utf-8")
+
+    violations = scanner.scan_file(str(forbidden_file))
+    assert len(violations) == 1
+    assert violations[0].category == "external_dependency_violation"
+    assert "Illegal external dependency" in violations[0].message
+    assert "requests" in violations[0].message
+
+    # 3. Forbidden sub-package of agentic_workflow that is not domain (e.g. adapters)
+    forbidden_sub_code = "from agentic_workflow.adapters import persistence\n"
+    forbidden_sub_file = temp_project / "src" / "agentic_workflow" / "domain" / "forbidden_sub_deps.py"
+    forbidden_sub_file.write_text(forbidden_sub_code, encoding="utf-8")
+
+    violations_sub = scanner.scan_file(str(forbidden_sub_file))
+    # It will trigger rank static_import violation!
+    assert len(violations_sub) >= 1
+    categories = [v.category for v in violations_sub]
+    assert "static_import" in categories
+
+
+def test_scanner_outer_instantiation(scanner: CleanArchitectureBoundaryScanner, temp_project: Path) -> None:
+    """Verify that direct instantiation of outer-layer classes within core layers is flagged."""
+    # 1. Illegal direct instantiation in domain using namespace
+    illegal_inst_code = "repo = agentic_workflow.adapters.persistence.FileRepository()\n"
+    illegal_inst_file = temp_project / "src" / "agentic_workflow" / "domain" / "illegal_inst.py"
+    illegal_inst_file.write_text(illegal_inst_code, encoding="utf-8")
+
+    violations = scanner.scan_file(str(illegal_inst_file))
+    assert len(violations) >= 1
+    inst_violations = [v for v in violations if v.category == "illegal_instantiation"]
+    assert len(inst_violations) == 1
+    assert "directly instantiating outer layer class" in inst_violations[0].message
+    assert "agentic_workflow.adapters.persistence.FileRepository" in inst_violations[0].message
+
+    # 2. Legal instantiation of inner layer classes or standard libraries
+    legal_inst_code = "my_vo = agentic_workflow.domain.value_objects.RepoMap()\n"
+    legal_inst_file = temp_project / "src" / "agentic_workflow" / "domain" / "legal_inst.py"
+    legal_inst_file.write_text(legal_inst_code, encoding="utf-8")
+    assert scanner.scan_file(str(legal_inst_file)) == []
+
+
+def test_scanner_blocked_locator_in_outer_layer(scanner: CleanArchitectureBoundaryScanner, temp_project: Path) -> None:
+    """Verify that importing blocked locator in adapters/frameworks is allowed (rank >= 3)."""
+    code = "from agentic_workflow.frameworks.dependency_container import DependencyContainer\n"
+    file_path = temp_project / "src" / "agentic_workflow" / "frameworks" / "my_framework.py"
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(code, encoding="utf-8")
+    assert scanner.scan_file(str(file_path)) == []
