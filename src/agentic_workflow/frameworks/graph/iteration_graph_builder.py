@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 from langgraph.graph import END, StateGraph
 
+from agentic_workflow.application.ports.gateways.graph_builder import IIterationGraphBuilder
 from agentic_workflow.frameworks.graph.iteration_nodes import (
     agent_alpha_critique,
     agent_beta_resolve,
@@ -25,7 +26,7 @@ from agentic_workflow.frameworks.graph.micro_validation_graph_builder import (
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
-class IterationGraphBuilder:
+class IterationGraphBuilder(IIterationGraphBuilder):
     """ALG-001: Builds the Agent α/β Dual-Agent Iteration Loop subgraph.
 
     Wraps MicroValidationGraphBuilder as a nested subgraph.

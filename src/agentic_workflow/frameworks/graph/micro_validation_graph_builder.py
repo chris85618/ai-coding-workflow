@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 from langgraph.graph import END, StateGraph
 
+from agentic_workflow.application.ports.gateways.graph_builder import IMicroValidationGraphBuilder
 from agentic_workflow.frameworks.graph.micro_validation_nodes import (
     step_0_format,
     step_1_id_structure,
@@ -27,7 +28,7 @@ from agentic_workflow.frameworks.graph.micro_validation_nodes import (
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
-class MicroValidationGraphBuilder:
+class MicroValidationGraphBuilder(IMicroValidationGraphBuilder):
     """ALG-002: Builds the Left-Shift Micro-Validation Sequence subgraph.
 
     Encapsulates the 10-step micro-validation chain (Steps 0-7 + 5.5/5.7)

@@ -64,3 +64,12 @@ class TestFinalCoverageGaps:
         assert len(good_syms) >= 1
         assert bad_syms == []
         assert call_registry.get("bad.py", 0) >= 1
+
+    def test_route_hitl_gate(self) -> None:
+        """route_hitl_gate returns 'alpha' for 'fail', 'pass' otherwise."""
+        from agentic_workflow.domain.algorithms.iter_loop import IterationLoop
+
+        assert IterationLoop.route_hitl_gate("fail") == "alpha"
+        assert IterationLoop.route_hitl_gate("pass") == "pass"
+        assert IterationLoop.route_hitl_gate(None) == "pass"
+

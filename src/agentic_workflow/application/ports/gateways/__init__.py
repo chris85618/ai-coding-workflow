@@ -5,9 +5,24 @@ Clean Architecture: domain/application depend only on these abstractions.
 Adapters in adapters/llm/, adapters/mcp/ implement these interfaces.
 """
 
+from agentic_workflow.application.ports.gateways.graph_builder import (
+    IGraphVerifier,
+    IIterationGraphBuilder,
+    IMasterGraphBuilder,
+    IMicroValidationGraphBuilder,
+)
 from agentic_workflow.application.ports.gateways.llm_gateway import LLMGateway
 from agentic_workflow.application.ports.gateways.mcp_gateway import MCPGateway
 from agentic_workflow.application.ports.gateways.quality_gateway import QualityGateway
 from agentic_workflow.application.ports.gateways.security_gateway import SecurityGateway
 
-__all__ = ["LLMGateway", "MCPGateway", "QualityGateway", "SecurityGateway"]
+__all__ = [
+    "LLMGateway",
+    "MCPGateway",
+    "QualityGateway",
+    "SecurityGateway",
+    "IIterationGraphBuilder",
+    "IMasterGraphBuilder",
+    "IMicroValidationGraphBuilder",
+    "IGraphVerifier",
+]

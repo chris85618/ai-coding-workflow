@@ -61,3 +61,14 @@ class IterationLoop:
             "next_output": resolved_output,
             "critiques": critiques,
         }
+
+    @classmethod
+    def route_hitl_gate(cls, gate_decision: str | None) -> str:
+        """Determines routing for human-in-the-loop gate choice.
+
+        If gate_decision is FAIL, return 'alpha' to re-critique.
+        Otherwise, return 'pass' to exit iteration loop.
+        """
+        if gate_decision == "fail":
+            return "alpha"
+        return "pass"

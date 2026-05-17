@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from agentic_workflow.adapters.langgraph.nodes import SonarAdapterProtocol
+    from agentic_workflow.application.use_cases.verify_invariants import VerifyDAGInvariantsUseCase
 
 
 from agentic_workflow.application.ports.doc_io.document_io_gateway import DocumentIOGateway
@@ -85,6 +86,14 @@ class DependencyContainer:
     def run_iteration(self) -> RunIterationUseCase:
         """Get the RunIterationUseCase instance."""
         return RunIterationUseCase(self.pipeline_repo)
+
+    @property
+    def verify_invariants(self) -> VerifyDAGInvariantsUseCase:
+        """Get the VerifyDAGInvariantsUseCase instance."""
+        from agentic_workflow.application.use_cases.verify_invariants import VerifyDAGInvariantsUseCase
+        from agentic_workflow.domain.algorithms.invariants_verifier import DAGInvariantVerifier
+
+        return VerifyDAGInvariantsUseCase(DAGInvariantVerifier())
 
     @property
     def sonar_adapter(self) -> SonarAdapterProtocol:

@@ -26,3 +26,6 @@ class WorkflowState(TypedDict, total=False):
     max_iterations: int
     last_error: str | None
     metadata: dict[str, Any]
+    findings_history: list[list[str]]
+    current_findings: list[str]
+    gate_decision: str | None

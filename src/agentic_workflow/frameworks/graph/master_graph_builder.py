@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, StateGraph
 
+from agentic_workflow.application.ports.gateways.graph_builder import IMasterGraphBuilder
 from agentic_workflow.frameworks.graph.iteration_graph_builder import (
     IterationGraphBuilder,
 )
@@ -33,7 +34,7 @@ from agentic_workflow.frameworks.langgraph.nodes import (
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
-class MasterGraphBuilder:
+class MasterGraphBuilder(IMasterGraphBuilder):
     """Master pipeline graph builder covering the 11-phase/stage dev pipeline.
 
     Stages 3-8 reuse the IterationGraphBuilder subgraph.

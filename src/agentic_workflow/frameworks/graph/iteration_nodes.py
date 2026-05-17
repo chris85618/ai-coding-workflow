@@ -5,6 +5,8 @@ Module-level functions required by LangGraph for node registration.
 
 from __future__ import annotations
 
+from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
+from agentic_workflow.domain.algorithms.iter_loop import IterationLoop
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
@@ -13,9 +15,20 @@ def agent_alpha_critique(state: WorkflowState) -> WorkflowState:
     return state
 
 
-def check_fixed_point(_state: WorkflowState) -> str:
-    """Checks for convergence or YAGNI termination."""
-    # Returns "beta" or "exit_loop" based on YAGNI convergence
+def check_fixed_point(state: WorkflowState) -> str:
+    """Checks for convergence or YAGNI termination using domain ConvergenceDetector."""
+    iteration_count = state.get("iteration_count", 0)
+    findings_history = state.get("findings_history", [])
+    current_findings = state.get("current_findings", [])
+
+    result = ConvergenceDetector.check_convergence(
+        iteration_count=iteration_count,
+        findings_per_iter=findings_history,
+        current_findings=current_findings,
+    )
+
+    if ConvergenceDetector.should_auto_pass(result):
+        return "exit_loop"
     return "beta"
 
 
@@ -29,7 +42,7 @@ def root_cause_leftshift(state: WorkflowState) -> WorkflowState:
     return state
 
 
-def hitl_gate_choice(_state: WorkflowState) -> str:
-    """Human-in-the-loop decision routing."""
-    # 1: continue, 2: add req, 3: pass
-    return "pass"
+def hitl_gate_choice(state: WorkflowState) -> str:
+    """Human-in-the-loop decision routing using domain IterationLoop policy."""
+    gate_decision = state.get("gate_decision", "pass")
+    return IterationLoop.route_hitl_gate(gate_decision)

@@ -1219,3 +1219,40 @@ class TestSonarCloudAdapterFramework:
             issues_open = adapter.get_issues(include_closed=False)
             assert len(issues_open) == 1
             assert issues_open[0]["status"] == "OPEN"
+
+
+class TestDependencyContainer:
+    """Test suite for DependencyContainer composition root."""
+
+    def test_dependency_container_properties(self) -> None:
+        """Verify that accessing all properties on the container succeeds and yields valid instances."""
+        from agentic_workflow.application.ports.doc_io.document_io_gateway import DocumentIOGateway
+        from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentReasoner
+        from agentic_workflow.application.ports.repositories.checkpoint_repository import CheckpointRepository
+        from agentic_workflow.application.ports.repositories.pipeline_repository import IPipelineRepository
+        from agentic_workflow.frameworks.dependency_container import DependencyContainer
+
+        mock_pipeline_repo = MagicMock(spec=IPipelineRepository)
+        mock_checkpoint_repo = MagicMock(spec=CheckpointRepository)
+        mock_doc_io = MagicMock(spec=DocumentIOGateway)
+        mock_reasoner = MagicMock(spec=IAgentReasoner)
+
+        container = DependencyContainer(
+            pipeline_repo=mock_pipeline_repo,
+            checkpoint_repo=mock_checkpoint_repo,
+            doc_io=mock_doc_io,
+            reasoner=mock_reasoner,
+        )
+
+        assert container.pipeline_repo is mock_pipeline_repo
+        assert container.checkpoint_repo is mock_checkpoint_repo
+        assert container.doc_io is mock_doc_io
+        assert container.reasoner is mock_reasoner
+
+        assert container.start_pipeline is not None
+        assert container.advance_pipeline is not None
+        assert container.run_iteration is not None
+        assert container.verify_invariants is not None
+
+        with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient"):
+            assert container.sonar_adapter is not None

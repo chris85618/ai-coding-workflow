@@ -8,6 +8,7 @@ from __future__ import annotations
 import sys
 from typing import Any
 
+from agentic_workflow.application.use_cases.verify_invariants import VerifyDAGInvariantsUseCase
 from agentic_workflow.domain.algorithms.invariants_verifier import DAGInvariantVerifier
 from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
 
@@ -15,7 +16,9 @@ from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBu
 def run_verification() -> dict[str, Any]:
     """Builds the graph and runs formal verification."""
     graph = MasterGraphBuilder.build()
-    result = DAGInvariantVerifier.run_all_verifications(graph)
+    verifier = DAGInvariantVerifier()
+    use_case = VerifyDAGInvariantsUseCase(verifier)
+    result = use_case.execute(graph)
     if result["passed"]:
         print("Stage 6 Formal Verification PASSED: All DAG invariants upheld.")
     else:

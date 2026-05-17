@@ -110,8 +110,17 @@ class TestIterationGraphNodes:
 
     def test_check_fixed_point_returns_beta(self) -> None:
         """TC-054: Fixed point check returns beta."""
-        result = check_fixed_point(DUMMY_STATE)
+        beta_state = DUMMY_STATE.copy()
+        beta_state["current_findings"] = ["CRITICAL: missing validation"]
+        result = check_fixed_point(beta_state)
         assert result == "beta"
+
+    def test_check_fixed_point_returns_exit_loop(self) -> None:
+        """TC-054b: Fixed point check returns exit_loop when converged."""
+        converged_state = DUMMY_STATE.copy()
+        converged_state["current_findings"] = ["YAGNI: unnecessary log"]
+        result = check_fixed_point(converged_state)
+        assert result == "exit_loop"
 
     def test_hitl_gate_choice_returns_pass(self) -> None:
         """TC-055: HITL choice returns pass."""
