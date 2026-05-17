@@ -5,17 +5,13 @@ ALG-002: Builds the Left-Shift Micro-Validation Sequence subgraph.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    try:
-        from langgraph.graph import CompiledGraph  # type: ignore[attr-defined]
-    except ImportError:
-        from typing import Any as CompiledGraph
+    from langgraph.graph.state import CompiledStateGraph
 
 from langgraph.graph import END, StateGraph
 
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 from agentic_workflow.frameworks.graph.micro_validation_nodes import (
     step_0_format,
     step_1_id_structure,
@@ -28,6 +24,7 @@ from agentic_workflow.frameworks.graph.micro_validation_nodes import (
     step_6_trigger_impact,
     step_7_record_change,
 )
+from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
 class MicroValidationGraphBuilder:
@@ -38,7 +35,7 @@ class MicroValidationGraphBuilder:
     """
 
     @classmethod
-    def build(cls) -> CompiledGraph:
+    def build(cls) -> CompiledStateGraph[WorkflowState, Any, Any, Any]:
         """Build and compile the micro-validation subgraph.
 
         Returns:

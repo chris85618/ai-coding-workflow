@@ -8,22 +8,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    try:
-        from langgraph.graph import CompiledGraph  # type: ignore[attr-defined]
-    except ImportError:
-        from typing import Any as CompiledGraph
+    from langgraph.graph.state import CompiledStateGraph
 
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, StateGraph
 
-from agentic_workflow.adapters.langgraph.nodes import (
-    node_auto_gate,
-    node_complete_pipeline,
-    node_security_audit,
-    node_sonarcloud_gate,
-    node_start_pipeline,
-)
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 from agentic_workflow.frameworks.graph.iteration_graph_builder import (
     IterationGraphBuilder,
 )
@@ -34,6 +23,14 @@ from agentic_workflow.frameworks.graph.master_pipeline_nodes import (
     phase_9_ship,
     phase_10_retro,
 )
+from agentic_workflow.frameworks.langgraph.nodes import (
+    node_auto_gate,
+    node_complete_pipeline,
+    node_security_audit,
+    node_sonarcloud_gate,
+    node_start_pipeline,
+)
+from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
 class MasterGraphBuilder:
@@ -44,7 +41,9 @@ class MasterGraphBuilder:
     """
 
     @classmethod
-    def build(cls, checkpointer: BaseCheckpointSaver[Any] | None = None) -> CompiledGraph:
+    def build(
+        cls, checkpointer: BaseCheckpointSaver[Any] | None = None
+    ) -> CompiledStateGraph[WorkflowState, Any, Any, Any]:
         """Build and compile the master workflow graph.
 
         Args:

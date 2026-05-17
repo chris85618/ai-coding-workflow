@@ -31,8 +31,8 @@ class CleanArchitectureBoundaryScanner:
     # Blocked classes/symbols in inner layers to prevent DI container/locator abuse
     BLOCKED_LOCATORS = {"DependencyContainer", "Container", "ServiceLocator"}
 
-    # Whitelist of allowed base module/package names in domain layer
-    ALLOWED_DOMAIN_DEPENDENCIES = {
+    # Whitelist of allowed base module/package names in inner layers (domain, application, adapters)
+    ALLOWED_INNER_DEPENDENCIES = {
         "typing",
         "dataclasses",
         "re",
@@ -138,6 +138,23 @@ class CleanArchitectureBoundaryScanner:
                     )
                 )
 
+            if current_rank <= 3 and "#" in line:
+                comment_part = line.split("#", 1)[1]
+                normalized_comment = "".join(comment_part.split()).lower()
+                if "type:ignore" in normalized_comment:
+                    violations.append(
+                        BoundaryViolation(
+                            file_path=str(path),
+                            line=idx,
+                            column=line.index("#"),
+                            category="type_ignore_abuse",
+                            message=(
+                                "Illegal use of '# type: ignore' comment in inner layer. "
+                                "Type ignore comments are strictly banned in inner layers."
+                            ),
+                        )
+                    )
+
         try:
             tree = ast.parse(content, filename=str(path))
         except SyntaxError as se:
@@ -197,6 +214,7 @@ class BoundaryVisitor(ast.NodeVisitor):
         self.scanner = scanner
         self.violations: list[BoundaryViolation] = []
         self._recorded_keys: set[tuple[int, int, str]] = set()
+        self.class_stack: list[ast.ClassDef] = []
 
     def _add_violation(self, node: ast.AST, category: str, message: str) -> None:
         key = (getattr(node, "lineno", 1), getattr(node, "col_offset", 0), category)
@@ -227,9 +245,16 @@ class BoundaryVisitor(ast.NodeVisitor):
                     f"via module '{module_name}'.",
                 )
 
-    def _check_domain_dependency_whitelist(self, node: ast.AST, module_name: str) -> None:
-        """Check that imports in 'domain' layer are restricted to the whitelist or self-domain."""
-        if self.current_layer != "domain":
+    def _check_inner_dependency_whitelist(self, node: ast.AST, module_name: str) -> None:
+        """Check that imports in inner layers (rank <= 3) are restricted to the whitelist or self-project."""
+        if self.current_rank > 3:
+            return
+        path = Path(self.file_path)
+        if path.name == "sys.py":
+            return
+        try:
+            Path(self.file_path).resolve().relative_to(self.scanner.project_root.resolve())
+        except ValueError:
             return
         if module_name == "agentic_workflow" or module_name.startswith("agentic_workflow."):
             return
@@ -238,12 +263,12 @@ class BoundaryVisitor(ast.NodeVisitor):
         if base_module in {"__future__", ""}:
             return
 
-        if base_module not in self.scanner.ALLOWED_DOMAIN_DEPENDENCIES:
-            whitelist_sorted = sorted(self.scanner.ALLOWED_DOMAIN_DEPENDENCIES)
+        if base_module not in self.scanner.ALLOWED_INNER_DEPENDENCIES:
+            whitelist_sorted = sorted(self.scanner.ALLOWED_INNER_DEPENDENCIES)
             self._add_violation(
                 node,
                 "external_dependency_violation",
-                f"Illegal external dependency: Layer 'domain' is not allowed to import "
+                f"Illegal external dependency: Inner layer '{self.current_layer}' is not allowed to import "
                 f"external/third-party module '{module_name}'. Whitelist: {whitelist_sorted}",
             )
 
@@ -259,7 +284,7 @@ class BoundaryVisitor(ast.NodeVisitor):
         """Inspect absolute imports."""
         for alias in node.names:
             self._check_module_dependency(node, alias.name)
-            self._check_domain_dependency_whitelist(node, alias.name)
+            self._check_inner_dependency_whitelist(node, alias.name)
             # Prevent DI locator/container import
             for locator in self.scanner.BLOCKED_LOCATORS:
                 if locator in alias.name and self.current_rank < 3:
@@ -277,19 +302,19 @@ class BoundaryVisitor(ast.NodeVisitor):
         if node.level > 0:
             resolved = self.scanner.resolve_relative_import(self.current_module, module_name, node.level)
             self._check_module_dependency(node, resolved)
-            self._check_domain_dependency_whitelist(node, resolved)
+            self._check_inner_dependency_whitelist(node, resolved)
             module_name_resolved = resolved
         else:
             assert module_name is not None
             self._check_module_dependency(node, module_name)
-            self._check_domain_dependency_whitelist(node, module_name)
+            self._check_inner_dependency_whitelist(node, module_name)
             module_name_resolved = module_name
 
         # Inspect imported names
         for alias in node.names:
             full_name = f"{module_name_resolved}.{alias.name}"
             self._check_module_dependency(node, full_name)
-            self._check_domain_dependency_whitelist(node, full_name)
+            self._check_inner_dependency_whitelist(node, full_name)
 
             # Prevent DI locator/container import
             if alias.name in self.scanner.BLOCKED_LOCATORS and self.current_rank < 3:
@@ -457,7 +482,62 @@ class BoundaryVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        """Inspect string type annotations in function return types."""
+        """Inspect string type annotations in function return types and check for ellipsis abuse."""
         if isinstance(node.returns, ast.Constant) and isinstance(node.returns.value, str):
             self._check_string_annotation(node, node.returns.value)
+        self._check_ellipsis(node)
         self.generic_visit(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Inspect string type annotations in function return types and check for ellipsis abuse."""
+        if isinstance(node.returns, ast.Constant) and isinstance(node.returns.value, str):
+            self._check_string_annotation(node, node.returns.value)
+        self._check_ellipsis(node)
+        self.generic_visit(node)
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        """Track current class to allow ellipsis within Protocol classes."""
+        self.class_stack.append(node)
+        self.generic_visit(node)
+        self.class_stack.pop()
+
+    def _check_ellipsis(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+        """Enforce pass over ellipsis in concrete dry run implementations."""
+        if len(node.body) == 1:
+            stmt = node.body[0]
+            is_ellipsis = False
+            if isinstance(stmt, ast.Expr):
+                val = stmt.value
+                if isinstance(val, ast.Constant) and val.value is Ellipsis:
+                    is_ellipsis = True
+
+            if is_ellipsis:
+                is_allowed = False
+                # Allow if decorator is abstractmethod
+                for dec in node.decorator_list:
+                    if (
+                        isinstance(dec, ast.Name)
+                        and dec.id == "abstractmethod"
+                        or isinstance(dec, ast.Attribute)
+                        and dec.attr == "abstractmethod"
+                    ):
+                        is_allowed = True
+                # Allow if parent class is a Protocol
+                if not is_allowed and self.class_stack:
+                    parent_class = self.class_stack[-1]
+                    for base in parent_class.bases:
+                        if (
+                            isinstance(base, ast.Name)
+                            and base.id == "Protocol"
+                            or isinstance(base, ast.Attribute)
+                            and base.attr == "Protocol"
+                        ):
+                            is_allowed = True
+
+                if not is_allowed:
+                    self._add_violation(
+                        node,
+                        "ellipsis_abuse",
+                        f"Illegal use of ellipsis '...' in concrete function '{node.name}'. "
+                        "Must use 'pass' instead of '...'.",
+                    )

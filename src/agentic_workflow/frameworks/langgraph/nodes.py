@@ -13,8 +13,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
-from agentic_workflow.adapters.langgraph.state_mapper import StateMapper, WorkflowState
-from agentic_workflow.adapters.sonarcloud.sonar_adapter import SonarCloudAdapter
 from agentic_workflow.domain.algorithms.impact_analysis import ImpactAnalysis
 from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
 from agentic_workflow.domain.algorithms.pipeline_completeness import (
@@ -28,6 +26,8 @@ from agentic_workflow.domain.enums import (
     StageStatus,
 )
 from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
+from agentic_workflow.frameworks.langgraph.state_mapper import StateMapper, WorkflowState
+from agentic_workflow.frameworks.sonarcloud.sonar_adapter import SonarCloudAdapter
 
 if TYPE_CHECKING:
     from agentic_workflow.application.use_cases.advance_pipeline import AdvancePipelineUseCase
@@ -79,11 +79,6 @@ def set_container(container: WorkflowContainerProtocol | None) -> None:
     """Initialize the global container for nodes."""
     global _CONTAINER
     _CONTAINER = container
-    sys_mod = __import__("s" + "y" + "s")
-    modules_dict = getattr(sys_mod, "m" + "o" + "d" + "u" + "l" + "e" + "s")
-    target = ".".join(["agentic_workflow", "frameworks", "langgraph", "nodes"])
-    if target in modules_dict:
-        modules_dict[target].set_container(container)
 
 
 def _get_container() -> WorkflowContainerProtocol:

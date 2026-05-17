@@ -1,0 +1,108 @@
+"""Persistence Adapter — LangGraph Checkpoint Repository.
+
+Traceable to: FR-019-v2, FR-021-v2, UC-010 (workflow resume), ADR-STR-003
+Storage: JSON files in {repo_root}/.agentic/checkpoints/{pipeline_id}/
+"""
+
+from __future__ import annotations
+
+import json
+from datetime import UTC, datetime
+from typing import Any, cast
+
+from agentic_workflow.adapters.filesystem import get_filesystem
+from agentic_workflow.application.ports.repositories import CheckpointRepository
+
+
+class FileCheckpointRepository(CheckpointRepository):
+    """Filesystem-backed LangGraph checkpoint repository.
+
+    Checkpoints are stored as timestamped JSON files:
+        ``.agentic/checkpoints/{pipeline_id}/{timestamp}.json``
+
+    The latest checkpoint is the file with the lexicographically greatest
+    name (ISO 8601 timestamps sort correctly).
+
+    Args:
+        repo_root: Path to the repository root directory.
+    """
+
+    def __init__(self, repo_root: str = ".") -> None:
+        """Initializes the checkpoint repository.
+
+        Args:
+            repo_root: Path to the repository root directory.
+        """
+        self._fs = get_filesystem()
+        self._root = self._fs.resolve_path(self._fs.resolve_path(repo_root) + "/.agentic/checkpoints")
+        self._fs.mkdir(self._root, parents=True, exist_ok=True)
+
+    def _pipeline_dir(self, pipeline_id: str) -> str:
+        safe = pipeline_id.replace("/", "_").replace("\\", "_")
+        d = self._root + f"/{safe}"
+        self._fs.mkdir(d, parents=True, exist_ok=True)
+        return d
+
+    def save_checkpoint(self, pipeline_id: str, state: dict[str, Any]) -> str:
+        """Save a pipeline checkpoint JSON file.
+
+        Args:
+            pipeline_id: Identifier for the pipeline being checkpointed.
+            state: LangGraph state dictionary to persist.
+
+        Returns:
+            Checkpoint identifier (ISO 8601 UTC timestamp string).
+        """
+        checkpoint_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+        path = self._pipeline_dir(pipeline_id) + f"/{checkpoint_id}.json"
+        self._fs.write_text(path, json.dumps(state, indent=2, default=str), encoding="utf-8")
+        return checkpoint_id
+
+    def load_latest(self, pipeline_id: str) -> dict[str, Any] | None:
+        """Load the most recent checkpoint for a pipeline.
+
+        Args:
+            pipeline_id: Identifier for the pipeline to restore.
+
+        Returns:
+            State dictionary if a checkpoint exists, else None.
+        """
+        d = self._pipeline_dir(pipeline_id)
+        checkpoints = sorted(self._fs.glob(d, "*.json"), reverse=True)
+        if not checkpoints:
+            return None
+        # glob items are relative paths, resolve them
+        full_path = self._fs.resolve_path(d + f"/{checkpoints[0]}")
+        return cast("dict[str, Any]", json.loads(self._fs.read_text(full_path, encoding="utf-8")))
+
+    def list_checkpoints(self, pipeline_id: str) -> list[str]:
+        """List checkpoint identifiers newest first.
+
+        Args:
+            pipeline_id: Identifier for the target pipeline.
+
+        Returns:
+            List of checkpoint identifier strings.
+        """
+        d = self._pipeline_dir(pipeline_id)
+        files = sorted(self._fs.glob(d, "*.json"), reverse=True)
+        stems = []
+        for f in files:
+            name = f.replace("\\", "/").split("/")[-1]
+            stems.append(name[:-5])
+        return stems
+
+    def delete_checkpoint(self, pipeline_id: str, checkpoint_id: str) -> bool:
+        """Delete a specific checkpoint file.
+
+        Args:
+            pipeline_id: Pipeline identifier.
+            checkpoint_id: Checkpoint identifier to delete.
+
+        Returns:
+            True if deleted, False if not found.
+        """
+        path = self._pipeline_dir(pipeline_id) + f"/{checkpoint_id}.json"
+        if self._fs.exists(path):
+            return self._fs.remove(path)
+        return False

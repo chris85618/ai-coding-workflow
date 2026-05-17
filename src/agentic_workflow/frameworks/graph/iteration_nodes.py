@@ -5,7 +5,7 @@ Module-level functions required by LangGraph for node registration.
 
 from __future__ import annotations
 
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
 def agent_alpha_critique(state: WorkflowState) -> WorkflowState:

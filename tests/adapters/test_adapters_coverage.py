@@ -8,7 +8,7 @@ All external I/O remains mocked.
 from __future__ import annotations
 
 import tempfile
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -596,3 +596,35 @@ class TestSonarCloudConfigCoverage:
         config = SonarCloudConfig(token="t", project_key="p", organization="o")
         assert config.is_valid is True
         assert len(config.missing_vars) == 0
+
+
+class TestWorkflowContainerProtocol:
+    """Cover WorkflowContainerProtocol protocol fget getters."""
+
+    def test_protocol_getters(self) -> None:
+        """TC-DI-001: Execute fget properties directly on WorkflowContainerProtocol."""
+        from agentic_workflow.adapters.langgraph.nodes import WorkflowContainerProtocol
+
+        proto = cast(Any, WorkflowContainerProtocol)
+        assert proto.start_pipeline.fget(None) is None
+        assert proto.advance_pipeline.fget(None) is None
+        assert proto.run_iteration.fget(None) is None
+        assert proto.orchestrator.fget(None) is None
+        assert proto.security_audit.fget(None) is None
+        assert proto.sonar_config.fget(None) is None
+
+    def test_set_container_without_target_in_sys_modules(self) -> None:
+        """Cover the False branch when target module is not in sys.modules."""
+        import sys
+
+        from agentic_workflow.adapters.langgraph.nodes import set_container
+
+        target = "agentic_workflow.frameworks.langgraph.nodes"
+        saved = sys.modules.get(target)
+        if target in sys.modules:
+            del sys.modules[target]
+        try:
+            set_container(None)
+        finally:
+            if saved is not None:
+                sys.modules[target] = saved

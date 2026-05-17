@@ -1,7 +1,7 @@
 # Tech Debt Register — Unified Agentic Workflow System
 
-> **Last Updated**: 2026-05-16T07:30+08:00
-> **Total Active Items**: 0 (All resolved)
+> **Last Updated**: 2026-05-17T18:05+08:00
+> **Total Active Items**: 1 (DEBT-009)
 > **Sprint Allocation**: 20% capacity
 > **維護 Skill**: `skills/workflow-skills/tech-debt-collect.md`, `skills/workflow-skills/tech-debt-framework.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § DEBT → FR
@@ -9,7 +9,53 @@
 
 ---
 
-## Active Debt
+## ## Active Debt
+
+### DEBT-008: src/ 下 `# type: ignore` 的全面徹底清空
+
+| 欄位 | 值 |
+|------|-----|
+| **ID** | DEBT-008 |
+| **狀態** | resolved |
+| **來源** | 程式碼品質 |
+| **影響元件** | `src/` |
+| **優先等級** | P1 |
+| **象限** | Quick Win |
+| **RICE Score** | 12.0 (R=40, I=1.0, C=0.6, E=2) |
+| **ADR 追溯** | ADR-STR-027 |
+| **FR 追溯** | FR-032 |
+| **對應 RISK** | RISK-005 |
+| **對應 LESSON** | N/A |
+| **建立日期** | 2026-05-17T17:50+08:00 |
+| **預計處理 Sprint** | 下個 Sprint |
+| **解決日期** | 2026-05-17T18:05+08:00 |
+
+**債務描述**：根據 ADR-STR-027 (100% ABSOLUTE BAN) 規範，生產環境程式碼（`src/`）中應實現 100% 絕對零 `# type: ignore` 標記。現有程式碼中已完成全面且徹底的清空，全數通過 Mypy 且不含任何忽略標籤。
+
+---
+
+### DEBT-009: src/ 下具體 dry run 實作之 `...` 取代為 `pass`
+
+| 欄位 | 值 |
+|------|-----|
+| **ID** | DEBT-009 |
+| **狀態** | open |
+| **來源** | 程式碼品質 |
+| **影響元件** | `src/` |
+| **優先等級** | P2 |
+| **象限** | Quick Win |
+| **RICE Score** | 6.0 (R=20, I=1.0, C=0.6, E=2) |
+| **ADR 追溯** | ADR-STR-027 |
+| **FR 追溯** | FR-032 |
+| **對應 RISK** | N/A |
+| **對應 LESSON** | N/A |
+| **建立日期** | 2026-05-17T17:50+08:00 |
+| **預計處理 Sprint** | 下個 Sprint |
+| **解決日期** | N/A |
+
+**債務描述**：具體類別或函數的 dry run 實作中使用了省略號 `...` 代替標準的 `pass`，降低了可讀性且容易與 Protocols/抽象介面混淆。需將其實作全面重構為標準的 `pass`，確保 `...` 僅被用於抽象介面宣告中。
+
+---
 
 ### DEBT-001: docs/ 下原始方法論檔案未標記為 Reference Only
 

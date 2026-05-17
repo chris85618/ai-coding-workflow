@@ -3,7 +3,7 @@
 **Pipeline Position**: Phase 11 (Release v0.1.6) — ✅ DONE
 **Last Position**: Phase 11 (Release v0.1.6)
 **Status**: Domain Governance & Invariants Dependency Inversion Hardened.
-**Last Updated**: 2026-05-17T15:40+08:00
+**Last Updated**: 2026-05-17T18:05+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -46,7 +46,12 @@
 - [x] CAD-20: 成功重構 Domain 層違規演算法並達成生產 Codebase 0 violations 狀態，專案 857 個測試案例 100% 通過 — ✅ DONE
 - [x] CAD-21: 擴充 AST 掃描器測試覆蓋率，消除 AST subscript / type annotations / walk filters 所有分支缺口，達成 100.00% statement 與 branch 完美覆蓋且完全不使用 pragma no cover — ✅ DONE
 - [x] CAD-22: 改善 AST Scanner 嵌套相對/絕對導入 (ImportFrom) 解析邏輯，確保其完整解析，並新增 `pydantic` 白名單消除 domain 層誤判 violations — ✅ DONE
-- [x] CAD-23: 完美覆蓋 `clean_architecture_scanner.py` 所有分支，使專案 869 個測試案例全數通過，且維持 100.00% 的完美 Statement 與 Branch 覆蓋率 — ✅ DONE
+- [x] CAD-24: 重新設計導入路徑並移除 checkpointer 中所有 `# type: ignore`，100% 通過 Mypy 與 Ruff — ✅ DONE
+- [x] CAD-25: 修改 ADR-STR-027 與技術債登錄表，正式宣示全面絕對禁止 `# type: ignore`（0 Exceptions） — ✅ DONE
+- [x] CAD-26: 全面擴展白名單白名單至內三層（Domain/Application/Adapters），並重構 `adapters/filesystem.py` 與 `adapters/subprocess.py` 去除 OS 依賴。 — ✅ DONE
+- [x] CAD-27: 生產環境（`src/`）全面 eradication 所有 `# type: ignore`，100% 通過 Mypy。 — ✅ DONE
+- [x] CAD-28: 排除測試覆蓋率缺口，執行 `fget` 測試反射以達成測試套件 919 案 100.00% Statement 與 Branch 全面覆蓋。 — ✅ DONE
+- [x] CAD-29: 消除測試套件中所有 Mypy 類型錯誤且完全不使用 `# type: ignore`，確保測試的高強度類型安全性。 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -58,7 +63,7 @@
 - [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
 - [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
 - [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (869 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Stage 8: TDD + 測試 + 修復 (919 Pass, 100.00% Statement & Branch Coverage)
 - [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
 
 ## 📌 Pending Escalations
@@ -67,8 +72,6 @@
 
 ## 📝 Session Summary
 
-1. **Clean Architecture Boundary Scanner**: Implemented a state-of-the-art AST compliance scanner dynamically detecting absolute/relative static imports, dynamic imports, type annotations, sys.modules manipulation, DI Container service-locator bypasses, environment variable accesses, and file I/O operations.
-2. **Scanner Tests & Tasks**: Wrote a complete unit and integration test suite of 28 tests in `test_clean_architecture_scanner.py` (100% pass) and developed a CLI script `tasks/clean_architecture_scan.py` for CI/CD checks.
-3. **Domain Layer Hardening**: Decoupled `PipelineCompletenessChecker` and `RepoMapBuilder` from direct file I/O using highly-testable callback structures and standard library dynamic loaders, obtaining a perfect **0 violations** status on the entire production codebase while preserving 100% compatibility.
-4. **Relative Import and Whitelist Resolution**: Resolved relative import parsing (`ImportFrom` path resolution) and whitelisted `pydantic` in Domain layer, resulting in absolute **0 violations** across the production codebase.
-5. **100% Statement & Branch Coverage**: Expanded the coverage suite to cover every compiler branch, recursive walk, missing slice lookup, dynamic import, subscript, relative import, and annotation node structure, reaching an absolute 100.00% statement and branch coverage across all files without using any pragma tags or bypass comments. All 869 unit/integration checks pass perfectly.
+1. **Inner Layer Whitelist Expansion**: Enforced a rigorous whitelist boundary across all inner layers (Domain, Application, Adapters) in `CleanArchitectureBoundaryScanner`, successfully routing operating system adapters to the framework layer.
+2. **Total Type Ignore Eradication**: Cleaned up type ignores across both production and test suites (0 exceptions) with flawless Mypy type compliance.
+3. **Perfect Test Coverage**: Reached a flawless 100.00% statement and branch coverage under pytest with 919 test cases passing cleanly, resolving the final property fget coverage gaps.

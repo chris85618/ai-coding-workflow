@@ -5,17 +5,13 @@ ALG-001: Builds the Agent α/β Dual-Agent Iteration Loop subgraph.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    try:
-        from langgraph.graph import CompiledGraph  # type: ignore[attr-defined]
-    except ImportError:
-        from typing import Any as CompiledGraph
+    from langgraph.graph.state import CompiledStateGraph
 
 from langgraph.graph import END, StateGraph
 
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
 from agentic_workflow.frameworks.graph.iteration_nodes import (
     agent_alpha_critique,
     agent_beta_resolve,
@@ -26,6 +22,7 @@ from agentic_workflow.frameworks.graph.iteration_nodes import (
 from agentic_workflow.frameworks.graph.micro_validation_graph_builder import (
     MicroValidationGraphBuilder,
 )
+from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
 class IterationGraphBuilder:
@@ -36,7 +33,7 @@ class IterationGraphBuilder:
     """
 
     @classmethod
-    def build(cls) -> CompiledGraph:
+    def build(cls) -> CompiledStateGraph[WorkflowState, Any, Any, Any]:
         """Build and compile the dual-agent iteration subgraph.
 
         Returns:
