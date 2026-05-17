@@ -354,6 +354,7 @@
 | TC-COV-002 | FR-051 | validates | ✅ (NEW: Pipeline error paths) |
 | TC-QUALITY-001 | 驗證 Ruff 靜態語法檢查 0 警告不退化 | FR-QUALITY-001 | validates | ✅ (NEW: Pytest Ruff Check) |
 | TC-QUALITY-002 | 驗證 Mypy 類型安全檢查 0 錯誤不退化 | FR-QUALITY-002 | validates | ✅ (NEW: Pytest Mypy Check) |
+| TC-QUALITY-003 | 驗證 DEBT-009 自動化 AST 檢查 100% 阻斷 concrete ellipsis | FR-QUALITY-002 | validates | ✅ (NEW: AST Ellipsis Check) |
 
 ### FR → Skill 實作映射
 

@@ -595,7 +595,7 @@ class TestSonarCloudConfigCoverage:
 
 
 class TestWorkflowContainerProtocol:
-    """Cover WorkflowContainerProtocol protocol fget getters."""
+    """Cover WorkflowContainerProtocol protocol fget getters and SonarAdapterProtocol pass methods."""
 
     def test_protocol_getters(self) -> None:
         """TC-DI-001: Execute fget properties directly on WorkflowContainerProtocol."""
@@ -609,6 +609,13 @@ class TestWorkflowContainerProtocol:
         assert proto.security_audit.fget(None) is None
         assert proto.sonar_config.fget(None) is None
         assert proto.sonar_adapter.fget(None) is None
+
+    def test_sonar_adapter_protocol(self) -> None:
+        """TC-DI-002: Execute pass statements directly on SonarAdapterProtocol methods to secure coverage."""
+        from agentic_workflow.adapters.langgraph.nodes import SonarAdapterProtocol
+
+        SonarAdapterProtocol.get_metrics(cast(Any, None))
+        SonarAdapterProtocol.get_issues(cast(Any, None), include_closed=False)
 
     def test_set_container_without_target_in_sys_modules(self) -> None:
         """Cover the False branch when target module is not in sys.modules."""

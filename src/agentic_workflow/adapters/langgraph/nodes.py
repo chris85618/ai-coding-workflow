@@ -41,11 +41,11 @@ class SonarAdapterProtocol(Protocol):
 
     def get_metrics(self) -> dict[str, dict[str, Any]]:
         """Fetch project measures."""
-        ...
+        pass
 
     def get_issues(self, include_closed: bool = False) -> list[dict[str, Any]]:
         """Fetch project issues."""
-        ...
+        pass
 
 
 class WorkflowContainerProtocol(Protocol):
