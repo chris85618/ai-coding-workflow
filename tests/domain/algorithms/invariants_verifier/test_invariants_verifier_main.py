@@ -1,4 +1,4 @@
-"""Tests for DAGInvariantVerifier __main__ block and paths."""
+"""Tests for the invariants run script in the frameworks layer."""
 
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -13,38 +13,46 @@ def _mock_graph(node_names: dict[str, Any] | None = None) -> MagicMock:
     return g
 
 
-class TestInvariantsVerifierMain:
-    """Covers lines 48–56: the if __name__ == '__main__' block via direct invocation."""
+class TestInvariantsRun:
+    """Covers the invariants_run execution and pathways."""
 
-    def test_main_block_pass_path(self) -> None:
-        """TC-012: Main block pass path."""
+    def test_run_verification_pass(self) -> None:
+        """TC-012: Invariants run verification pass path."""
+        from agentic_workflow.frameworks.graph import invariants_run
+
         mock_graph = _mock_graph()
-        result = DAGInvariantVerifier.run_all_verifications(mock_graph)
-        assert result["passed"] is True
-        if result["passed"]:
-            msg = "Stage 6 Formal Verification PASSED: All DAG invariants upheld."
-        else:
-            msg = f"Stage 6 Formal Verification FAILED: {result['failures']}"
-        assert "PASSED" in msg
+        with patch(
+            "agentic_workflow.frameworks.graph.master_graph_builder.MasterGraphBuilder.build",
+            return_value=mock_graph,
+        ):
+            res = invariants_run.run_verification()
+            assert res["passed"] is True
+            assert len(res["failures"]) == 0
 
-    def test_main_block_fail_path(self) -> None:
-        """TC-013: Main block fail path."""
+    def test_run_verification_fail(self) -> None:
+        """TC-013: Invariants run verification fail path."""
+        from agentic_workflow.frameworks.graph import invariants_run
+
         mock_graph = _mock_graph()
-        with patch.object(DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["bad_node"]):
-            result = DAGInvariantVerifier.run_all_verifications(mock_graph)
-        assert result["passed"] is False
-        msg = f"Stage 6 Formal Verification FAILED: {result['failures']}"
-        assert "FAILED" in msg
-        assert "bad_node" in msg
+        with (
+            patch(
+                "agentic_workflow.frameworks.graph.master_graph_builder.MasterGraphBuilder.build",
+                return_value=mock_graph,
+            ),
+            patch.object(DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["bad_node"]),
+        ):
+            res = invariants_run.run_verification()
+            assert res["passed"] is False
+            assert "bad_node" in res["failures"]
 
-    def test_main_block_via_runpy(self, monkeypatch: Any) -> None:
-        """TC-014: Main block via runpy."""
+    def test_main_block_via_runpy(self) -> None:
+        """TC-014: Invariants run main block via runpy."""
         import os
         import runpy
 
-        from agentic_workflow.domain.algorithms import invariants_verifier
+        from agentic_workflow.frameworks.graph import invariants_run
 
-        file_path = os.path.abspath(invariants_verifier.__file__)
+        file_path = os.path.abspath(invariants_run.__file__)
         mock_graph = _mock_graph()
         with patch(
             "agentic_workflow.frameworks.graph.master_graph_builder.MasterGraphBuilder.build",
@@ -55,7 +63,29 @@ class TestInvariantsVerifierMain:
                     file_path,
                     run_name="__main__",
                 )
-            except SystemExit:
-                pass
-            except Exception:
-                pass
+            except SystemExit as e:
+                assert e.code == 0
+
+    def test_main_block_fail_via_runpy(self) -> None:
+        """TC-015: Invariants run main block fail exit via runpy."""
+        import os
+        import runpy
+
+        from agentic_workflow.frameworks.graph import invariants_run
+
+        file_path = os.path.abspath(invariants_run.__file__)
+        mock_graph = _mock_graph()
+        with (
+            patch(
+                "agentic_workflow.frameworks.graph.master_graph_builder.MasterGraphBuilder.build",
+                return_value=mock_graph,
+            ),
+            patch.object(DAGInvariantVerifier, "verify_no_orphan_nodes", return_value=["bad_node"]),
+        ):
+            try:
+                runpy.run_path(
+                    file_path,
+                    run_name="__main__",
+                )
+            except SystemExit as e:
+                assert e.code == 1

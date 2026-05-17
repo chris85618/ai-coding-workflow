@@ -2,8 +2,8 @@
 
 **Pipeline Position**: Phase 11 (Release v0.1.6) — ✅ DONE
 **Last Position**: Phase 11 (Release v0.1.6)
-**Status**: Domain Governance Hardened & Persistence Encapsulated.
-**Last Updated**: 2026-05-17T04:36+08:00
+**Status**: Domain Governance & Invariants Dependency Inversion Hardened.
+**Last Updated**: 2026-05-17T15:20+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -38,6 +38,7 @@
 - [x] CAD-12: 徹底重構 `nodes.py` 與 `sonar_adapter.py` 以使用 `SonarCloudConfig` 與 `InvariantsConfig` 依賴反轉，消除全域 singleton — ✅ DONE
 - [x] CAD-13: 修正 Mock 引起的 truthiness 問題，以真實 value objects 取代測試中的 MagicMock 確保可靠測試 — ✅ DONE
 - [x] CAD-14: 達成 100.00% 程式碼覆蓋率與 842 個測試案例全數通過，Mypy 與 Ruff 無任何錯誤 — ✅ DONE
+- [x] CAD-15: 徹底移除 domain/algorithms/invariants_verifier.py 中 frameworks 之外層動態 imports，並於 frameworks/graph/ 下建立獨立 invariants_run.py 指令碼以符合依賴反轉原則，100% 覆蓋通過 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -50,7 +51,7 @@
 - [✅] Stage 6: 形式化驗證設計 (INV-xxx Migration)
 - [✅] Stage 7: BDD/ATDD
 - [✅] Stage 8: TDD + 測試 + 修復 (100% Pass)
-- [🔄] Phase 10: 反思與學習 (Dependency Inversion Hardening)
+- [✅] Phase 10: 反思與學習 (Dependency Inversion Hardening) — ✅ DONE
 
 ## 📌 Pending Escalations
 
@@ -58,6 +59,5 @@
 
 ## 📝 Session Summary
 
-1. **Dependency Inversion & Decoupling**: Refactored `nodes.py`, `sonar_adapter.py`, and `invariants_verifier.py` to completely eliminate illegal cross-layer framework imports and inject `SonarCloudConfig` and `InvariantsConfig` configurations.
-2. **Reliable Mock & Testing Alignment**: Solved mock truthiness issues in `test_sonarcloud_node.py` and `test_sonarcloud_node_switching.py` by using real config instances. Added coverage tests to secure 100.00% package coverage.
-3. **100% Quality & Coverage**: All 842 tests passed with zero linting or type-checking errors, maintaining a strict 100.00% code coverage.
+1. **Dependency Inversion Hardening**: Removed illegal dynamic imports from `invariants_verifier.py` (domain) to outer frameworks layer, and created a dedicated framework-layer run script `invariants_run.py` that imports inner-layer components.
+2. **Test Suite Refactoring**: Ported and rewrote test cases to test the new framework-layer invariants runner script, securing 100.00% statement and branch coverage with zero type checking or linting errors.

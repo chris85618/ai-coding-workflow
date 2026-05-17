@@ -40,18 +40,3 @@ class DAGInvariantVerifier:
         failures.extend(cls.verify_iteration_cycle(compiled_graph))
 
         return {"passed": len(failures) == 0, "failures": failures}
-
-
-if __name__ == "__main__":  # pragma: no cover
-    import importlib
-
-    builder_mod = importlib.import_module("agentic_workflow.frameworks.graph.master_graph_builder")
-    MasterGraphBuilder = builder_mod.MasterGraphBuilder
-
-    graph = MasterGraphBuilder.build()
-
-    result = DAGInvariantVerifier.run_all_verifications(graph)
-    if result["passed"]:
-        print("Stage 6 Formal Verification PASSED: All DAG invariants upheld.")
-    else:
-        print(f"Stage 6 Formal Verification FAILED: {result['failures']}")

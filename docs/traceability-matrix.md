@@ -125,8 +125,9 @@
 | [ADR-STR-021](adr/ADR-STR-021.md) | Clean Architecture & DDD 深度對齊實施 | STR | Proposed | FR-054~060 | justifies |
 | [ADR-STR-022](adr/ADR-STR-022.md) | Dependabot 依賴治理策略 | STR | Accepted | FR-063 | justifies |
 | [ADR-STR-023](adr/ADR-STR-023.md) | 支援 OpenAI 相容 Provider 之配置策略 | STR | Proposed | FR-065, FR-066, FR-067 | justifies |
+| [ADR-STR-024](adr/ADR-STR-024.md) | 消除 Stage 6 Invariants Verifier 內部對 frameworks 之外層動態導入以遵循依賴反轉原則 | STR | Proposed | FR-054~060 | justifies |
 
-> 類別統計：STR=8, GOV=26, SEC=1, SCP=0, GATE=0, OPS=0, **合計=35**
+> 類別統計：STR=9, GOV=26, SEC=1, SCP=0, GATE=0, OPS=0, **合計=36**
 | [ADR-GOV-001](adr/ADR-GOV-001.md) | Decision Unit 理論 + 資訊新穎性門檻 | GOV | Accepted | FR-001, NFR-001 | justifies |
 | [ADR-GOV-002](adr/ADR-GOV-002.md) | ADR 治理框架 — 全決策記錄制度 | GOV | Accepted | FR-001, FR-002, FR-003, NFR-001, FR-022, FR-023 | justifies |
 | [ADR-GOV-003](adr/ADR-GOV-003.md) | 格式驗證閘門 (Step 0) + 外來殘留掃描 | GOV | Accepted | FR-005, FR-007 | justifies |
@@ -171,7 +172,7 @@
 | [ADR-GOV-028](adr/ADR-GOV-028.md) | 專案文件入口規範與 README 重構 | GOV | Accepted | FEA-020, FR-043 | justifies |
 | [ADR-GOV-029](adr/ADR-GOV-029.md) | Git Pre-commit Hook 整合 Ruff 格式化 | GOV | Accepted | FEA-022, FR-046 | justifies |
 
-> 類別統計：STR=11, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=40**
+> 類別統計：STR=12, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=41**
 
 ### ALG → FR
 
@@ -439,6 +440,7 @@
 | LESSON-072 | REFACTORING_GUARD | `frameworks/config.py` | ADR-SEC-005 | guards |
 | LESSON-073 | PROCESS_GAP | `phase-0-orchestration.md` (python -m pytest) | - | guards |
 | LESSON-074 | CODE_QUALITY | `convergence.py` (unused imports cleanup) | - | guards |
+| LESSON-075 | ARCHITECTURE_EROSION | `AGENTS.md` (Scope Rules) | ADR-STR-024 | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
@@ -470,6 +472,7 @@
 | ADR-STR-009 | `ruff.toml` (line-length 88→120), `pyproject.toml` (line-length 88→120) | modified-by |
 | ADR-OPS-001 | `domain/algorithms/sonarcloud_gate.py`, `adapters/langgraph/nodes.py` (node_sonarcloud_gate) | modified-by |
 | ADR-SEC-005 | `frameworks/config.py` → `frameworks/config/` (重構), `adapters/langgraph/nodes.py` | modified-by |
+| ADR-STR-024 | `invariants_verifier.py`, `invariants_run.py`, tests | modified-by |
 
 > ADR-GOV-001/002/014/015/017/018/019/021 為治理原則定義，嵌入 AGENTS.md Core Directives
 
