@@ -132,7 +132,13 @@ class SonarCloudAdapter:
         """
         try:
             res = self.client.metrics.search_metrics()
-            return list(res)
+            if isinstance(res, dict):
+                metrics_list = res.get("metrics", [])
+                if isinstance(metrics_list, list):
+                    return [dict(m) for m in metrics_list if isinstance(m, dict)]
+            elif isinstance(res, list):
+                return [dict(m) for m in res if isinstance(m, dict)]
+            return []
         except Exception as exc:
             raise RuntimeError(f"SonarCloud API error: {exc}") from exc
 
@@ -208,4 +214,3 @@ class SonarCloudAdapter:
             result.append(detail)
 
         return result
-

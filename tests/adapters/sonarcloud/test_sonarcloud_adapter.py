@@ -413,11 +413,8 @@ class TestGetAllMetricsWithValues:
         mock_client.metrics.search_metrics.return_value = [
             {"key": "coverage", "name": "Coverage"},
         ]
-        mock_client.measures.get_component_with_specified_measures.return_value = {
-            "component": {"measures": []}
-        }
+        mock_client.measures.get_component_with_specified_measures.return_value = {"component": {"measures": []}}
         result = adapter.get_all_metrics_with_values()
         assert len(result) == 1
         assert result[0]["key"] == "coverage"
         assert result[0]["value"] is None
-

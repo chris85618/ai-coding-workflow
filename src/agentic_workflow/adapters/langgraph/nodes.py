@@ -60,7 +60,6 @@ class SonarAdapterProtocol(Protocol):
         pass
 
 
-
 class WorkflowContainerProtocol(Protocol):
     """Protocol for the dependency container, adhering to Dependency Inversion Principle."""
 
