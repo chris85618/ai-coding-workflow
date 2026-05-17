@@ -98,7 +98,7 @@ def set_container(container: WorkflowContainerProtocol | None) -> None:
     sys_mod = __import__("s" + "y" + "s")
     modules_dict = getattr(sys_mod, "m" + "o" + "d" + "u" + "l" + "e" + "s")
     target = ".".join(["agentic_workflow", "frameworks", "langgraph", "nodes"])
-    if target in modules_dict:
+    if target in modules_dict and modules_dict[target].set_container is not set_container:
         modules_dict[target].set_container(container)
 
 

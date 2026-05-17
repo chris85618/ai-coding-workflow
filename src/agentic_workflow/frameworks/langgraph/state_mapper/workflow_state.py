@@ -1,28 +1,11 @@
-"""Adapter Layer — WorkflowState TypedDict for LangGraph.
+"""Frameworks Layer — WorkflowState TypedDict Shell.
 
-Traceable to: FR-019-v2, FR-021-v2, UC-001, UC-010, ADR-STR-002
-Defines the canonical LangGraph state schema for the agentic pipeline.
+This is a thin wrapper that imports and re-exports the WorkflowState TypedDict from the adapters layer
+to maintain backward compatibility and eliminate duplicate code.
 """
 
 from __future__ import annotations
 
-from typing import Any, TypedDict
+from agentic_workflow.adapters.langgraph.state_mapper.workflow_state import WorkflowState
 
-
-class WorkflowState(TypedDict, total=False):
-    """LangGraph state dictionary for the workflow pipeline.
-
-    All fields are optional (total=False) so partial updates work
-    correctly with LangGraph's reducer system.
-    """
-
-    pipeline_id: str
-    pipeline_status: str
-    current_position: str
-    last_gate_decision: str | None
-    current_stage_id: str | None
-    stage_status: str | None
-    iteration_count: int
-    max_iterations: int
-    last_error: str | None
-    metadata: dict[str, Any]
+__all__ = ["WorkflowState"]

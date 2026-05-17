@@ -531,6 +531,10 @@ class TestRepositoryCheckpointer:
             def sonar_config(self) -> Any:
                 return None
 
+            @property
+            def sonar_adapter(self) -> Any:
+                return None
+
         d = DummyContainer()
         with contextlib.suppress(Exception):
             _ = d.start_pipeline
@@ -544,6 +548,8 @@ class TestRepositoryCheckpointer:
             _ = d.security_audit
         with contextlib.suppress(Exception):
             _ = d.sonar_config
+        with contextlib.suppress(Exception):
+            _ = d.sonar_adapter
 
         # Direct execution of WorkflowContainerProtocol getters to cover protocol pass statements
         proto = cast(Any, WorkflowContainerProtocol)
@@ -553,6 +559,7 @@ class TestRepositoryCheckpointer:
         assert proto.orchestrator.fget(None) is None
         assert proto.security_audit.fget(None) is None
         assert proto.sonar_config.fget(None) is None
+        assert proto.sonar_adapter.fget(None) is None
 
 
 class TestLangGraphNodes:
@@ -817,64 +824,48 @@ class TestLangGraphNodes:
         container.sonar_config.is_valid = True
         container.sonar_config.project_key = "key"
         container.sonar_config.token = "token"
+        container.sonar_adapter.get_metrics.side_effect = Exception("failed API client initialization")
         set_container(container)
-        with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient") as mock_sonar_cls:
-            mock_sonar_cls.side_effect = Exception("failed API client initialization")
-            try:
-                res2 = node_sonarcloud_gate({"metadata": {}})
-                assert res2["last_gate_decision"] == "pass_with_warnings"
-                assert res2["metadata"]["sonar_status"] == "error"
-            finally:
-                set_container(None)
+        try:
+            res2 = node_sonarcloud_gate({"metadata": {}})
+            assert res2["last_gate_decision"] == "pass_with_warnings"
+            assert res2["metadata"]["sonar_status"] == "error"
+        finally:
+            set_container(None)
 
         # 3. Config valid, quality gate failed
         container = MagicMock(spec=WorkflowContainerProtocol)
         container.sonar_config.is_valid = True
         container.sonar_config.project_key = "key"
         container.sonar_config.token = "token"
-        mock_client = MagicMock()
-        # Coverage 40.0% is below threshold of 80.0%
-        mock_client.measures.get_component_with_specified_measures.return_value = {
-            "component": {
-                "measures": [
-                    {"metric": "coverage", "value": "40.0"},
-                ]
-            }
+        container.sonar_adapter.get_metrics.return_value = {
+            "coverage": {"global": 40.0}
         }
-        mock_client.issues.search_issues.return_value = {"issues": []}
+        container.sonar_adapter.get_issues.return_value = []
         set_container(container)
-        with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient") as mock_sonar_cls:
-            mock_sonar_cls.return_value = mock_client
-            try:
-                res3 = node_sonarcloud_gate({"metadata": {}})
-                assert res3["last_gate_decision"] == "fail"
-                assert res3["metadata"]["sonar_status"] == "failed"
-            finally:
-                set_container(None)
+        try:
+            res3 = node_sonarcloud_gate({"metadata": {}})
+            assert res3["last_gate_decision"] == "fail"
+            assert res3["metadata"]["sonar_status"] == "failed"
+        finally:
+            set_container(None)
 
         # 4. Config valid, quality gate passed
         container = MagicMock(spec=WorkflowContainerProtocol)
         container.sonar_config.is_valid = True
         container.sonar_config.project_key = "key"
         container.sonar_config.token = "token"
-        mock_client2 = MagicMock()
-        mock_client2.measures.get_component_with_specified_measures.return_value = {
-            "component": {
-                "measures": [
-                    {"metric": "coverage", "value": "95.0"},
-                ]
-            }
+        container.sonar_adapter.get_metrics.return_value = {
+            "coverage": {"global": 95.0}
         }
-        mock_client2.issues.search_issues.return_value = {"issues": []}
+        container.sonar_adapter.get_issues.return_value = []
         set_container(container)
-        with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient") as mock_sonar_cls:
-            mock_sonar_cls.return_value = mock_client2
-            try:
-                res4 = node_sonarcloud_gate({"metadata": {}})
-                assert res4["last_gate_decision"] == "pass"
-                assert res4["metadata"]["sonar_status"] == "passed"
-            finally:
-                set_container(None)
+        try:
+            res4 = node_sonarcloud_gate({"metadata": {}})
+            assert res4["last_gate_decision"] == "pass"
+            assert res4["metadata"]["sonar_status"] == "passed"
+        finally:
+            set_container(None)
 
         # 5. Metadata already contains metrics & issues (342->360 branch)
         container = MagicMock(spec=WorkflowContainerProtocol)
@@ -896,42 +887,62 @@ class TestLangGraphNodes:
         # 6. Only sonar_metrics populated
         container = MagicMock(spec=WorkflowContainerProtocol)
         container.sonar_config.is_valid = True
-        mock_client = MagicMock()
-        mock_client.issues.search_issues.return_value = {"issues": []}
+        container.sonar_adapter.get_issues.return_value = []
         set_container(container)
-        with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient", return_value=mock_client):
-            try:
-                res6 = node_sonarcloud_gate(
-                    {
-                        "metadata": {
-                            "sonar_metrics": {"coverage": {"global": 95.0}},
-                        }
+        try:
+            res6 = node_sonarcloud_gate(
+                {
+                    "metadata": {
+                        "sonar_metrics": {"coverage": {"global": 95.0}},
                     }
-                )
-                assert res6["last_gate_decision"] == "pass"
-            finally:
-                set_container(None)
+                }
+            )
+            assert res6["last_gate_decision"] == "pass"
+        finally:
+            set_container(None)
 
         # 7. Only sonar_issues populated
         container = MagicMock(spec=WorkflowContainerProtocol)
         container.sonar_config.is_valid = True
-        mock_client = MagicMock()
-        mock_client.measures.get_component_with_specified_measures.return_value = {
-            "component": {"measures": [{"metric": "coverage", "value": "95.0"}]}
+        container.sonar_adapter.get_metrics.return_value = {
+            "coverage": {"global": 95.0}
         }
         set_container(container)
-        with patch("agentic_workflow.frameworks.sonarcloud.sonar_adapter.SonarCloudClient", return_value=mock_client):
-            try:
-                res7 = node_sonarcloud_gate(
-                    {
-                        "metadata": {
-                            "sonar_issues": [],
-                        }
+        try:
+            res7 = node_sonarcloud_gate(
+                {
+                    "metadata": {
+                        "sonar_issues": [],
                     }
-                )
-                assert res7["last_gate_decision"] == "pass"
-            finally:
-                set_container(None)
+                }
+            )
+            assert res7["last_gate_decision"] == "pass"
+        finally:
+            set_container(None)
+
+    def test_set_container_uncovered_branch(self) -> None:
+        """Covers the branch where frameworks set_container is different."""
+        import sys
+        target = "agentic_workflow.frameworks.langgraph.nodes"
+
+        # Save original module if it exists
+        original_module = sys.modules.get(target)
+
+        # Create a mock module where set_container is different
+        mock_module = MagicMock()
+        mock_module.set_container = MagicMock()
+
+        sys.modules[target] = mock_module
+        try:
+            # Call set_container, which should trigger the branch
+            set_container(None)
+            mock_module.set_container.assert_called_once_with(None)
+        finally:
+            # Restore original module
+            if original_module is not None:
+                sys.modules[target] = original_module
+            else:
+                sys.modules.pop(target, None)
 
 
 # ── Clean Architecture Scanner Uncovered Branches Tests ───────────────────────
