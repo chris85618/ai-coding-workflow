@@ -81,9 +81,9 @@ class FileTraceableIDRepositoryMapper(TraceableIDRepository):
     def find_all(self) -> list[TraceableID]:
         """Return all persisted TraceableIDs."""
         files = sorted(self._fs.glob(self._root, "*.json"))
-        stems = map(lambda f: f.replace("\\", "/").split("/")[-1][:-5].replace("_", "-"), files)
-        objs = map(self.find_by_id, stems)
-        return list(filter(None, objs))
+        return [obj for f in files if (
+            obj := self.find_by_id(f.replace("\\", "/").split("/")[-1][:-5].replace("_", "-"))
+        ) is not None]
 
     def delete(self, id_str: str) -> bool:
         """Remove a TraceableID JSON file."""

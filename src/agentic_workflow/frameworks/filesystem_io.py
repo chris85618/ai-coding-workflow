@@ -127,11 +127,8 @@ class OSFilesystemIOMapper(FilesystemIO):
 
     def extract_symbols_ast(self, file_path: str, source: str) -> list[SymbolDef]:
         """Extract class/function symbols from source code via AST."""
-        tree = ASTSymbolParserMapper.parse_tree(source)
-        res: list[SymbolDef] = []
-        if tree is not None:
-            res = list(filter(None, map(lambda n: ASTSymbolParserMapper.node_symbol(n, file_path), ast.walk(tree))))
-        return res
+        nodes = ast.walk(tree) if (tree := ASTSymbolParserMapper.parse_tree(source)) is not None else []
+        return [sym for n in nodes if (sym := ASTSymbolParserMapper.node_symbol(n, file_path)) is not None]
 
     def resolve_path(self, path: str) -> str:
         """Resolve absolute path from string."""

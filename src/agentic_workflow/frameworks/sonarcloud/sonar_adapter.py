@@ -235,7 +235,7 @@ class SonarCloudAdapterMapper(QualityGateway):
         keys = list(map(self._get_key, filter(self._has_key, metrics)))
         measures = self.get_detailed_component_measures(keys)
         mmap = self._build_measures_map(measures)
-        return list(map(lambda m: self._build_detail(m, mmap), filter(self._has_key, metrics)))
+        return [self._build_detail(m, mmap) for m in metrics if self._has_key(m)]
 
     def get_quality_metrics(self, project_key: str) -> dict[str, Any]:
         """Fetch quality metrics for a project."""

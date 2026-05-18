@@ -49,12 +49,10 @@ class CheckpointHelperBuilder:
     @staticmethod
     def iter_tuples(ck: RepositoryCheckpointerMapper, tid: str, ids: list[str]) -> Iterator[CheckpointTuple]:
         """Iterate and build CheckpointTuples."""
-        cfgs = map(
-            lambda cid: cast(RunnableConfig, {"configurable": {"thread_id": tid, "checkpoint_id": cid}}),
-            ids,
+        cfgs = (
+            ck.get_tuple(cast(RunnableConfig, {"configurable": {"thread_id": tid, "checkpoint_id": c}})) for c in ids
         )
-        tups = map(ck.get_tuple, cfgs)
-        return filter(None, tups)
+        return filter(None, cfgs)
 
 
 class RepositoryCheckpointerMapper(BaseCheckpointSaver[Any]):

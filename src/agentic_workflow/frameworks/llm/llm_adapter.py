@@ -92,8 +92,9 @@ class LangChainLLMAdapterMapper(LLMGateway):
     def _run_loop(cls, model: BaseChatModel, messages: list[Any], task_type: TaskType) -> str:
         is_auto = task_type in {TaskType.CRITIQUE, TaskType.COMPREHEND, TaskType.CHARTER}
         state = {"content": "", "count": 0}
-        while cls._step(model, messages, task_type, is_auto, 3 if is_auto else 0, state):
-            pass
+        has_more = True
+        while has_more:
+            has_more = cls._step(model, messages, task_type, is_auto, 3 if is_auto else 0, state)
         return str(state["content"])
 
     def __init__(
