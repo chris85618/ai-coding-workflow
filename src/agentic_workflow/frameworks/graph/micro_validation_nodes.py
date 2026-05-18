@@ -15,30 +15,35 @@ class MicroValidationNodes:
     def step_0_format(state: WorkflowState) -> WorkflowState:
         """Format check node."""
         from agentic_workflow.adapters.langgraph.nodes import node_step_0_format
+
         return node_step_0_format(state)
 
     @staticmethod
     def step_1_id_structure(state: WorkflowState) -> WorkflowState:
         """ID structure check node."""
         from agentic_workflow.adapters.langgraph.nodes import node_step_1_id_structure
+
         return node_step_1_id_structure(state)
 
     @staticmethod
     def step_2_forward_trace(state: WorkflowState) -> WorkflowState:
         """Forward traceability check node."""
         from agentic_workflow.adapters.langgraph.nodes import node_step_2_forward_trace
+
         return node_step_2_forward_trace(state)
 
     @staticmethod
     def step_3_backward_trace(state: WorkflowState) -> WorkflowState:
         """Backward traceability check node."""
         from agentic_workflow.adapters.langgraph.nodes import node_step_3_backward_trace
+
         return node_step_3_backward_trace(state)
 
     @staticmethod
     def step_4_semantic(state: WorkflowState) -> WorkflowState:
         """Semantic consistency check node."""
         from agentic_workflow.adapters.langgraph.nodes import node_step_4_semantic
+
         return node_step_4_semantic(state)
 
     @staticmethod
@@ -55,18 +60,21 @@ class MicroValidationNodes:
     def step_5_7_lesson_reuse(state: WorkflowState) -> WorkflowState:
         """Lesson reuse check node."""
         from agentic_workflow.adapters.langgraph.nodes import node_step_5_7_lesson_reuse
+
         return node_step_5_7_lesson_reuse(state)
 
     @staticmethod
     def step_6_trigger_impact(state: WorkflowState) -> WorkflowState:
         """Impact analysis trigger node."""
         from agentic_workflow.adapters.langgraph.nodes import node_step_6_trigger_impact
+
         return node_step_6_trigger_impact(state)
 
     @staticmethod
     def step_7_record_change(state: WorkflowState) -> WorkflowState:
         """Change record node."""
         from agentic_workflow.adapters.langgraph.nodes import node_step_7_record_change
+
         return node_step_7_record_change(state)
 
 

@@ -15,18 +15,21 @@ class MasterPipelineNodes:
     def phase_0_init(state: WorkflowState) -> WorkflowState:
         """Phase 0: Environment and State initialization."""
         from agentic_workflow.adapters.langgraph.nodes import node_phase_0_init
+
         return node_phase_0_init(state)
 
     @staticmethod
     def phase_1_understanding(state: WorkflowState) -> WorkflowState:
         """Phase 1: Codebase comprehension and Knowledge Graph."""
         from agentic_workflow.adapters.langgraph.nodes import node_phase_1_understanding
+
         return node_phase_1_understanding(state)
 
     @staticmethod
     def phase_2_analysis(state: WorkflowState) -> WorkflowState:
         """Phase 2: Project Analysis and FEA generation."""
         from agentic_workflow.adapters.langgraph.nodes import node_phase_2_analysis
+
         return node_phase_2_analysis(state)
 
     @staticmethod
@@ -51,6 +54,7 @@ class MasterPipelineNodes:
     def stage_6_formal(state: WorkflowState) -> WorkflowState:
         """Stage 6: Formal Verification and Invariants."""
         from agentic_workflow.adapters.langgraph.nodes import node_stage_6_formal
+
         return node_stage_6_formal(state)
 
     @staticmethod
@@ -69,12 +73,14 @@ class MasterPipelineNodes:
     def phase_9_ship(state: WorkflowState) -> WorkflowState:
         """Phase 9: Deployment and Shipping."""
         from agentic_workflow.adapters.langgraph.nodes import node_phase_9_ship
+
         return node_phase_9_ship(state)
 
     @staticmethod
     def phase_10_retro(state: WorkflowState) -> WorkflowState:
         """Phase 10: Retrospective and Learning Extraction."""
         from agentic_workflow.adapters.langgraph.nodes import node_phase_10_retro
+
         return node_phase_10_retro(state)
 
 

@@ -437,6 +437,7 @@ def node_phase_1_understanding(state: WorkflowState) -> WorkflowState:
     state["current_position"] = "phase1"
     try:
         from agentic_workflow.adapters.filesystem import get_filesystem
+
         fs = get_filesystem()
         fs.write_text("docs/knowledge_graph.json", '{"nodes": [], "edges": []}')
     except Exception:
@@ -449,6 +450,7 @@ def node_phase_2_analysis(state: WorkflowState) -> WorkflowState:
     state["current_position"] = "phase2"
     try:
         from agentic_workflow.adapters.filesystem import get_filesystem
+
         fs = get_filesystem()
         fs.write_text("docs/project_analysis_report.md", "# Project Analysis Report")
     except Exception:
@@ -461,6 +463,7 @@ def node_stage_6_formal(state: WorkflowState) -> WorkflowState:
     state["current_position"] = "stage6"
     try:
         from agentic_workflow.domain.algorithms.invariants_verifier import DAGInvariantVerifier
+
         DAGInvariantVerifier.run_all_verifications(state)
     except Exception:
         pass
@@ -472,6 +475,7 @@ def node_phase_9_ship(state: WorkflowState) -> WorkflowState:
     state["current_position"] = "phase9"
     try:
         from agentic_workflow.adapters.filesystem import get_filesystem
+
         fs = get_filesystem()
         fs.write_text("docs/deployment_record.json", '{"status": "deployed"}')
     except Exception:
@@ -484,6 +488,7 @@ def node_phase_10_retro(state: WorkflowState) -> WorkflowState:
     state["current_position"] = "phase10"
     try:
         from agentic_workflow.adapters.filesystem import get_filesystem
+
         fs = get_filesystem()
         fs.write_text("docs/lessons_learned.md", "# Lessons Learned")
     except Exception:
@@ -495,6 +500,7 @@ def node_agent_alpha_critique(state: WorkflowState) -> WorkflowState:
     """DAG Node: Agent Alpha Critique node for iteration loop."""
     try:
         from agentic_workflow.adapters.langgraph.nodes import _get_container
+
         container = _get_container()
         prompt = f"Critique stage content for pipeline {state.get('pipeline_id')}"
         findings = container.reasoner.reason(prompt)
@@ -516,6 +522,7 @@ def node_agent_beta_resolve(state: WorkflowState) -> WorkflowState:
     """DAG Node: Agent Beta Resolve node for iteration loop."""
     try:
         from agentic_workflow.adapters.langgraph.nodes import _get_container
+
         container = _get_container()
         prompt = f"Resolve findings {state.get('current_findings')} for pipeline {state.get('pipeline_id')}"
         resolution = container.reasoner.reason(prompt)
@@ -533,6 +540,7 @@ def node_root_cause_leftshift(state: WorkflowState) -> WorkflowState:
     """DAG Node: Root cause analysis and left shift hook."""
     try:
         from agentic_workflow.adapters.langgraph.nodes import _get_container
+
         container = _get_container()
         pipeline_id = state.get("pipeline_id", "default")
         pipeline = container.pipeline_repo.get_by_id(pipeline_id)
@@ -547,6 +555,7 @@ def node_step_0_format(state: WorkflowState) -> WorkflowState:
     """DAG Node: Step 0 formatting verification."""
     try:
         from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
+
         metadata = state.get("metadata", {})
         content = metadata.get("recent_changes_content", "")
         if not MicroValidation.validate_format(content):
@@ -561,6 +570,7 @@ def node_step_1_id_structure(state: WorkflowState) -> WorkflowState:
     """DAG Node: Step 1 id structure verification."""
     try:
         from agentic_workflow.domain.algorithms.micro_validation import MicroValidation
+
         metadata = state.get("metadata", {})
         changed_ids = metadata.get("recent_changed_ids", [])
         if not MicroValidation.validate_structure(changed_ids):
@@ -600,6 +610,7 @@ def node_step_6_trigger_impact(state: WorkflowState) -> WorkflowState:
     """DAG Node: Impact analysis trigger node."""
     try:
         from agentic_workflow.adapters.langgraph.nodes import _get_container, node_impact_analysis
+
         _get_container()
         partial_state = node_impact_analysis(state)
         if partial_state:

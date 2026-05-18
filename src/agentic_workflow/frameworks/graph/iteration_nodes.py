@@ -17,6 +17,7 @@ class IterationNodes:
     def agent_alpha_critique(state: WorkflowState) -> WorkflowState:
         """Agent Alpha: Critique and problem discovery."""
         from agentic_workflow.adapters.langgraph.nodes import node_agent_alpha_critique
+
         return node_agent_alpha_critique(state)
 
     @staticmethod
@@ -31,12 +32,14 @@ class IterationNodes:
     def agent_beta_resolve(state: WorkflowState) -> WorkflowState:
         """Agent Beta: Resolution and integration."""
         from agentic_workflow.adapters.langgraph.nodes import node_agent_beta_resolve
+
         return node_agent_beta_resolve(state)
 
     @staticmethod
     def root_cause_leftshift(state: WorkflowState) -> WorkflowState:
         """Root Cause Analysis: Left-shift feedback loop."""
         from agentic_workflow.adapters.langgraph.nodes import node_root_cause_leftshift
+
         return node_root_cause_leftshift(state)
 
     @staticmethod

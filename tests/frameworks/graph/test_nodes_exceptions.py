@@ -50,10 +50,7 @@ def test_node_phase_2_analysis_exception() -> None:
 def test_node_stage_6_formal_exception() -> None:
     """Verifies node_stage_6_formal exception handling."""
     state = WorkflowState(pipeline_id="error-pipe")
-    target_path = (
-        "agentic_workflow.domain.algorithms.invariants_verifier."
-        "DAGInvariantVerifier.run_all_verifications"
-    )
+    target_path = "agentic_workflow.domain.algorithms.invariants_verifier.DAGInvariantVerifier.run_all_verifications"
     with patch(target_path, side_effect=Exception("mock error")):
         res = node_stage_6_formal(state)
         assert res is state
@@ -109,10 +106,7 @@ def test_node_step_0_format_exception() -> None:
 
 def test_node_step_0_format_failure() -> None:
     """Verifies node_step_0_format failure path."""
-    state = WorkflowState(
-        pipeline_id="fail-pipe",
-        metadata={"recent_changes_content": "some text from vibe here"}
-    )
+    state = WorkflowState(pipeline_id="fail-pipe", metadata={"recent_changes_content": "some text from vibe here"})
     res = node_step_0_format(state)
     assert res.get("gate_decision") == "fail"
     last_error = res.get("last_error")
@@ -130,10 +124,7 @@ def test_node_step_1_id_structure_exception() -> None:
 
 def test_node_step_1_id_structure_failure() -> None:
     """Verifies node_step_1_id_structure failure path."""
-    state = WorkflowState(
-        pipeline_id="fail-pipe",
-        metadata={"recent_changed_ids": ["INVALID-ID-123"]}
-    )
+    state = WorkflowState(pipeline_id="fail-pipe", metadata={"recent_changed_ids": ["INVALID-ID-123"]})
     res = node_step_1_id_structure(state)
     assert res.get("gate_decision") == "fail"
     last_error = res.get("last_error")
