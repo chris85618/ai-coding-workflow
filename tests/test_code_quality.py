@@ -132,7 +132,6 @@ def test_debt_009_ellipsis_in_concrete_code() -> None:
                 if isinstance(stmt, ast.Expr) and (
                     isinstance(stmt.value, ast.Constant)
                     and stmt.value.value is Ellipsis
-                    or isinstance(stmt.value, ast.Ellipsis)
                 ):
                     is_ellipsis = True
 
@@ -214,7 +213,6 @@ def _get_function_nloc(node: ast.FunctionDef | ast.AsyncFunctionDef, file_lines:
         if isinstance(first_stmt, ast.Expr) and (
             isinstance(first_stmt.value, ast.Constant)
             and isinstance(first_stmt.value.value, str)
-            or (hasattr(ast, "Str") and isinstance(first_stmt.value, ast.Str))
         ):
             body_nodes = body_nodes[1:]
     if not body_nodes:
