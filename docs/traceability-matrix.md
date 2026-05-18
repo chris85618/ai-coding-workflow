@@ -330,6 +330,7 @@
 | TC-SONAR-004 | 驗證 SonarCloud 節點切換邏輯 (Mocked) | FR-015, FR-035, ADR-OPS-001 | node_sonarcloud_gate | ✅ |
 | TC-001 | SC-001 | validates | ✅ |
 | TC-016 | SC-021 | validates | ✅ (Granular Test Set Verification) |
+| TC-017 | SC-019 | validates | ✅ (Step 0 & 1 validation failure and node branch coverage) |
 | TC-002 | SC-002 | validates | ✅ |
 | TC-003 | SC-003 | validates | ✅ |
 | TC-004 | SC-004 | validates | ✅ |
@@ -533,13 +534,13 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 6 | INV-xxx | 25 | 25/25 | 25/25 | 100% |
 | Stage 7 | SC-xxx | 21 | 21/21 | 21/21 | 100% |
 | **自動化** | FR→Hook | 1 | 1/1 | — (實作) | 100% |
-| Stage 8 | TC-xxx | 23 | 23/23 | 23/23 | 100% |
+| Stage 8 | TC-xxx | 24 | 24/24 | 24/24 | 100% |
 | Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 29 | 29/29 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **359** | — | — | **100%** |
+| **合計** | — | **360** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)

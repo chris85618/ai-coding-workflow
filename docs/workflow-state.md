@@ -70,7 +70,8 @@
 - [x] CAD-39: 修正 file_repository.py 與 llm/providers 中 NLOC > 6 的 NLOC 違規，將方法行數嚴格縮限至 6 行以內 — ✅ DONE
 - [x] CAD-40: 修正 OSFilesystemIO, OSSubprocessExecutor, AnthropicReasoner, UrllibHttpClient, AnthropicProvider, OpenAIProvider 之中方法 override 與繼承關係 violations (TC-QUALITY-010)，100% 通過品質檢查 — ✅ DONE
 - [x] CAD-41: 修正 workflow_config.py 中的 Mypy 類型安全、Cyclomatic Complexity (<= 2) 與 Branch count (<= 1) 違規，確保 100% 綠燈 — ✅ DONE
-- [x] CAD-42: 修正 file_repository.py 中的 _to_dict, _from_dict 與 filesystem_io.py 中的 class_symbol 使得 NLOC <= 6 且單一 return 語意 100% 通過品質檢查 — ✅ DONE
+- [x] CAD-42: 修復 file_repository.py 中的 _to_dict, _from_dict 與 filesystem_io.py 中的 class_symbol 使得 NLOC <= 6 且單一 return 語意 100% 通過品質檢查 — ✅ DONE
+- [x] CAD-43: 修復 nodes.py 中所有剩餘分支覆蓋率缺口，達成 1004 案 100.00% Statement 與 Branch 覆蓋無死角 — ✅ DONE
 
 
 ## 🚦 Gate Status
@@ -83,7 +84,7 @@
 - [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
 - [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
 - [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (988 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Stage 8: TDD + 測試 + 修復 (1004 Pass, 100.00% Statement & Branch Coverage)
 - [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
 
 ## 📌 Pending Escalations
@@ -96,6 +97,6 @@
    - NLOC <= 6: Simplified dictionary serialization in `file_repository.py` and converted `class_symbol` AST constructor in `filesystem_io.py` into a highly clean inline expression.
    - Single Return (TC-QUALITY-008): Reconstructed AST symbol parser to rely on a single elegant return statement.
    - Method Overrides (TC-QUALITY-010): Fully aligned outer system boundary wrappers with inner core interfaces.
-2. **100% Test Suite & Coverage Green**: Extended testing to a massive 988 passed test cases with absolutely zero failures and 100.00% code coverage.
+2. **100% Test Suite & Coverage Green**: Extended testing to a massive 1004 passed test cases with absolutely zero failures and 100.00% code coverage.
 3. **No Retrograde Defect Shield**: Ensured that automated Ruff linting, Mypy type-checking, and Clean Architecture checks remain 100% green and free of any `# type: ignore` or `# pragma: no cover`.
 

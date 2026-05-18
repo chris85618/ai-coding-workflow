@@ -14,57 +14,68 @@ class MasterPipelineNodes:
     @staticmethod
     def phase_0_init(state: WorkflowState) -> WorkflowState:
         """Phase 0: Environment and State initialization."""
-        return state
+        from agentic_workflow.adapters.langgraph.nodes import node_phase_0_init
+        return node_phase_0_init(state)
 
     @staticmethod
     def phase_1_understanding(state: WorkflowState) -> WorkflowState:
         """Phase 1: Codebase comprehension and Knowledge Graph."""
-        return state
+        from agentic_workflow.adapters.langgraph.nodes import node_phase_1_understanding
+        return node_phase_1_understanding(state)
 
     @staticmethod
     def phase_2_analysis(state: WorkflowState) -> WorkflowState:
         """Phase 2: Project Analysis and FEA generation."""
-        return state
+        from agentic_workflow.adapters.langgraph.nodes import node_phase_2_analysis
+        return node_phase_2_analysis(state)
 
     @staticmethod
     def stage_3_planning(state: WorkflowState) -> WorkflowState:
         """Stage 3: Technical Planning and Requirements."""
+        state["current_position"] = "stage3"
         return state
 
     @staticmethod
     def stage_4_algorithm(state: WorkflowState) -> WorkflowState:
         """Stage 4: Algorithm Design and Complexity."""
+        state["current_position"] = "stage4"
         return state
 
     @staticmethod
     def stage_5_ooad(state: WorkflowState) -> WorkflowState:
         """Stage 5: Object-Oriented Analysis and Design."""
+        state["current_position"] = "stage5"
         return state
 
     @staticmethod
     def stage_6_formal(state: WorkflowState) -> WorkflowState:
         """Stage 6: Formal Verification and Invariants."""
-        return state
+        from agentic_workflow.adapters.langgraph.nodes import node_stage_6_formal
+        return node_stage_6_formal(state)
 
     @staticmethod
     def stage_7_bdd(state: WorkflowState) -> WorkflowState:
         """Stage 7: Behavior-Driven Development and Scenarios."""
+        state["current_position"] = "stage7"
         return state
 
     @staticmethod
     def stage_8_tdd(state: WorkflowState) -> WorkflowState:
         """Stage 8: Test-Driven Development and Implementation."""
+        state["current_position"] = "stage8"
         return state
 
     @staticmethod
     def phase_9_ship(state: WorkflowState) -> WorkflowState:
         """Phase 9: Deployment and Shipping."""
-        return state
+        from agentic_workflow.adapters.langgraph.nodes import node_phase_9_ship
+        return node_phase_9_ship(state)
 
     @staticmethod
     def phase_10_retro(state: WorkflowState) -> WorkflowState:
         """Phase 10: Retrospective and Learning Extraction."""
-        return state
+        from agentic_workflow.adapters.langgraph.nodes import node_phase_10_retro
+        return node_phase_10_retro(state)
 
 
 # Backward compatibility facades (delegated by __init__.py)
