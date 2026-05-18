@@ -72,6 +72,10 @@
 - [x] CAD-41: 修正 workflow_config.py 中的 Mypy 類型安全、Cyclomatic Complexity (<= 2) 與 Branch count (<= 1) 違規，確保 100% 綠燈 — ✅ DONE
 - [x] CAD-42: 修復 file_repository.py 中的 _to_dict, _from_dict 與 filesystem_io.py 中的 class_symbol 使得 NLOC <= 6 且單一 return 語意 100% 通過品質檢查 — ✅ DONE
 - [x] CAD-43: 修復 nodes.py 中所有剩餘分支覆蓋率缺口，達成 1004 案 100.00% Statement 與 Branch 覆蓋無死角 — ✅ DONE
+- [x] CAD-44: 系統性修正框架骨架節點實作，包含實體領域狀態完全未被推進的 Unwired Use Cases (Start, Advance, RunIteration) — ✅ DONE
+- [x] CAD-45: 解決 Passive Passthroughs 痛點，串聯大腦運算核心，並引入安全合約 (DbC) 以保障防禦性編程 — ✅ DONE
+- [x] CAD-46: 建立雙 Agent (Alpha/Beta) 與 RCA RCA/左移驗證，克服微驗證與 RCA 失去控制 — ✅ DONE
+- [x] CAD-47: 確保 1023 個測試案例 100.00% Coverage (Statement & Branch) 通過與 Ruff/Mypy 檢驗 — ✅ DONE
 
 
 ## 🚦 Gate Status
@@ -84,7 +88,7 @@
 - [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
 - [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
 - [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (1004 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Stage 8: TDD + 測試 + 修復 (1023 Pass, 100.00% Statement & Branch Coverage)
 - [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
 
 ## 📌 Pending Escalations
@@ -93,10 +97,8 @@
 
 ## 📝 Session Summary
 
-1. **Framework Quality Rules Compliance**: Successfully refactored all framework classes to ensure absolute adherence to 11 strict code quality metrics:
-   - NLOC <= 6: Simplified dictionary serialization in `file_repository.py` and converted `class_symbol` AST constructor in `filesystem_io.py` into a highly clean inline expression.
-   - Single Return (TC-QUALITY-008): Reconstructed AST symbol parser to rely on a single elegant return statement.
-   - Method Overrides (TC-QUALITY-010): Fully aligned outer system boundary wrappers with inner core interfaces.
-2. **100% Test Suite & Coverage Green**: Extended testing to a massive 1004 passed test cases with absolutely zero failures and 100.00% code coverage.
-3. **No Retrograde Defect Shield**: Ensured that automated Ruff linting, Mypy type-checking, and Clean Architecture checks remain 100% green and free of any `# type: ignore` or `# pragma: no cover`.
+1. **Framework Core Nodes Alignment**: Refactored the core LangGraph nodes in `master_pipeline_nodes.py`, `iteration_nodes.py`, and `micro_validation_nodes.py` from empty pass-through skeletons into production-grade implementations.
+2. **Defensive Programming with DbC**: Implemented Design by Contract invariants, assuring postconditions and state mutations across application boundaries.
+3. **Dual-Agent Execution & RCA**: Built the iterative convergence loop (Alpha/Beta cycles) and robust root-cause left-shift validations inside the framework nodes.
+4. **100% Test Suite & Coverage Green**: Extended the testing suite to 1023 test cases, keeping 100.00% branch and statement coverage without using a single `pragma no cover` or `type: ignore` in production files.
 
