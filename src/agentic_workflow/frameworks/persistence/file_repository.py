@@ -30,8 +30,11 @@ def _serialize_links(links: list[Any]) -> list[dict[str, str]]:
 
 def _serialize_id(traceable_id: TraceableID) -> dict[str, Any]:
     return {
-        "id_str": traceable_id.full_id, "prefix": traceable_id.prefix.value, "sequence": traceable_id.sequence,
-        "title": traceable_id.title, "upstream_links": _serialize_links(traceable_id.upstream_links),
+        "id_str": traceable_id.full_id,
+        "prefix": traceable_id.prefix.value,
+        "sequence": traceable_id.sequence,
+        "title": traceable_id.title,
+        "upstream_links": _serialize_links(traceable_id.upstream_links),
         "downstream_links": _serialize_links(traceable_id.downstream_links),
     }
 

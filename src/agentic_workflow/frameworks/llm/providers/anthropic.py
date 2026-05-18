@@ -30,7 +30,12 @@ class AnthropicProvider(LLMProvider):
     def create_model(self, model_cfg: ModelConfig) -> BaseChatModel:
         """Instantiate a LangChain ChatAnthropic model."""
         cls = _get_anthropic_class()
-        return cast("BaseChatModel", cls(
-            model=model_cfg.model, temperature=model_cfg.temperature,
-            max_tokens=model_cfg.max_tokens, api_key=model_cfg.api_key
-        ))
+        return cast(
+            "BaseChatModel",
+            cls(
+                model=model_cfg.model,
+                temperature=model_cfg.temperature,
+                max_tokens=model_cfg.max_tokens,
+                api_key=model_cfg.api_key,
+            ),
+        )
