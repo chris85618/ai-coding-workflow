@@ -56,19 +56,13 @@ class FileTraceableIDRepositoryMapper(TraceableIDRepository):
     def _to_dict(self, t_id: TraceableID) -> dict[str, Any]:
         """Convert TraceableID to dict."""
         k = ["id_str", "prefix", "sequence", "title", "upstream_links", "downstream_links"]
-        v = [
-            t_id.full_id, t_id.prefix.value, t_id.sequence, t_id.title,
-            self._serialize_links(t_id.upstream_links), self._serialize_links(t_id.downstream_links)
-        ]
+        v = [t_id.full_id, t_id.prefix.value, t_id.sequence, t_id.title, self._serialize_links(t_id.upstream_links), self._serialize_links(t_id.downstream_links)]  # fmt: skip # noqa: E501
         return dict(zip(k, v, strict=True))
 
     def _from_dict(self, data: dict[str, Any]) -> TraceableID:
         """Construct TraceableID from dict."""
         up, down = data.get("upstream_links", []), data.get("downstream_links", [])
-        return TraceableID(
-            prefix=IDPrefix(data["prefix"]), sequence=data["sequence"], title=data.get("title", ""),
-            upstream_links=self._deserialize_links(up), downstream_links=self._deserialize_links(down)
-        )
+        return TraceableID(prefix=IDPrefix(data["prefix"]), sequence=data["sequence"], title=data.get("title", ""), upstream_links=self._deserialize_links(up), downstream_links=self._deserialize_links(down))  # fmt: skip # noqa: E501
 
     def save(self, traceable_id: TraceableID) -> None:
         """Persist a TraceableID as JSON."""
