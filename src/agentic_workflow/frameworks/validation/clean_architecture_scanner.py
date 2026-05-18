@@ -106,19 +106,12 @@ class CleanArchitectureBoundaryScanner:
             return f"{base}.{relative_module}" if base else relative_module
         return base
 
-    def scan_file(self, file_path: str) -> list[BoundaryViolation]:
-        """Parse and scan a single Python file for Clean Architecture violations."""
-        path = Path(file_path).resolve()
-        current_layer = self.get_layer_from_path(path)
-        if not current_layer:
-            return []
-
-        current_rank = self.LAYER_RANKS[current_layer]
-
+    def _read_file_content(self, path: Path) -> tuple[str, list[BoundaryViolation]]:
+        """Read text from file, returning content and read errors if any."""
         try:
-            content = path.read_text(encoding="utf-8")
+            return path.read_text(encoding="utf-8"), []
         except Exception as e:
-            return [
+            return "", [
                 BoundaryViolation(
                     file_path=str(path),
                     line=1,
@@ -128,90 +121,99 @@ class CleanArchitectureBoundaryScanner:
                 )
             ]
 
-        violations: list[BoundaryViolation] = []
-        # Scan comments for forbidden type and pragma commands using regex
-        try:
-            tokens = tokenize.generate_tokens(io.StringIO(content).readline)
-            for token in tokens:
-                if token.type == tokenize.COMMENT:
-                    comment_str = token.string
-                    line_num, col_num = token.start
+    def _check_comment_pragma(self, comment_str: str, line_text: str) -> bool:
+        """Verify if a pragma comment violates the entry point exception."""
+        if not PRAGMA_REGEX.match(comment_str):
+            return False
+        normalized_line = "".join(line_text.split()).lower()
+        return not ("if" + "__name__" + "==" in normalized_line and "__main__" in normalized_line)
 
-                    # Check pragma — banned in ALL layers (ADR-STR-027 v2)
-                    if PRAGMA_REGEX.match(comment_str):
-                        line_text = content.splitlines()[line_num - 1]
-                        normalized_line = "".join(line_text.split()).lower()
-                        # Allow pragma ONLY on the 'if __name__ == "__main__":' line itself
-                        if not ("if" + "__name__" + "==" in normalized_line and "__main__" in normalized_line):
-                            violations.append(
-                                BoundaryViolation(
-                                    file_path=str(path),
-                                    line=line_num,
-                                    column=col_num,
-                                    category="pragma_no_cover_abuse",
-                                    message=(
-                                        "Illegal pragma: no cover bypass detected outside if __name__ == '__main__':. "
-                                        "All pragma comments are strictly banned in all layers outside the entry point."
-                                    ),
-                                )
-                            )
+    def _scan_comments_via_tokens(self, content: str, file_path: str, current_rank: int) -> list[BoundaryViolation]:
+        """Scan comments using tokenization."""
+        violations = []
+        tokens = tokenize.generate_tokens(io.StringIO(content).readline)
+        for token in tokens:
+            if token.type != tokenize.COMMENT:
+                continue
+            comment_str = token.string
+            line_num, col_num = token.start
 
-                    # Check type in inner layers (rank <= 3)
-                    if current_rank <= 3 and TYPE_REGEX.match(comment_str):
-                        violations.append(
-                            BoundaryViolation(
-                                file_path=str(path),
-                                line=line_num,
-                                column=col_num,
-                                category="type_ignore_abuse",
-                                message=(
-                                    "Illegal use of '# type' comment in inner layer. "
-                                    "Type comments are strictly banned in inner layers."
-                                ),
-                            )
-                        )
-        except Exception:
-            # Fallback to pure regex line-by-line if tokenization fails
-            for idx, line in enumerate(content.splitlines(), start=1):
-                if "#" in line:
-                    comment_idx = line.find("#")
-                    comment_str = line[comment_idx:]
+            if self._check_comment_pragma(comment_str, content.splitlines()[line_num - 1]):
+                violations.append(
+                    BoundaryViolation(
+                        file_path=file_path,
+                        line=line_num,
+                        column=col_num,
+                        category="pragma_no_cover_abuse",
+                        message=(
+                            "Illegal pragma: no cover bypass detected outside if __name__ == '__main__':. "
+                            "All pragma comments are strictly banned in all layers outside the entry point."
+                        ),
+                    )
+                )
 
-                    # Check pragma — banned in ALL layers (ADR-STR-027 v2)
-                    if PRAGMA_REGEX.match(comment_str):
-                        normalized_line = "".join(line.split()).lower()
-                        if not ("if" + "__name__" + "==" in normalized_line and "__main__" in normalized_line):
-                            violations.append(
-                                BoundaryViolation(
-                                    file_path=str(path),
-                                    line=idx,
-                                    column=comment_idx,
-                                    category="pragma_no_cover_abuse",
-                                    message=(
-                                        "Illegal pragma: no cover bypass detected outside if __name__ == '__main__':. "
-                                        "All pragma comments are strictly banned in all layers outside the entry point."
-                                    ),
-                                )
-                            )
+            if current_rank <= 3 and TYPE_REGEX.match(comment_str):
+                violations.append(
+                    BoundaryViolation(
+                        file_path=file_path,
+                        line=line_num,
+                        column=col_num,
+                        category="type_ignore_abuse",
+                        message=(
+                            "Illegal use of '# type' comment in inner layer. "
+                            "Type comments are strictly banned in inner layers."
+                        ),
+                    )
+                )
+        return violations
 
-                    if current_rank <= 3 and TYPE_REGEX.match(comment_str):
-                        violations.append(
-                            BoundaryViolation(
-                                file_path=str(path),
-                                line=idx,
-                                column=comment_idx,
-                                category="type_ignore_abuse",
-                                message=(
-                                    "Illegal use of '# type' comment in inner layer. "
-                                    "Type comments are strictly banned in inner layers."
-                                ),
-                            )
-                        )
+    def _scan_comments_via_regex(self, content: str, file_path: str, current_rank: int) -> list[BoundaryViolation]:
+        """Fallback to pure regex scan for comments if tokenization fails."""
+        violations = []
+        for idx, line in enumerate(content.splitlines(), start=1):
+            if "#" not in line:
+                continue
+            comment_idx = line.find("#")
+            comment_str = line[comment_idx:]
 
+            if self._check_comment_pragma(comment_str, line):
+                violations.append(
+                    BoundaryViolation(
+                        file_path=file_path,
+                        line=idx,
+                        column=comment_idx,
+                        category="pragma_no_cover_abuse",
+                        message=(
+                            "Illegal pragma: no cover bypass detected outside if __name__ == '__main__':. "
+                            "All pragma comments are strictly banned in all layers outside the entry point."
+                        ),
+                    )
+                )
+
+            if current_rank <= 3 and TYPE_REGEX.match(comment_str):
+                violations.append(
+                    BoundaryViolation(
+                        file_path=file_path,
+                        line=idx,
+                        column=comment_idx,
+                        category="type_ignore_abuse",
+                        message=(
+                            "Illegal use of '# type' comment in inner layer. "
+                            "Type comments are strictly banned in inner layers."
+                        ),
+                    )
+                )
+        return violations
+
+    def _scan_ast_tree(
+        self, content: str, path: Path, current_layer: str, current_rank: int
+    ) -> list[BoundaryViolation]:
+        """Parse and run the AST boundary visitor on the content."""
+        violations = []
         try:
             tree = ast.parse(content, filename=str(path))
         except SyntaxError as se:
-            violations.append(
+            return [
                 BoundaryViolation(
                     file_path=str(path),
                     line=se.lineno or 1,
@@ -219,8 +221,7 @@ class CleanArchitectureBoundaryScanner:
                     category="syntax_error",
                     message=f"Syntax error during parsing: {se.msg}",
                 )
-            )
-            return violations
+            ]
 
         current_module = self.resolve_module_path(path)
         visitor = BoundaryVisitor(
@@ -232,6 +233,28 @@ class CleanArchitectureBoundaryScanner:
         )
         visitor.visit(tree)
         violations.extend(visitor.violations)
+        return violations
+
+    def scan_file(self, file_path: str) -> list[BoundaryViolation]:
+        """Parse and scan a single Python file for Clean Architecture violations."""
+        path = Path(file_path).resolve()
+        current_layer = self.get_layer_from_path(path)
+        if not current_layer:
+            return []
+
+        current_rank = self.LAYER_RANKS[current_layer]
+
+        content, read_violations = self._read_file_content(path)
+        if read_violations:
+            return read_violations
+
+        violations = []
+        try:
+            violations.extend(self._scan_comments_via_tokens(content, str(path), current_rank))
+        except Exception:
+            violations.extend(self._scan_comments_via_regex(content, str(path), current_rank))
+
+        violations.extend(self._scan_ast_tree(content, path, current_layer, current_rank))
         return violations
 
     def scan_directory(self, directory_path: str) -> list[BoundaryViolation]:
@@ -378,16 +401,8 @@ class BoundaryVisitor(ast.NodeVisitor):
                 )
         self.generic_visit(node)
 
-    def visit_Call(self, node: ast.Call) -> None:
-        """Inspect dynamic imports, exec/eval, environment variables, and file I/O."""
-        # 1. Inspect function calls by name
-        func_name = ""
-        if isinstance(node.func, ast.Name):
-            func_name = node.func.id
-        elif isinstance(node.func, ast.Attribute):
-            func_name = node.func.attr
-
-        # 2. Block exec and eval in inner layers
+    def _check_exec_eval(self, node: ast.Call, func_name: str) -> None:
+        """Block exec and eval in inner layers."""
         if func_name in {"exec", "eval"} and self.current_rank < 3:
             self._add_violation(
                 node,
@@ -395,28 +410,30 @@ class BoundaryVisitor(ast.NodeVisitor):
                 f"Dynamic execution '{func_name}' is forbidden in inner layer '{self.current_layer}'.",
             )
 
-        # 3. Dynamic imports: importlib.import_module and __import__
-        is_dynamic_import = func_name in {"import_module", "__import__"}
+    def _check_dynamic_imports(self, node: ast.Call, func_name: str) -> None:
+        """Inspect dynamic imports: importlib.import_module and __import__."""
+        if func_name not in {"import_module", "__import__"} or not node.args:
+            return
 
-        if is_dynamic_import and node.args:
-            first_arg = node.args[0]
-            if isinstance(first_arg, ast.Constant) and isinstance(first_arg.value, str):
-                self._check_module_dependency(node, first_arg.value, category="dynamic_import")
-            elif self.current_rank < 3:
-                # Generic dynamic import with variable in inner layers is prohibited
-                self._add_violation(
-                    node,
-                    "dynamic_import",
-                    f"Dynamic import with variable argument is prohibited in inner layer '{self.current_layer}'.",
-                )
+        first_arg = node.args[0]
+        if isinstance(first_arg, ast.Constant) and isinstance(first_arg.value, str):
+            self._check_module_dependency(node, first_arg.value, category="dynamic_import")
+        elif self.current_rank < 3:
+            self._add_violation(
+                node,
+                "dynamic_import",
+                f"Dynamic import with variable argument is prohibited in inner layer '{self.current_layer}'.",
+            )
 
-        # 4. Direct environment access: os.getenv
+    def _check_env_access_call(self, node: ast.Call) -> None:
+        """Inspect os.getenv direct environment access."""
+        if self.current_rank >= 3:
+            return
         if (
             isinstance(node.func, ast.Attribute)
             and isinstance(node.func.value, ast.Name)
             and node.func.value.id == "os"
             and node.func.attr == "getenv"
-            and self.current_rank < 3
         ):
             self._add_violation(
                 node,
@@ -425,37 +442,58 @@ class BoundaryVisitor(ast.NodeVisitor):
                 " Use configuration injection.",
             )
 
-        # 5. Direct File I/O: open() in domain
-        if func_name == "open" and self.current_layer == "domain":
+    def _check_file_io_call(self, node: ast.Call, func_name: str) -> None:
+        """Inspect direct file I/O operations in domain."""
+        if self.current_layer != "domain":
+            return
+
+        if func_name == "open":
             self._add_violation(
                 node,
                 "file_io",
                 "Direct file operations via 'open()' are prohibited in 'domain' layer. Use Repository ports.",
             )
 
-        # 6. Path object read/write operations (e.g. Path.read_text) in domain
-        if (
-            isinstance(node.func, ast.Attribute)
-            and node.func.attr in {"read_text", "write_text", "read_bytes", "write_bytes", "open"}
-            and self.current_layer == "domain"
-        ):
+        if isinstance(node.func, ast.Attribute) and node.func.attr in {
+            "read_text",
+            "write_text",
+            "read_bytes",
+            "write_bytes",
+            "open",
+        }:
             self._add_violation(
                 node,
                 "file_io",
                 f"Direct file operation '{node.func.attr}' is prohibited in 'domain' layer. Use Repository ports.",
             )
 
-        # 7. Check for outer layer class instantiation (adapters/frameworks) inside domain/application (rank < 3)
-        if self.current_rank < 3:
-            chain = self._get_attribute_chain(node.func)
-            if any(segment in {"adapters", "frameworks"} for segment in chain):
-                dot_path = ".".join(chain)
-                self._add_violation(
-                    node,
-                    "illegal_instantiation",
-                    f"Illegal outer-layer class instantiation: Core layer '{self.current_layer}' "
-                    f"is prohibited from directly instantiating outer layer class '{dot_path}'.",
-                )
+    def _check_outer_instantiation_call(self, node: ast.Call) -> None:
+        """Check for outer layer class instantiation inside core layers (rank < 3)."""
+        if self.current_rank >= 3:
+            return
+        chain = self._get_attribute_chain(node.func)
+        if any(segment in {"adapters", "frameworks"} for segment in chain):
+            dot_path = ".".join(chain)
+            self._add_violation(
+                node,
+                "illegal_instantiation",
+                f"Illegal outer-layer class instantiation: Core layer '{self.current_layer}' "
+                f"is prohibited from directly instantiating outer layer class '{dot_path}'.",
+            )
+
+    def visit_Call(self, node: ast.Call) -> None:
+        """Inspect dynamic imports, exec/eval, environment variables, and file I/O."""
+        func_name = ""
+        if isinstance(node.func, ast.Name):
+            func_name = node.func.id
+        elif isinstance(node.func, ast.Attribute):
+            func_name = node.func.attr
+
+        self._check_exec_eval(node, func_name)
+        self._check_dynamic_imports(node, func_name)
+        self._check_env_access_call(node)
+        self._check_file_io_call(node, func_name)
+        self._check_outer_instantiation_call(node)
 
         self.generic_visit(node)
 
@@ -534,19 +572,20 @@ class BoundaryVisitor(ast.NodeVisitor):
             self._check_string_annotation(node, node.annotation.value)
         self.generic_visit(node)
 
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        """Inspect string type annotations in function return types and check for ellipsis abuse."""
+    def _visit_function_like(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+        """Helper to process function definitions."""
         if isinstance(node.returns, ast.Constant) and isinstance(node.returns.value, str):
             self._check_string_annotation(node, node.returns.value)
         self._check_ellipsis(node)
         self.generic_visit(node)
 
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        """Inspect string type annotations in function return types and check for ellipsis abuse."""
+        self._visit_function_like(node)
+
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Inspect string type annotations in function return types and check for ellipsis abuse."""
-        if isinstance(node.returns, ast.Constant) and isinstance(node.returns.value, str):
-            self._check_string_annotation(node, node.returns.value)
-        self._check_ellipsis(node)
-        self.generic_visit(node)
+        self._visit_function_like(node)
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """Track current class to allow ellipsis within Protocol classes."""
@@ -554,43 +593,46 @@ class BoundaryVisitor(ast.NodeVisitor):
         self.generic_visit(node)
         self.class_stack.pop()
 
+    def _is_ellipsis_body(self, body: list[ast.stmt]) -> bool:
+        """Check if the function body consists of exactly one Ellipsis statement."""
+        if len(body) != 1:
+            return False
+        stmt = body[0]
+        if isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Constant):
+            return stmt.value.value is Ellipsis
+        return False
+
+    def _is_abstract_method(self, decorator_list: list[ast.expr]) -> bool:
+        """Check if the function has an abstractmethod decorator."""
+        for dec in decorator_list:
+            if isinstance(dec, ast.Name) and dec.id == "abstractmethod":
+                return True
+            if isinstance(dec, ast.Attribute) and dec.attr == "abstractmethod":
+                return True
+        return False
+
+    def _is_protocol_class(self) -> bool:
+        """Check if the current class in stack is a Protocol class."""
+        if not self.class_stack:
+            return False
+        parent_class = self.class_stack[-1]
+        for base in parent_class.bases:
+            if isinstance(base, ast.Name) and base.id == "Protocol":
+                return True
+            if isinstance(base, ast.Attribute) and base.attr == "Protocol":
+                return True
+        return False
+
     def _check_ellipsis(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
         """Enforce pass over ellipsis in concrete dry run implementations."""
-        if len(node.body) == 1:
-            stmt = node.body[0]
-            is_ellipsis = False
-            if isinstance(stmt, ast.Expr):
-                val = stmt.value
-                if isinstance(val, ast.Constant) and val.value is Ellipsis:
-                    is_ellipsis = True
+        if not self._is_ellipsis_body(node.body):
+            return
 
-            if is_ellipsis:
-                is_allowed = False
-                # Allow if decorator is abstractmethod
-                for dec in node.decorator_list:
-                    if (
-                        isinstance(dec, ast.Name)
-                        and dec.id == "abstractmethod"
-                        or isinstance(dec, ast.Attribute)
-                        and dec.attr == "abstractmethod"
-                    ):
-                        is_allowed = True
-                # Allow if parent class is a Protocol
-                if not is_allowed and self.class_stack:
-                    parent_class = self.class_stack[-1]
-                    for base in parent_class.bases:
-                        if (
-                            isinstance(base, ast.Name)
-                            and base.id == "Protocol"
-                            or isinstance(base, ast.Attribute)
-                            and base.attr == "Protocol"
-                        ):
-                            is_allowed = True
+        if self._is_abstract_method(node.decorator_list) or self._is_protocol_class():
+            return
 
-                if not is_allowed:
-                    self._add_violation(
-                        node,
-                        "ellipsis_abuse",
-                        f"Illegal use of ellipsis '...' in concrete function '{node.name}'. "
-                        "Must use 'pass' instead of '...'.",
-                    )
+        self._add_violation(
+            node,
+            "ellipsis_abuse",
+            f"Illegal use of ellipsis '...' in concrete function '{node.name}'. Must use 'pass' instead of '...'.",
+        )

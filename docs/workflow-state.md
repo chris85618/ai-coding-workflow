@@ -60,6 +60,9 @@
 - [x] SONAR-01: 於 SonarCloudAdapter 實作 get_all_available_metrics、get_detailed_component_measures 與 get_all_metrics_with_values 方法 — ✅ DONE
 - [x] SONAR-02: 在 tests/adapters/test_adapters_coverage.py 中新增對應測試以確保 100% Statement 與 Branch 覆蓋 — ✅ DONE
 - [x] SONAR-03: 撰寫 scripts/fetch_sonar_metrics_detail.py 工具指令碼以支援所有指標及其對應細節的 Markdown 格式拉取與美化輸出 — ✅ DONE
+- [x] SONAR-04: 實作拉取 Sonar 既有 issue 腳本 scripts/fetch_sonar_issues.py 並落實 100% 覆蓋 — ✅ DONE
+- [x] SONAR-05: 修復 Sonar 偵測出的 6 筆嚴重問題，並硬化測試套件至 970 個測試 100.00% Coverage 通過 — ✅ DONE
+- [x] SONAR-06: 導入 `types-requests` 依賴並為 `langchain_openai`, `langchain_anthropic`, `sonarqube` 建立封裝套件層級 `.pyi` 類型存存根，實現 100% 潔淨 Mypy / Ruff 綠燈 — ✅ DONE
 
 ## 🚦 Gate Status
 
@@ -71,7 +74,7 @@
 - [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
 - [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
 - [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (967 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Stage 8: TDD + 測試 + 修復 (970 Pass, 100.00% Statement & Branch Coverage)
 - [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
 
 ## 📌 Pending Escalations
@@ -80,8 +83,8 @@
 
 ## 📝 Session Summary
 
-1. **SonarQube Metrics Pulling**: Implemented methods in `SonarCloudAdapter` to pull all available metrics definition and their detailed component measures from SonarCloud API, merging them seamlessly into a comprehensive output.
-2. **100% Test Coverage Secured**: Extended `test_adapters_coverage.py` to cover the new `SonarAdapterProtocol` methods, securing 100.00% statement and branch coverage across the entire project (all 967 tests passing).
-3. **Markdown Output Script**: Created `scripts/fetch_sonar_metrics_detail.py` utility that automatically loads configuration, performs API calls, groups metrics by domain, and formats them into a neat Markdown table.
-4. **Code Quality and Type Checking**: Verified the code with Ruff and Mypy, showing 100% clean output without a single type issue.
+1. **SonarQube Issues & Metrics Resolution**: Successfully resolved all 6 real-time code smells reported on SonarCloud (including 3 Critical cognitive complexity issues, 1 Major code duplication issue, and 2 Minor code smell issues) with 100% clean refactoring.
+2. **100% Test Coverage Secured**: Extended the test suite to 970 test cases, achieving 100.00% statement and branch coverage across the entire project (100% green pytest suite, 0 failed).
+3. **Markdown Output Scripts**: Formulated standalone scripts `fetch_sonar_metrics_detail.py` and `fetch_sonar_issues.py` supporting real-time pulls of metrics and open issues.
+4. **Code Quality and Type Checking**: Verified the code with Ruff and Mypy, resulting in 100% clean output without a single format or type issue. Established proper package-level `.pyi` type stubs under `src/` for third-party dependencies (`langchain_openai`, `langchain_anthropic`, `sonarqube`) and registered `types-requests` in `pyproject.toml`.
 

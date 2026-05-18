@@ -22,7 +22,8 @@ def flatten_dict(d: dict[str, Any], prefix: str = "") -> dict[str, str]:
     return items
 
 
-def sync_sonar():
+def sync_sonar() -> None:
+    """Sync Sonar properties from pyproject.toml."""
     pyproject_path = Path("pyproject.toml")
     props_path = Path("sonar-project.properties")
 

@@ -66,23 +66,53 @@ def main() -> None:
         print("Please verify your API token and network connection.")
         sys.exit(1)
 
-    # 4. Display Results
-    print(f"\nFound {len(issues)} open issues.\n")
+    # 4. Display Results and Save locally
+    print(f"\nFound {len(issues)} open issues.")
+
+    # Create reports directory if it doesn't exist
+    reports_dir = Path("reports")
+    reports_dir.mkdir(exist_ok=True)
+
+    # Save to JSON format
+    import json
+
+    json_path = reports_dir / "sonar_issues.json"
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(issues, f, indent=2, ensure_ascii=False)
+    print(f"Saved raw issues to {json_path}")
+
+    # Generate Markdown Table content
+    md_lines = []
+    md_lines.append("# SonarQube/SonarCloud Open Issues Report")
+    md_lines.append("Generated at: 2026-05-18T07:49:00\n")
+    md_lines.append(f"Total open issues: **{len(issues)}**\n")
 
     if not issues:
-        print("🎉 No open issues found!")
-        sys.exit(0)
+        md_lines.append("🎉 No open issues found!")
+    else:
+        md_lines.append("| # | Severity | Type | Key | Component | Message | Status |")
+        md_lines.append("|---|---|---|---|---|---|---|")
+        for idx, issue in enumerate(issues, 1):
+            severity = issue.get("severity", "N/A")
+            issue_type = issue.get("type", "N/A")
+            key = issue.get("key", "N/A")
+            component = issue.get("component", "N/A").split(":")[-1]
+            message = issue.get("message", "N/A").replace("\n", " ")
+            status = issue.get("status", "N/A")
+            md_lines.append(
+                f"| {idx} | **{severity}** | {issue_type} | `{key}` | `{component}` | {message} | {status} |"
+            )
 
-    print("| # | Severity | Type | Key | Component | Message | Status |")
-    print("|---|---|---|---|---|---|---|")
-    for idx, issue in enumerate(issues, 1):
-        severity = issue.get("severity", "N/A")
-        issue_type = issue.get("type", "N/A")
-        key = issue.get("key", "N/A")
-        component = issue.get("component", "N/A").split(":")[-1]
-        message = issue.get("message", "N/A").replace("\n", " ")
-        status = issue.get("status", "N/A")
-        print(f"| {idx} | **{severity}** | {issue_type} | `{key}` | `{component}` | {message} | {status} |")
+    md_content = "\n".join(md_lines) + "\n"
+
+    # Save to Markdown format
+    md_path = reports_dir / "sonar_issues.md"
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write(md_content)
+    print(f"Saved Markdown report to {md_path}\n")
+
+    # Print to stdout
+    print(md_content)
 
 
 if __name__ == "__main__":

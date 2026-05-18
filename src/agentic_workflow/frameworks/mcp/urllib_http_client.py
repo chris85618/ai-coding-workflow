@@ -40,7 +40,7 @@ class UrllibHttpClient(HttpClientPort):
         try:
             with urllib.request.urlopen(req, timeout=10) as resp:
                 return dict(json.loads(resp.read()))
-        except (urllib.error.URLError, OSError) as exc:
+        except OSError as exc:
             raise RuntimeError(f"HTTP POST to {url!r} failed: {exc}") from exc
 
     def is_reachable(self, url: str, timeout: int = 3) -> bool:

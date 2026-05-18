@@ -4,11 +4,13 @@
 Automates the synchronization of generated files.
 """
 
+import contextlib
 import os
 from pathlib import Path
 
 
-def install_hooks():
+def install_hooks() -> None:
+    """Install git pre-commit hooks for the repository."""
     git_dir = Path(".git")
     if not git_dir.exists():
         print("Error: .git directory not found. Are you in the root of a git repository?")
@@ -31,10 +33,8 @@ python scripts/sync_sonar_props.py
         f.write(hook_content)
 
     # Make executable (compatible with Unix-like systems, for Windows we rely on git bash)
-    try:
+    with contextlib.suppress(Exception):
         os.chmod(pre_commit_path, 0o755)
-    except Exception:
-        pass
 
     print(f"Successfully installed pre-commit hook to {pre_commit_path}")
 

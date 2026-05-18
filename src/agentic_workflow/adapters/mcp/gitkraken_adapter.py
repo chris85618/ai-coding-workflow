@@ -146,7 +146,7 @@ class GitKrakenMCPAdapter(MCPGateway):
         return {"success": code == 0, "output": out + err}
 
     def _git_status(self, repo_path: str) -> dict[str, Any]:
-        code, out, err = self._executor.run_cmd_list(
+        code, out, _ = self._executor.run_cmd_list(
             [self._git, "status", "--porcelain"],
             cwd=repo_path,
         )

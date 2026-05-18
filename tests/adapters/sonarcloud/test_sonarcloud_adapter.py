@@ -307,6 +307,34 @@ class TestGetAllAvailableMetrics:
             {"key": "complexity", "name": "Complexity"},
         ]
 
+    def test_search_metrics_returns_dict_with_metrics_list(self) -> None:
+        """search_metrics returning dict with 'metrics' key is processed correctly."""
+        adapter, mock_client = _make_adapter()
+        mock_client.metrics.search_metrics.return_value = {
+            "metrics": [
+                {"key": "coverage", "name": "Coverage"},
+                "invalid_metric",  # to trigger not isinstance(m, dict)
+                {"key": "complexity", "name": "Complexity"},
+            ]
+        }
+        result = adapter.get_all_available_metrics()
+        assert result == [
+            {"key": "coverage", "name": "Coverage"},
+            {"key": "complexity", "name": "Complexity"},
+        ]
+
+    def test_search_metrics_returns_dict_without_metrics_list(self) -> None:
+        """search_metrics returning dict without 'metrics' list fallback to empty list."""
+        adapter, mock_client = _make_adapter()
+        mock_client.metrics.search_metrics.return_value = {"metrics": "not_a_list"}
+        assert adapter.get_all_available_metrics() == []
+
+    def test_search_metrics_returns_invalid_type(self) -> None:
+        """search_metrics returning invalid type fallback to empty list."""
+        adapter, mock_client = _make_adapter()
+        mock_client.metrics.search_metrics.return_value = "invalid_string"
+        assert adapter.get_all_available_metrics() == []
+
     def test_api_exception_raises_runtime_error(self) -> None:
         """Network/API failures must be wrapped in RuntimeError."""
         adapter, mock_client = _make_adapter()

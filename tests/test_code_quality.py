@@ -15,46 +15,78 @@ except ImportError:
 
 
 def _load_target_paths() -> list[str]:
-    """Load target paths from pyproject.toml configuration."""
-    pyproject_path = pathlib.Path(__file__).parent.parent / "pyproject.toml"
+    """Load target paths from pyproject.toml configuration and resolve them to absolute paths."""
+    pyproject_path = (pathlib.Path(__file__).parent.parent / "pyproject.toml").resolve()
     if pyproject_path.exists():
         with open(pyproject_path, "rb") as f:
             config = tomllib.load(f)
             # Try to load target paths from [tool.ruff] src definition
             ruff_src = config.get("tool", {}).get("ruff", {}).get("src")
             if isinstance(ruff_src, list):
-                return [str(p) for p in ruff_src]
+                root_dir = pyproject_path.parent
+                return [str((root_dir / p).resolve()) for p in ruff_src]
     # Fallback default if config parsing fails
-    return ["src", "tests"]
+    root_dir = pathlib.Path(__file__).parent.parent.resolve()
+    return [str((root_dir / "src").resolve()), str((root_dir / "tests").resolve())]
 
 
 def test_ruff_linting() -> None:
     """TC-QUALITY-001: Verify Ruff check reports zero warnings and passes successfully."""
     paths = _load_target_paths()
+    root_dir = pathlib.Path(__file__).parent.parent.resolve()
     cmd = [sys.executable, "-m", "ruff", "check"] + paths
-    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", check=False)
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", check=False, cwd=root_dir)
 
     # Assert on both exit code and success indicator in stdout
     assert result.returncode == 0, (
-        f"Ruff check failed with exit code {result.returncode}.\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
+        f"Ruff check failed with exit code {result.returncode}.\n"
+        f"Command executed: {' '.join(cmd)}\n"
+        f"Target paths: {paths}\n"
+        f"Stdout:\n{result.stdout}\n"
+        f"Stderr:\n{result.stderr}"
     )
     assert "All checks passed!" in result.stdout or not result.stdout, (
-        f"Ruff linting found violations:\n{result.stdout}"
+        f"Ruff linting found violations.\n"
+        f"Command executed: {' '.join(cmd)}\n"
+        f"Target paths: {paths}\n"
+        f"Stdout:\n{result.stdout}"
     )
 
 
 def test_mypy_type_safety() -> None:
-    """TC-QUALITY-002: Verify Mypy type-checking reports zero issues and passes successfully."""
+    """TC-QUALITY-002: Verify Mypy type-checking reports zero issues and passes strictly by config."""
     paths = _load_target_paths()
-    cmd = [sys.executable, "-m", "mypy", "--ignore-missing-imports"] + paths
-    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", check=False)
+    root_dir = pathlib.Path(__file__).parent.parent.resolve()
+    cmd = [sys.executable, "-m", "mypy"] + paths
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", check=False, cwd=root_dir)
 
-    # Assert on both exit code and success indicator in stdout
+    # Assert on exit code 0 to ensure strict checking passes completely
     assert result.returncode == 0, (
-        f"Mypy check failed with exit code {result.returncode}.\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
+        f"Mypy check failed with exit code {result.returncode}.\n"
+        f"Command executed: {' '.join(cmd)}\n"
+        f"Target paths: {paths}\n"
+        f"Stdout:\n{result.stdout}\n"
+        f"Stderr:\n{result.stderr}"
     )
 
-    assert "Success: no issues found" in result.stdout, f"Mypy found type safety violations:\n{result.stdout}"
+    # Assert that mypy actually scanned files and reported success without violations
+    import re
+
+    match = re.search(r"Success: no issues found in (\d+) source files", result.stdout)
+    assert match is not None, (
+        f"Mypy output did not report strict success format or found violations.\n"
+        f"Command executed: {' '.join(cmd)}\n"
+        f"Target paths: {paths}\n"
+        f"Stdout:\n{result.stdout}\n"
+        f"Stderr:\n{result.stderr}"
+    )
+    num_files = int(match.group(1))
+    assert num_files > 0, (
+        f"Mypy did not check any files (0 files checked)!\n"
+        f"Command executed: {' '.join(cmd)}\n"
+        f"Target paths: {paths}\n"
+        f"Stdout:\n{result.stdout}"
+    )
 
 
 def test_debt_009_ellipsis_in_concrete_code() -> None:

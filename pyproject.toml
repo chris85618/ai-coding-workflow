@@ -21,6 +21,7 @@ dev = [
     "crosshair-tool>=0.0.104",
     "ruff>=0.11",
     "mypy>=2.1.0",
+    "types-requests>=2.33.0",
     "pdoc>=14.0.0",
     "mkdocs>=1.5.3",
     "mkdocs-macros-plugin>=1.0.0",
@@ -37,7 +38,7 @@ build-backend = "hatchling.build"
 # Ruff Configuration
 # See: https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
-src = ["src", "tests"]
+src = ["src", "tests", "scripts"]
 line-length = 120
 target-version = "py312"
 
@@ -49,6 +50,9 @@ indent-style = "space"
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "D"]
 ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["agentic_workflow"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -86,7 +90,7 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 explicit_package_bases = true
-mypy_path = ["src", "tests"]
+mypy_path = ["src", "tests", "scripts"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentic_workflow"]

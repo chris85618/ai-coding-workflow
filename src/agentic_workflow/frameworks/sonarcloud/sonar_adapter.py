@@ -5,9 +5,8 @@ Traceable to: FEA-015, FR-015
 
 from typing import Any
 
-from sonarqube import SonarCloudClient
-
 from agentic_workflow.domain.value_objects import SonarCloudConfig
+from sonarqube import SonarCloudClient
 
 METRIC_KEYS = [
     "coverage",
