@@ -48,6 +48,13 @@ class IterationNodes:
         gate_decision = state.get("gate_decision", "pass")
         return IterationLoop.route_hitl_gate(gate_decision)
 
+    @staticmethod
+    def iterate_stage(state: WorkflowState) -> WorkflowState:
+        """Perform stage iteration progression in the domain."""
+        from agentic_workflow.adapters.langgraph.nodes import node_iterate_stage
+
+        return node_iterate_stage(state)
+
 
 # Backward compatibility facades (delegated by __init__.py)
 agent_alpha_critique = IterationNodes.agent_alpha_critique
@@ -55,3 +62,4 @@ check_fixed_point = IterationNodes.check_fixed_point
 agent_beta_resolve = IterationNodes.agent_beta_resolve
 root_cause_leftshift = IterationNodes.root_cause_leftshift
 hitl_gate_choice = IterationNodes.hitl_gate_choice
+iterate_stage = IterationNodes.iterate_stage

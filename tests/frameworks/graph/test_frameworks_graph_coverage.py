@@ -127,6 +127,42 @@ class TestIterationGraphNodes:
         result = hitl_gate_choice(DUMMY_STATE)
         assert result == "pass"
 
+    def test_iterate_stage(self) -> None:
+        """TC-055b: Test iterate_stage facade."""
+        from unittest.mock import MagicMock
+
+        from agentic_workflow.adapters.langgraph.nodes import set_container
+        from agentic_workflow.frameworks.dependency_container import DependencyContainer
+        from agentic_workflow.frameworks.graph import iterate_stage
+
+        container = DependencyContainer(
+            pipeline_repo=MagicMock(),
+            checkpoint_repo=MagicMock(),
+            doc_io=MagicMock(),
+            reasoner=MagicMock(),
+        )
+        mock_pipeline = MagicMock()
+        mock_pipeline.pipeline_id = "test-001"
+        mock_pipeline.status.value = "running"
+        mock_pipeline.current_position = "stage3"
+
+        mock_stage = MagicMock()
+        mock_stage.iteration_count = 0
+        mock_stage.stage_id = "stage3"
+        mock_stage.status.value = "pending"
+        mock_pipeline.stages = {"stage3": mock_stage}
+
+        import typing
+
+        typing.cast(MagicMock, container.pipeline_repo).get_by_id.return_value = mock_pipeline
+
+        try:
+            set_container(container)
+            res = iterate_stage(DUMMY_STATE)
+            assert res is not None
+        finally:
+            set_container(None)
+
 
 class TestMasterPipelineNodes:
     """Test major phase/stage nodes in the master pipeline."""

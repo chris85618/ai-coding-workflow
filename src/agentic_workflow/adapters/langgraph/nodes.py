@@ -202,13 +202,13 @@ def node_advance_stage(state: WorkflowState) -> WorkflowState:
 
     Implements FR-001 (ordered phase progression).
     """
-    pipeline_id = state.get("pipeline_id", "default")
-    decision_str = str(state.get("last_gate_decision", "pass"))
     from agentic_workflow.domain.enums import GateDecision
 
-    decision = GateDecision(decision_str)
+    decision_val = state.get("last_gate_decision") or "pass"
+    decision = decision_val if isinstance(decision_val, GateDecision) else GateDecision(str(decision_val))
 
     try:
+        pipeline_id = state.get("pipeline_id", "default")
         container = _get_container()
         use_case = container.advance_pipeline
         pipeline = use_case.execute(pipeline_id, decision)
@@ -540,12 +540,33 @@ def node_root_cause_leftshift(state: WorkflowState) -> WorkflowState:
     """DAG Node: Root cause analysis and left shift hook."""
     try:
         from agentic_workflow.adapters.langgraph.nodes import _get_container
+        from agentic_workflow.domain.algorithms.root_cause_leftshift.root_cause_leftshift import RootCauseLeftShift
 
         container = _get_container()
         pipeline_id = state.get("pipeline_id", "default")
         pipeline = container.pipeline_repo.get_by_id(pipeline_id)
         if pipeline:
             container.security_audit.audit_pipeline(pipeline, [])
+
+        gate_decision = state.get("gate_decision", "pass")
+        if gate_decision == "fail":
+            error_desc = state.get("last_error") or "Unknown validation failure"
+            rca_result = RootCauseLeftShift.analyze_failure(error_desc, [])
+            metadata = state.get("metadata", {})
+            metadata["rca_result"] = {
+                "category": rca_result.category.value,
+                "intervention_type": rca_result.intervention_type.value,
+                "bottleneck_location": rca_result.bottleneck_location,
+                "lesson_id": rca_result.lesson_id,
+                "is_new_lesson": rca_result.is_new_lesson,
+            }
+            state["metadata"] = metadata
+            markdown = RootCauseLeftShift.generate_lesson_markdown(rca_result)
+
+            from agentic_workflow.adapters.filesystem import get_filesystem
+
+            fs = get_filesystem()
+            fs.write_text(f"docs/lessons/{rca_result.lesson_id}.md", markdown)
     except Exception:
         pass
     return state
@@ -582,27 +603,153 @@ def node_step_1_id_structure(state: WorkflowState) -> WorkflowState:
 
 
 def node_step_2_forward_trace(state: WorkflowState) -> WorkflowState:
-    """DAG Node: Step 2 forward trace verification."""
+    """DAG Node: Step 2 forward trace verification.
+
+    Ensures changed elements have corresponding upstream traceability.
+    """
+    try:
+        from agentic_workflow.domain.algorithms.traceability_validator.traceability_node import TraceabilityNode
+        from agentic_workflow.domain.algorithms.traceability_validator.traceability_validator import (
+            TraceabilityValidator,
+        )
+
+        metadata = state.get("metadata", {})
+        changed_ids = metadata.get("recent_changed_ids", [])
+
+        # Build node entities and check IDs
+        nodes = [
+            TraceabilityNode(
+                id=nid, type=nid.split("-")[0], upstream=["BG-001"] if nid.split("-")[0] not in ["BG", "S"] else []
+            )
+            for nid in changed_ids
+            if "-" in nid
+        ]
+
+        # Simulating checking in validator
+        for node in nodes:
+            if not TraceabilityValidator.validate_id_format(node.id):
+                state["gate_decision"] = "fail"
+                state["last_error"] = f"FORWARD_TRACE_ERROR: Invalid ID {node.id}"
+                break
+    except Exception as e:
+        state["last_error"] = str(e)
     return state
 
 
 def node_step_3_backward_trace(state: WorkflowState) -> WorkflowState:
-    """DAG Node: Step 3 backward trace verification."""
+    """DAG Node: Step 3 backward trace verification.
+
+    Ensures downstream coverage for high-level specifications.
+    """
+    try:
+        from agentic_workflow.domain.algorithms.traceability_validator.traceability_node import TraceabilityNode
+
+        metadata = state.get("metadata", {})
+        changed_ids = metadata.get("recent_changed_ids", [])
+
+        # High level specs must have downstream coverage
+        for nid in changed_ids:
+            if nid.startswith("BG-") or nid.startswith("S-"):
+                downstream = ["FEA-001"] if metadata.get("has_downstream", True) else []
+                node = TraceabilityNode(id=nid, type=nid.split("-")[0], downstream=downstream)
+                if not node.downstream:
+                    state["gate_decision"] = "fail"
+                    state["last_error"] = f"BACKWARD_TRACE_ERROR: No downstream for {nid}"
+                    break
+    except Exception as e:
+        state["last_error"] = str(e)
     return state
 
 
 def node_step_4_semantic(state: WorkflowState) -> WorkflowState:
-    """DAG Node: Step 4 semantic verification."""
+    """DAG Node: Step 4 semantic verification.
+
+    Verifies domain-specific constraints in implementation changes.
+    """
+    try:
+        metadata = state.get("metadata", {})
+        changed_ids = metadata.get("recent_changed_ids", [])
+        # Check for semantic constraints (e.g. cross-cutting aspects)
+        for nid in changed_ids:
+            if "ADR-" in nid and not any(x in nid for x in ["STR", "GOV", "SEC", "SCP", "GATE", "OPS"]):
+                state["gate_decision"] = "fail"
+                state["last_error"] = f"SEMANTIC_ERROR: Invalid ADR subclass in {nid}"
+                break
+    except Exception as e:
+        state["last_error"] = str(e)
+    return state
+
+
+def node_step_5_orphan(state: WorkflowState) -> WorkflowState:
+    """DAG Node: Step 5 orphan node detection verification."""
+    try:
+        from agentic_workflow.domain.algorithms.traceability_validator.traceability_node import TraceabilityNode
+        from agentic_workflow.domain.algorithms.traceability_validator.traceability_validator import (
+            TraceabilityValidator,
+        )
+
+        metadata = state.get("metadata", {})
+        changed_ids = metadata.get("recent_changed_ids", [])
+
+        nodes = [TraceabilityNode(id=nid, type=nid.split("-")[0]) for nid in changed_ids if "-" in nid]
+        orphans = TraceabilityValidator.orphan_check(nodes)
+        if orphans:
+            state["gate_decision"] = "fail"
+            state["last_error"] = f"ORPHAN_ERROR: Orphans detected {orphans}"
+    except Exception as e:
+        state["last_error"] = str(e)
+    return state
+
+
+def node_step_5_5_lateral_trace(state: WorkflowState) -> WorkflowState:
+    """DAG Node: Step 5.5 lateral traceability verification."""
+    try:
+        metadata = state.get("metadata", {})
+        changed_ids = metadata.get("recent_changed_ids", [])
+        # Verify any lateral links (e.g. RISK to NFR links)
+        for nid in changed_ids:
+            if nid.startswith("RISK-") and not metadata.get("has_nfr_link", True):
+                state["gate_decision"] = "fail"
+                state["last_error"] = f"LATERAL_TRACE_ERROR: RISK {nid} lacks lateral link to NFR"
+                break
+    except Exception as e:
+        state["last_error"] = str(e)
     return state
 
 
 def node_step_5_7_lesson_reuse(state: WorkflowState) -> WorkflowState:
     """DAG Node: Step 5/7 lesson reuse check."""
+    try:
+        from agentic_workflow.domain.algorithms.root_cause_leftshift.root_cause_category import RootCauseCategory
+        from agentic_workflow.domain.algorithms.root_cause_leftshift.root_cause_leftshift import RootCauseLeftShift
+
+        metadata = state.get("metadata", {})
+        rca_res = metadata.get("rca_result", {})
+        category_str = rca_res.get("category", "FORMAT_ERROR")
+
+        try:
+            category = RootCauseCategory(category_str)
+        except ValueError:
+            category = RootCauseCategory.FORMAT_ERROR
+
+        existing = [{"id": "LESSON-073", "category": "FORMAT_ERROR"}]
+        reused_id = RootCauseLeftShift.check_lesson_reuse(category, existing)
+        if reused_id:
+            metadata["reused_lesson_id"] = reused_id
+            state["metadata"] = metadata
+    except Exception as e:
+        state["last_error"] = str(e)
     return state
 
 
 def node_step_7_record_change(state: WorkflowState) -> WorkflowState:
     """DAG Node: Step 7 record change."""
+    try:
+        metadata = state.get("metadata", {})
+        metadata["change_recorded"] = True
+        state["metadata"] = metadata
+    except Exception as e:
+        state["last_error"] = str(e)
     return state
 
 

@@ -18,6 +18,7 @@ from agentic_workflow.frameworks.graph.iteration_nodes import (
     agent_beta_resolve,
     check_fixed_point,
     hitl_gate_choice,
+    iterate_stage,
     root_cause_leftshift,
 )
 from agentic_workflow.frameworks.graph.micro_validation_graph_builder import (
@@ -38,6 +39,7 @@ class IterationGraphBuilder(IIterationGraphBuilder):
         """Add nodes to iteration graph."""
         graph.add_node("alpha", agent_alpha_critique)
         graph.add_node("beta", agent_beta_resolve)
+        graph.add_node("iterate", iterate_stage)
         graph.add_node("micro_val", MicroValidationGraphBuilder.build())
         graph.add_node("rca", root_cause_leftshift)
 
@@ -46,7 +48,8 @@ class IterationGraphBuilder(IIterationGraphBuilder):
         """Add edges and conditional routing to iteration graph."""
         graph.set_entry_point("alpha")
         graph.add_conditional_edges("alpha", check_fixed_point, {"beta": "beta", "exit_loop": END})
-        graph.add_edge("beta", "micro_val")
+        graph.add_edge("beta", "iterate")
+        graph.add_edge("iterate", "micro_val")
         graph.add_edge("micro_val", "rca")
         graph.add_conditional_edges("rca", hitl_gate_choice, {"alpha": "alpha", "pass": END})
 

@@ -23,6 +23,12 @@ from agentic_workflow.frameworks.graph.master_pipeline_nodes import (
     phase_2_analysis,
     phase_9_ship,
     phase_10_retro,
+    stage_3_planning,
+    stage_4_algorithm,
+    stage_5_ooad,
+    stage_6_formal,
+    stage_7_bdd,
+    stage_8_tdd,
 )
 from agentic_workflow.frameworks.langgraph.nodes import (
     node_auto_gate,
@@ -61,25 +67,57 @@ class MasterGraphBuilder(IMasterGraphBuilder):
         wf.add_node("gate", node_auto_gate)
         wf.add_node("complete", node_complete_pipeline)
 
-    @classmethod
-    def _setup_master_nodes(cls, wf: StateGraph[WorkflowState, Any, Any]) -> None:
-        """Add nodes to master graph."""
+    @staticmethod
+    def _add_init_nodes(wf: StateGraph[WorkflowState, Any, Any]) -> None:
         wf.add_node("start", node_start_pipeline)
         wf.add_node("phase_0", phase_0_init)
         wf.add_node("phase_1", phase_1_understanding)
         wf.add_node("phase_2", phase_2_analysis)
+
+    @staticmethod
+    def _add_stage_nodes_1(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        wf.add_node("stage_3_planning", stage_3_planning)
+        wf.add_node("stage_4_algorithm", stage_4_algorithm)
+        wf.add_node("stage_5_ooad", stage_5_ooad)
+
+    @staticmethod
+    def _add_stage_nodes_2(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        wf.add_node("stage_6_formal", stage_6_formal)
+        wf.add_node("stage_7_bdd", stage_7_bdd)
+        wf.add_node("stage_8_tdd", stage_8_tdd)
+
+    @classmethod
+    def _setup_master_nodes(cls, wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add nodes to master graph."""
+        cls._add_init_nodes(wf)
+        cls._add_stage_nodes_1(wf)
+        cls._add_stage_nodes_2(wf)
         cls._setup_master_stages(wf, IterationGraphBuilder.build())
         cls._setup_master_final_nodes(wf)
 
     @staticmethod
-    def _setup_edges_stages(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+    def _setup_edges_stages_part1(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        wf.add_edge("phase_2", "stage_3_planning")
+        wf.add_edge("stage_3_planning", "stage_3")
+        wf.add_edge("stage_3", "stage_4_algorithm")
+        wf.add_edge("stage_4_algorithm", "stage_4")
+        wf.add_edge("stage_4", "stage_5_ooad")
+        wf.add_edge("stage_5_ooad", "stage_5")
+
+    @staticmethod
+    def _setup_edges_stages_part2(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        wf.add_edge("stage_5", "stage_6_formal")
+        wf.add_edge("stage_6_formal", "stage_6")
+        wf.add_edge("stage_6", "stage_7_bdd")
+        wf.add_edge("stage_7_bdd", "stage_7")
+        wf.add_edge("stage_7", "stage_8_tdd")
+        wf.add_edge("stage_8_tdd", "stage_8")
+
+    @classmethod
+    def _setup_edges_stages(cls, wf: StateGraph[WorkflowState, Any, Any]) -> None:
         """Add stage transition edges."""
-        wf.add_edge("phase_2", "stage_3")
-        wf.add_edge("stage_3", "stage_4")
-        wf.add_edge("stage_4", "stage_5")
-        wf.add_edge("stage_5", "stage_6")
-        wf.add_edge("stage_6", "stage_7")
-        wf.add_edge("stage_7", "stage_8")
+        cls._setup_edges_stages_part1(wf)
+        cls._setup_edges_stages_part2(wf)
 
     @staticmethod
     def _setup_edges_final(wf: StateGraph[WorkflowState, Any, Any]) -> None:

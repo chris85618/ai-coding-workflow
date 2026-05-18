@@ -19,6 +19,7 @@ from agentic_workflow.frameworks.graph.iteration_nodes import (
     agent_beta_resolve,
     check_fixed_point,
     hitl_gate_choice,
+    iterate_stage,
     root_cause_leftshift,
 )
 from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
@@ -71,6 +72,7 @@ __all__ = [
     "agent_beta_resolve",
     "root_cause_leftshift",
     "hitl_gate_choice",
+    "iterate_stage",
     "phase_0_init",
     "phase_1_understanding",
     "phase_2_analysis",

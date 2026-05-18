@@ -35,39 +35,51 @@ class MasterPipelineNodes:
     @staticmethod
     def stage_3_planning(state: WorkflowState) -> WorkflowState:
         """Stage 3: Technical Planning and Requirements."""
+        from agentic_workflow.adapters.langgraph.nodes import node_advance_stage
+
         state["current_position"] = "stage3"
-        return state
+        return node_advance_stage(state)
 
     @staticmethod
     def stage_4_algorithm(state: WorkflowState) -> WorkflowState:
         """Stage 4: Algorithm Design and Complexity."""
+        from agentic_workflow.adapters.langgraph.nodes import node_advance_stage
+
         state["current_position"] = "stage4"
-        return state
+        return node_advance_stage(state)
 
     @staticmethod
     def stage_5_ooad(state: WorkflowState) -> WorkflowState:
         """Stage 5: Object-Oriented Analysis and Design."""
+        from agentic_workflow.adapters.langgraph.nodes import node_advance_stage
+
         state["current_position"] = "stage5"
-        return state
+        return node_advance_stage(state)
 
     @staticmethod
     def stage_6_formal(state: WorkflowState) -> WorkflowState:
         """Stage 6: Formal Verification and Invariants."""
-        from agentic_workflow.adapters.langgraph.nodes import node_stage_6_formal
+        from agentic_workflow.adapters.langgraph.nodes import node_advance_stage, node_stage_6_formal
 
+        state["current_position"] = "stage6"
+        state = node_advance_stage(state)
         return node_stage_6_formal(state)
 
     @staticmethod
     def stage_7_bdd(state: WorkflowState) -> WorkflowState:
         """Stage 7: Behavior-Driven Development and Scenarios."""
+        from agentic_workflow.adapters.langgraph.nodes import node_advance_stage
+
         state["current_position"] = "stage7"
-        return state
+        return node_advance_stage(state)
 
     @staticmethod
     def stage_8_tdd(state: WorkflowState) -> WorkflowState:
         """Stage 8: Test-Driven Development and Implementation."""
+        from agentic_workflow.adapters.langgraph.nodes import node_advance_stage
+
         state["current_position"] = "stage8"
-        return state
+        return node_advance_stage(state)
 
     @staticmethod
     def phase_9_ship(state: WorkflowState) -> WorkflowState:

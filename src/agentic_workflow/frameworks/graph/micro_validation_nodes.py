@@ -49,12 +49,16 @@ class MicroValidationNodes:
     @staticmethod
     def step_5_orphan(state: WorkflowState) -> WorkflowState:
         """Orphan node detection node."""
-        return state
+        from agentic_workflow.adapters.langgraph.nodes import node_step_5_orphan
+
+        return node_step_5_orphan(state)
 
     @staticmethod
     def step_5_5_lateral_trace(state: WorkflowState) -> WorkflowState:
         """Lateral traceability check node."""
-        return state
+        from agentic_workflow.adapters.langgraph.nodes import node_step_5_5_lateral_trace
+
+        return node_step_5_5_lateral_trace(state)
 
     @staticmethod
     def step_5_7_lesson_reuse(state: WorkflowState) -> WorkflowState:
