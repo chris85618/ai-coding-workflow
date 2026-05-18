@@ -1,5 +1,11 @@
 # Deployment Log
 
+## [0.1.7] — 2026-05-18T22:57+08:00
+- **Pipeline Position**: Phase 9 (Release & Deployment)
+- **Branch**: `master`
+- **Changes**: Concrete framework graph nodes logic implemented, replacing passthroughs. Integrated DbC, dual-agent iteration loops, and RCA left-shift checks.
+- **Validation**: 1023 tests passed, reaching exactly 100.00% statement and branch coverage without single type:ignore/pragma.
+
 ## [0.1.6] — 2026-05-17T05:51+08:00
 - **Pipeline Position**: Phase 11 (Feature Implementation)
 - **Branch**: `master`
