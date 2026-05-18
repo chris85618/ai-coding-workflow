@@ -17,19 +17,10 @@ def agent_alpha_critique(state: WorkflowState) -> WorkflowState:
 
 def check_fixed_point(state: WorkflowState) -> str:
     """Checks for convergence or YAGNI termination using domain ConvergenceDetector."""
-    iteration_count = state.get("iteration_count", 0)
-    findings_history = state.get("findings_history", [])
-    current_findings = state.get("current_findings", [])
-
-    result = ConvergenceDetector.check_convergence(
-        iteration_count=iteration_count,
-        findings_per_iter=findings_history,
-        current_findings=current_findings,
-    )
-
-    if ConvergenceDetector.should_auto_pass(result):
-        return "exit_loop"
-    return "beta"
+    it, hist = state.get("iteration_count", 0), state.get("findings_history", [])
+    curr = state.get("current_findings", [])
+    res = ConvergenceDetector.check_convergence(iteration_count=it, findings_per_iter=hist, current_findings=curr)
+    return "exit_loop" if ConvergenceDetector.should_auto_pass(res) else "beta"
 
 
 def agent_beta_resolve(state: WorkflowState) -> WorkflowState:

@@ -63,6 +63,8 @@
 - [x] SONAR-04: 實作拉取 Sonar 既有 issue 腳本 scripts/fetch_sonar_issues.py 並落實 100% 覆蓋 — ✅ DONE
 - [x] SONAR-05: 修復 Sonar 偵測出的 6 筆嚴重問題，並硬化測試套件至 970 個測試 100.00% Coverage 通過 — ✅ DONE
 - [x] SONAR-06: 導入 `types-requests` 依賴並為 `langchain_openai`, `langchain_anthropic`, `sonarqube` 建立封裝套件層級 `.pyi` 類型存存根，實現 100% 潔淨 Mypy / Ruff 綠燈 — ✅ DONE
+- [x] CAD-35: 實作 frameworks layer 不要包含領域邏輯之 6 項 pytest 靜態檢查 AST 演算法與檢驗機制 (TC-QUALITY-004 ~ TC-QUALITY-009) — ✅ DONE
+
 
 ## 🚦 Gate Status
 

@@ -5,6 +5,7 @@ Traceable to: FEA-015, FR-015
 
 from typing import Any
 
+from agentic_workflow.application.ports.gateways import QualityGateway
 from agentic_workflow.domain.value_objects import SonarCloudConfig
 from sonarqube import SonarCloudClient
 
@@ -36,19 +37,111 @@ KEY_MAP: dict[str, str] = {
 CLOSED_STATUSES = {"CLOSED", "RESOLVED"}
 
 
-def _coerce_value(raw: str | None) -> float | str | None:
+def _parse_float(raw: str) -> float | str:
+    is_num = raw.replace(".", "", 1).lstrip("-").isdigit()
+    return float(raw) if is_num else raw
+
+
+def _coerce_value(raw: Any) -> float | str | None:
     """Coerce a raw string value to float if numeric, else keep as str."""
-    if raw is None:
-        return None
+    is_str = isinstance(raw, str)
+    return _parse_float(raw) if is_str else raw
+
+
+def _fetch_issues(client: Any, project_key: str) -> Any:
     try:
-        if raw.replace(".", "", 1).lstrip("-").isdigit():
-            return float(raw)
-    except (ValueError, AttributeError):
-        pass
-    return raw
+        return client.issues.search_issues(componentKeys=project_key)
+    except Exception as exc:
+        raise RuntimeError(f"SonarCloud API error: {exc}") from exc
 
 
-class SonarCloudAdapter:
+def _fetch_metrics(client: Any) -> Any:
+    try:
+        return client.metrics.search_metrics()
+    except Exception as exc:
+        raise RuntimeError(f"SonarCloud API error: {exc}") from exc
+
+
+def _parse_metrics(res: Any) -> list[dict[str, Any]]:
+    raw = res.get("metrics", []) if isinstance(res, dict) else res
+    items = raw if isinstance(raw, list) else []
+    return [dict(m) for m in items if isinstance(m, dict)]
+
+
+def _validate_project_key(key: str | None) -> None:
+    if not key:
+        raise RuntimeError("SonarCloud API error: project_key configuration is missing")
+
+
+def _fetch_chunk_measures(client: Any, project_key: str, chunk: list[str]) -> list[dict[str, Any]]:
+    try:
+        kw = {"component": project_key, "fields": "metrics,periods", "metricKeys": ",".join(chunk)}
+        comp = client.measures.get_component_with_specified_measures(**kw)
+        return list(comp.get("component", {}).get("measures", []))
+    except Exception as exc:
+        raise RuntimeError(f"SonarCloud API error: {exc}") from exc
+
+
+def _fetch_all_measures(client: Any, project_key: str, keys: list[str]) -> list[dict[str, Any]]:
+    measures: list[dict[str, Any]] = []
+    for i in range(0, len(keys), 50):
+        measures.extend(_fetch_chunk_measures(client, project_key, keys[i : i + 50]))
+    return measures
+
+
+def _map_metrics(measures: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    return {KEY_MAP.get(m["metric"], m["metric"]): {"global": _coerce_value(m.get("value"))} for m in measures}
+
+
+def _has_best_value(measure: dict[str, Any] | None) -> bool:
+    res = False
+    if isinstance(measure, dict):
+        res = "bestValue" in measure
+    return res
+
+
+def _add_best_value(detail: dict[str, Any], measure: dict[str, Any] | None) -> None:
+    if _has_best_value(measure):
+        detail["bestValue"] = measure["bestValue"]  # type: ignore
+
+
+def _build_detail(m: dict[str, Any], mmap: dict[str, Any]) -> dict[str, Any]:
+    key = m["key"]
+    measure = mmap.get(key)
+    detail = dict(m)
+    detail["value"] = _coerce_value(measure.get("value")) if measure else None
+    _add_best_value(detail, measure)
+    return detail
+
+
+def _select_key(k1: str | None, k2: str | None) -> str | None:
+    res = k2
+    if k1 is not None:
+        res = k1
+    return res
+
+
+def _get_str(val: str | None) -> str:
+    res = ""
+    if val is not None:
+        res = val
+    return res
+
+
+def _has_key(m: dict[str, Any]) -> bool:
+    return "key" in m
+
+
+def _get_key(m: dict[str, Any]) -> str:
+    return str(m["key"])
+
+
+def _build_measures_map(measures: list[dict[str, Any]]) -> dict[str, Any]:
+    valid = filter(lambda m: "metric" in m, measures)
+    return {m["metric"]: m for m in valid}
+
+
+class SonarCloudAdapter(QualityGateway):
     """Adapter for interacting with SonarCloud Web API via python-sonarqube-api.
 
     Responsibilities:
@@ -65,7 +158,7 @@ class SonarCloudAdapter:
             token=config.token,
         )
 
-    def get_metrics(self) -> dict[str, dict[str, Any]]:
+    def get_metrics(self, project_key: str | None = None) -> dict[str, dict[str, Any]]:
         """Fetch project measures and return them in Domain format.
 
         Returns:
@@ -75,24 +168,10 @@ class SonarCloudAdapter:
         Raises:
             RuntimeError: If the SonarCloud API call fails.
         """
-        try:
-            component = self.client.measures.get_component_with_specified_measures(
-                component=self.config.project_key,
-                fields="metrics,periods",
-                metricKeys=",".join(METRIC_KEYS),
-            )
-        except Exception as exc:
-            raise RuntimeError(f"SonarCloud API error: {exc}") from exc
-
-        measures: list[dict[str, Any]] = component.get("component", {}).get("measures", [])
-
-        result: dict[str, dict[str, Any]] = {}
-        for m in measures:
-            api_key: str = m["metric"]
-            domain_key = KEY_MAP.get(api_key, api_key)
-            result[domain_key] = {"global": _coerce_value(m.get("value"))}
-
-        return result
+        key = _select_key(project_key, self.config.project_key)
+        _validate_project_key(key)
+        measures = _fetch_chunk_measures(self.client, _get_str(key), METRIC_KEYS)
+        return _map_metrics(measures)
 
     def get_issues(self, include_closed: bool = False) -> list[dict[str, Any]]:
         """Fetch issues for the project.
@@ -107,18 +186,11 @@ class SonarCloudAdapter:
         Raises:
             RuntimeError: If the SonarCloud API call fails.
         """
-        try:
-            response = self.client.issues.search_issues(
-                componentKeys=self.config.project_key,
-            )
-        except Exception as exc:
-            raise RuntimeError(f"SonarCloud API error: {exc}") from exc
-
-        issues: list[dict[str, Any]] = response.get("issues", []) if isinstance(response, dict) else list(response)
-
-        if include_closed:
-            return issues
-        return [i for i in issues if i.get("status") not in CLOSED_STATUSES]
+        _validate_project_key(self.config.project_key)
+        res = _fetch_issues(self.client, _get_str(self.config.project_key))
+        issues = res.get("issues", []) if isinstance(res, dict) else list(res)
+        filtered = list(filter(lambda i: i.get("status") not in CLOSED_STATUSES, issues))
+        return issues if include_closed else filtered
 
     def get_all_available_metrics(self) -> list[dict[str, Any]]:
         """Fetch all available metric definitions from SonarCloud.
@@ -129,17 +201,7 @@ class SonarCloudAdapter:
         Raises:
             RuntimeError: If the SonarCloud API call fails.
         """
-        try:
-            res = self.client.metrics.search_metrics()
-            if isinstance(res, dict):
-                metrics_list = res.get("metrics", [])
-                if isinstance(metrics_list, list):
-                    return [dict(m) for m in metrics_list if isinstance(m, dict)]
-            elif isinstance(res, list):
-                return [dict(m) for m in res if isinstance(m, dict)]
-            return []
-        except Exception as exc:
-            raise RuntimeError(f"SonarCloud API error: {exc}") from exc
+        return _parse_metrics(_fetch_metrics(self.client))
 
     def get_detailed_component_measures(self, metric_keys: list[str]) -> list[dict[str, Any]]:
         """Fetch detailed component measures for the given metric keys.
@@ -153,30 +215,9 @@ class SonarCloudAdapter:
         Raises:
             RuntimeError: If the SonarCloud API call fails.
         """
-        if not metric_keys:
-            return []
-
-        if not self.config.project_key:
-            raise RuntimeError("SonarCloud API error: project_key configuration is missing")
-
-        chunk_size = 50
-        all_measures: list[dict[str, Any]] = []
-
-        for i in range(0, len(metric_keys), chunk_size):
-            chunk = metric_keys[i : i + chunk_size]
-            try:
-                component = self.client.measures.get_component_with_specified_measures(
-                    component=self.config.project_key,
-                    fields="metrics,periods",
-                    metricKeys=",".join(chunk),
-                )
-            except Exception as exc:
-                raise RuntimeError(f"SonarCloud API error: {exc}") from exc
-
-            measures = component.get("component", {}).get("measures", [])
-            all_measures.extend(measures)
-
-        return all_measures
+        _validate_project_key(self.config.project_key)
+        key = _get_str(self.config.project_key)
+        return _fetch_all_measures(self.client, key, metric_keys) if metric_keys else []
 
     def get_all_metrics_with_values(self) -> list[dict[str, Any]]:
         """Fetch all available metric definitions and their values for this project.
@@ -190,26 +231,17 @@ class SonarCloudAdapter:
             RuntimeError: If any SonarCloud API call fails.
         """
         metrics = self.get_all_available_metrics()
-        metric_keys = [m["key"] for m in metrics if "key" in m]
+        keys = list(map(_get_key, filter(_has_key, metrics)))
+        measures = self.get_detailed_component_measures(keys)
+        mmap = _build_measures_map(measures)
+        return list(map(lambda m: _build_detail(m, mmap), filter(_has_key, metrics)))
 
-        measures = self.get_detailed_component_measures(metric_keys)
-        measures_map = {m["metric"]: m for m in measures if "metric" in m}
+    def get_quality_metrics(self, project_key: str) -> dict[str, Any]:
+        """Fetch quality metrics for a project."""
+        metrics = self.get_metrics(project_key)
+        return {k: v.get("global") for k, v in metrics.items()}
 
-        result: list[dict[str, Any]] = []
-        for m in metrics:
-            key = m.get("key")
-            if not key:
-                continue
-
-            detail = dict(m)
-            measure = measures_map.get(key)
-            if measure:
-                detail["value"] = _coerce_value(measure.get("value"))
-                if "bestValue" in measure:
-                    detail["bestValue"] = measure["bestValue"]
-            else:
-                detail["value"] = None
-
-            result.append(detail)
-
-        return result
+    def passes_gate(self, project_key: str) -> bool:
+        """Check if the project passes the quality gate."""
+        metrics = self.get_quality_metrics(project_key)
+        return metrics.get("alert_status") == "OK"

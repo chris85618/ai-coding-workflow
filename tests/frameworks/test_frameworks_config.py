@@ -102,5 +102,5 @@ class TestCoerceValueExceptBranch:
             pass
 
         raw = _NoReplace()
-        result = _coerce_value(raw)  # type: ignore[arg-type]
+        result = _coerce_value(raw)
         assert result is raw  # type: ignore[comparison-overlap]

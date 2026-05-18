@@ -7,13 +7,52 @@ Storage: JSON file per ID prefix, located in {repo_root}/.agentic/ids/
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from agentic_workflow.adapters.filesystem import get_filesystem
 from agentic_workflow.application.ports.repositories import TraceableIDRepository
 
 if TYPE_CHECKING:
     from agentic_workflow.domain.entities.traceable_id import TraceableID
+    from agentic_workflow.domain.value_objects import TraceLink
+
+
+def _validate_safe_path(fs: Any, path: str, root: str, id_str: str) -> None:
+    try:
+        fs.relative_to(path, root)
+    except ValueError as err:
+        raise ValueError(f"Path traversal detected for ID {id_str!r} (SEC-003)") from err
+
+
+def _serialize_links(links: list[Any]) -> list[dict[str, str]]:
+    return [{"source_id": lk.source_id, "target_id": lk.target_id, "link_type": lk.link_type.value} for lk in links]
+
+
+def _serialize_id(traceable_id: TraceableID) -> dict[str, Any]:
+    return {
+        "id_str": traceable_id.full_id, "prefix": traceable_id.prefix.value, "sequence": traceable_id.sequence,
+        "title": traceable_id.title, "upstream_links": _serialize_links(traceable_id.upstream_links),
+        "downstream_links": _serialize_links(traceable_id.downstream_links),
+    }
+
+
+def _deserialize_links(data: list[dict[str, str]]) -> list[TraceLink]:
+    from agentic_workflow.domain.enums import LinkType
+    from agentic_workflow.domain.value_objects import TraceLink
+
+    return [
+        TraceLink(source_id=lk["source_id"], target_id=lk["target_id"], link_type=LinkType(lk["link_type"]))
+        for lk in data
+    ]
+
+
+def _deserialize_id(json_str: str) -> TraceableID:
+    from agentic_workflow.domain.entities.traceable_id import TraceableID
+    from agentic_workflow.domain.enums import IDPrefix
+
+    data = json.loads(json_str)
+    up, down = _deserialize_links(data.get("upstream_links", [])), _deserialize_links(data.get("downstream_links", []))
+    return TraceableID(IDPrefix(data["prefix"]), data["sequence"], data.get("title", ""), up, down)
 
 
 class FileTraceableIDRepository(TraceableIDRepository):
@@ -42,10 +81,7 @@ class FileTraceableIDRepository(TraceableIDRepository):
         """
         safe = id_str.replace("/", "_").replace("\\", "_").replace("..", "__")
         resolved = self._fs.resolve_path(self._root + f"/{safe}.json")
-        try:
-            self._fs.relative_to(resolved, self._root)
-        except ValueError as err:
-            raise ValueError(f"Path traversal detected for ID {id_str!r} (SEC-003)") from err
+        _validate_safe_path(self._fs, resolved, self._root, id_str)
         return resolved
 
     def save(self, traceable_id: TraceableID) -> None:
@@ -54,30 +90,8 @@ class FileTraceableIDRepository(TraceableIDRepository):
         Args:
             traceable_id: The ID object to persist.
         """
-        data = {
-            "id_str": traceable_id.full_id,
-            "prefix": traceable_id.prefix.value,
-            "sequence": traceable_id.sequence,
-            "title": traceable_id.title,
-            "upstream_links": [
-                {
-                    "source_id": link.source_id,
-                    "target_id": link.target_id,
-                    "link_type": link.link_type.value,
-                }
-                for link in traceable_id.upstream_links
-            ],
-            "downstream_links": [
-                {
-                    "source_id": link.source_id,
-                    "target_id": link.target_id,
-                    "link_type": link.link_type.value,
-                }
-                for link in traceable_id.downstream_links
-            ],
-        }
-        path = self._path_for(traceable_id.full_id)
-        self._fs.write_text(path, json.dumps(data, indent=2), encoding="utf-8")
+        data = _serialize_id(traceable_id)
+        self._fs.write_text(self._path_for(traceable_id.full_id), json.dumps(data, indent=2), encoding="utf-8")
 
     def find_by_id(self, id_str: str) -> TraceableID | None:
         """Load a TraceableID from disk by its string identifier.
@@ -88,37 +102,8 @@ class FileTraceableIDRepository(TraceableIDRepository):
         Returns:
             The TraceableID if found, else None.
         """
-        from agentic_workflow.domain.entities.traceable_id import TraceableID
-        from agentic_workflow.domain.enums import IDPrefix, LinkType
-        from agentic_workflow.domain.value_objects import TraceLink
-
         path = self._path_for(id_str)
-        if not self._fs.exists(path):
-            return None
-        data = json.loads(self._fs.read_text(path, encoding="utf-8"))
-        upstream_links = [
-            TraceLink(
-                source_id=lk["source_id"],
-                target_id=lk["target_id"],
-                link_type=LinkType(lk["link_type"]),
-            )
-            for lk in data.get("upstream_links", [])
-        ]
-        downstream_links = [
-            TraceLink(
-                source_id=lk["source_id"],
-                target_id=lk["target_id"],
-                link_type=LinkType(lk["link_type"]),
-            )
-            for lk in data.get("downstream_links", [])
-        ]
-        return TraceableID(
-            prefix=IDPrefix(data["prefix"]),
-            sequence=data["sequence"],
-            title=data.get("title", ""),
-            upstream_links=upstream_links,
-            downstream_links=downstream_links,
-        )
+        return _deserialize_id(self._fs.read_text(path, encoding="utf-8")) if self._fs.exists(path) else None
 
     def find_all(self) -> list[TraceableID]:
         """Return all persisted TraceableIDs.
@@ -126,16 +111,10 @@ class FileTraceableIDRepository(TraceableIDRepository):
         Returns:
             List of all stored IDs.
         """
-        results = []
-        # glob returns relative to self._root as list of strings
-        for json_file in sorted(self._fs.glob(self._root, "*.json")):
-            # Extract stem (e.g. FR-001.json → FR-001)
-            file_name = json_file.replace("\\", "/").split("/")[-1]
-            stem = file_name[:-5].replace("_", "-")
-            obj = self.find_by_id(stem)
-            if obj is not None:
-                results.append(obj)
-        return results
+        files = sorted(self._fs.glob(self._root, "*.json"))
+        stems = map(lambda f: f.replace("\\", "/").split("/")[-1][:-5].replace("_", "-"), files)
+        objs = map(self.find_by_id, stems)
+        return list(filter(None, objs))
 
     def delete(self, id_str: str) -> bool:
         """Remove a TraceableID JSON file.
@@ -147,6 +126,4 @@ class FileTraceableIDRepository(TraceableIDRepository):
             True if deleted, False if not found.
         """
         path = self._path_for(id_str)
-        if self._fs.exists(path):
-            return self._fs.remove(path)
-        return False
+        return self._fs.remove(path) if self._fs.exists(path) else False

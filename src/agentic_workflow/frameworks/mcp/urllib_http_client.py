@@ -14,6 +14,30 @@ from typing import Any
 from agentic_workflow.adapters.http import HttpClientPort
 
 
+def _make_req(url: str, payload: dict[str, Any]) -> urllib.request.Request:
+    return urllib.request.Request(
+        url, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"}, method="POST"
+    )
+
+
+def _send_req(req: urllib.request.Request, url: str) -> dict[str, Any]:
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            res = dict(json.loads(resp.read()))
+    except OSError as exc:
+        raise RuntimeError(f"HTTP POST to {url!r} failed: {exc}") from exc
+    return res
+
+
+def _probe_url(url: str, timeout: int) -> bool:
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, method="GET"), timeout=timeout):
+            res = True
+    except Exception:
+        res = False
+    return res
+
+
 class UrllibHttpClient(HttpClientPort):
     """Concrete HTTP client backed by Python's stdlib urllib and json."""
 
@@ -30,18 +54,7 @@ class UrllibHttpClient(HttpClientPort):
         Raises:
             RuntimeError: On any network or decoding error.
         """
-        data = json.dumps(payload).encode()
-        req = urllib.request.Request(
-            url,
-            data=data,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                return dict(json.loads(resp.read()))
-        except OSError as exc:
-            raise RuntimeError(f"HTTP POST to {url!r} failed: {exc}") from exc
+        return _send_req(_make_req(url, payload), url)
 
     def is_reachable(self, url: str, timeout: int = 3) -> bool:
         """Check if a URL responds to a GET request.
@@ -53,9 +66,4 @@ class UrllibHttpClient(HttpClientPort):
         Returns:
             True if reachable, False on any error.
         """
-        try:
-            req = urllib.request.Request(url, method="GET")
-            with urllib.request.urlopen(req, timeout=timeout):
-                return True
-        except Exception:
-            return False
+        return _probe_url(url, timeout)

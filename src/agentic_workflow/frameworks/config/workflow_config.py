@@ -9,7 +9,6 @@ from __future__ import annotations
 import os
 import re
 from pathlib import Path
-from re import Match
 from typing import Any
 
 import yaml
@@ -29,8 +28,35 @@ class WorkflowConfig(BaseModel):
     sonarcloud: SonarCloudConfig
 
 
+def _sub_env(val: str) -> str:
+    pat = re.compile(r"\$\{(\w+)(?::\-?([^}]*))?\}")
+
+    def rep(m: Any) -> str:
+        return os.getenv(m.group(1), m.group(2) if m.group(2) is not None else m.group(0))
+
+    return pat.sub(rep, val)
+
+
+def _sub_dict(data: dict[Any, Any]) -> dict[Any, Any]:
+    return {k: WorkflowConfigLoader._interpolate_env_vars(v) for k, v in data.items()}
+
+
+def _sub_list(data: list[Any]) -> list[Any]:
+    return [WorkflowConfigLoader._interpolate_env_vars(i) for i in data]
+
+
+def _read_yaml(path: Path) -> Any:
+    with open(path, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def _assert_exists(path: Path, config_path: str) -> None:
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+
 class WorkflowConfigLoader:
-    """OO Configuration Loader.
+    """Loader and orchestrator for system-wide configuration configuration.
 
     Encapsulates logic for loading YAML configuration and interpolating
     environment variables.
@@ -39,23 +65,9 @@ class WorkflowConfigLoader:
     @staticmethod
     def _interpolate_env_vars(data: Any) -> Any:
         """Recursively search and replace ${VAR} with environment variables."""
-        pattern = re.compile(r"\$\{(\w+)(?::\-?([^}]*))?\}")
-
-        if isinstance(data, str):
-
-            def replacer(match: Match[str]) -> str:
-                env_var, default = match.groups()
-                return os.getenv(env_var, default if default is not None else match.group(0))
-
-            return pattern.sub(replacer, data)
-
-        if isinstance(data, dict):
-            return {k: WorkflowConfigLoader._interpolate_env_vars(v) for k, v in data.items()}
-
-        if isinstance(data, list):
-            return [WorkflowConfigLoader._interpolate_env_vars(i) for i in data]
-
-        return data
+        handlers: dict[type, Any] = {str: _sub_env, dict: _sub_dict, list: _sub_list}
+        handler = handlers.get(type(data), lambda x: x)
+        return handler(data)
 
     @classmethod
     def load(cls, config_path: str = "config.yaml") -> WorkflowConfig:
@@ -63,19 +75,8 @@ class WorkflowConfigLoader:
 
         Supports ${VAR_NAME} syntax in YAML to reference .env variables.
         """
-        # 1. Load environment variables from .env
         load_dotenv()
-
-        # 2. Load YAML configuration
         path = Path(config_path)
-        if not path.exists():
-            raise FileNotFoundError(f"Config file not found: {config_path}")
-
-        with open(path, encoding="utf-8") as f:
-            raw_data = yaml.safe_load(f)
-
-        # 3. Interpolate environment variables
-        interpolated_data = cls._interpolate_env_vars(raw_data)
-
-        # 4. Parse into Pydantic model
-        return WorkflowConfig(**interpolated_data)
+        _assert_exists(path, config_path)
+        raw = _read_yaml(path)
+        return WorkflowConfig(**cls._interpolate_env_vars(raw))

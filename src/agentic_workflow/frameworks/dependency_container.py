@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from agentic_workflow.adapters.langgraph.nodes import SonarAdapterProtocol
@@ -29,20 +29,21 @@ from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudCo
 from agentic_workflow.frameworks.config import WorkflowConfigLoader
 
 
+def _build_default_sonar_config(raw: Any) -> SonarCloudConfig:
+    fb = raw.feedback
+    d = {"token": raw.token, "project_key": raw.project_key, "organization": raw.organization}
+    d.update({"auto_convert_to_debt": fb.auto_convert_to_debt, "default_debt_priority": fb.default_debt_priority})
+    return SonarCloudConfig(**d, on_missing_config=raw.on_missing_config)
+
+
 def _load_default_sonar_config() -> SonarCloudConfig:
     """Helper to load default sonar configuration for container field initialization."""
     try:
-        raw = WorkflowConfigLoader.load().sonarcloud
-        return SonarCloudConfig(
-            token=raw.token,
-            project_key=raw.project_key,
-            organization=raw.organization,
-            auto_convert_to_debt=raw.feedback.auto_convert_to_debt,
-            default_debt_priority=raw.feedback.default_debt_priority,
-            on_missing_config=raw.on_missing_config,
-        )
+        raw: Any = WorkflowConfigLoader.load().sonarcloud
+        cfg = _build_default_sonar_config(raw)
     except Exception:
-        return SonarCloudConfig()
+        cfg = SonarCloudConfig()
+    return cfg
 
 
 @dataclass

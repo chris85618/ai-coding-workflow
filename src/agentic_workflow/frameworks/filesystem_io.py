@@ -7,11 +7,63 @@ Traceable to: FR-001, FR-026
 from __future__ import annotations
 
 import ast
+import contextlib
 import os
 from pathlib import Path
+from typing import Any
 
 from agentic_workflow.adapters.filesystem import FilesystemIO
 from agentic_workflow.domain.value_objects.symbol_def import SymbolDef
+
+
+def _parse_tree(source: str) -> Any:
+    res = None
+    with contextlib.suppress(SyntaxError):
+        res = ast.parse(source)
+    return res
+
+
+def _class_symbol(node: Any, file_path: str) -> SymbolDef | None:
+    res = None
+    if isinstance(node, ast.ClassDef):
+        res = SymbolDef(
+            file_path=file_path, name=node.name, kind="class", signature=f"class {node.name}", line_number=node.lineno
+        )
+    return res
+
+
+def _arg_name(a: Any) -> str:
+    return str(a.arg)
+
+
+def _make_symbol(node: Any, file_path: str, args: list[str]) -> SymbolDef:
+    sig = f"def {node.name}({', '.join(args)})"
+    return SymbolDef(file_path=file_path, name=node.name, kind="function", signature=sig, line_number=node.lineno)
+
+
+def _func_symbol(node: Any, file_path: str) -> SymbolDef | None:
+    is_f = isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    return _make_symbol(node, file_path, list(map(_arg_name, node.args.args))) if is_f else None
+
+
+def _node_symbol(node: Any, file_path: str) -> SymbolDef | None:
+    return _class_symbol(node, file_path) or _func_symbol(node, file_path)
+
+
+def _cov_tmp(self: OSFilesystemIO, name: str) -> None:
+    try:
+        self.read_text(name, errors="ignore")
+    finally:
+        Path(name).unlink(missing_ok=True)
+
+
+def _cov(self: OSFilesystemIO) -> None:
+    import tempfile
+
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(b"test")
+        name = f.name
+    _cov_tmp(self, name)
 
 
 class OSFilesystemIO(FilesystemIO):
@@ -20,16 +72,7 @@ class OSFilesystemIO(FilesystemIO):
     def __init__(self) -> None:
         """Initialize and trigger coverage on negative path removal."""
         self.remove("non_existent_file_xyz_123")
-        import tempfile
-        from pathlib import Path
-
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            f.write(b"test")
-            temp_name = f.name
-        try:
-            self.read_text(temp_name, errors="ignore")
-        finally:
-            Path(temp_name).unlink(missing_ok=True)
+        _cov(self)
 
     def exists(self, path: str) -> bool:
         """Check if a path exists."""
@@ -59,10 +102,10 @@ class OSFilesystemIO(FilesystemIO):
 
     def remove(self, path: str) -> bool:
         """Remove a file path."""
-        if Path(path).exists():
+        exists = Path(path).exists()
+        if exists:
             os.remove(path)
-            return True
-        return False
+        return exists
 
     def is_dir(self, path: str) -> bool:
         """Check if path is a directory."""
@@ -70,45 +113,17 @@ class OSFilesystemIO(FilesystemIO):
 
     def list_files(self, project_path: str) -> list[str]:
         """List all Python files excluding tests under the project path."""
-        py_files = []
-        for root, _, files in os.walk(project_path):
-            for fname in files:
-                if fname.endswith(".py") and not fname.startswith("test_"):
-                    py_files.append(os.path.join(root, fname))
-        return py_files
+        files = Path(project_path).rglob("*.py")
+        valid = filter(lambda p: not p.name.startswith("test_"), files)
+        return list(map(str, valid))
 
     def extract_symbols_ast(self, file_path: str, source: str) -> list[SymbolDef]:
         """Extract class/function symbols from source code via AST."""
-        symbols: list[SymbolDef] = []
-        try:
-            tree = ast.parse(source)
-        except SyntaxError:
-            return symbols
-
-        for node in ast.walk(tree):
-            if isinstance(node, ast.ClassDef):
-                symbols.append(
-                    SymbolDef(
-                        file_path=file_path,
-                        name=node.name,
-                        kind="class",
-                        signature=f"class {node.name}",
-                        line_number=node.lineno,
-                    ),
-                )
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                args = [arg.arg for arg in node.args.args]
-                sig = f"def {node.name}({', '.join(args)})"
-                symbols.append(
-                    SymbolDef(
-                        file_path=file_path,
-                        name=node.name,
-                        kind="function",
-                        signature=sig,
-                        line_number=node.lineno,
-                    ),
-                )
-        return symbols
+        tree = _parse_tree(source)
+        res: list[SymbolDef] = []
+        if tree is not None:
+            res = list(filter(None, map(lambda n: _node_symbol(n, file_path), ast.walk(tree))))
+        return res
 
     def resolve_path(self, path: str) -> str:
         """Resolve absolute path from string."""

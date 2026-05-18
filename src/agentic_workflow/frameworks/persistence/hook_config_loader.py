@@ -15,6 +15,12 @@ from agentic_workflow.domain.enums import HookEvent
 from agentic_workflow.domain.services.hook_runner import HookDef
 
 
+def _parse_entry(entry: dict[str, Any]) -> HookDef:
+    evt, cmd = HookEvent(entry["event"]), entry["command"]
+    blk, mat = entry.get("blocking", True), entry.get("matcher", "")
+    return HookDef(event=evt, command=cmd, blocking=blk, matcher=mat)
+
+
 class HookConfigLoader:
     """Loads hook definitions from a JSON configuration file.
 
@@ -58,17 +64,7 @@ class HookConfigLoader:
             json.JSONDecodeError: If the file contains invalid JSON.
         """
         raw = json.loads(self._fs.read_text(self._path, encoding="utf-8"))
-        hooks: list[HookDef] = []
-        for entry in raw.get("hooks", []):
-            hooks.append(
-                HookDef(
-                    event=HookEvent(entry["event"]),
-                    command=entry["command"],
-                    blocking=entry.get("blocking", True),
-                    matcher=entry.get("matcher", ""),
-                ),
-            )
-        return hooks
+        return [_parse_entry(e) for e in raw.get("hooks", [])]
 
     @staticmethod
     def from_dict(config: dict[str, Any]) -> list[HookDef]:
@@ -82,14 +78,4 @@ class HookConfigLoader:
         Returns:
             List of HookDef objects.
         """
-        hooks: list[HookDef] = []
-        for entry in config.get("hooks", []):
-            hooks.append(
-                HookDef(
-                    event=HookEvent(entry["event"]),
-                    command=entry["command"],
-                    blocking=entry.get("blocking", True),
-                    matcher=entry.get("matcher", ""),
-                ),
-            )
-        return hooks
+        return [_parse_entry(e) for e in config.get("hooks", [])]

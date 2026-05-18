@@ -26,6 +26,21 @@ from agentic_workflow.frameworks.graph.micro_validation_graph_builder import (
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
+def _setup_graph_nodes(graph: StateGraph[WorkflowState, Any, Any]) -> None:
+    graph.add_node("alpha", agent_alpha_critique)
+    graph.add_node("beta", agent_beta_resolve)
+    graph.add_node("micro_val", MicroValidationGraphBuilder.build())
+    graph.add_node("rca", root_cause_leftshift)
+
+
+def _setup_graph_edges(graph: StateGraph[WorkflowState, Any, Any]) -> None:
+    graph.set_entry_point("alpha")
+    graph.add_conditional_edges("alpha", check_fixed_point, {"beta": "beta", "exit_loop": END})
+    graph.add_edge("beta", "micro_val")
+    graph.add_edge("micro_val", "rca")
+    graph.add_conditional_edges("rca", hitl_gate_choice, {"alpha": "alpha", "pass": END})
+
+
 class IterationGraphBuilder(IIterationGraphBuilder):
     """ALG-001: Builds the Agent α/β Dual-Agent Iteration Loop subgraph.
 
@@ -41,18 +56,6 @@ class IterationGraphBuilder(IIterationGraphBuilder):
             Compiled LangGraph application for the α/β iteration loop.
         """
         graph = StateGraph(WorkflowState)
-
-        mv_app = MicroValidationGraphBuilder.build()
-
-        graph.add_node("alpha", agent_alpha_critique)
-        graph.add_node("beta", agent_beta_resolve)
-        graph.add_node("micro_val", mv_app)  # Subgraph invocation
-        graph.add_node("rca", root_cause_leftshift)
-
-        graph.set_entry_point("alpha")
-        graph.add_conditional_edges("alpha", check_fixed_point, {"beta": "beta", "exit_loop": END})
-        graph.add_edge("beta", "micro_val")
-        graph.add_edge("micro_val", "rca")
-
-        graph.add_conditional_edges("rca", hitl_gate_choice, {"alpha": "alpha", "pass": END})
+        _setup_graph_nodes(graph)
+        _setup_graph_edges(graph)
         return graph.compile()

@@ -23,6 +23,73 @@ if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
 
 
+def _check_auto(is_auto: bool, task_type: TaskType) -> None:
+    from agentic_workflow.domain.exceptions import TokenLimitExceededError
+
+    if not is_auto:
+        raise TokenLimitExceededError(
+            f"Output exceeded max_tokens for structural task {task_type.value}. Auto-continuation disabled."
+        )
+
+
+def _check_count(count: int, max_cont: int) -> None:
+    from agentic_workflow.domain.exceptions import TokenLimitExceededError
+
+    if count > max_cont:
+        raise TokenLimitExceededError(f"Output exceeded max_tokens across {max_cont} continuations.")
+
+
+_TRUNC = (
+    "Response truncated due to length. Please continue "
+    "exactly where you left off. Do not repeat previous "
+    "content. Do not add introductory text."
+)
+
+
+def _append_msgs(messages: list[Any], resp: Any) -> None:
+    messages.append(resp)
+    messages.append(HumanMessage(content=_TRUNC))
+
+
+def _handle_len(
+    messages: list[Any],
+    resp: Any,
+    task_type: TaskType,
+    is_auto: bool,
+    max_cont: int,
+    state: dict[str, Any],
+) -> bool:
+    _check_auto(is_auto, task_type)
+    state["count"] += 1
+    _check_count(state["count"], max_cont)
+    _append_msgs(messages, resp)
+    return True
+
+
+def _step(
+    model: BaseChatModel,
+    messages: list[Any],
+    task_type: TaskType,
+    is_auto: bool,
+    max_cont: int,
+    state: dict[str, Any],
+) -> bool:
+    resp = model.invoke(messages)
+    state["content"] += str(resp.content)
+    meta = resp.response_metadata
+    reason = meta.get("finish_reason") or meta.get("stop_reason")
+    is_len = reason in ("length", "max_tokens")
+    return _handle_len(messages, resp, task_type, is_auto, max_cont, state) if is_len else False
+
+
+def _run_loop(model: BaseChatModel, messages: list[Any], task_type: TaskType) -> str:
+    is_auto = task_type in {TaskType.CRITIQUE, TaskType.COMPREHEND, TaskType.CHARTER}
+    state = {"content": "", "count": 0}
+    while _step(model, messages, task_type, is_auto, 3 if is_auto else 0, state):
+        pass
+    return str(state["content"])
+
+
 class LangChainLLMAdapter(LLMGateway):
     """LangChain-backed LLM gateway.
 
@@ -73,58 +140,9 @@ class LangChainLLMAdapter(LLMGateway):
             TokenLimitExceededError: If token limit is reached and auto-continue
                 is disabled or maxed out.
         """
-        from agentic_workflow.domain.exceptions import TokenLimitExceededError
-
-        model_cfg = self._selector.select(task_type)
-        lc_model = self._get_model(model_cfg)
-        messages: list[Any] = [
-            SystemMessage(content=self._system_prompt),
-            HumanMessage(content=prompt),
-        ]
-
-        # Determine if auto-continuation is safe
-        auto_continue_types = {TaskType.CRITIQUE, TaskType.COMPREHEND, TaskType.CHARTER}
-        can_auto_continue = task_type in auto_continue_types
-        max_continuations = 3 if can_auto_continue else 0
-        continuations = 0
-        full_content = ""
-
-        while True:
-            response = lc_model.invoke(messages)
-            content = str(response.content)
-            full_content += content
-
-            finish_reason = response.response_metadata.get("finish_reason")
-            if not finish_reason:
-                finish_reason = response.response_metadata.get("stop_reason")
-
-            if finish_reason in ("length", "max_tokens"):
-                if not can_auto_continue:
-                    raise TokenLimitExceededError(
-                        f"Output exceeded max_tokens={max_tokens} for "
-                        f"structural task {task_type.value}. "
-                        "Auto-continuation disabled.",
-                    )
-                continuations += 1
-                if continuations > max_continuations:
-                    raise TokenLimitExceededError(
-                        f"Output exceeded max_tokens across {max_continuations} continuations.",
-                    )
-                continuations += 1
-                messages.append(response)
-                messages.append(
-                    HumanMessage(
-                        content=(
-                            "Response truncated due to length. Please continue "
-                            "exactly where you left off. Do not repeat previous "
-                            "content. Do not add introductory text."
-                        ),
-                    ),
-                )
-            else:
-                break
-
-        return full_content
+        lc_model = self._get_model(self._selector.select(task_type))
+        messages = [SystemMessage(content=self._system_prompt), HumanMessage(content=prompt)]
+        return _run_loop(lc_model, messages, task_type)
 
     def get_model_config(self, task_type: TaskType) -> ModelConfig:
         """Return the ModelConfig for the given task type.

@@ -14,6 +14,11 @@ from agentic_workflow.adapters.filesystem import get_filesystem
 from agentic_workflow.application.ports.repositories import CheckpointRepository
 
 
+def _read_checkpoint(fs: Any, directory: str, filename: str) -> dict[str, Any]:
+    full_path = fs.resolve_path(directory + f"/{filename}")
+    return cast("dict[str, Any]", json.loads(fs.read_text(full_path, encoding="utf-8")))
+
+
 class FileCheckpointRepository(CheckpointRepository):
     """Filesystem-backed LangGraph checkpoint repository.
 
@@ -68,12 +73,8 @@ class FileCheckpointRepository(CheckpointRepository):
             State dictionary if a checkpoint exists, else None.
         """
         d = self._pipeline_dir(pipeline_id)
-        checkpoints = sorted(self._fs.glob(d, "*.json"), reverse=True)
-        if not checkpoints:
-            return None
-        # glob items are relative paths, resolve them
-        full_path = self._fs.resolve_path(d + f"/{checkpoints[0]}")
-        return cast("dict[str, Any]", json.loads(self._fs.read_text(full_path, encoding="utf-8")))
+        cps = sorted(self._fs.glob(d, "*.json"), reverse=True)
+        return _read_checkpoint(self._fs, d, cps[0]) if cps else None
 
     def list_checkpoints(self, pipeline_id: str) -> list[str]:
         """List checkpoint identifiers newest first.
@@ -86,11 +87,7 @@ class FileCheckpointRepository(CheckpointRepository):
         """
         d = self._pipeline_dir(pipeline_id)
         files = sorted(self._fs.glob(d, "*.json"), reverse=True)
-        stems = []
-        for f in files:
-            name = f.replace("\\", "/").split("/")[-1]
-            stems.append(name[:-5])
-        return stems
+        return [f.replace("\\", "/").split("/")[-1][:-5] for f in files]
 
     def delete_checkpoint(self, pipeline_id: str, checkpoint_id: str) -> bool:
         """Delete a specific checkpoint file.
@@ -103,6 +100,4 @@ class FileCheckpointRepository(CheckpointRepository):
             True if deleted, False if not found.
         """
         path = self._pipeline_dir(pipeline_id) + f"/{checkpoint_id}.json"
-        if self._fs.exists(path):
-            return self._fs.remove(path)
-        return False
+        return self._fs.remove(path) if self._fs.exists(path) else False

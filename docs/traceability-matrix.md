@@ -355,6 +355,13 @@
 | TC-QUALITY-001 | 驗證 Ruff 靜態語法檢查 0 警告不退化 | FR-QUALITY-001 | validates | ✅ (NEW: Pytest Ruff Check) |
 | TC-QUALITY-002 | 驗證 Mypy 類型安全檢查 0 錯誤不退化 | FR-QUALITY-002 | validates | ✅ (NEW: Pytest Mypy Check) |
 | TC-QUALITY-003 | 驗證 DEBT-009 自動化 AST 檢查 100% 阻斷 concrete ellipsis | FR-QUALITY-002 | validates | ✅ (NEW: AST Ellipsis Check) |
+| TC-QUALITY-004 | 驗證任一 framework code 的 Cyclomatic Complexity 必須 <= 2 | FR-QUALITY-003 | validates | ✅ (NEW: AST Complexity Check) |
+| TC-QUALITY-005 | 驗證任一 framework code 的函式 NLOC 排除空行/註解/docstring 後必須 <= 6 | FR-QUALITY-004 | validates | ✅ (NEW: AST NLOC Check) |
+| TC-QUALITY-006 | 驗證任一 framework code 的巢狀深度必須 <= 1 | FR-QUALITY-005 | validates | ✅ (NEW: AST Nesting Depth Check) |
+| TC-QUALITY-007 | 驗證任一 framework code 的 branch 數必須 <= 1 | FR-QUALITY-006 | validates | ✅ (NEW: AST Branch Count Check) |
+| TC-QUALITY-008 | 驗證任一 framework code 的 ast.Return 節點數須 <= 1 | FR-QUALITY-007 | validates | ✅ (NEW: AST Return Count Check) |
+| TC-QUALITY-009 | 驗證任一 framework code 中的類別都必須繼承自內層的抽象 | FR-QUALITY-008 | validates | ✅ (NEW: AST Inheritance Check) |
+
 
 ### FR → Skill 實作映射
 

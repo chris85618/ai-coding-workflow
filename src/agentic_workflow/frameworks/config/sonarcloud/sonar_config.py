@@ -22,16 +22,11 @@ class SonarCloudConfig(BaseModel):
     @property
     def is_valid(self) -> bool:
         """Check if essential parameters are present."""
-        return bool(self.token and self.project_key and self.organization)
+        return all((self.token, self.project_key, self.organization))
 
     @property
     def missing_vars(self) -> list[str]:
         """List names of missing essential parameters."""
-        missing = []
-        if not self.token:
-            missing.append("SONAR_TOKEN")
-        if not self.project_key:
-            missing.append("SONAR_PROJECT_KEY")
-        if not self.organization:
-            missing.append("SONAR_ORGANIZATION")
-        return missing
+        tk, pk, og = self.token, self.project_key, self.organization
+        mapping = [("SONAR_TOKEN", tk), ("SONAR_PROJECT_KEY", pk), ("SONAR_ORGANIZATION", og)]
+        return [n for n, v in mapping if not v]

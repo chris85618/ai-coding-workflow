@@ -21,7 +21,23 @@ from langgraph.checkpoint.serde.base import SerializerProtocol
 from agentic_workflow.application.ports.repositories import CheckpointRepository
 
 
-class RepositoryCheckpointer(BaseCheckpointSaver[Any]):
+def _build_tup(config: RunnableConfig, state: dict[str, Any]) -> CheckpointTuple:
+    cp = cast_checkpoint(state.get("checkpoint", state))
+    md = cast_metadata(state.get("metadata", {}))
+    return CheckpointTuple(config=config, checkpoint=cp, metadata=md, parent_config=state.get("parent_config"))
+
+
+def _make_tuple(config: RunnableConfig, state: dict[str, Any] | None) -> CheckpointTuple | None:
+    return _build_tup(config, state) if state is not None else None
+
+
+def _iter_tuples(ck: RepositoryCheckpointer, tid: str, ids: list[str]) -> Iterator[CheckpointTuple]:
+    cfgs = map(lambda cid: cast(RunnableConfig, {"configurable": {"thread_id": tid, "checkpoint_id": cid}}), ids)
+    tups = map(ck.get_tuple, cfgs)
+    return filter(None, tups)
+
+
+class RepositoryCheckpointer(BaseCheckpointSaver[Any], CheckpointRepository):
     """LangGraph Checkpointer that delegates to a CheckpointRepository.
 
     Allows LangGraph to persist its state through our clean architecture
@@ -34,38 +50,30 @@ class RepositoryCheckpointer(BaseCheckpointSaver[Any]):
         *,
         serde: SerializerProtocol | None = None,
     ) -> None:
-        """Initializes the checkpointer.
-
-        Args:
-            repository: The CheckpointRepository to delegate to.
-            serde: Optional serializer for state data.
-        """
+        """Initializes the checkpointer."""
         super().__init__(serde=serde)
         self.repository = repository
+
+    def save_checkpoint(self, pipeline_id: str, state: dict[str, Any]) -> str:
+        """Port implementation."""
+        return self.repository.save_checkpoint(pipeline_id, state)
+
+    def load_latest(self, pipeline_id: str) -> dict[str, Any] | None:
+        """Port implementation."""
+        return self.repository.load_latest(pipeline_id)
+
+    def list_checkpoints(self, pipeline_id: str) -> list[str]:
+        """Port implementation."""
+        return self.repository.list_checkpoints(pipeline_id)
+
+    def delete_checkpoint(self, pipeline_id: str, checkpoint_id: str) -> bool:
+        """Port implementation."""
+        return self.repository.delete_checkpoint(pipeline_id, checkpoint_id)
 
     def get_tuple(self, config: RunnableConfig) -> CheckpointTuple | None:
         """Get a checkpoint tuple from the repository."""
         thread_id = config.get("configurable", {}).get("thread_id", "default")
-
-        # In our current repository adapter, we simplify to latest.
-        # Future enhancement: implement load_version(thread_id, checkpoint_id)
-        state = self.repository.load_latest(thread_id)
-
-        if state is None:
-            return None
-
-        # Reconstruct LangGraph CheckpointTuple
-        # This requires metadata which our repository doesn't currently store explicitly.
-        # We'll create a minimal one.
-        checkpoint = cast_checkpoint(state.get("checkpoint", state))
-        metadata = cast_metadata(state.get("metadata", {}))
-
-        return CheckpointTuple(
-            config=config,
-            checkpoint=checkpoint,
-            metadata=metadata,
-            parent_config=state.get("parent_config"),
-        )
+        return _make_tuple(config, self.repository.load_latest(thread_id))
 
     def list(
         self,
@@ -78,27 +86,15 @@ class RepositoryCheckpointer(BaseCheckpointSaver[Any]):
         """List checkpoints from the repository."""
         thread_id = (config or {}).get("configurable", {}).get("thread_id", "default")
         ids = self.repository.list_checkpoints(thread_id)
-
-        for cid in ids:
-            tup = self.get_tuple({"configurable": {"thread_id": thread_id, "checkpoint_id": cid}})
-            if tup:
-                yield tup
+        return _iter_tuples(self, thread_id, ids)
 
     def put(
-        self,
-        config: RunnableConfig,
-        checkpoint: Checkpoint,
-        metadata: CheckpointMetadata,
-        new_versions: dict[str, Any],
+        self, config: RunnableConfig, checkpoint: Checkpoint, metadata: CheckpointMetadata, new_versions: dict[str, Any]
     ) -> RunnableConfig:
         """Save a checkpoint to the repository."""
         thread_id = config.get("configurable", {}).get("thread_id", "default")
-        state = {
-            "checkpoint": checkpoint,
-            "metadata": metadata,
-            "new_versions": new_versions,
-        }
-        self.repository.save_checkpoint(thread_id, state)
+        payload = {"checkpoint": checkpoint, "metadata": metadata, "new_versions": new_versions}
+        self.repository.save_checkpoint(thread_id, payload)
         return config
 
 
