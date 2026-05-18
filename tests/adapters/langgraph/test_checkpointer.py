@@ -77,3 +77,31 @@ class TestRepositoryCheckpointer:
 
         assert len(items) == 1
         assert mock_repo.load_latest.call_count == 2
+
+    def test_direct_save_checkpoint(self, checkpointer: RepositoryCheckpointer, mock_repo: MagicMock) -> None:
+        """Call save_checkpoint directly."""
+        mock_repo.save_checkpoint.return_value = "saved_id"
+        res = checkpointer.save_checkpoint("t1", {"x": 1})
+        assert res == "saved_id"
+        mock_repo.save_checkpoint.assert_called_once_with("t1", {"x": 1})
+
+    def test_direct_load_latest(self, checkpointer: RepositoryCheckpointer, mock_repo: MagicMock) -> None:
+        """Call load_latest directly."""
+        mock_repo.load_latest.return_value = {"x": 2}
+        res = checkpointer.load_latest("t1")
+        assert res == {"x": 2}
+        mock_repo.load_latest.assert_called_once_with("t1")
+
+    def test_direct_list_checkpoints(self, checkpointer: RepositoryCheckpointer, mock_repo: MagicMock) -> None:
+        """Call list_checkpoints directly."""
+        mock_repo.list_checkpoints.return_value = ["c1"]
+        res = checkpointer.list_checkpoints("t1")
+        assert res == ["c1"]
+        mock_repo.list_checkpoints.assert_called_once_with("t1")
+
+    def test_direct_delete_checkpoint(self, checkpointer: RepositoryCheckpointer, mock_repo: MagicMock) -> None:
+        """Call delete_checkpoint directly."""
+        mock_repo.delete_checkpoint.return_value = True
+        res = checkpointer.delete_checkpoint("t1", "c1")
+        assert res is True
+        mock_repo.delete_checkpoint.assert_called_once_with("t1", "c1")

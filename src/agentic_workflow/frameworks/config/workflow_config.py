@@ -28,31 +28,24 @@ class WorkflowConfig(BaseModel):
     sonarcloud: SonarCloudConfig
 
 
-def _sub_env(val: str) -> str:
-    pat = re.compile(r"\$\{(\w+)(?::\-?([^}]*))?\}")
+class EnvVarSubstituter:
+    """Helper class to interpolate environment variables in configuration."""
 
-    def rep(m: Any) -> str:
-        return os.getenv(m.group(1), m.group(2) if m.group(2) is not None else m.group(0))
+    @staticmethod
+    def sub_env(val: str) -> str:
+        """Substitute env vars in string using regex."""
+        pat = re.compile(r"\$\{(\w+)(?::\-?([^}]*))?\}")
+        return pat.sub(lambda m: os.getenv(m.group(1), m.group(2) if m.group(2) is not None else m.group(0)), val)
 
-    return pat.sub(rep, val)
+    @staticmethod
+    def sub_dict(data: dict[Any, Any]) -> dict[Any, Any]:
+        """Substitute env vars in dictionary."""
+        return {k: WorkflowConfigLoader._interpolate_env_vars(v) for k, v in data.items()}
 
-
-def _sub_dict(data: dict[Any, Any]) -> dict[Any, Any]:
-    return {k: WorkflowConfigLoader._interpolate_env_vars(v) for k, v in data.items()}
-
-
-def _sub_list(data: list[Any]) -> list[Any]:
-    return [WorkflowConfigLoader._interpolate_env_vars(i) for i in data]
-
-
-def _read_yaml(path: Path) -> Any:
-    with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-
-def _assert_exists(path: Path, config_path: str) -> None:
-    if not path.exists():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
+    @staticmethod
+    def sub_list(data: list[Any]) -> list[Any]:
+        """Substitute env vars in list."""
+        return [WorkflowConfigLoader._interpolate_env_vars(i) for i in data]
 
 
 class WorkflowConfigLoader:
@@ -63,11 +56,26 @@ class WorkflowConfigLoader:
     """
 
     @staticmethod
+    def _read_yaml(path: Path) -> Any:
+        """Read YAML file safely."""
+        with open(path, encoding="utf-8") as f:
+            return yaml.safe_load(f)
+
+    @staticmethod
+    def _assert_exists(path: Path, config_path: str) -> None:
+        """Assert that config file exists."""
+        if not path.exists():
+            raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    @staticmethod
     def _interpolate_env_vars(data: Any) -> Any:
         """Recursively search and replace ${VAR} with environment variables."""
-        handlers: dict[type, Any] = {str: _sub_env, dict: _sub_dict, list: _sub_list}
-        handler = handlers.get(type(data), lambda x: x)
-        return handler(data)
+        handlers: dict[Any, Any] = {
+            str: EnvVarSubstituter.sub_env,
+            dict: EnvVarSubstituter.sub_dict,
+            list: EnvVarSubstituter.sub_list,
+        }
+        return handlers.get(type(data), lambda x: x)(data)
 
     @classmethod
     def load(cls, config_path: str = "config.yaml") -> WorkflowConfig:
@@ -77,6 +85,6 @@ class WorkflowConfigLoader:
         """
         load_dotenv()
         path = Path(config_path)
-        _assert_exists(path, config_path)
-        raw = _read_yaml(path)
+        cls._assert_exists(path, config_path)
+        raw = cls._read_yaml(path)
         return WorkflowConfig(**cls._interpolate_env_vars(raw))

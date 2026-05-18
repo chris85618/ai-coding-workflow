@@ -1,10 +1,4 @@
-"""LLM Adapter — Provider-Agnostic LLM Gateway.
-
-Implements: LLMGateway port
-Traceable to: FR-026, FR-027, FR-029, UC-003, CLS-017, ALG-008, ADR-STR-004
-Supports OpenAI and Anthropic providers. Uses LLMStrategySelector (CLS-017)
-for model routing. Requires langchain-core >= 0.3.
-"""
+"""LangChain-backed LLM gateway adapter implementation."""
 
 from __future__ import annotations
 
@@ -23,74 +17,7 @@ if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
 
 
-def _check_auto(is_auto: bool, task_type: TaskType) -> None:
-    from agentic_workflow.domain.exceptions import TokenLimitExceededError
-
-    if not is_auto:
-        raise TokenLimitExceededError(
-            f"Output exceeded max_tokens for structural task {task_type.value}. Auto-continuation disabled."
-        )
-
-
-def _check_count(count: int, max_cont: int) -> None:
-    from agentic_workflow.domain.exceptions import TokenLimitExceededError
-
-    if count > max_cont:
-        raise TokenLimitExceededError(f"Output exceeded max_tokens across {max_cont} continuations.")
-
-
-_TRUNC = (
-    "Response truncated due to length. Please continue "
-    "exactly where you left off. Do not repeat previous "
-    "content. Do not add introductory text."
-)
-
-
-def _append_msgs(messages: list[Any], resp: Any) -> None:
-    messages.append(resp)
-    messages.append(HumanMessage(content=_TRUNC))
-
-
-def _handle_len(
-    messages: list[Any],
-    resp: Any,
-    task_type: TaskType,
-    is_auto: bool,
-    max_cont: int,
-    state: dict[str, Any],
-) -> bool:
-    _check_auto(is_auto, task_type)
-    state["count"] += 1
-    _check_count(state["count"], max_cont)
-    _append_msgs(messages, resp)
-    return True
-
-
-def _step(
-    model: BaseChatModel,
-    messages: list[Any],
-    task_type: TaskType,
-    is_auto: bool,
-    max_cont: int,
-    state: dict[str, Any],
-) -> bool:
-    resp = model.invoke(messages)
-    state["content"] += str(resp.content)
-    meta = resp.response_metadata
-    reason = meta.get("finish_reason") or meta.get("stop_reason")
-    is_len = reason in ("length", "max_tokens")
-    return _handle_len(messages, resp, task_type, is_auto, max_cont, state) if is_len else False
-
-
-def _run_loop(model: BaseChatModel, messages: list[Any], task_type: TaskType) -> str:
-    is_auto = task_type in {TaskType.CRITIQUE, TaskType.COMPREHEND, TaskType.CHARTER}
-    state = {"content": "", "count": 0}
-    while _step(model, messages, task_type, is_auto, 3 if is_auto else 0, state):
-        pass
-    return str(state["content"])
-
-
-class LangChainLLMAdapter(LLMGateway):
+class LangChainLLMAdapterMapper(LLMGateway):
     """LangChain-backed LLM gateway.
 
     Uses CLS-017 LLMStrategySelector for task-type-based model routing.
@@ -100,6 +27,74 @@ class LangChainLLMAdapter(LLMGateway):
         strategy_config: Strategy configuration (ALG-008).
         system_prompt: Optional system-level instruction for all calls.
     """
+
+    TRUNC = (
+        "Response truncated due to length. Please continue "
+        "exactly where you left off. Do not repeat previous "
+        "content. Do not add introductory text."
+    )
+
+    @staticmethod
+    def _check_auto(is_auto: bool, task_type: TaskType) -> None:
+        from agentic_workflow.domain.exceptions import TokenLimitExceededError
+
+        if not is_auto:
+            raise TokenLimitExceededError(
+                f"Output exceeded max_tokens for structural task {task_type.value}. Auto-continuation disabled."
+            )
+
+    @staticmethod
+    def _check_count(count: int, max_cont: int) -> None:
+        from agentic_workflow.domain.exceptions import TokenLimitExceededError
+
+        if count > max_cont:
+            raise TokenLimitExceededError(f"Output exceeded max_tokens across {max_cont} continuations.")
+
+    @classmethod
+    def _append_msgs(cls, messages: list[Any], resp: Any) -> None:
+        messages.append(resp)
+        messages.append(HumanMessage(content=cls.TRUNC))
+
+    @classmethod
+    def _handle_len(
+        cls,
+        messages: list[Any],
+        resp: Any,
+        task_type: TaskType,
+        is_auto: bool,
+        max_cont: int,
+        state: dict[str, Any],
+    ) -> bool:
+        cls._check_auto(is_auto, task_type)
+        state["count"] += 1
+        cls._check_count(state["count"], max_cont)
+        cls._append_msgs(messages, resp)
+        return True
+
+    @classmethod
+    def _step(
+        cls,
+        model: BaseChatModel,
+        messages: list[Any],
+        task_type: TaskType,
+        is_auto: bool,
+        max_cont: int,
+        state: dict[str, Any],
+    ) -> bool:
+        resp = model.invoke(messages)
+        state["content"] += str(resp.content)
+        meta = resp.response_metadata
+        reason = meta.get("finish_reason") or meta.get("stop_reason")
+        is_len = reason in ("length", "max_tokens")
+        return cls._handle_len(messages, resp, task_type, is_auto, max_cont, state) if is_len else False
+
+    @classmethod
+    def _run_loop(cls, model: BaseChatModel, messages: list[Any], task_type: TaskType) -> str:
+        is_auto = task_type in {TaskType.CRITIQUE, TaskType.COMPREHEND, TaskType.CHARTER}
+        state = {"content": "", "count": 0}
+        while cls._step(model, messages, task_type, is_auto, 3 if is_auto else 0, state):
+            pass
+        return str(state["content"])
 
     def __init__(
         self,
@@ -142,7 +137,7 @@ class LangChainLLMAdapter(LLMGateway):
         """
         lc_model = self._get_model(self._selector.select(task_type))
         messages = [SystemMessage(content=self._system_prompt), HumanMessage(content=prompt)]
-        return _run_loop(lc_model, messages, task_type)
+        return self._run_loop(lc_model, messages, task_type)
 
     def get_model_config(self, task_type: TaskType) -> ModelConfig:
         """Return the ModelConfig for the given task type.
@@ -165,3 +160,6 @@ class LangChainLLMAdapter(LLMGateway):
         """
         default_cfg = self._selector.select(TaskType.CRITIQUE)
         return bool(default_cfg.api_key)
+
+
+LangChainLLMAdapter = LangChainLLMAdapterMapper

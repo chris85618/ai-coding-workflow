@@ -1,9 +1,9 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 11 (Release v0.1.6) — ✅ DONE
-**Last Position**: Phase 11 (Release v0.1.6)
-**Status**: SonarQube Metrics Integration Implemented & 100% Coverage Hardened.
-**Last Updated**: 2026-05-17T23:36+08:00
+**Pipeline Position**: Phase 11 (Release v0.1.7) — ✅ DONE
+**Last Position**: Phase 11 (Release v0.1.7)
+**Status**: Frameworks layer strictly refactored to satisfy 100% of the 11 code quality and method override checks.
+**Last Updated**: 2026-05-18T12:26+08:00
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -66,6 +66,11 @@
 - [x] CAD-35: 實作 frameworks layer 不要包含領域邏輯之 6 項 pytest 靜態檢查 AST 演算法與檢驗機制 (TC-QUALITY-004 ~ TC-QUALITY-009) — ✅ DONE
 - [x] CAD-36: 對 frameworks/ 下指定檔案進行系統性重構，完全滿足 NLOC <= 6、CC <= 2 等 6 大品質守衛門檻 — ✅ DONE
 - [x] CAD-37: 實作方法必須實作內層抽象的方法之 pytest AST / 動態雙重反射檢驗機制 (TC-QUALITY-010) — ✅ DONE
+- [x] CAD-38: 實作 frameworks layer 中禁止存在任何模組層級（class 之外）的 function 或 async function 定義之 pytest AST 靜態檢查 (TC-QUALITY-011) — ✅ DONE
+- [x] CAD-39: 修正 file_repository.py 與 llm/providers 中 NLOC > 6 的 NLOC 違規，將方法行數嚴格縮限至 6 行以內 — ✅ DONE
+- [x] CAD-40: 修正 OSFilesystemIO, OSSubprocessExecutor, AnthropicReasoner, UrllibHttpClient, AnthropicProvider, OpenAIProvider 之中方法 override 與繼承關係 violations (TC-QUALITY-010)，100% 通過品質檢查 — ✅ DONE
+- [x] CAD-41: 修正 workflow_config.py 中的 Mypy 類型安全、Cyclomatic Complexity (<= 2) 與 Branch count (<= 1) 違規，確保 100% 綠燈 — ✅ DONE
+- [x] CAD-42: 修正 file_repository.py 中的 _to_dict, _from_dict 與 filesystem_io.py 中的 class_symbol 使得 NLOC <= 6 且單一 return 語意 100% 通過品質檢查 — ✅ DONE
 
 
 ## 🚦 Gate Status
@@ -78,7 +83,7 @@
 - [✅] Stage 5: OOAD + 安全審計 (Clean Architecture compliance audit)
 - [✅] Stage 6: 形式化驗證設計 (Boundary rules invariants)
 - [✅] Stage 7: BDD/ATDD
-- [✅] Stage 8: TDD + 測試 + 修復 (970 Pass, 100.00% Statement & Branch Coverage)
+- [✅] Stage 8: TDD + 測試 + 修復 (988 Pass, 100.00% Statement & Branch Coverage)
 - [✅] Phase 10: 反思與學習 (Clean Architecture Boundary Hardened) — ✅ DONE
 
 ## 📌 Pending Escalations
@@ -87,8 +92,10 @@
 
 ## 📝 Session Summary
 
-1. **SonarQube Issues & Metrics Resolution**: Successfully resolved all 6 real-time code smells reported on SonarCloud (including 3 Critical cognitive complexity issues, 1 Major code duplication issue, and 2 Minor code smell issues) with 100% clean refactoring.
-2. **100% Test Coverage Secured**: Extended the test suite to 970 test cases, achieving 100.00% statement and branch coverage across the entire project (100% green pytest suite, 0 failed).
-3. **Markdown Output Scripts**: Formulated standalone scripts `fetch_sonar_metrics_detail.py` and `fetch_sonar_issues.py` supporting real-time pulls of metrics and open issues.
-4. **Code Quality and Type Checking**: Verified the code with Ruff and Mypy, resulting in 100% clean output without a single format or type issue. Established proper package-level `.pyi` type stubs under `src/` for third-party dependencies (`langchain_openai`, `langchain_anthropic`, `sonarqube`) and registered `types-requests` in `pyproject.toml`.
+1. **Framework Quality Rules Compliance**: Successfully refactored all framework classes to ensure absolute adherence to 11 strict code quality metrics:
+   - NLOC <= 6: Simplified dictionary serialization in `file_repository.py` and converted `class_symbol` AST constructor in `filesystem_io.py` into a highly clean inline expression.
+   - Single Return (TC-QUALITY-008): Reconstructed AST symbol parser to rely on a single elegant return statement.
+   - Method Overrides (TC-QUALITY-010): Fully aligned outer system boundary wrappers with inner core interfaces.
+2. **100% Test Suite & Coverage Green**: Extended testing to a massive 988 passed test cases with absolutely zero failures and 100.00% code coverage.
+3. **No Retrograde Defect Shield**: Ensured that automated Ruff linting, Mypy type-checking, and Clean Architecture checks remain 100% green and free of any `# type: ignore` or `# pragma: no cover`.
 

@@ -34,66 +34,72 @@ from agentic_workflow.frameworks.langgraph.nodes import (
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
-def _setup_master_stages(wf: StateGraph[WorkflowState, Any, Any], iter_app: Any) -> None:
-    wf.add_node("stage_3", iter_app)
-    wf.add_node("stage_4", iter_app)
-    wf.add_node("stage_5", iter_app)
-    wf.add_node("stage_6", iter_app)
-    wf.add_node("stage_7", iter_app)
-    wf.add_node("stage_8", iter_app)
-
-
-def _setup_master_final_nodes(wf: StateGraph[WorkflowState, Any, Any]) -> None:
-    wf.add_node("sonar_gate", node_sonarcloud_gate)
-    wf.add_node("phase_9", phase_9_ship)
-    wf.add_node("phase_10", phase_10_retro)
-    wf.add_node("security_audit", node_security_audit)
-    wf.add_node("gate", node_auto_gate)
-    wf.add_node("complete", node_complete_pipeline)
-
-
-def _setup_master_nodes(wf: StateGraph[WorkflowState, Any, Any]) -> None:
-    wf.add_node("start", node_start_pipeline)
-    wf.add_node("phase_0", phase_0_init)
-    wf.add_node("phase_1", phase_1_understanding)
-    wf.add_node("phase_2", phase_2_analysis)
-    _setup_master_stages(wf, IterationGraphBuilder.build())
-    _setup_master_final_nodes(wf)
-
-
-def _setup_edges_stages(wf: StateGraph[WorkflowState, Any, Any]) -> None:
-    wf.add_edge("phase_2", "stage_3")
-    wf.add_edge("stage_3", "stage_4")
-    wf.add_edge("stage_4", "stage_5")
-    wf.add_edge("stage_5", "stage_6")
-    wf.add_edge("stage_6", "stage_7")
-    wf.add_edge("stage_7", "stage_8")
-
-
-def _setup_edges_final(wf: StateGraph[WorkflowState, Any, Any]) -> None:
-    wf.add_edge("stage_8", "sonar_gate")
-    wf.add_edge("sonar_gate", "security_audit")
-    wf.add_edge("security_audit", "phase_9")
-    wf.add_edge("phase_9", "phase_10")
-    wf.add_edge("phase_10", "complete")
-    wf.add_edge("complete", END)
-
-
-def _setup_master_edges(wf: StateGraph[WorkflowState, Any, Any]) -> None:
-    wf.set_entry_point("start")
-    wf.add_edge("start", "phase_0")
-    wf.add_edge("phase_0", "phase_1")
-    wf.add_edge("phase_1", "phase_2")
-    _setup_edges_stages(wf)
-    _setup_edges_final(wf)
-
-
 class MasterGraphBuilder(IMasterGraphBuilder):
     """Master pipeline graph builder covering the 11-phase/stage dev pipeline.
 
     Stages 3-8 reuse the IterationGraphBuilder subgraph.
     Encapsulates all node registration and edge wiring.
     """
+
+    @staticmethod
+    def _setup_master_stages(wf: StateGraph[WorkflowState, Any, Any], iter_app: Any) -> None:
+        """Add stages to master graph."""
+        wf.add_node("stage_3", iter_app)
+        wf.add_node("stage_4", iter_app)
+        wf.add_node("stage_5", iter_app)
+        wf.add_node("stage_6", iter_app)
+        wf.add_node("stage_7", iter_app)
+        wf.add_node("stage_8", iter_app)
+
+    @staticmethod
+    def _setup_master_final_nodes(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add final nodes to master graph."""
+        wf.add_node("sonar_gate", node_sonarcloud_gate)
+        wf.add_node("phase_9", phase_9_ship)
+        wf.add_node("phase_10", phase_10_retro)
+        wf.add_node("security_audit", node_security_audit)
+        wf.add_node("gate", node_auto_gate)
+        wf.add_node("complete", node_complete_pipeline)
+
+    @classmethod
+    def _setup_master_nodes(cls, wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add nodes to master graph."""
+        wf.add_node("start", node_start_pipeline)
+        wf.add_node("phase_0", phase_0_init)
+        wf.add_node("phase_1", phase_1_understanding)
+        wf.add_node("phase_2", phase_2_analysis)
+        cls._setup_master_stages(wf, IterationGraphBuilder.build())
+        cls._setup_master_final_nodes(wf)
+
+    @staticmethod
+    def _setup_edges_stages(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add stage transition edges."""
+        wf.add_edge("phase_2", "stage_3")
+        wf.add_edge("stage_3", "stage_4")
+        wf.add_edge("stage_4", "stage_5")
+        wf.add_edge("stage_5", "stage_6")
+        wf.add_edge("stage_6", "stage_7")
+        wf.add_edge("stage_7", "stage_8")
+
+    @staticmethod
+    def _setup_edges_final(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add final node edges."""
+        wf.add_edge("stage_8", "sonar_gate")
+        wf.add_edge("sonar_gate", "security_audit")
+        wf.add_edge("security_audit", "phase_9")
+        wf.add_edge("phase_9", "phase_10")
+        wf.add_edge("phase_10", "complete")
+        wf.add_edge("complete", END)
+
+    @classmethod
+    def _setup_master_edges(cls, wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add master edges."""
+        wf.set_entry_point("start")
+        wf.add_edge("start", "phase_0")
+        wf.add_edge("phase_0", "phase_1")
+        wf.add_edge("phase_1", "phase_2")
+        cls._setup_edges_stages(wf)
+        cls._setup_edges_final(wf)
 
     @classmethod
     def build(
@@ -108,6 +114,6 @@ class MasterGraphBuilder(IMasterGraphBuilder):
             Compiled LangGraph application for the full pipeline.
         """
         workflow = StateGraph(WorkflowState)
-        _setup_master_nodes(workflow)
-        _setup_master_edges(workflow)
+        cls._setup_master_nodes(workflow)
+        cls._setup_master_edges(workflow)
         return workflow.compile(checkpointer=checkpointer)

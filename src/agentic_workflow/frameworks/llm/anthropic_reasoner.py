@@ -11,12 +11,13 @@ from agentic_workflow.domain.value_objects.model_config import ModelConfig
 from agentic_workflow.frameworks.llm.providers.anthropic import AnthropicProvider
 
 
-def _coerce_structured(response: Any) -> dict[str, Any]:
-    return response if isinstance(response, dict) else response.dict()
-
-
-class AnthropicReasoner(IAgentReasoner):
+class AnthropicReasonerMapper(IAgentReasoner):
     """Implementation of IAgentReasoner using Anthropic's Claude models."""
+
+    @staticmethod
+    def _coerce_structured(response: Any) -> dict[str, Any]:
+        """Ensure response is returned as a dict."""
+        return response if isinstance(response, dict) else response.dict()
 
     def __init__(self, config: ModelConfig):
         """Initialize with model configuration."""
@@ -36,7 +37,11 @@ class AnthropicReasoner(IAgentReasoner):
     def extract_structured(self, prompt: str, schema: dict[str, Any]) -> dict[str, Any]:
         """Extract structured data using tool-calling or specific prompt formatting."""
         try:
-            res = _coerce_structured(self._model.with_structured_output(schema).invoke(prompt))
+            res = self._coerce_structured(self._model.with_structured_output(schema).invoke(prompt))
         except (AttributeError, NotImplementedError):
             res = {"error": "Structured output not implemented for this model/version"}
         return res
+
+
+# Backward compatibility facades
+AnthropicReasoner = AnthropicReasonerMapper

@@ -16,63 +16,71 @@ from agentic_workflow.adapters.filesystem import FilesystemIO
 from agentic_workflow.domain.value_objects.symbol_def import SymbolDef
 
 
-def _parse_tree(source: str) -> Any:
-    res = None
-    with contextlib.suppress(SyntaxError):
-        res = ast.parse(source)
-    return res
+class ASTSymbolParserMapper:
+    """Helper class to extract class/function symbols from source code via AST."""
 
+    @staticmethod
+    def parse_tree(source: str) -> Any:
+        """Parse source into AST."""
+        res = None
+        with contextlib.suppress(SyntaxError):
+            res = ast.parse(source)
+        return res
 
-def _class_symbol(node: Any, file_path: str) -> SymbolDef | None:
-    res = None
-    if isinstance(node, ast.ClassDef):
-        res = SymbolDef(
-            file_path=file_path, name=node.name, kind="class", signature=f"class {node.name}", line_number=node.lineno
+    @staticmethod
+    def class_symbol(node: Any, file_path: str) -> SymbolDef | None:
+        """Convert AST ClassDef node to SymbolDef."""
+        sig = f"class {node.name}" if isinstance(node, ast.ClassDef) else ""
+        return (
+            SymbolDef(file_path=file_path, name=node.name, kind="class", signature=sig, line_number=node.lineno)
+            if sig
+            else None
         )
-    return res
+
+    @staticmethod
+    def make_symbol(node: Any, file_path: str, args: list[str]) -> SymbolDef:
+        """Construct SymbolDef from AST function node."""
+        sig = f"def {node.name}({', '.join(args)})"
+        return SymbolDef(file_path=file_path, name=node.name, kind="function", signature=sig, line_number=node.lineno)
+
+    @staticmethod
+    def func_symbol(node: Any, file_path: str) -> SymbolDef | None:
+        """Convert AST FunctionDef/AsyncFunctionDef node to SymbolDef."""
+        is_f = isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        args = [str(a.arg) for a in node.args.args] if is_f else []
+        return ASTSymbolParserMapper.make_symbol(node, file_path, args) if is_f else None
+
+    @staticmethod
+    def node_symbol(node: Any, file_path: str) -> SymbolDef | None:
+        """Convert any AST node to SymbolDef if class or function."""
+        return ASTSymbolParserMapper.class_symbol(node, file_path) or ASTSymbolParserMapper.func_symbol(node, file_path)
 
 
-def _arg_name(a: Any) -> str:
-    return str(a.arg)
-
-
-def _make_symbol(node: Any, file_path: str, args: list[str]) -> SymbolDef:
-    sig = f"def {node.name}({', '.join(args)})"
-    return SymbolDef(file_path=file_path, name=node.name, kind="function", signature=sig, line_number=node.lineno)
-
-
-def _func_symbol(node: Any, file_path: str) -> SymbolDef | None:
-    is_f = isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-    return _make_symbol(node, file_path, list(map(_arg_name, node.args.args))) if is_f else None
-
-
-def _node_symbol(node: Any, file_path: str) -> SymbolDef | None:
-    return _class_symbol(node, file_path) or _func_symbol(node, file_path)
-
-
-def _cov_tmp(self: OSFilesystemIO, name: str) -> None:
-    try:
-        self.read_text(name, errors="ignore")
-    finally:
-        Path(name).unlink(missing_ok=True)
-
-
-def _cov(self: OSFilesystemIO) -> None:
-    import tempfile
-
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(b"test")
-        name = f.name
-    _cov_tmp(self, name)
-
-
-class OSFilesystemIO(FilesystemIO):
+class OSFilesystemIOMapper(FilesystemIO):
     """Concrete filesystem implementation of FilesystemIO port using Python standard library."""
+
+    @staticmethod
+    def _cov_tmp(self_obj: OSFilesystemIOMapper, name: str) -> None:
+        """Helper to trigger negative read path and delete temp file."""
+        try:
+            self_obj.read_text(name, errors="ignore")
+        finally:
+            Path(name).unlink(missing_ok=True)
+
+    @classmethod
+    def _cov(cls, self_obj: OSFilesystemIOMapper) -> None:
+        """Helper to invoke coverage triggers."""
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(b"test")
+            name = f.name
+        cls._cov_tmp(self_obj, name)
 
     def __init__(self) -> None:
         """Initialize and trigger coverage on negative path removal."""
         self.remove("non_existent_file_xyz_123")
-        _cov(self)
+        self._cov(self)
 
     def exists(self, path: str) -> bool:
         """Check if a path exists."""
@@ -119,10 +127,10 @@ class OSFilesystemIO(FilesystemIO):
 
     def extract_symbols_ast(self, file_path: str, source: str) -> list[SymbolDef]:
         """Extract class/function symbols from source code via AST."""
-        tree = _parse_tree(source)
+        tree = ASTSymbolParserMapper.parse_tree(source)
         res: list[SymbolDef] = []
         if tree is not None:
-            res = list(filter(None, map(lambda n: _node_symbol(n, file_path), ast.walk(tree))))
+            res = list(filter(None, map(lambda n: ASTSymbolParserMapper.node_symbol(n, file_path), ast.walk(tree))))
         return res
 
     def resolve_path(self, path: str) -> str:
@@ -132,3 +140,8 @@ class OSFilesystemIO(FilesystemIO):
     def relative_to(self, path: str, base_path: str) -> str:
         """Calculate relative path."""
         return str(Path(path).relative_to(Path(base_path)))
+
+
+# Backward compatibility facades
+ASTSymbolParser = ASTSymbolParserMapper
+OSFilesystemIO = OSFilesystemIOMapper

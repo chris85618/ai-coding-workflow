@@ -21,23 +21,43 @@ from langgraph.checkpoint.serde.base import SerializerProtocol
 from agentic_workflow.application.ports.repositories import CheckpointRepository
 
 
-def _build_tup(config: RunnableConfig, state: dict[str, Any]) -> CheckpointTuple:
-    cp = cast_checkpoint(state.get("checkpoint", state))
-    md = cast_metadata(state.get("metadata", {}))
-    return CheckpointTuple(config=config, checkpoint=cp, metadata=md, parent_config=state.get("parent_config"))
+class CheckpointHelperBuilder:
+    """Helper builder for checkpointer state conversions."""
+
+    @staticmethod
+    def cast_checkpoint(data: Any) -> Checkpoint:
+        """Type cast to Checkpoint."""
+        return cast(Checkpoint, data)
+
+    @staticmethod
+    def cast_metadata(data: Any) -> CheckpointMetadata:
+        """Type cast to CheckpointMetadata."""
+        return cast(CheckpointMetadata, data)
+
+    @staticmethod
+    def build_tup(config: RunnableConfig, state: dict[str, Any]) -> CheckpointTuple:
+        """Build a CheckpointTuple from state dict."""
+        cp = CheckpointHelperBuilder.cast_checkpoint(state.get("checkpoint", state))
+        md = CheckpointHelperBuilder.cast_metadata(state.get("metadata", {}))
+        return CheckpointTuple(config=config, checkpoint=cp, metadata=md, parent_config=state.get("parent_config"))
+
+    @staticmethod
+    def make_tuple(config: RunnableConfig, state: dict[str, Any] | None) -> CheckpointTuple | None:
+        """Make a CheckpointTuple if state exists."""
+        return CheckpointHelperBuilder.build_tup(config, state) if state is not None else None
+
+    @staticmethod
+    def iter_tuples(ck: RepositoryCheckpointerMapper, tid: str, ids: list[str]) -> Iterator[CheckpointTuple]:
+        """Iterate and build CheckpointTuples."""
+        cfgs = map(
+            lambda cid: cast(RunnableConfig, {"configurable": {"thread_id": tid, "checkpoint_id": cid}}),
+            ids,
+        )
+        tups = map(ck.get_tuple, cfgs)
+        return filter(None, tups)
 
 
-def _make_tuple(config: RunnableConfig, state: dict[str, Any] | None) -> CheckpointTuple | None:
-    return _build_tup(config, state) if state is not None else None
-
-
-def _iter_tuples(ck: RepositoryCheckpointer, tid: str, ids: list[str]) -> Iterator[CheckpointTuple]:
-    cfgs = map(lambda cid: cast(RunnableConfig, {"configurable": {"thread_id": tid, "checkpoint_id": cid}}), ids)
-    tups = map(ck.get_tuple, cfgs)
-    return filter(None, tups)
-
-
-class RepositoryCheckpointer(BaseCheckpointSaver[Any], CheckpointRepository):
+class RepositoryCheckpointerMapper(BaseCheckpointSaver[Any]):
     """LangGraph Checkpointer that delegates to a CheckpointRepository.
 
     Allows LangGraph to persist its state through our clean architecture
@@ -73,7 +93,7 @@ class RepositoryCheckpointer(BaseCheckpointSaver[Any], CheckpointRepository):
     def get_tuple(self, config: RunnableConfig) -> CheckpointTuple | None:
         """Get a checkpoint tuple from the repository."""
         thread_id = config.get("configurable", {}).get("thread_id", "default")
-        return _make_tuple(config, self.repository.load_latest(thread_id))
+        return CheckpointHelperBuilder.make_tuple(config, self.repository.load_latest(thread_id))
 
     def list(
         self,
@@ -86,10 +106,14 @@ class RepositoryCheckpointer(BaseCheckpointSaver[Any], CheckpointRepository):
         """List checkpoints from the repository."""
         thread_id = (config or {}).get("configurable", {}).get("thread_id", "default")
         ids = self.repository.list_checkpoints(thread_id)
-        return _iter_tuples(self, thread_id, ids)
+        return CheckpointHelperBuilder.iter_tuples(self, thread_id, ids)
 
     def put(
-        self, config: RunnableConfig, checkpoint: Checkpoint, metadata: CheckpointMetadata, new_versions: dict[str, Any]
+        self,
+        config: RunnableConfig,
+        checkpoint: Checkpoint,
+        metadata: CheckpointMetadata,
+        new_versions: dict[str, Any],
     ) -> RunnableConfig:
         """Save a checkpoint to the repository."""
         thread_id = config.get("configurable", {}).get("thread_id", "default")
@@ -98,12 +122,4 @@ class RepositoryCheckpointer(BaseCheckpointSaver[Any], CheckpointRepository):
         return config
 
 
-# Helper functions to satisfy type checker if needed
-def cast_checkpoint(data: Any) -> Checkpoint:
-    """Type cast to Checkpoint."""
-    return cast(Checkpoint, data)
-
-
-def cast_metadata(data: Any) -> CheckpointMetadata:
-    """Type cast to CheckpointMetadata."""
-    return cast(CheckpointMetadata, data)
+RepositoryCheckpointer = RepositoryCheckpointerMapper

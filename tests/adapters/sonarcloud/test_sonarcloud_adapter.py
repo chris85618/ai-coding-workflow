@@ -446,3 +446,62 @@ class TestGetAllMetricsWithValues:
         assert len(result) == 1
         assert result[0]["key"] == "coverage"
         assert result[0]["value"] is None
+
+
+# ── Quality Gate and Helper Functions Tests ────────────────────────────────────
+
+
+class TestHelperFunctions:
+    """Unit tests for sonar_adapter helper functions."""
+
+    def test_select_key_both_provided(self) -> None:
+        """k1 provides project_key -> k1 selected."""
+        from agentic_workflow.frameworks.sonarcloud.sonar_adapter import _select_key
+
+        assert _select_key("explicit", "default") == "explicit"
+
+    def test_select_key_k1_none(self) -> None:
+        """k1 is None -> k2 selected."""
+        from agentic_workflow.frameworks.sonarcloud.sonar_adapter import _select_key
+
+        assert _select_key(None, "default") == "default"
+
+    def test_get_str_none(self) -> None:
+        """Val is None -> empty string returned."""
+        from agentic_workflow.frameworks.sonarcloud.sonar_adapter import _get_str
+
+        assert _get_str(None) == ""
+
+
+class TestQualityGate:
+    """Unit tests for SonarCloudAdapter quality metrics and gates."""
+
+    def test_get_quality_metrics(self) -> None:
+        """Fetch quality metrics correctly flattens global values."""
+        adapter, mock_client = _make_adapter()
+        mock_measures = [
+            {"metric": "coverage", "value": "95.5"},
+            {"metric": "alert_status", "value": "OK"},
+        ]
+        mock_client.measures.get_component_with_specified_measures.return_value = {
+            "component": {"measures": mock_measures}
+        }
+        res = adapter.get_quality_metrics("my_project")
+        assert res.get("coverage") == 95.5
+        assert res.get("alert_status") == "OK"
+
+    def test_passes_gate_ok(self) -> None:
+        """alert_status is OK -> passes_gate is True."""
+        adapter, mock_client = _make_adapter()
+        mock_client.measures.get_component_with_specified_measures.return_value = {
+            "component": {"measures": [{"metric": "alert_status", "value": "OK"}]}
+        }
+        assert adapter.passes_gate("my_project") is True
+
+    def test_passes_gate_error(self) -> None:
+        """alert_status is ERROR -> passes_gate is False."""
+        adapter, mock_client = _make_adapter()
+        mock_client.measures.get_component_with_specified_measures.return_value = {
+            "component": {"measures": [{"metric": "alert_status", "value": "ERROR"}]}
+        }
+        assert adapter.passes_gate("my_project") is False

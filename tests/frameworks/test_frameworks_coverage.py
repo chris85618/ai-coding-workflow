@@ -22,9 +22,8 @@ from agentic_workflow.domain.entities.traceable_id import TraceableID
 from agentic_workflow.domain.enums import IDPrefix, TaskType
 from agentic_workflow.domain.value_objects import ModelConfig, SonarCloudConfig
 from agentic_workflow.frameworks.langgraph.checkpointer import (
+    CheckpointHelperBuilder,
     RepositoryCheckpointer,
-    cast_checkpoint,
-    cast_metadata,
 )
 from agentic_workflow.frameworks.langgraph.nodes import (
     WorkflowContainerProtocol,
@@ -500,8 +499,8 @@ class TestRepositoryCheckpointer:
         mock_repo.load_latest.return_value = {"checkpoint": "ok"}
 
         # 5. cast helpers
-        assert cast(Any, cast_checkpoint("ok")) == "ok"
-        assert cast(Any, cast_metadata("ok")) == "ok"
+        assert cast(Any, CheckpointHelperBuilder.cast_checkpoint("ok")) == "ok"
+        assert cast(Any, CheckpointHelperBuilder.cast_metadata("ok")) == "ok"
 
     def test_protocol_properties_coverage(self) -> None:
         """Call methods on a dummy subclass of WorkflowContainerProtocol to achieve 100% statement coverage."""

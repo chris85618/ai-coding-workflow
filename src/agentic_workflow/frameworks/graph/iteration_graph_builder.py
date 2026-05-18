@@ -26,27 +26,29 @@ from agentic_workflow.frameworks.graph.micro_validation_graph_builder import (
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
 
-def _setup_graph_nodes(graph: StateGraph[WorkflowState, Any, Any]) -> None:
-    graph.add_node("alpha", agent_alpha_critique)
-    graph.add_node("beta", agent_beta_resolve)
-    graph.add_node("micro_val", MicroValidationGraphBuilder.build())
-    graph.add_node("rca", root_cause_leftshift)
-
-
-def _setup_graph_edges(graph: StateGraph[WorkflowState, Any, Any]) -> None:
-    graph.set_entry_point("alpha")
-    graph.add_conditional_edges("alpha", check_fixed_point, {"beta": "beta", "exit_loop": END})
-    graph.add_edge("beta", "micro_val")
-    graph.add_edge("micro_val", "rca")
-    graph.add_conditional_edges("rca", hitl_gate_choice, {"alpha": "alpha", "pass": END})
-
-
 class IterationGraphBuilder(IIterationGraphBuilder):
     """ALG-001: Builds the Agent α/β Dual-Agent Iteration Loop subgraph.
 
     Wraps MicroValidationGraphBuilder as a nested subgraph.
     Includes conditional edges for convergence and HITL gate routing.
     """
+
+    @staticmethod
+    def _setup_graph_nodes(graph: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add nodes to iteration graph."""
+        graph.add_node("alpha", agent_alpha_critique)
+        graph.add_node("beta", agent_beta_resolve)
+        graph.add_node("micro_val", MicroValidationGraphBuilder.build())
+        graph.add_node("rca", root_cause_leftshift)
+
+    @staticmethod
+    def _setup_graph_edges(graph: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add edges and conditional routing to iteration graph."""
+        graph.set_entry_point("alpha")
+        graph.add_conditional_edges("alpha", check_fixed_point, {"beta": "beta", "exit_loop": END})
+        graph.add_edge("beta", "micro_val")
+        graph.add_edge("micro_val", "rca")
+        graph.add_conditional_edges("rca", hitl_gate_choice, {"alpha": "alpha", "pass": END})
 
     @classmethod
     def build(cls) -> CompiledStateGraph[WorkflowState, Any, Any, Any]:
@@ -56,6 +58,6 @@ class IterationGraphBuilder(IIterationGraphBuilder):
             Compiled LangGraph application for the α/β iteration loop.
         """
         graph = StateGraph(WorkflowState)
-        _setup_graph_nodes(graph)
-        _setup_graph_edges(graph)
+        cls._setup_graph_nodes(graph)
+        cls._setup_graph_edges(graph)
         return graph.compile()

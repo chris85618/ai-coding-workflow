@@ -59,3 +59,53 @@ Accepted (2026-05-17 修訂 — 擴大至 frameworks 層)
 | `frameworks/graph/invariants_run.py` | L26 | `# pragma: no cover` — **例外合法** (entry point 行) |
 | `frameworks/validation/clean_architecture_scanner.py` | L170, L206 | `# pragma: no branch` — 掃描器本身的 message 字串（非 comment），無違規 |
 
+
+## 變更紀錄 (Implementation Records)
+
+### 變更 #1: 品質守衛硬化 - 限制 frameworks 模組層級函數
+
+- **類型**: MODIFY
+- **日期**: 2026-05-18T01:26:00+08:00
+- **檔案**:
+  - `tests/test_code_quality.py`
+  - `docs/traceability-matrix.md`
+- **影響 ID**: TC-QUALITY-011, FR-QUALITY-010
+- **爆炸半徑**: 2
+- **嚴重度**: COSMETIC
+- **微驗證**: PASS
+- **根因分類**: NEW_CAPABILITY
+- **根因描述**: 實作 frameworks 層中禁止存在模組層級的 function 或 async function 定義，以防止領域邏輯外溢，並進一步完備與硬化 pytest 靜態 AST 檢查套件。
+- **左移動作**: 新增 AST 模組層級檢查並更新 Traceability Matrix 與 ADR。
+- **LESSON-076**: [LESSON-076](file:///c:/Users/chris/Desktop/ai-coding-workflow/docs/traceability-matrix.md#L455)
+
+## 根因分析與教訓 (Root Cause & Lessons)
+
+### LESSON-076: 限制外層模組層級函數定義防止領域與應用邏輯外溢
+
+- **根因分類**: NEW_CAPABILITY
+- **根因描述**: frameworks 層作為最外層，易因開發便利性將輔助函數隨意定義於 class 之外，從而導致未經架構約束的領域邏輯或應用邏輯外溢、混亂並散落於模組層級。
+- **5 Whys**:
+  1. 為什麼 frameworks 層會有 module-level 函數定義的風險？ → 因為有些開發者在編寫輔助邏輯或執行入口時，習慣直接在 module 層級寫 `def helper_func():`。
+  2. 為什麼這不好？ → 因為這會使得該函數無法被 class 的架構不變量約束，且可能繞過領域層與應用層的介面直接處理資料，形成灰色地帶。
+  3. 為什麼需要硬性 pytest AST 檢測？ → 為了以 100% 自動化、靜態分析的手段在 CI/CD 階段硬性攔截此類定義，確保外層程式碼完全由 classes (符合 DIP 與介面約定) 組成。
+  4. 最早可偵測點在哪？ → Stage 8 品質守衛與 TDD 驗證點。
+  5. 什麼結構性改變可以消除它？ → 於 `test_code_quality.py` 實作 AST `ModuleLevelFunctionVisitor` 靜態掃描，完全封鎖 top-level / branch-nested 的 function 與 async function 定義。
+- **瓶頸識別**:
+  - 問題發生點: Stage 8 TDD & Quality Rules
+  - 逃逸路徑: 無（此為新增品質不變量守衛）
+  - 最早可偵測點: tests/test_code_quality.py
+  - 瓶頸位置: tests/test_code_quality.py
+  - 介入類型: NEW_GUARD
+  - 預期覆蓋: 阻擋任何在 frameworks Python 檔案中 class 之外定義的 function 或 async function。
+- **左移守衛**: 實作 `test_frameworks_no_module_level_functions()` AST 走訪檢驗，無任何免除條件。
+- **更新的 Skill**: N/A (此變更直接硬化專案級測試 `test_code_quality.py`，不影響框架級 skill)。
+
+## 關聯產出物
+
+### 技術債 (DEBT-xxx)
+- N/A
+
+### 風險 (RISK-xxx)
+- N/A
+
+

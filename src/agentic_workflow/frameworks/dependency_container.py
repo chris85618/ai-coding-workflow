@@ -29,21 +29,26 @@ from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudCo
 from agentic_workflow.frameworks.config import WorkflowConfigLoader
 
 
-def _build_default_sonar_config(raw: Any) -> SonarCloudConfig:
-    fb = raw.feedback
-    d = {"token": raw.token, "project_key": raw.project_key, "organization": raw.organization}
-    d.update({"auto_convert_to_debt": fb.auto_convert_to_debt, "default_debt_priority": fb.default_debt_priority})
-    return SonarCloudConfig(**d, on_missing_config=raw.on_missing_config)
+class SonarConfigLoader:
+    """Helper class to build and load default sonar config without module level functions."""
 
+    @staticmethod
+    def build(raw: Any) -> SonarCloudConfig:
+        """Build SonarCloudConfig from raw configuration."""
+        fb = raw.feedback
+        d = {"token": raw.token, "project_key": raw.project_key, "organization": raw.organization}
+        d.update({"auto_convert_to_debt": fb.auto_convert_to_debt, "default_debt_priority": fb.default_debt_priority})
+        return SonarCloudConfig(**d, on_missing_config=raw.on_missing_config)
 
-def _load_default_sonar_config() -> SonarCloudConfig:
-    """Helper to load default sonar configuration for container field initialization."""
-    try:
-        raw: Any = WorkflowConfigLoader.load().sonarcloud
-        cfg = _build_default_sonar_config(raw)
-    except Exception:
-        cfg = SonarCloudConfig()
-    return cfg
+    @classmethod
+    def load(cls) -> SonarCloudConfig:
+        """Load default sonar configuration."""
+        try:
+            raw: Any = WorkflowConfigLoader.load().sonarcloud
+            cfg = cls.build(raw)
+        except Exception:
+            cfg = SonarCloudConfig()
+        return cfg
 
 
 @dataclass
@@ -60,7 +65,7 @@ class DependencyContainer:
     reasoner: IAgentReasoner
     orchestrator: IOrchestratorService = field(default_factory=OrchestratorService)
     security_audit: ISecurityAuditService = field(default_factory=SecurityAuditService)
-    sonar_config: SonarCloudConfig = field(default_factory=_load_default_sonar_config)
+    sonar_config: SonarCloudConfig = field(default_factory=SonarConfigLoader.load)
 
     def __post_init__(self) -> None:
         """Register the filesystem and executor implementations under frameworks."""
@@ -102,3 +107,7 @@ class DependencyContainer:
         from agentic_workflow.frameworks.sonarcloud.sonar_adapter import SonarCloudAdapter
 
         return SonarCloudAdapter(self.sonar_config)
+
+
+# Backward compatibility facades
+_load_default_sonar_config = SonarConfigLoader.load

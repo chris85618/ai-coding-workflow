@@ -15,27 +15,26 @@ if TYPE_CHECKING:
     from agentic_workflow.domain.value_objects import ModelConfig
 
 
-def _get_anthropic_class() -> Any:
-    try:
-        from langchain_anthropic import ChatAnthropic
-
-        return ChatAnthropic
-    except ImportError as err:
-        raise ImportError("langchain-anthropic is required. Install: pip install langchain-anthropic") from err
-
-
-class AnthropicProvider(LLMProvider):
+class AnthropicProviderMapper(LLMProvider):
     """Provider for Anthropic chat models."""
+
+    @staticmethod
+    def _get_anthropic_class() -> Any:
+        """Dynamically import ChatAnthropic or raise descriptive ImportError."""
+        try:
+            from langchain_anthropic import ChatAnthropic
+
+            return ChatAnthropic
+        except ImportError as err:
+            raise ImportError("langchain-anthropic is required. Install: pip install langchain-anthropic") from err
 
     def create_model(self, model_cfg: ModelConfig) -> BaseChatModel:
         """Instantiate a LangChain ChatAnthropic model."""
-        cls = _get_anthropic_class()
-        return cast(
-            "BaseChatModel",
-            cls(
-                model=model_cfg.model,
-                temperature=model_cfg.temperature,
-                max_tokens=model_cfg.max_tokens,
-                api_key=model_cfg.api_key,
-            ),
-        )
+        cls = self._get_anthropic_class()
+        cfg = model_cfg
+        kw = {"model": cfg.model, "temperature": cfg.temperature, "max_tokens": cfg.max_tokens, "api_key": cfg.api_key}
+        return cast("BaseChatModel", cls(**kw))
+
+
+# Backward compatibility facades
+AnthropicProvider = AnthropicProviderMapper

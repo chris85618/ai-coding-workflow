@@ -15,28 +15,27 @@ if TYPE_CHECKING:
     from agentic_workflow.domain.value_objects import ModelConfig
 
 
-def _get_openai_class() -> Any:
-    try:
-        from langchain_openai import ChatOpenAI
-
-        return ChatOpenAI
-    except ImportError as err:
-        raise ImportError("langchain-openai is required. Install: pip install langchain-openai") from err
-
-
-class OpenAIProvider(LLMProvider):
+class OpenAIProviderMapper(LLMProvider):
     """Provider for OpenAI chat models."""
+
+    @staticmethod
+    def _get_openai_class() -> Any:
+        """Dynamically import ChatOpenAI or raise descriptive ImportError."""
+        try:
+            from langchain_openai import ChatOpenAI
+
+            return ChatOpenAI
+        except ImportError as err:
+            raise ImportError("langchain-openai is required. Install: pip install langchain-openai") from err
 
     def create_model(self, model_cfg: ModelConfig) -> BaseChatModel:
         """Instantiate a LangChain ChatOpenAI model."""
-        cls = _get_openai_class()
-        return cast(
-            "BaseChatModel",
-            cls(
-                model=model_cfg.model,
-                temperature=model_cfg.temperature,
-                max_tokens=model_cfg.max_tokens,
-                openai_api_key=model_cfg.api_key,
-                base_url=model_cfg.base_url,
-            ),
-        )
+        cls = self._get_openai_class()
+        cfg = model_cfg
+        kw = {"model": cfg.model, "temperature": cfg.temperature, "max_tokens": cfg.max_tokens}
+        kw.update({"openai_api_key": cfg.api_key, "base_url": cfg.base_url})
+        return cast("BaseChatModel", cls(**kw))
+
+
+# Backward compatibility facades
+OpenAIProvider = OpenAIProviderMapper

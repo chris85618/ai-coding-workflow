@@ -361,6 +361,8 @@
 | TC-QUALITY-007 | 驗證任一 framework code 的 branch 數必須 <= 1 | FR-QUALITY-006 | validates | ✅ (NEW: AST Branch Count Check) |
 | TC-QUALITY-008 | 驗證任一 framework code 的 ast.Return 節點數須 <= 1 | FR-QUALITY-007 | validates | ✅ (NEW: AST Return Count Check) |
 | TC-QUALITY-009 | 驗證任一 framework code 中的類別都必須繼承自內層的抽象 | FR-QUALITY-008 | validates | ✅ (NEW: AST Inheritance Check) |
+| TC-QUALITY-010 | 驗證任一 framework code 的方法都必須覆寫內層抽象的方法 | FR-QUALITY-009 | validates | ✅ (NEW: AST Override Check) |
+| TC-QUALITY-011 | 驗證任一 framework code 中禁止存在任何模組層級的 function 或 async function 定義 | FR-QUALITY-010 | validates | ✅ (NEW: AST Module Level Check) |
 
 
 ### FR → Skill 實作映射
@@ -452,6 +454,7 @@
 | LESSON-073 | PROCESS_GAP | `phase-0-orchestration.md` (python -m pytest) | - | guards |
 | LESSON-074 | CODE_QUALITY | `convergence.py` (unused imports cleanup) | - | guards |
 | LESSON-075 | ARCHITECTURE_EROSION | `AGENTS.md` (Scope Rules) | ADR-STR-024 | guards |
+| LESSON-076 | NEW_CAPABILITY | `tests/test_code_quality.py` | ADR-STR-027 | guards |
 
 > LESSON-015~019, LESSON-021, LESSON-035~039 不存在（ID 跳號或已合併）
 
