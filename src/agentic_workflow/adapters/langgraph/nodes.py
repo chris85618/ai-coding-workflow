@@ -649,7 +649,7 @@ def node_step_3_backward_trace(state: WorkflowState) -> WorkflowState:
 
         # High level specs must have downstream coverage
         for nid in changed_ids:
-            if nid.startswith("BG-") or nid.startswith("S-"):
+            if nid.startswith(("BG-", "S-")):
                 downstream = ["FEA-001"] if metadata.get("has_downstream", True) else []
                 node = TraceabilityNode(id=nid, type=nid.split("-")[0], downstream=downstream)
                 if not node.downstream:
