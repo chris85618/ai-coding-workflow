@@ -23,7 +23,7 @@ dev = [
     "mypy>=2.1.0",
     "types-requests>=2.33.0",
     "types-PyYAML",
-    "pdoc>=14.0.0",
+    "pdoc>=16.0.0",
     "mkdocs>=1.5.3",
     "mkdocs-macros-plugin>=1.0.0",
     "bandit>=1.9.4",
