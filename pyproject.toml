@@ -19,7 +19,7 @@ dev = [
     "pytest-bdd>=8.1.0",
     "pytest-cov>=6.0",
     "crosshair-tool>=0.0.104",
-    "ruff>=0.11",
+    "ruff>=0.15.14",
     "mypy>=2.1.0",
     "types-requests>=2.33.0",
     "types-PyYAML",
