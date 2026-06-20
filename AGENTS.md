@@ -76,6 +76,7 @@ Direct, concrete, builder-to-builder. Name the file, function, command, and user
 | `skills/gstack/` | gstack | Workflow engine: QA, ship, review, office-hours |
 | `skills/understand-anything/` | Understand Anything | Code comprehension: knowledge graph, dashboard, diff |
 | `skills/skillfortify/` | SkillFortify | Supply chain security: SBOM, trust chain, verification |
+| `skills/ponytail/` | Ponytail | Lazy senior dev mode: YAGNI, stdlib-first, minimal code |
 
 **$FRAMEWORK_ROOT** = `~/.setup/ai_coding`（本文件所在位置）。
 執行邏輯位於 `$FRAMEWORK_ROOT/skills/workflow-skills/`（唯一執行來源）。
@@ -191,6 +192,17 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 | Lockfile | `skillfortify lock . --output skill-lock.json` |
 | 信任鏈驗證 | `skillfortify trust <module>` |
 | 安全報告 | `skillfortify dashboard --output report.html` |
+
+### Ponytail (Lazy Senior Dev)
+
+| Pattern | Command |
+|---------|---------|
+| 懶人模式 / lazy mode / YAGNI / minimal / simplest | `/ponytail [lite|full|ultra]` |
+| 過度工程審查 / over-engineering review | `/ponytail-review` |
+| 全庫審計 / repo-wide bloat audit | `/ponytail-audit` |
+| 技術債追蹤 (ponytail: comments) | `/ponytail-debt` |
+| 影響指標 / impact scoreboard | `/ponytail-gain` |
+| 指令參考 | `/ponytail-help` |
 
 ---
 

@@ -10,3 +10,6 @@
 [submodule "skills/skillfortify"]
 	path = skills/skillfortify
 	url = https://github.com/qualixar/skillfortify.git
+[submodule "skills/ponytail"]
+	path = skills/ponytail
+	url = https://github.com/DietrichGebert/ponytail.git
