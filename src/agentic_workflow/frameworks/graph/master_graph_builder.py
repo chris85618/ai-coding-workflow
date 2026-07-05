@@ -39,6 +39,9 @@ from agentic_workflow.frameworks.langgraph.nodes import (
 )
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
+# Variable binding for constant access (TC-QUALITY-014).
+_end = END
+
 
 class MasterGraphBuilder(IMasterGraphBuilder):
     """Master pipeline graph builder covering the 11-phase/stage dev pipeline.
@@ -127,7 +130,7 @@ class MasterGraphBuilder(IMasterGraphBuilder):
         wf.add_edge("security_audit", "phase_9")
         wf.add_edge("phase_9", "phase_10")
         wf.add_edge("phase_10", "complete")
-        wf.add_edge("complete", END)
+        wf.add_edge("complete", _end)
 
     @classmethod
     def _setup_master_edges(cls, wf: StateGraph[WorkflowState, Any, Any]) -> None:

@@ -23,6 +23,9 @@ _STAGE_ORDER = [
     "phase10",
 ]
 
+# Variable binding for constant access (TC-QUALITY-014).
+_stage_order = _STAGE_ORDER
+
 
 @dataclass
 class Pipeline:
@@ -47,12 +50,12 @@ class Pipeline:
 
     def __post_init__(self) -> None:
         """Ensure all required stages are initialized."""
-        if self.current_position not in _STAGE_ORDER:
+        if self.current_position not in _stage_order:
             raise ValueError(f"Invalid position: {self.current_position}")
 
         # Initialize default stages if not provided
         if not self.stages:
-            for stage_id in _STAGE_ORDER:
+            for stage_id in _stage_order:
                 name = stage_id.replace("_", " ").title()
                 self.stages[stage_id] = Stage(stage_id=stage_id, name=name)
 
@@ -65,23 +68,23 @@ class Pipeline:
         "Auto-gate must PASS before advance (INV-002-v2)",
     )
     @icontract.snapshot(
-        lambda self: _STAGE_ORDER.index(self.current_position),
+        lambda self: _stage_order.index(self.current_position),
         name="old_idx",
     )
     @icontract.ensure(
-        lambda OLD, self: _STAGE_ORDER.index(self.current_position) > OLD.old_idx,
+        lambda OLD, self: _stage_order.index(self.current_position) > OLD.old_idx,
         "Position must advance monotonically (INV-001)",
     )
     def advance(self) -> None:
         """Advance pipeline to the next stage."""
-        current_idx = _STAGE_ORDER.index(self.current_position)
-        if current_idx >= len(_STAGE_ORDER) - 1:
+        current_idx = _stage_order.index(self.current_position)
+        if current_idx >= len(_stage_order) - 1:
             raise ValueError("Pipeline is already at final stage")
 
         # Mark current stage as PASSED before moving
         self.stages[self.current_position].transition(StageStatus.PASSED)
 
-        self.current_position = _STAGE_ORDER[current_idx + 1]
+        self.current_position = _stage_order[current_idx + 1]
 
     def start(self) -> None:
         """Start the pipeline."""

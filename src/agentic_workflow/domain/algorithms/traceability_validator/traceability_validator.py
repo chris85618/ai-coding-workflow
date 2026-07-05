@@ -42,7 +42,8 @@ class TraceabilityValidator:
     @classmethod
     def validate_id_format(cls, node_id: str) -> bool:
         """Checks if ID matches the {PREFIX}-{NNN} format."""
-        pattern = r"^(" + "|".join(cls.PREFIXES) + r")-\d{3}$"
+        joined_prefixes = "|".join(cls.PREFIXES)
+        pattern = rf"^({joined_prefixes})-\d{{3}}$"
         return bool(re.match(pattern, node_id))
 
     @classmethod
@@ -88,7 +89,8 @@ class TraceabilityValidator:
     def run_validation(cls, matrix_content: str) -> dict[str, Any]:
         """Runs a complete validation against a matrix markdown content."""
         # Simple extraction logic (mocking full markdown parsing)
-        re.findall(r"\b(" + "|".join(cls.PREFIXES) + r")-\d{3}\b", matrix_content)
+        joined_prefixes = "|".join(cls.PREFIXES)
+        re.findall(rf"\b({joined_prefixes})-\d{{3}}\b", matrix_content)
 
         # In a real implementation we would parse upstream/downstream
         # For now, we simulate success

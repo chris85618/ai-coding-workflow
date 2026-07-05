@@ -119,17 +119,13 @@ def set_container(container: WorkflowContainerProtocol | None) -> None:
     """Initialize the global container for nodes."""
     global _CONTAINER
     _CONTAINER = container
-    sys_mod = __import__("s" + "y" + "s")
-    modules_dict = getattr(sys_mod, "m" + "o" + "d" + "u" + "l" + "e" + "s")
-    target = ".".join(["agentic_workflow", "frameworks", "langgraph", "nodes"])
-    if target in modules_dict and modules_dict[target].set_container is not set_container:
-        modules_dict[target].set_container(container)
 
 
 def _get_container() -> WorkflowContainerProtocol:
-    if _CONTAINER is None:
+    container = _CONTAINER
+    if container is None:
         raise RuntimeError("DependencyContainer not initialized")
-    return _CONTAINER
+    return container
 
 
 def node_start_pipeline(state: WorkflowState) -> WorkflowState:
@@ -270,7 +266,8 @@ def should_continue_iterating(state: WorkflowState) -> str:
     # Fixed-point reached if max_iterations hit or stage is passed
     if stage.status == StageStatus.PASSED:
         return "gate"
-    if stage.iteration_count >= MAX_ITERATIONS:
+    max_iterations = MAX_ITERATIONS
+    if stage.iteration_count >= max_iterations:
         return "gate"
     return "iterate"
 

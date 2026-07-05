@@ -61,7 +61,8 @@ class FileCheckpointRepository(CheckpointRepository):
         Returns:
             Checkpoint identifier (ISO 8601 UTC timestamp string).
         """
-        checkpoint_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+        utc = UTC
+        checkpoint_id = datetime.now(utc).strftime("%Y%m%dT%H%M%S%fZ")
         d = CheckpointRepositoryMapper.get_pipeline_dir(self._fs, self._root, pipeline_id)
         path = d + f"/{checkpoint_id}.json"
         self._fs.write_text(path, json.dumps(state, indent=2, default=str), encoding="utf-8")

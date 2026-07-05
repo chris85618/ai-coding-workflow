@@ -81,22 +81,26 @@ class TestModuleConstants:
 
     def test_metric_keys_non_empty(self) -> None:
         """METRIC_KEYS must have at least the core quality metrics."""
-        assert "coverage" in METRIC_KEYS
-        assert "complexity" in METRIC_KEYS
-        assert "alert_status" in METRIC_KEYS
+        metric_keys = METRIC_KEYS
+        assert "coverage" in metric_keys
+        assert "complexity" in metric_keys
+        assert "alert_status" in metric_keys
 
     def test_key_map_maps_complexity(self) -> None:
         """Complexity → cyclomatic_complexity."""
-        assert KEY_MAP["complexity"] == "cyclomatic_complexity"
+        key_map = KEY_MAP
+        assert key_map["complexity"] == "cyclomatic_complexity"
 
     def test_key_map_maps_duplication(self) -> None:
         """duplicated_lines_density → duplication."""
-        assert KEY_MAP["duplicated_lines_density"] == "duplication"
+        key_map = KEY_MAP
+        assert key_map["duplicated_lines_density"] == "duplication"
 
     def test_closed_statuses_contains_closed(self) -> None:
         """CLOSED_STATUSES must include both closed states."""
-        assert "CLOSED" in CLOSED_STATUSES
-        assert "RESOLVED" in CLOSED_STATUSES
+        closed_statuses = CLOSED_STATUSES
+        assert "CLOSED" in closed_statuses
+        assert "RESOLVED" in closed_statuses
 
 
 # ── SonarCloudAdapter.__init__ ─────────────────────────────────────────────────
@@ -176,7 +180,8 @@ class TestGetMetrics:
         adapter.get_metrics()
         stub = mock_client.measures.get_component_with_specified_measures
         sent_keys = stub.call_args[1]["metricKeys"].split(",")
-        for key in METRIC_KEYS:
+        metric_keys = METRIC_KEYS
+        for key in metric_keys:
             assert key in sent_keys
 
     def test_correct_project_key_sent(self) -> None:

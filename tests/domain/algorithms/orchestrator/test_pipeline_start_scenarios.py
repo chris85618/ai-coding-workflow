@@ -175,9 +175,10 @@ def then_position_greater(ctx: dict[str, Any], pos: str) -> None:
     """Step: verify position advance."""
     from agentic_workflow.domain.aggregates.pipeline import _STAGE_ORDER
 
+    stage_order = _STAGE_ORDER
     start = ctx.get("start_position", "phase2")
     current = ctx["pipeline"].current_position
-    assert _STAGE_ORDER.index(current) > _STAGE_ORDER.index(start)
+    assert stage_order.index(current) > stage_order.index(start)
 
 
 @then("the position does not go backward")

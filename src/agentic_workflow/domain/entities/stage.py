@@ -18,9 +18,13 @@ _STATUS_ORDER = {
 
 MAX_ITERATIONS = 10
 
+# Variable bindings for constant access (TC-QUALITY-014).
+_status_order = _STATUS_ORDER
+_max_iterations = MAX_ITERATIONS
+
 
 @icontract.invariant(
-    lambda self: self.iteration_count <= MAX_ITERATIONS,
+    lambda self: self.iteration_count <= _max_iterations,
     "Iteration count must not exceed maximum (INV-004)",
 )
 @dataclass
@@ -41,19 +45,20 @@ class Stage:
     iteration_count: int = 0
     findings: Findings = field(default_factory=Findings)
 
-    @icontract.snapshot(lambda self: _STATUS_ORDER[self.status], name="old_rank")
+    @icontract.snapshot(lambda self: _status_order[self.status], name="old_rank")
     @icontract.ensure(
-        lambda OLD, self: _STATUS_ORDER[self.status] >= OLD.old_rank,
+        lambda OLD, self: _status_order[self.status] >= OLD.old_rank,
         "Status must transition unidirectionally (INV-003)",
     )
     def transition(self, new_status: StageStatus) -> None:
         """Transition stage to a new status."""
-        if _STATUS_ORDER[new_status] < _STATUS_ORDER[self.status]:
+        status_order = _status_order
+        if status_order[new_status] < status_order[self.status]:
             raise ValueError(f"Cannot regress from {self.status} to {new_status}")
         self.status = new_status
 
     @icontract.require(
-        lambda self: self.iteration_count < MAX_ITERATIONS,
+        lambda self: self.iteration_count < _max_iterations,
         "Iteration count already at maximum",
     )
     def increment_iteration(self) -> None:

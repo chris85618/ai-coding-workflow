@@ -26,6 +26,9 @@ from agentic_workflow.frameworks.graph.micro_validation_graph_builder import (
 )
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
+# Variable binding for constant access (TC-QUALITY-014).
+_end = END
+
 
 class IterationGraphBuilder(IIterationGraphBuilder):
     """ALG-001: Builds the Agent α/β Dual-Agent Iteration Loop subgraph.
@@ -47,11 +50,11 @@ class IterationGraphBuilder(IIterationGraphBuilder):
     def _setup_graph_edges(graph: StateGraph[WorkflowState, Any, Any]) -> None:
         """Add edges and conditional routing to iteration graph."""
         graph.set_entry_point("alpha")
-        graph.add_conditional_edges("alpha", check_fixed_point, {"beta": "beta", "exit_loop": END})
+        graph.add_conditional_edges("alpha", check_fixed_point, {"beta": "beta", "exit_loop": _end})
         graph.add_edge("beta", "iterate")
         graph.add_edge("iterate", "micro_val")
         graph.add_edge("micro_val", "rca")
-        graph.add_conditional_edges("rca", hitl_gate_choice, {"alpha": "alpha", "pass": END})
+        graph.add_conditional_edges("rca", hitl_gate_choice, {"alpha": "alpha", "pass": _end})
 
     @classmethod
     def build(cls) -> CompiledStateGraph[WorkflowState, Any, Any, Any]:

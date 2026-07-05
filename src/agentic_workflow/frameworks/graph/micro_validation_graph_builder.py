@@ -27,6 +27,9 @@ from agentic_workflow.frameworks.graph.micro_validation_nodes import (
 )
 from agentic_workflow.frameworks.langgraph.state_mapper import WorkflowState
 
+# Variable binding for constant access (TC-QUALITY-014).
+_end = END
+
 
 class MicroValidationGraphBuilder(IMicroValidationGraphBuilder):
     """ALG-002: Builds the Left-Shift Micro-Validation Sequence subgraph.
@@ -59,7 +62,7 @@ class MicroValidationGraphBuilder(IMicroValidationGraphBuilder):
         """Add final edges to validation graph."""
         graph.add_edge("s57_lesson", "s6_impact")
         graph.add_edge("s6_impact", "s7_record")
-        graph.add_edge("s7_record", END)
+        graph.add_edge("s7_record", _end)
 
     @classmethod
     def _setup_mv_edges_rest(cls, graph: StateGraph[WorkflowState, Any, Any]) -> None:

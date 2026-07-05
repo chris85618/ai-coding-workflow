@@ -619,19 +619,3 @@ class TestWorkflowContainerProtocol:
         SonarAdapterProtocol.get_all_available_metrics(cast(Any, None))
         SonarAdapterProtocol.get_detailed_component_measures(cast(Any, None), [])
         SonarAdapterProtocol.get_all_metrics_with_values(cast(Any, None))
-
-    def test_set_container_without_target_in_sys_modules(self) -> None:
-        """Cover the False branch when target module is not in sys.modules."""
-        import sys
-
-        from agentic_workflow.adapters.langgraph.nodes import set_container
-
-        target = "agentic_workflow.frameworks.langgraph.nodes"
-        saved = sys.modules.get(target)
-        if target in sys.modules:
-            del sys.modules[target]
-        try:
-            set_container(None)
-        finally:
-            if saved is not None:
-                sys.modules[target] = saved

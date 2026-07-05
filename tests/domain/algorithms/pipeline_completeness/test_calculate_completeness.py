@@ -37,9 +37,11 @@ class TestCalculateCompleteness:
 
     def test_complete_returns_score_10(self, tmp_path: Path) -> None:
         """Verify 100% completeness logic."""
-        _make_repo(tmp_path, FULL_DOCS)
-        (tmp_path / ADR_GATE_FILE).parent.mkdir(parents=True, exist_ok=True)
-        (tmp_path / ADR_GATE_FILE).write_text("gate", encoding="utf-8")
+        full_docs = FULL_DOCS
+        adr_gate_file = ADR_GATE_FILE
+        _make_repo(tmp_path, full_docs)
+        (tmp_path / adr_gate_file).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / adr_gate_file).write_text("gate", encoding="utf-8")
         result = PipelineCompletenessChecker(tmp_path).calculate()
         assert result["completeness_score"] == 10
         assert result["completeness_ratio"] == 1.0

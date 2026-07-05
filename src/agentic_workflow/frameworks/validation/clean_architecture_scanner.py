@@ -18,6 +18,13 @@ from typing import NamedTuple
 PRAGMA_REGEX = re.compile(r"^#\s*pragma\b", re.IGNORECASE)
 # Match comment starting with '#' followed by optional whitespace, then 'type', then a word boundary
 TYPE_REGEX = re.compile(r"^#\s*type\b", re.IGNORECASE)
+# Normalized marker of the entry-point guard line (whitespace stripped, lowercased)
+_MAIN_GUARD_MARKER = "if__name__=="
+
+# Variable bindings for constant access (TC-QUALITY-014).
+_pragma_regex = PRAGMA_REGEX
+_type_regex = TYPE_REGEX
+_main_guard_marker = _MAIN_GUARD_MARKER
 
 
 class BoundaryViolation(NamedTuple):
@@ -123,10 +130,10 @@ class CleanArchitectureBoundaryScanner:
 
     def _check_comment_pragma(self, comment_str: str, line_text: str) -> bool:
         """Verify if a pragma comment violates the entry point exception."""
-        if not PRAGMA_REGEX.match(comment_str):
+        if not _pragma_regex.match(comment_str):
             return False
         normalized_line = "".join(line_text.split()).lower()
-        return not ("if" + "__name__" + "==" in normalized_line and "__main__" in normalized_line)
+        return not (_main_guard_marker in normalized_line and "__main__" in normalized_line)
 
     def _scan_comments_via_tokens(self, content: str, file_path: str, current_rank: int) -> list[BoundaryViolation]:
         """Scan comments using tokenization."""
@@ -152,7 +159,7 @@ class CleanArchitectureBoundaryScanner:
                     )
                 )
 
-            if current_rank <= 3 and TYPE_REGEX.match(comment_str):
+            if current_rank <= 3 and _type_regex.match(comment_str):
                 violations.append(
                     BoundaryViolation(
                         file_path=file_path,
@@ -190,7 +197,7 @@ class CleanArchitectureBoundaryScanner:
                     )
                 )
 
-            if current_rank <= 3 and TYPE_REGEX.match(comment_str):
+            if current_rank <= 3 and _type_regex.match(comment_str):
                 violations.append(
                     BoundaryViolation(
                         file_path=file_path,

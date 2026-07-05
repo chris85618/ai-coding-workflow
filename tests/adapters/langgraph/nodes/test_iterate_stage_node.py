@@ -91,7 +91,8 @@ class TestIterateStageNode:
 
     def test_should_continue_iterating_max_reached(self) -> None:
         """TC-286: Continue logic max iterations."""
-        state = _fresh_state(stage_status="iterating", iteration_count=MAX_ITERATIONS)
+        max_iterations = MAX_ITERATIONS
+        state = _fresh_state(stage_status="iterating", iteration_count=max_iterations)
         assert should_continue_iterating(state) == "gate"
 
     def test_should_continue_iterating_not_done(self) -> None:

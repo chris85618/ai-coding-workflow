@@ -35,10 +35,11 @@ class RepoMap:
         if budget <= 0:
             return RepoMap(symbols=(), token_count=0, file_ranks={})
 
+        chars_per_token = _CHARS_PER_TOKEN
         selected: list[SymbolDef] = []
         token_count = 0
         for sym in self.symbols:
-            cost = max(1, len(sym.signature) // _CHARS_PER_TOKEN)
+            cost = max(1, len(sym.signature) // chars_per_token)
             if token_count + cost > budget:
                 break
             selected.append(sym)

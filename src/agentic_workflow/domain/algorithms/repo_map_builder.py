@@ -14,9 +14,8 @@ from collections.abc import Callable
 import icontract
 
 from agentic_workflow.domain.value_objects import RepoMap
+from agentic_workflow.domain.value_objects.repo_map import _CHARS_PER_TOKEN
 from agentic_workflow.domain.value_objects.symbol_def import SymbolDef
-
-_CHARS_PER_TOKEN = 4
 
 
 class RepoMapBuilder:

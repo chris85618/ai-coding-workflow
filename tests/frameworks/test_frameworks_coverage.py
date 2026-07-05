@@ -927,31 +927,6 @@ class TestLangGraphNodes:
         finally:
             set_container(None)
 
-    def test_set_container_uncovered_branch(self) -> None:
-        """Covers the branch where frameworks set_container is different."""
-        import sys
-
-        target = "agentic_workflow.frameworks.langgraph.nodes"
-
-        # Save original module if it exists
-        original_module = sys.modules.get(target)
-
-        # Create a mock module where set_container is different
-        mock_module = MagicMock()
-        mock_module.set_container = MagicMock()
-
-        sys.modules[target] = mock_module
-        try:
-            # Call set_container, which should trigger the branch
-            set_container(None)
-            mock_module.set_container.assert_called_once_with(None)
-        finally:
-            # Restore original module
-            if original_module is not None:
-                sys.modules[target] = original_module
-            else:
-                sys.modules.pop(target, None)
-
 
 # ── Clean Architecture Scanner Uncovered Branches Tests ───────────────────────
 

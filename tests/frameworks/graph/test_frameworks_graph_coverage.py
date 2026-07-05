@@ -43,6 +43,8 @@ DUMMY_STATE = WorkflowState(
     last_gate_decision=None,
     metadata={},
 )
+# Variable binding for constant access (TC-QUALITY-014).
+_dummy_state = DUMMY_STATE
 
 
 class TestMicroValidationStepNodes:
@@ -52,43 +54,43 @@ class TestMicroValidationStepNodes:
 
     def test_step_0_format(self) -> None:
         """TC-041: Step 0 passthrough."""
-        assert step_0_format(DUMMY_STATE) is DUMMY_STATE
+        assert step_0_format(_dummy_state) is _dummy_state
 
     def test_step_1_id_structure(self) -> None:
         """TC-042: Step 1 passthrough."""
-        assert step_1_id_structure(DUMMY_STATE) is DUMMY_STATE
+        assert step_1_id_structure(_dummy_state) is _dummy_state
 
     def test_step_2_forward_trace(self) -> None:
         """TC-043: Step 2 passthrough."""
-        assert step_2_forward_trace(DUMMY_STATE) is DUMMY_STATE
+        assert step_2_forward_trace(_dummy_state) is _dummy_state
 
     def test_step_3_backward_trace(self) -> None:
         """TC-044: Step 3 passthrough."""
-        assert step_3_backward_trace(DUMMY_STATE) is DUMMY_STATE
+        assert step_3_backward_trace(_dummy_state) is _dummy_state
 
     def test_step_4_semantic(self) -> None:
         """TC-045: Step 4 passthrough."""
-        assert step_4_semantic(DUMMY_STATE) is DUMMY_STATE
+        assert step_4_semantic(_dummy_state) is _dummy_state
 
     def test_step_5_orphan(self) -> None:
         """TC-046: Step 5 passthrough."""
-        assert step_5_orphan(DUMMY_STATE) is DUMMY_STATE
+        assert step_5_orphan(_dummy_state) is _dummy_state
 
     def test_step_5_5_lateral_trace(self) -> None:
         """TC-047: Step 5.5 passthrough."""
-        assert step_5_5_lateral_trace(DUMMY_STATE) is DUMMY_STATE
+        assert step_5_5_lateral_trace(_dummy_state) is _dummy_state
 
     def test_step_5_7_lesson_reuse(self) -> None:
         """TC-048: Step 5.7 passthrough."""
-        assert step_5_7_lesson_reuse(DUMMY_STATE) is DUMMY_STATE
+        assert step_5_7_lesson_reuse(_dummy_state) is _dummy_state
 
     def test_step_6_trigger_impact(self) -> None:
         """TC-049: Step 6 passthrough."""
-        assert step_6_trigger_impact(DUMMY_STATE) is DUMMY_STATE
+        assert step_6_trigger_impact(_dummy_state) is _dummy_state
 
     def test_step_7_record_change(self) -> None:
         """TC-050: Step 7 passthrough."""
-        assert step_7_record_change(DUMMY_STATE) is DUMMY_STATE
+        assert step_7_record_change(_dummy_state) is _dummy_state
 
 
 class TestIterationGraphNodes:
@@ -98,33 +100,33 @@ class TestIterationGraphNodes:
 
     def test_agent_alpha_critique(self) -> None:
         """TC-051: Alpha critique passthrough."""
-        assert agent_alpha_critique(DUMMY_STATE) is DUMMY_STATE
+        assert agent_alpha_critique(_dummy_state) is _dummy_state
 
     def test_agent_beta_resolve(self) -> None:
         """TC-052: Beta resolve passthrough."""
-        assert agent_beta_resolve(DUMMY_STATE) is DUMMY_STATE
+        assert agent_beta_resolve(_dummy_state) is _dummy_state
 
     def test_root_cause_leftshift(self) -> None:
         """TC-053: RCA leftshift passthrough."""
-        assert root_cause_leftshift(DUMMY_STATE) is DUMMY_STATE
+        assert root_cause_leftshift(_dummy_state) is _dummy_state
 
     def test_check_fixed_point_returns_beta(self) -> None:
         """TC-054: Fixed point check returns beta."""
-        beta_state = DUMMY_STATE.copy()
+        beta_state = _dummy_state.copy()
         beta_state["current_findings"] = ["CRITICAL: missing validation"]
         result = check_fixed_point(beta_state)
         assert result == "beta"
 
     def test_check_fixed_point_returns_exit_loop(self) -> None:
         """TC-054b: Fixed point check returns exit_loop when converged."""
-        converged_state = DUMMY_STATE.copy()
+        converged_state = _dummy_state.copy()
         converged_state["current_findings"] = ["YAGNI: unnecessary log"]
         result = check_fixed_point(converged_state)
         assert result == "exit_loop"
 
     def test_hitl_gate_choice_returns_pass(self) -> None:
         """TC-055: HITL choice returns pass."""
-        result = hitl_gate_choice(DUMMY_STATE)
+        result = hitl_gate_choice(_dummy_state)
         assert result == "pass"
 
     def test_iterate_stage(self) -> None:
@@ -158,7 +160,7 @@ class TestIterationGraphNodes:
 
         try:
             set_container(container)
-            res = iterate_stage(DUMMY_STATE)
+            res = iterate_stage(_dummy_state)
             assert res is not None
         finally:
             set_container(None)
@@ -171,47 +173,47 @@ class TestMasterPipelineNodes:
 
     def test_phase_0_init(self) -> None:
         """TC-056: Phase 0 passthrough."""
-        assert phase_0_init(DUMMY_STATE) is DUMMY_STATE
+        assert phase_0_init(_dummy_state) is _dummy_state
 
     def test_phase_1_understanding(self) -> None:
         """TC-057: Phase 1 passthrough."""
-        assert phase_1_understanding(DUMMY_STATE) is DUMMY_STATE
+        assert phase_1_understanding(_dummy_state) is _dummy_state
 
     def test_phase_2_analysis(self) -> None:
         """TC-058: Phase 2 passthrough."""
-        assert phase_2_analysis(DUMMY_STATE) is DUMMY_STATE
+        assert phase_2_analysis(_dummy_state) is _dummy_state
 
     def test_stage_3_planning(self) -> None:
         """TC-059: Stage 3 passthrough."""
-        assert stage_3_planning(DUMMY_STATE) is DUMMY_STATE
+        assert stage_3_planning(_dummy_state) is _dummy_state
 
     def test_stage_4_algorithm(self) -> None:
         """TC-060: Stage 4 passthrough."""
-        assert stage_4_algorithm(DUMMY_STATE) is DUMMY_STATE
+        assert stage_4_algorithm(_dummy_state) is _dummy_state
 
     def test_stage_5_ooad(self) -> None:
         """TC-061: Stage 5 passthrough."""
-        assert stage_5_ooad(DUMMY_STATE) is DUMMY_STATE
+        assert stage_5_ooad(_dummy_state) is _dummy_state
 
     def test_stage_6_formal(self) -> None:
         """TC-062: Stage 6 passthrough."""
-        assert stage_6_formal(DUMMY_STATE) is DUMMY_STATE
+        assert stage_6_formal(_dummy_state) is _dummy_state
 
     def test_stage_7_bdd(self) -> None:
         """TC-063: Stage 7 passthrough."""
-        assert stage_7_bdd(DUMMY_STATE) is DUMMY_STATE
+        assert stage_7_bdd(_dummy_state) is _dummy_state
 
     def test_stage_8_tdd(self) -> None:
         """TC-064: Stage 8 passthrough."""
-        assert stage_8_tdd(DUMMY_STATE) is DUMMY_STATE
+        assert stage_8_tdd(_dummy_state) is _dummy_state
 
     def test_phase_9_ship(self) -> None:
         """TC-065: Phase 9 passthrough."""
-        assert phase_9_ship(DUMMY_STATE) is DUMMY_STATE
+        assert phase_9_ship(_dummy_state) is _dummy_state
 
     def test_phase_10_retro(self) -> None:
         """TC-066: Phase 10 passthrough."""
-        assert phase_10_retro(DUMMY_STATE) is DUMMY_STATE
+        assert phase_10_retro(_dummy_state) is _dummy_state
 
 
 class TestGraphBuilders:

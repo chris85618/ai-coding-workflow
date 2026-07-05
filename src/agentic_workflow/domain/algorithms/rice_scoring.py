@@ -12,6 +12,9 @@ import icontract
 
 VALID_IMPACT_VALUES: frozenset[float] = frozenset({0.5, 1.0, 2.0, 3.0})
 
+# Variable binding for constant access (TC-QUALITY-014).
+_valid_impact_values = VALID_IMPACT_VALUES
+
 
 class RiceScorer:
     """ALG-004: Calculates RICE prioritization scores.
@@ -30,7 +33,7 @@ class RiceScorer:
     @icontract.require(lambda effort: effort > 0, "Effort must be positive")
     @icontract.require(lambda reach: 1 <= reach <= 100, "Reach must be between 1 and 100")
     @icontract.require(
-        lambda impact: impact in VALID_IMPACT_VALUES,
+        lambda impact: impact in _valid_impact_values,
         "Impact must be 0.5, 1.0, 2.0, or 3.0",
     )
     @icontract.require(

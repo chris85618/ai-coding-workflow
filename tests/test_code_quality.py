@@ -5,9 +5,11 @@ Traceable to: FR-QUALITY-001, FR-QUALITY-002
 
 import ast
 import pathlib
+import re
 import subprocess
 import sys
 import typing
+from collections import defaultdict
 
 # Load tomllib (Python 3.11+) or tomli for compatibility
 try:
@@ -72,8 +74,6 @@ def test_mypy_type_safety() -> None:
     )
 
     # Assert that mypy actually scanned files and reported success without violations
-    import re
-
     match = re.search(r"Success: no issues found in (\d+) source files", result.stdout)
     assert match is not None, (
         f"Mypy output did not report strict success format or found violations.\n"
@@ -608,3 +608,248 @@ def test_frameworks_no_module_level_functions() -> None:
             violations.append(f"Failed to parse {file_path}: {exc}")
 
     assert not violations, "Module-level function violations in frameworks layer:\n" + "\n".join(violations)
+
+
+QUALITY_TARGET_PATHS: typing.Final[list[str]] = _load_target_paths()
+
+_CONSTANT_NAME_PATTERN: typing.Final[re.Pattern[str]] = re.compile(r"^_?[A-Z][A-Z0-9_]{2,}$")
+# OLD is a reserved identifier required by the icontract library; TYPE_CHECKING must be
+# referenced directly for static analyzers to recognize the guard.
+_CONSTANT_USE_EXEMPTIONS: typing.Final[frozenset[str]] = frozenset({"OLD", "TYPE_CHECKING"})
+
+
+def _find_quality_target_files() -> list[pathlib.Path]:
+    """Enumerate every Python file matched by QUALITY_TARGET_PATHS."""
+    target_paths = QUALITY_TARGET_PATHS
+    found: list[pathlib.Path] = []
+    for raw_path in target_paths:
+        path = pathlib.Path(raw_path)
+        if path.is_file() and path.suffix == ".py":
+            found.append(path)
+        elif path.is_dir():
+            found.extend(sorted(path.rglob("*.py")))
+    return found
+
+
+def _build_parent_map(tree: ast.AST) -> dict[ast.AST, ast.AST]:
+    """Map every AST node to its direct parent node."""
+    parent_map: dict[ast.AST, ast.AST] = {}
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            parent_map[child] = node
+    return parent_map
+
+
+def _count_hardcoded_strings_in_add_chain(node: ast.BinOp) -> int:
+    """Count hardcoded string literals participating in a '+' operator chain."""
+    count = 0
+    stack: list[ast.expr] = [node]
+    while stack:
+        current = stack.pop()
+        if isinstance(current, ast.BinOp) and isinstance(current.op, ast.Add):
+            stack.extend([current.left, current.right])
+        elif isinstance(current, ast.Constant) and isinstance(current.value, str):
+            count += 1
+    return count
+
+
+def test_no_hardcoded_string_concatenation() -> None:
+    """TC-QUALITY-012: Forbid adding 2+ hardcoded strings with '+' in every QUALITY_TARGET_PATHS match."""
+    violations = []
+    for file_path in _find_quality_target_files():
+        try:
+            tree = ast.parse(file_path.read_text(encoding="utf-8"), filename=str(file_path))
+        except SyntaxError as exc:
+            violations.append(f"Failed to parse {file_path}: {exc}")
+            continue
+        parent_map = _build_parent_map(tree)
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)):
+                continue
+            parent = parent_map.get(node)
+            if isinstance(parent, ast.BinOp) and isinstance(parent.op, ast.Add):
+                continue
+            if _count_hardcoded_strings_in_add_chain(node) >= 2:
+                violations.append(
+                    f"{file_path}:{node.lineno}: '+' chain concatenates 2+ hardcoded strings. "
+                    f"Define a single named constant instead (TC-QUALITY-012)."
+                )
+
+    assert not violations, "Hardcoded string concatenation violations:\n" + "\n".join(violations)
+
+
+def _is_evasive_join(node: ast.Call) -> bool:
+    """Detect literal-receiver .join() over a sequence display, a check-evasion wrapper for concatenation."""
+    if not (isinstance(node.func, ast.Attribute) and node.func.attr == "join"):
+        return False
+    receiver = node.func.value
+    is_literal_receiver = isinstance(receiver, ast.Constant) and isinstance(receiver.value, str)
+    has_sequence_display = bool(node.args) and isinstance(node.args[0], (ast.List, ast.Tuple, ast.Set))
+    return is_literal_receiver and has_sequence_display
+
+
+def _is_evasive_format(node: ast.Call) -> bool:
+    """Detect literal-receiver .format() where every argument is itself a hardcoded literal."""
+    if not (isinstance(node.func, ast.Attribute) and node.func.attr == "format"):
+        return False
+    receiver = node.func.value
+    if not (isinstance(receiver, ast.Constant) and isinstance(receiver.value, str)):
+        return False
+    arguments: list[ast.expr] = list(node.args) + [kw.value for kw in node.keywords]
+    return bool(arguments) and all(isinstance(a, ast.Constant) for a in arguments)
+
+
+def _is_evasive_percent_format(node: ast.BinOp) -> bool:
+    """Detect literal '%' formatting where the whole expression is composed of hardcoded literals."""
+    if not isinstance(node.op, ast.Mod):
+        return False
+    if not (isinstance(node.left, ast.Constant) and isinstance(node.left.value, str)):
+        return False
+    right = node.right
+    if isinstance(right, (ast.Tuple, ast.List)):
+        return all(isinstance(e, ast.Constant) for e in right.elts)
+    return isinstance(right, ast.Constant)
+
+
+def _is_evasive_str_call(node: ast.Call) -> bool:
+    """Detect str('literal') calls that pointlessly wrap an already-hardcoded string."""
+    if not (isinstance(node.func, ast.Name) and node.func.id == "str"):
+        return False
+    if len(node.args) != 1 or node.keywords:
+        return False
+    argument = node.args[0]
+    return isinstance(argument, ast.Constant) and isinstance(argument.value, str)
+
+
+def test_no_evasive_string_wrapping() -> None:
+    """TC-QUALITY-013: Forbid wrapper constructs that only exist to dodge constant-definition checks.
+
+    Scans every QUALITY_TARGET_PATHS match for ''.join([...]) over sequence displays,
+    all-literal .format()/'%' formatting, and str('literal') wrappers. All of these add
+    shell complexity whose only effect is bypassing TC-QUALITY-012; define constants instead.
+    """
+    violations = []
+    for file_path in _find_quality_target_files():
+        try:
+            tree = ast.parse(file_path.read_text(encoding="utf-8"), filename=str(file_path))
+        except SyntaxError as exc:
+            violations.append(f"Failed to parse {file_path}: {exc}")
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.Call, ast.BinOp)):
+                continue
+            is_call_violation = isinstance(node, ast.Call) and (
+                _is_evasive_join(node) or _is_evasive_format(node) or _is_evasive_str_call(node)
+            )
+            is_binop_violation = isinstance(node, ast.BinOp) and _is_evasive_percent_format(node)
+            if is_call_violation or is_binop_violation:
+                violations.append(
+                    f"{file_path}:{node.lineno}: evasive string wrapping detected. "
+                    f"Define a named constant instead of wrapping literals (TC-QUALITY-013)."
+                )
+
+    assert not violations, "Evasive string wrapping violations:\n" + "\n".join(violations)
+
+
+def _is_sanctioned_constant_binding(node: ast.Name, parent: ast.AST | None) -> bool:
+    """Return True when the constant reference is the bare RHS of a variable binding.
+
+    Base-class positions of a ClassDef are also sanctioned: inheritance cannot be
+    expressed through a prior variable binding (e.g. 'class Foo(ABC)').
+    """
+    if isinstance(parent, ast.Assign) and parent.value is node:
+        return True
+    if isinstance(parent, ast.AnnAssign) and parent.value is node:
+        return True
+    return isinstance(parent, ast.ClassDef) and node in parent.bases
+
+
+def test_constants_assigned_to_variable_before_use() -> None:
+    """TC-QUALITY-014: Constants in QUALITY_TARGET_PATHS matches must be bound to a variable before use.
+
+    A direct read of an UPPER_SNAKE_CASE constant anywhere other than a bare
+    'variable = CONSTANT' binding is a violation: bind it first, then use the variable.
+    """
+    pattern = _CONSTANT_NAME_PATTERN
+    exemptions = _CONSTANT_USE_EXEMPTIONS
+    violations = []
+    for file_path in _find_quality_target_files():
+        try:
+            tree = ast.parse(file_path.read_text(encoding="utf-8"), filename=str(file_path))
+        except SyntaxError as exc:
+            violations.append(f"Failed to parse {file_path}: {exc}")
+            continue
+        parent_map = _build_parent_map(tree)
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)):
+                continue
+            if not pattern.match(node.id) or node.id in exemptions:
+                continue
+            if _is_sanctioned_constant_binding(node, parent_map.get(node)):
+                continue
+            violations.append(
+                f"{file_path}:{node.lineno}: constant '{node.id}' is used directly. "
+                f"Bind it to a variable first, then use the variable (TC-QUALITY-014)."
+            )
+
+    assert not violations, "Direct constant use violations:\n" + "\n".join(violations)
+
+
+def _is_literal_expression(node: ast.expr) -> bool:
+    """Return True when the expression is a literal (recursively for container displays)."""
+    if isinstance(node, ast.Constant):
+        return True
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+        return all(_is_literal_expression(e) for e in node.elts)
+    if isinstance(node, ast.Dict):
+        keys_are_literal = all(k is not None and _is_literal_expression(k) for k in node.keys)
+        return keys_are_literal and all(_is_literal_expression(v) for v in node.values)
+    return False
+
+
+def _collect_module_level_constant_definitions(
+    tree: ast.Module, file_path: pathlib.Path, registry: dict[tuple[str, str], list[str]]
+) -> None:
+    """Register every module-level UPPER_SNAKE_CASE literal constant definition of a file."""
+    pattern = _CONSTANT_NAME_PATTERN
+    for statement in tree.body:
+        targets: list[ast.Name] = []
+        value: ast.expr | None = None
+        if isinstance(statement, ast.Assign):
+            targets = [t for t in statement.targets if isinstance(t, ast.Name)]
+            value = statement.value
+        elif isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name):
+            targets = [statement.target]
+            value = statement.value
+        if value is None or not _is_literal_expression(value):
+            continue
+        for target in targets:
+            if pattern.match(target.id):
+                registry[(target.id, ast.dump(value))].append(str(file_path))
+
+
+def test_constants_single_source_of_truth() -> None:
+    """TC-QUALITY-015: Same-origin constants must have exactly one defining source across all files.
+
+    When the same constant name with an identical literal value is defined at module level
+    in two or more QUALITY_TARGET_PATHS matches, it must be consolidated into a single
+    source and imported everywhere else.
+    """
+    registry: dict[tuple[str, str], list[str]] = defaultdict(list)
+    violations = []
+    for file_path in _find_quality_target_files():
+        try:
+            tree = ast.parse(file_path.read_text(encoding="utf-8"), filename=str(file_path))
+        except SyntaxError as exc:
+            violations.append(f"Failed to parse {file_path}: {exc}")
+            continue
+        _collect_module_level_constant_definitions(tree, file_path, registry)
+
+    for (name, _), defining_files in sorted(registry.items()):
+        if len(defining_files) > 1:
+            violations.append(
+                f"Constant '{name}' with an identical value is defined in multiple files: "
+                f"{sorted(defining_files)}. Consolidate to a single source (TC-QUALITY-015)."
+            )
+
+    assert not violations, "Single-source-of-truth constant violations:\n" + "\n".join(violations)

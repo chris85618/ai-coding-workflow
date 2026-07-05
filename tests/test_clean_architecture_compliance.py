@@ -34,14 +34,17 @@ from agentic_workflow.frameworks.validation.clean_architecture_scanner import (
 # ── Fixture ───────────────────────────────────────────────────────────────────
 
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
-SRC_DIR = PROJECT_ROOT / "src"
+# Variable bindings for constant access (TC-QUALITY-014).
+_project_root = PROJECT_ROOT
+SRC_DIR = _project_root / "src"
+_src_dir = SRC_DIR
 
 
 @pytest.fixture(scope="module")
 def all_violations() -> list[BoundaryViolation]:
     """Scan entire production src/ directory and return all violations."""
-    scanner = CleanArchitectureBoundaryScanner(project_root=str(PROJECT_ROOT))
-    return scanner.scan_directory(str(SRC_DIR))
+    scanner = CleanArchitectureBoundaryScanner(project_root=str(_project_root))
+    return scanner.scan_directory(str(_src_dir))
 
 
 # ── Helper ────────────────────────────────────────────────────────────────────
@@ -62,7 +65,7 @@ def _format_violation_report(violations: list[BoundaryViolation]) -> str:
         lines.append(f"\n[{category}] — {len(vs)} violation(s):")
         for v in vs:
             try:
-                rel = pathlib.Path(v.file_path).relative_to(PROJECT_ROOT)
+                rel = pathlib.Path(v.file_path).relative_to(_project_root)
             except ValueError:
                 rel = pathlib.Path(v.file_path)
 
