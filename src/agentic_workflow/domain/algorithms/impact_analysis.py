@@ -6,6 +6,8 @@ Replaces: skills/workflow-skills/impact-analysis-exec.md
 
 from typing import Any
 
+import deal
+
 from .traceability_validator import TraceabilityNode
 
 
@@ -13,6 +15,17 @@ class ImpactAnalysis:
     """Executes impact analysis for traceability nodes."""
 
     @classmethod
+    @deal.ensure(
+        # INV-012 coupling: zero radius is COSMETIC and severity drives the agent prompt.
+        lambda _: (
+            (_.result["blast_radius"] > 0 or _.result["severity"] == "COSMETIC")
+            and _.result["blast_radius"]
+            == len(_.result["affected_downstream"])
+            + len(_.result["inconsistent_upstream"])
+            + len(_.result["affected_lateral_ids"])
+        ),
+        message="Blast radius must equal the sum of affected links (INV-012)",
+    )
     def calculate_blast_radius(
         cls,
         modified_id: str,

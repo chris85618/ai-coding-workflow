@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable
 
-import icontract
+import deal
 
 from agentic_workflow.domain.value_objects import RepoMap
 from agentic_workflow.domain.value_objects.repo_map import _CHARS_PER_TOKEN
@@ -42,6 +42,7 @@ class RepoMapBuilder:
     default_is_dir_fn: Callable[[str], bool] | None = None
 
     @classmethod
+    @deal.post(lambda result: isinstance(result, list), message="Extraction yields a symbol list")
     def extract_symbols_ast(cls, file_path: str, source: str) -> list[SymbolDef]:
         """Delegate to default extract_symbols_fn provider for backwards compatibility."""
         if cls.default_extract_symbols_fn:
@@ -49,6 +50,10 @@ class RepoMapBuilder:
         return []
 
     @classmethod
+    @deal.ensure(
+        lambda _: set(_.result.keys()) == set(_.py_files),
+        message="Import graph must have one node per source file",
+    )
     def build_import_graph(
         cls,
         py_files: list[str],
@@ -91,6 +96,10 @@ class RepoMapBuilder:
         return graph
 
     @classmethod
+    @deal.ensure(
+        lambda _: set(_.result.keys()) == set(_.graph.keys()),
+        message="PageRank must score every node exactly once",
+    )
     def pagerank(
         cls,
         graph: dict[str, list[str]],
@@ -127,13 +136,13 @@ class RepoMapBuilder:
         return ranks
 
     @classmethod
-    @icontract.require(
-        lambda token_budget: token_budget > 0,
-        "token_budget must be positive",
+    @deal.pre(
+        lambda _: _.token_budget > 0,
+        message="token_budget must be positive",
     )
-    @icontract.ensure(
-        lambda result, token_budget: result.token_count <= token_budget,
-        "RepoMap token count must not exceed budget (INV-024)",
+    @deal.ensure(
+        lambda _: _.result.token_count <= _.token_budget,
+        message="RepoMap token count must not exceed budget (INV-024)",
     )
     def build(
         cls,

@@ -6,6 +6,8 @@ Replaces: skills/workflow-skills/change-management-protocol.md
 
 from typing import Any
 
+import deal
+
 from agentic_workflow.domain.algorithms.change_management.change_type import ChangeType
 
 
@@ -13,6 +15,7 @@ class ChangeManagement:
     """Enforces the change management protocol for all mutations."""
 
     @classmethod
+    @deal.post(lambda result: isinstance(result, list), message="PGVG yields a failure list")
     def validate_pgvg(cls, content: str, original_content: str, change_type: ChangeType) -> list[str]:
         """Post-Generation Validation Gate (PGVG) checks."""
         failures = []
@@ -27,6 +30,8 @@ class ChangeManagement:
         return failures
 
     @classmethod
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def verify_cm_gate_declaration(cls, response_content: str, expected_files: list[str]) -> bool:
         """Verifies that the inline CM-GATE declaration was made before writing."""
         # Fast fail if no declaration
@@ -37,6 +42,8 @@ class ChangeManagement:
         return all(file in response_content for file in expected_files)
 
     @classmethod
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def assert_session_end_hooks(cls, session_changes: list[dict[str, Any]]) -> bool:
         """Step 6 closure protocol assertion."""
         for change in session_changes:

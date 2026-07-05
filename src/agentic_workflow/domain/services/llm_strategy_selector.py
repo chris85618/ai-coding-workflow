@@ -8,7 +8,7 @@ This is the domain service that wraps ALG-008 ModelSelector.
 
 from __future__ import annotations
 
-import icontract
+import deal
 
 from agentic_workflow.domain.algorithms.model_selector import (
     StrategyConfig,
@@ -37,9 +37,9 @@ class LLMStrategySelector:
         """
         self._config = config
 
-    @icontract.ensure(
-        lambda result, self: result.provider in self._config.enabled_providers,
-        "Selected provider must be in enabled set (INV-022)",
+    @deal.ensure(
+        lambda _: _.result.provider in _.self._config.enabled_providers,
+        message="Selected provider must be in enabled set (INV-022)",
     )
     def select(self, task_type: TaskType) -> ModelConfig:
         """Select the appropriate model for the given task type.
@@ -52,6 +52,8 @@ class LLMStrategySelector:
         """
         return select_model(task_type, self._config)
 
+    @deal.has()
+    @deal.post(lambda result: result == sorted(result), message="Provider list must be sorted")
     def list_providers(self) -> list[str]:
         """Return all currently enabled provider names.
 

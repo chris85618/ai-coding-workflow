@@ -613,9 +613,8 @@ def test_frameworks_no_module_level_functions() -> None:
 QUALITY_TARGET_PATHS: typing.Final[list[str]] = _load_target_paths()
 
 _CONSTANT_NAME_PATTERN: typing.Final[re.Pattern[str]] = re.compile(r"^_?[A-Z][A-Z0-9_]{2,}$")
-# OLD is a reserved identifier required by the icontract library; TYPE_CHECKING must be
-# referenced directly for static analyzers to recognize the guard.
-_CONSTANT_USE_EXEMPTIONS: typing.Final[frozenset[str]] = frozenset({"OLD", "TYPE_CHECKING"})
+# TYPE_CHECKING must be referenced directly for static analyzers to recognize the guard.
+_CONSTANT_USE_EXEMPTIONS: typing.Final[frozenset[str]] = frozenset({"TYPE_CHECKING"})
 
 
 def _find_quality_target_files() -> list[pathlib.Path]:

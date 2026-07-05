@@ -1,5 +1,6 @@
 """TC for Pipeline aggregate coverage gaps."""
 
+import deal
 import pytest
 
 from agentic_workflow.domain.aggregates.pipeline import Pipeline
@@ -24,39 +25,23 @@ class TestPipelineCoverage:
         """Cover line 81."""
         pipeline = Pipeline(pipeline_id="test")
         pipeline.start()
-        import icontract
 
-        with pytest.raises(icontract.errors.ViolationError, match="Can only start a pipeline that has not started"):
+        with pytest.raises(deal.PreContractError, match="Can only start a pipeline that has not started"):
             pipeline.start()
 
     def test_complete_not_running_raises(self) -> None:
         """Cover line 87."""
         pipeline = Pipeline(pipeline_id="test")
         # Status is NOT_STARTED
-        import icontract
-
-        with pytest.raises(icontract.errors.ViolationError, match="Can only complete a running pipeline"):
+        with pytest.raises(deal.PreContractError, match="Can only complete a running pipeline"):
             pipeline.complete()
 
-    def test_update_findings_missing_stage_raises(self) -> None:
-        """INV-016: corrupting current_position must trip the aggregate invariant."""
-        import icontract
-
+    def test_corrupting_current_position_raises(self) -> None:
+        """INV-016: deal.inv rejects a dangling current_position at mutation time."""
         pipeline = Pipeline(pipeline_id="test")
         pipeline.start()
-        pipeline.current_position = "invalid_stage"
-        with pytest.raises(icontract.errors.ViolationError):
-            pipeline.update_stage_findings(["finding"])
-
-    def test_increment_iteration_missing_stage_raises(self) -> None:
-        """INV-016: corrupting current_position must trip the aggregate invariant."""
-        import icontract
-
-        pipeline = Pipeline(pipeline_id="test")
-        pipeline.start()
-        pipeline.current_position = "invalid_stage"
-        with pytest.raises(icontract.errors.ViolationError):
-            pipeline.increment_stage_iteration()
+        with pytest.raises(deal.InvContractError):
+            pipeline.current_position = "invalid_stage"
 
     def test_increment_iteration_not_pending(self) -> None:
         """Cover 108->exit (if stage.status == StageStatus.PENDING is False)."""

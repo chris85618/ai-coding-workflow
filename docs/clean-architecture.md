@@ -68,10 +68,10 @@ point inward only. Inner layers know nothing about outer layers.
 | `algorithms/rice_scoring.py` | ALG-004 | Algorithm | RICE prioritization (deterministic) |
 | `algorithms/trace_traversal.py` | ALG-005 | Algorithm | Graph traversal (deterministic) |
 | `events/domain_events.py` | EVT-001..007 | Domain Event | Immutable event dataclasses |
-| `invariants/contracts.py` | INV-001..019 | Contract | icontract predicate functions |
+| `invariants/contracts.py` | INV-001..019 | Contract | deal predicate functions |
 
 **Key rules**:
-- All domain classes use `icontract` decorators for PRE/POST/INV
+- All domain classes use `deal` decorators for pre/ensure/inv
 - All algorithms are **deterministic** (no LLM, no I/O)
 - Domain events are frozen dataclasses
 - No imports from outer layers
@@ -204,7 +204,7 @@ src/agentic_workflow/
 │   │   └── trace_traversal.py       # ALG-005
 │   ├── events/                      # Domain events
 │   │   └── domain_events.py         # EVT-001..007
-│   └── contracts/                   # icontract predicates
+│   └── contracts/                   # deal predicates
 │       └── invariants.py            # INV-001..019
 │
 ├── application/                     # Layer 2: Use Cases

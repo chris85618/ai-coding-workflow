@@ -6,17 +6,21 @@ Replaces: skills/workflow-skills/iter-loop.md
 
 from typing import Any
 
+import deal
+
 
 class IterationLoop:
     """Executes the dual-agent (Agent alpha/beta) convergence loop."""
 
     @classmethod
+    @deal.post(lambda result: isinstance(result, list), message="Alpha critique yields a findings list")
     def agent_alpha_critique(cls, output: str, criteria: list[str]) -> list[dict[str, Any]]:
         """Agent alpha: exhaustive critique of the output against criteria."""
         # Simulated critique
         return []
 
     @classmethod
+    @deal.post(lambda result: isinstance(result, str) and bool(result), message="Beta must emit a non-empty resolution")
     def agent_beta_resolve(cls, critiques: list[dict[str, Any]]) -> str:
         """Agent beta: resolves critiques using Occam's razor.
 
@@ -26,6 +30,10 @@ class IterationLoop:
         return "resolved_output"
 
     @classmethod
+    @deal.post(
+        lambda result: result in ("REACHED", "DIVERGING", "NOT_REACHED"),
+        message="Convergence is a closed decision set (INV-005-v2)",
+    )
     def determine_convergence(
         cls,
         current_critiques: list[dict[str, Any]],
@@ -46,6 +54,10 @@ class IterationLoop:
         return "NOT_REACHED"
 
     @classmethod
+    @deal.ensure(
+        lambda _: "status" in _.result,
+        message="Iteration outcome must always carry a status",
+    )
     def run_iteration(cls, initial_output: str, criteria: list[str]) -> dict[str, Any]:
         """Runs a complete iteration loop."""
         critiques = cls.agent_alpha_critique(initial_output, criteria)
@@ -63,6 +75,8 @@ class IterationLoop:
         }
 
     @classmethod
+    @deal.has()
+    @deal.post(lambda result: result in ("alpha", "pass"), message="HITL routing is a closed decision set")
     def route_hitl_gate(cls, gate_decision: str | None) -> str:
         """Determines routing for human-in-the-loop gate choice.
 

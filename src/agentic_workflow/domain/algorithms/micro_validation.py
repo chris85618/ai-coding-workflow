@@ -6,6 +6,8 @@ Replaces: skills/workflow-skills/micro-validation.md
 
 from typing import Any
 
+import deal
+
 from agentic_workflow.domain.algorithms.traceability_validator import (
     TraceabilityValidator,
 )
@@ -15,11 +17,15 @@ class MicroValidation:
     """Executes the micro-validation loop for any CREATE/MODIFY/FIX action."""
 
     @classmethod
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def validate_format(cls, content: str) -> bool:
         """Step 0: Format validation."""
         return "from vibe" not in content
 
     @classmethod
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def validate_structure(cls, changed_ids: list[str]) -> bool:
         """Step 1: Structural integrity."""
         # Check if IDs match prefix pattern (delegated to TraceabilityValidator)
@@ -28,6 +34,10 @@ class MicroValidation:
         return all(TraceabilityValidator.validate_id_format(node_id) for node_id in changed_ids)
 
     @classmethod
+    @deal.ensure(
+        lambda _: _.result["passed"] == (len(_.result["failures"]) == 0),
+        message="Suite pass flag must equal the absence of failures",
+    )
     def run_all(cls, changed_content: str, changed_ids: list[str]) -> dict[str, Any]:
         """Runs the complete micro-validation suite."""
         failures = []

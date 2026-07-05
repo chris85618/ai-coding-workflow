@@ -1,8 +1,10 @@
 """Cover missing branches in CLS-001 pipeline.py."""
 
+import deal
 import pytest
 
-from agentic_workflow.domain.aggregates.pipeline import Pipeline
+from agentic_workflow.domain.aggregates.pipeline import _STAGE_ORDER, Pipeline
+from agentic_workflow.domain.entities.stage import Stage
 from agentic_workflow.domain.enums import GateDecision, PipelineStatus
 
 
@@ -10,9 +12,17 @@ class TestPipelineBranches:
     """Cover missing branches in CLS-001 pipeline.py."""
 
     def test_invalid_position_raises(self) -> None:
-        """Invalid current_position raises ValueError."""
-        with pytest.raises(ValueError, match="Invalid position"):
+        """Invalid current_position trips INV-016 at construction (deal.inv left-shift)."""
+        with pytest.raises(deal.InvContractError):
             Pipeline(pipeline_id="x", current_position="invalid_stage")
+
+    def test_position_outside_canonical_order_raises(self) -> None:
+        """A stage key outside the canonical order still raises ValueError (Invalid position)."""
+        stage_order = _STAGE_ORDER
+        stages = {stage_id: Stage(stage_id=stage_id, name=stage_id) for stage_id in stage_order}
+        stages["custom"] = Stage(stage_id="custom", name="Custom")
+        with pytest.raises(ValueError, match="Invalid position"):
+            Pipeline(pipeline_id="x", current_position="custom", stages=stages)
 
     def test_complete_transitions(self) -> None:
         """complete() sets status to COMPLETED."""

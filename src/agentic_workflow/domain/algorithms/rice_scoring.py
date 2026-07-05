@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import math
 
-import icontract
+import deal
 
 VALID_IMPACT_VALUES: frozenset[float] = frozenset({0.5, 1.0, 2.0, 3.0})
 
@@ -32,23 +32,21 @@ class RiceScorer:
     CONFIDENCE_MAX: float = 1.0
 
     @classmethod
-    @icontract.require(lambda effort: effort > 0, "Effort must be positive")
-    @icontract.require(lambda reach: 1 <= reach <= 100, "Reach must be between 1 and 100")
-    @icontract.require(
-        lambda impact: impact in _valid_impact_values,
-        "Impact must be 0.5, 1.0, 2.0, or 3.0",
+    @deal.pre(lambda _: _.effort > 0, message="Effort must be positive")
+    @deal.pre(lambda _: 1 <= _.reach <= 100, message="Reach must be between 1 and 100")
+    @deal.pre(
+        lambda _: _.impact in _valid_impact_values,
+        message="Impact must be 0.5, 1.0, 2.0, or 3.0",
     )
-    @icontract.require(
-        lambda confidence: 0.5 <= confidence <= 1.0,
-        "Confidence must be between 0.5 and 1.0",
+    @deal.pre(
+        lambda _: 0.5 <= _.confidence <= 1.0,
+        message="Confidence must be between 0.5 and 1.0",
     )
-    @icontract.ensure(
+    @deal.ensure(
         # math.isclose keeps INV-015 well-defined even when a denormal effort
         # overflows the quotient to infinity (abs(inf - inf) is NaN).
-        lambda result, reach, impact, confidence, effort: math.isclose(
-            result, (reach * impact * confidence) / effort, rel_tol=1e-9
-        ),
-        "RICE formula must be exact (INV-015)",
+        lambda _: math.isclose(_.result, (_.reach * _.impact * _.confidence) / _.effort, rel_tol=1e-9),
+        message="RICE formula must be exact (INV-015)",
     )
     def score(
         cls,

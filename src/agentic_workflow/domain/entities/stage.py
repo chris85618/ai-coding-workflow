@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import icontract
+import deal
 
 from agentic_workflow.domain.enums import StageStatus
 from agentic_workflow.domain.value_objects.findings import Findings
@@ -23,9 +23,9 @@ _status_order = _STATUS_ORDER
 _max_iterations = MAX_ITERATIONS
 
 
-@icontract.invariant(
-    lambda self: self.iteration_count <= _max_iterations,
-    "Iteration count must not exceed maximum (INV-004)",
+@deal.inv(
+    lambda self: getattr(self, "iteration_count", 0) <= _max_iterations,
+    message="Iteration count must not exceed maximum (INV-004)",
 )
 @dataclass
 class Stage:
@@ -45,10 +45,14 @@ class Stage:
     iteration_count: int = 0
     findings: Findings = field(default_factory=Findings)
 
-    @icontract.snapshot(lambda self: _status_order[self.status], name="old_rank")
-    @icontract.ensure(
-        lambda OLD, self: _status_order[self.status] >= OLD.old_rank,
-        "Status must transition unidirectionally (INV-003)",
+    @deal.ensure(
+        lambda self, new_status, result: self.status == new_status,
+        message="Transition must land on the requested status (INV-003)",
+    )
+    @deal.raises(ValueError)
+    @deal.reason(
+        ValueError,
+        lambda _: _status_order[_.new_status] < _status_order[_.self.status],
     )
     def transition(self, new_status: StageStatus) -> None:
         """Transition stage to a new status.
@@ -60,9 +64,9 @@ class Stage:
             raise ValueError(f"Cannot regress from {self.status} to {new_status}")
         self.status = new_status
 
-    @icontract.require(
+    @deal.pre(
         lambda self: self.iteration_count < _max_iterations,
-        "Iteration count already at maximum",
+        message="Iteration count already at maximum",
     )
     def increment_iteration(self) -> None:
         """Increment the iteration counter."""

@@ -7,7 +7,7 @@ OO Design: ConvergenceDetector class encapsulates all logic (ALG-010 OO mandate)
 
 from __future__ import annotations
 
-import icontract
+import deal
 
 from agentic_workflow.domain.entities.stage import MAX_ITERATIONS
 from agentic_workflow.domain.enums import FixedPointResult
@@ -26,7 +26,7 @@ class ConvergenceDetector:
     DIVERGENCE_WINDOW: int = DIVERGENCE_WINDOW
 
     @classmethod
-    @icontract.require(lambda iteration_count: iteration_count >= 0)
+    @deal.pre(lambda _: _.iteration_count >= 0)
     def check_convergence(
         cls,
         iteration_count: int,
@@ -66,7 +66,7 @@ class ConvergenceDetector:
         return FixedPointResult.NOT_REACHED
 
     @classmethod
-    @icontract.require(lambda result: isinstance(result, FixedPointResult))
+    @deal.pre(lambda _: isinstance(_.result, FixedPointResult))
     def should_auto_pass(cls, result: FixedPointResult) -> bool:
         """Determine if the auto-gate should PASS given a convergence result.
 

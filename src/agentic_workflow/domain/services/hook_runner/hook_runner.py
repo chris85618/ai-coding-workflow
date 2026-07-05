@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-import icontract
+import deal
 
 from agentic_workflow.domain.enums.hook_event import HookEvent
 from agentic_workflow.domain.services.hook_runner.hook_def import HookDef
@@ -56,6 +56,10 @@ class HookRunner:
             HookRunner.default_run_cmd_fn = orig_default
             self.run_cmd_fn = orig_fn
 
+    @deal.ensure(
+        lambda self, hook_def, result: self._hooks[hook_def.event][-1] is hook_def,
+        message="register() must append the hook to its event bucket",
+    )
     def register(self, hook_def: HookDef) -> None:
         """Register a hook definition for its event.
 
@@ -66,14 +70,14 @@ class HookRunner:
             self._hooks[hook_def.event] = []
         self._hooks[hook_def.event].append(hook_def)
 
-    @icontract.ensure(
-        lambda result, hook_def: (
-            (result.exit_code == 0 and result.proceed is True)
-            or (result.exit_code == 2 and hook_def.blocking and not result.proceed)
-            or (result.exit_code == 2 and not hook_def.blocking and result.proceed is True)
-            or (result.exit_code not in (0, 2) and result.proceed is True)
+    @deal.ensure(
+        lambda _: (
+            (_.result.exit_code == 0 and _.result.proceed is True)
+            or (_.result.exit_code == 2 and _.hook_def.blocking and not _.result.proceed)
+            or (_.result.exit_code == 2 and not _.hook_def.blocking and _.result.proceed is True)
+            or (_.result.exit_code not in (0, 2) and _.result.proceed is True)
         ),
-        "Hook exit code must determine proceed correctly (INV-020, with blocking flag)",
+        message="Hook exit code must determine proceed correctly (INV-020, with blocking flag)",
     )
     def _run_one(self, hook_def: HookDef, context: dict[str, str]) -> HookResult:
         """Execute a single hook command.
@@ -124,6 +128,11 @@ class HookRunner:
             proceed=proceed,
         )
 
+    @deal.ensure(
+        # Every result except the last must have proceeded; a block stops the run (INV-020).
+        lambda _: all(r.proceed for r in _.result[:-1]),
+        message="Only the final hook result may block execution (INV-020)",
+    )
     def execute(self, event: HookEvent, context: dict[str, str] | None = None) -> list[HookResult]:
         """Execute all hooks registered for the given event.
 
@@ -146,6 +155,8 @@ class HookRunner:
                 break  # Blocking failure — stop execution
         return results
 
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def all_proceeded(self, results: list[HookResult]) -> bool:
         """Check if all hook results allowed pipeline to proceed.
 

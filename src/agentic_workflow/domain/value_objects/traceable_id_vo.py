@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+import deal
+
 from agentic_workflow.domain.enums.id_prefix import IDPrefix
 
 
@@ -32,6 +34,11 @@ class TraceableIdVO:
             raise ValueError(f"Unknown ID prefix: {prefix_str}") from err
 
     @classmethod
+    @deal.pre(lambda _: 0 <= _.sequence <= 999, message="Sequence must fit the 3-digit canonical format")
+    @deal.ensure(
+        lambda _: _.result.value.startswith(_.prefix.value),
+        message="Created VO must carry the requested prefix",
+    )
     def create(cls, prefix: IDPrefix, sequence: int) -> TraceableIdVO:
         """Factory method to create a VO from components."""
         return cls(f"{prefix.value}-{sequence:03d}")

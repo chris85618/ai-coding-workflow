@@ -9,7 +9,7 @@ Module-level function retained as backward-compat facade.
 
 from __future__ import annotations
 
-import icontract
+import deal
 
 from agentic_workflow.domain.algorithms.model_selector.strategy_config import (
     StrategyConfig,
@@ -43,13 +43,13 @@ class ModelSelector:
     )
 
     @classmethod
-    @icontract.require(
-        lambda config: len(config.enabled_providers) > 0,
-        "At least one provider must be enabled",
+    @deal.pre(
+        lambda _: len(_.config.enabled_providers) > 0,
+        message="At least one provider must be enabled",
     )
-    @icontract.ensure(
-        lambda result, config: result.provider in config.enabled_providers,
-        "Selected provider must be in enabled set (INV-022)",
+    @deal.ensure(
+        lambda _: _.result.provider in _.config.enabled_providers,
+        message="Selected provider must be in enabled set (INV-022)",
     )
     def select(cls, task_type: TaskType, config: StrategyConfig) -> ModelConfig:
         """Select the appropriate LLM model for the given task type.
@@ -89,13 +89,13 @@ class ModelSelector:
 # ── Module-level facade (backward compatibility) ───────────────────────────────
 
 
-@icontract.require(
-    lambda config: len(config.enabled_providers) > 0,
-    "At least one provider must be enabled",
+@deal.pre(
+    lambda _: len(_.config.enabled_providers) > 0,
+    message="At least one provider must be enabled",
 )
-@icontract.ensure(
-    lambda result, config: result.provider in config.enabled_providers,
-    "Selected provider must be in enabled set (INV-022)",
+@deal.ensure(
+    lambda _: _.result.provider in _.config.enabled_providers,
+    message="Selected provider must be in enabled set (INV-022)",
 )
 def select_model(task_type: TaskType, config: StrategyConfig) -> ModelConfig:
     """Backward-compat facade — delegates to ModelSelector."""

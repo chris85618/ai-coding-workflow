@@ -6,6 +6,8 @@ Replaces: skills/workflow-skills/adr-governance.md
 
 from typing import Any
 
+import deal
+
 
 class ADRGovernance:
     """Manages ADR classification, lifecycle, and formatting."""
@@ -20,6 +22,8 @@ class ADRGovernance:
     }
 
     @classmethod
+    @deal.pre(lambda _: 0.0 <= _.cohesiveness <= 1.0, message="Cohesiveness is a ratio in [0, 1]")
+    @deal.post(lambda result: isinstance(result, bool))
     def evaluate_decision_unit(
         cls,
         statement: str,
@@ -31,6 +35,10 @@ class ADRGovernance:
         return cohesiveness >= 0.8 and consequences_coupled and atomic
 
     @classmethod
+    @deal.ensure(
+        lambda _: _.adr_id in _.result and _.title in _.result,
+        message="Rendered ADR must embed its id and title",
+    )
     def format_adr_template(cls, category: str, adr_id: str, title: str, details: dict[str, Any]) -> str:
         """Generates the Markdown template for a new ADR."""
         prefix = cls.CATEGORIES.get(category, "ADR-MISC")

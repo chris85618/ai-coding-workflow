@@ -59,7 +59,7 @@ class CleanArchitectureBoundaryScanner:
         "warnings",
         "traceback",
         "types",
-        "icontract",
+        "deal",
     }
 
     def __init__(self, project_root: str | None = None) -> None:

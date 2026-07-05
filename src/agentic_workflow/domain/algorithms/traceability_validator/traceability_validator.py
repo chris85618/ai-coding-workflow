@@ -7,6 +7,8 @@ Replaces: skills/workflow-skills/traceability-system.md
 import re
 from typing import Any
 
+import deal
+
 from agentic_workflow.domain.algorithms.traceability_validator.traceability_node import (
     TraceabilityNode,
 )
@@ -40,6 +42,8 @@ class TraceabilityValidator:
     ]
 
     @classmethod
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def validate_id_format(cls, node_id: str) -> bool:
         """Checks if ID matches the {PREFIX}-{NNN} format."""
         joined_prefixes = "|".join(cls.PREFIXES)
@@ -47,6 +51,11 @@ class TraceabilityValidator:
         return bool(re.match(pattern, node_id))
 
     @classmethod
+    @deal.pre(lambda _: bool(_.prefix), message="ID generation needs a prefix")
+    @deal.ensure(
+        lambda _: _.result.startswith(_.prefix) and _.result not in _.current_ids,
+        message="Generated ID must extend the prefix namespace without collision (INV-006)",
+    )
     def generate_next_id(cls, prefix: str, current_ids: list[str]) -> str:
         """Generates the next sequential ID for a given prefix."""
         max_num = 0
@@ -60,6 +69,10 @@ class TraceabilityValidator:
         return f"{prefix}-{max_num + 1:03d}"
 
     @classmethod
+    @deal.ensure(
+        lambda _: len(_.result) <= len(_.nodes),
+        message="Orphan detection cannot exceed the node population",
+    )
     def orphan_check(cls, nodes: list[TraceabilityNode]) -> list[str]:
         """Detects IDs with no upstream or downstream (except source/sink nodes)."""
         orphans = []
@@ -86,6 +99,10 @@ class TraceabilityValidator:
         return list(set(orphans))
 
     @classmethod
+    @deal.ensure(
+        lambda _: _.result["passed"] == (not _.result["orphans"] and not _.result["invalid_ids"]),
+        message="Validation pass flag must equal the absence of violations",
+    )
     def run_validation(cls, matrix_content: str) -> dict[str, Any]:
         """Runs a complete validation against a matrix markdown content."""
         # Simple extraction logic (mocking full markdown parsing)

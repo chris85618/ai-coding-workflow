@@ -1,9 +1,9 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 11 (Release v0.1.7) — ✅ DONE
+**Pipeline Position**: Stage 8 (kanban TODO 清理: DbC 生態遷移 + 合約覆蓋率 + 模糊測試) — 🔄 IN PROGRESS
 **Last Position**: Phase 11 (Release v0.1.7)
-**Status**: Frameworks layer strictly refactored to satisfy 100% of the 11 code quality and method override checks.
-**Last Updated**: 2026-05-18T12:26+08:00
+**Status**: icontract → deal migration complete (ADR-STR-028); contract coverage gate at 100%; contract-driven fuzz suite live. 1047 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
+**Last Updated**: 2026-07-06
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -76,6 +76,14 @@
 - [x] CAD-45: 解決 Passive Passthroughs 痛點，串聯大腦運算核心，並引入安全合約 (DbC) 以保障防禦性編程 — ✅ DONE
 - [x] CAD-46: 建立雙 Agent (Alpha/Beta) 與 RCA RCA/左移驗證，克服微驗證與 RCA 失去控制 — ✅ DONE
 - [x] CAD-47: 確保 1023 個測試案例 100.00% Coverage (Statement & Branch) 通過與 Ruff/Mypy 檢驗 — ✅ DONE
+- [x] DEAL-01: icontract → deal 全面遷移（src 14 檔、tests 12 檔、pyproject、docs/conf.py），移除 sphinx-icontract/pyicontract-lint/icontract-hypothesis 並解除 hypothesis/astroid pin — ✅ DONE
+- [x] DEAL-02: snapshot/OLD 合約重設計（Stage.transition 用 ensure+reason；Pipeline.advance 用前驅 PASSED 後置條件），INV-016 以 _default_stages factory 左移至 setattr 強制 — ✅ DONE
+- [x] DEAL-03: 建立 ADR-STR-028 並改寫 docs/formal-verification-spec.md v4（INV-001..024 全面 deal 化） — ✅ DONE
+- [x] DEAL-04: TC-CONTRACT-001~004 遷移至 deal lint / deal.cases / crosshair --analysis_kind deal — ✅ DONE
+- [x] CC-01: 建立 TC-CONTRACT-005 合約覆蓋率閘門（deal.introspection 掃描 domain concrete public methods），紅燈起步 — ✅ DONE
+- [x] CC-02: 為 domain 80 個未合約化方法系統性補齊 pre/ensure/post/inv/has 合約，覆蓋率 8/88 → 83/83 (100%) — ✅ DONE
+- [x] FUZZ-01: 建立 tests/test_contract_fuzz.py (TC-FUZZ-001~011) deal.cases 合約驅動模糊測試套件 — ✅ DONE
+- [x] FUZZ-02: 修復模糊測試發現的 BlastRadiusClassifier.classify 負數輸入合約缺口（左移 deal.pre 基數約束） — ✅ DONE
 
 
 ## 🚦 Gate Status

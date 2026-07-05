@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
+import deal
+
 
 class Specification[T](ABC):
     """Abstract base class for specifications."""
@@ -34,6 +36,8 @@ class AndSpecification[T](Specification[T]):
         self._left = left
         self._right = right
 
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def is_satisfied_by(self, candidate: T) -> bool:
         """Check if both sub-specifications are satisfied."""
         return self._left.is_satisfied_by(candidate) and self._right.is_satisfied_by(candidate)
@@ -47,6 +51,8 @@ class OrSpecification[T](Specification[T]):
         self._left = left
         self._right = right
 
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def is_satisfied_by(self, candidate: T) -> bool:
         """Check if either sub-specification is satisfied."""
         return self._left.is_satisfied_by(candidate) or self._right.is_satisfied_by(candidate)
@@ -59,6 +65,8 @@ class NotSpecification[T](Specification[T]):
         """Initialize with a specification to negate."""
         self._spec = spec
 
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def is_satisfied_by(self, candidate: T) -> bool:
         """Check if the sub-specification is NOT satisfied."""
         return not self._spec.is_satisfied_by(candidate)

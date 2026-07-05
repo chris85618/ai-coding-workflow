@@ -6,6 +6,8 @@ Replaces: skills/workflow-skills/security-audit-3layer.md
 
 from typing import Any
 
+import deal
+
 from agentic_workflow.domain.algorithms.security_audit.security_audit_result import (
     SecurityAuditResult,
 )
@@ -15,6 +17,7 @@ class ThreeLayerSecurityAudit:
     """Orchestrates the 3-layer security audit process."""
 
     @classmethod
+    @deal.post(lambda result: result.layer == "1_app_security", message="Layer 1 result must be tagged as app security")
     def run_layer1_app_security(cls) -> SecurityAuditResult:
         """Layer 1: App Security (OWASP Top 10, STRIDE).
 
@@ -27,6 +30,9 @@ class ThreeLayerSecurityAudit:
         )
 
     @classmethod
+    @deal.post(
+        lambda result: result.layer == "2_agent_security", message="Layer 2 result must be tagged as agent security"
+    )
     def run_layer2_agent_security(cls) -> SecurityAuditResult:
         """Layer 2: Agent Security (AgentShield).
 
@@ -40,6 +46,7 @@ class ThreeLayerSecurityAudit:
         )
 
     @classmethod
+    @deal.post(lambda result: result.layer == "3_supply_chain", message="Layer 3 result must be tagged as supply chain")
     def run_layer3_supply_chain(cls) -> SecurityAuditResult:
         """Layer 3: Supply Chain Security (SkillFortify).
 
@@ -53,6 +60,13 @@ class ThreeLayerSecurityAudit:
         )
 
     @classmethod
+    @deal.ensure(
+        lambda _: (
+            _.result["decision"] in ("pass", "rework", "block_escalate")
+            and (_.result["decision"] == "pass") == _.result["passed"]
+        ),
+        message="Audit decision must be closed-set and coupled to the pass flag (INV-014)",
+    )
     def evaluate_audit(cls, results: list[SecurityAuditResult]) -> dict[str, Any]:
         """Evaluates results from all 3 layers."""
         all_passed = all(r.passed for r in results)
@@ -80,6 +94,10 @@ class ThreeLayerSecurityAudit:
         }
 
     @classmethod
+    @deal.ensure(
+        lambda _: len(_.result["risks"]) == len(_.findings) and len(_.result["debts"]) == len(_.findings),
+        message="Every finding must yield exactly one RISK and one DEBT entry",
+    )
     def generate_risk_debt_entries(cls, findings: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
         """Converts HIGH/CRITICAL findings into RISK and DEBT registry entries."""
         risks = []

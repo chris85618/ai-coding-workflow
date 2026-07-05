@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
-import icontract
+import deal
 import pytest
 
 from agentic_workflow.domain.algorithms.repo_map_builder import RepoMapBuilder
@@ -55,11 +55,11 @@ class TestRepoMapBuild:
         assert test_file_paths == [], f"test_ files appeared in map: {test_file_paths}"
 
     def test_invalid_project_path_raises(self, tmp_path: Path) -> None:
-        """Icontract precondition: non-existent project_path raises ViolationError."""
-        with pytest.raises((icontract.ViolationError, ValueError)):
+        """Deal precondition: non-existent project_path raises ViolationError."""
+        with pytest.raises((deal.PreContractError, ValueError)):
             RepoMapBuilder.build("/nonexistent/path/xyz", token_budget=1000)
 
     def test_zero_budget_raises(self, tmp_path: Path) -> None:
-        """Icontract precondition: token_budget=0 raises ViolationError."""
-        with pytest.raises((icontract.ViolationError, ValueError)):
+        """Deal precondition: token_budget=0 raises ViolationError."""
+        with pytest.raises((deal.PreContractError, ValueError)):
             RepoMapBuilder.build(str(tmp_path), token_budget=0)

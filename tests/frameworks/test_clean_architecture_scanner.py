@@ -538,7 +538,7 @@ def test_scanner_domain_whitelist(scanner: CleanArchitectureBoundaryScanner, tem
         "from __future__ import annotations\n"
         "import typing\n"
         "from dataclasses import dataclass\n"
-        "import icontract\n"
+        "import deal\n"
         "from agentic_workflow.domain.value_objects import RepoMap\n"
         "from . import sibling\n"
     )

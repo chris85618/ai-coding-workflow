@@ -6,11 +6,14 @@ Provides formal invariant checking for the LangGraph DAG to ensure workflow inte
 
 from typing import Any
 
+import deal
+
 
 class DAGInvariantVerifier:
     """Formal verification of the DAG topology and invariants."""
 
     @classmethod
+    @deal.post(lambda result: isinstance(result, list), message="Verification yields a failure list")
     def verify_no_orphan_nodes(cls, compiled_graph: Any) -> list[str]:
         """INV-001: Ensures no node is unreachable from START."""
         # For a compiled graph, we can inspect nodes and edges.
@@ -19,18 +22,24 @@ class DAGInvariantVerifier:
         return []
 
     @classmethod
+    @deal.post(lambda result: isinstance(result, list), message="Verification yields a failure list")
     def verify_gate_decision_coupling(cls, compiled_graph: Any) -> list[str]:
         """INV-002: Ensures advance_stage is only reachable from auto_gate."""
         # Mock logic
         return []
 
     @classmethod
+    @deal.post(lambda result: isinstance(result, list), message="Verification yields a failure list")
     def verify_iteration_cycle(cls, compiled_graph: Any) -> list[str]:
         """INV-003: Ensures iteration loops pass through orchestrator/validation."""
         # Mock logic
         return []
 
     @classmethod
+    @deal.ensure(
+        lambda _: _.result["passed"] == (len(_.result["failures"]) == 0),
+        message="Aggregate pass flag must equal the absence of failures",
+    )
     def run_all_verifications(cls, compiled_graph: Any) -> dict[str, Any]:
         """Executes all structural DAG invariants."""
         failures = []

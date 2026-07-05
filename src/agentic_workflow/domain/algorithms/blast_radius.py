@@ -8,7 +8,7 @@ OO Design: BlastRadiusClassifier class encapsulates all logic (ALG-010 OO mandat
 
 from __future__ import annotations
 
-import icontract
+import deal
 
 from agentic_workflow.domain.enums import Severity
 
@@ -28,9 +28,13 @@ class BlastRadiusClassifier:
     MEDIUM_RADIUS: int = 2
 
     @classmethod
-    @icontract.ensure(
-        lambda result, blast_radius: (blast_radius == 0 and result == Severity.COSMETIC) or blast_radius > 0,
-        "Zero blast radius must classify as COSMETIC (INV-012)",
+    @deal.pre(
+        lambda _: _.blast_radius >= 0 and _.cross_stage >= 0,
+        message="Blast radius and cross-stage counts are cardinalities and cannot be negative",
+    )
+    @deal.ensure(
+        lambda _: (_.blast_radius == 0 and _.result == Severity.COSMETIC) or _.blast_radius > 0,
+        message="Zero blast radius must classify as COSMETIC (INV-012)",
     )
     def classify(cls, blast_radius: int, cross_stage: int) -> Severity:
         """Classify impact severity based on blast radius and cross-stage count.

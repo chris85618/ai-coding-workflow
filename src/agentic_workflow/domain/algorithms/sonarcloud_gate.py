@@ -7,6 +7,8 @@ the closed-loop feedback system (ADR-OPS-001).
 
 from typing import Any
 
+import deal
+
 from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
 
 
@@ -29,6 +31,10 @@ class SonarCloudGate:
     }
 
     @classmethod
+    @deal.ensure(
+        lambda _: _.result["status"] == ("active" if _.result["valid"] else "disabled"),
+        message="Gate status must follow configuration validity",
+    )
     def verify_configuration(cls, config: SonarCloudConfig) -> dict[str, Any]:
         """Checks if required configuration parameters are set.
 
@@ -44,6 +50,10 @@ class SonarCloudGate:
         }
 
     @classmethod
+    @deal.ensure(
+        lambda _: _.result["passed"] == (len(_.result["failures"]) == 0),
+        message="Gate pass flag must equal the absence of failures",
+    )
     def evaluate(
         cls,
         metrics: dict[str, dict[str, Any]],
@@ -106,6 +116,10 @@ class SonarCloudGate:
         return None
 
     @classmethod
+    @deal.ensure(
+        lambda _: len(_.result) <= len(_.issues),
+        message="Debt extraction cannot invent issues",
+    )
     def extract_tech_debt(cls, issues: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Converts TODO/FIXME comments or remaining smells into DEBT items."""
         debts = []

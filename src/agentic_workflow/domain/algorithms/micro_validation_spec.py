@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import deal
+
 from agentic_workflow.domain.algorithms.base_specification import Specification
 
 
@@ -20,6 +22,8 @@ class MicroValidationResult:
 class ZeroErrorSpecification(Specification[MicroValidationResult]):
     """Specification requiring zero errors."""
 
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def is_satisfied_by(self, candidate: MicroValidationResult) -> bool:
         """Check if result has zero errors."""
         return not candidate.has_errors and candidate.error_count == 0
@@ -28,6 +32,8 @@ class ZeroErrorSpecification(Specification[MicroValidationResult]):
 class ZeroWarningSpecification(Specification[MicroValidationResult]):
     """Specification requiring zero warnings."""
 
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, bool))
     def is_satisfied_by(self, candidate: MicroValidationResult) -> bool:
         """Check if result has zero warnings."""
         return candidate.warning_count == 0

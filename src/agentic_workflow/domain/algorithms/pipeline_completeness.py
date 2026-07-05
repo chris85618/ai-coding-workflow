@@ -8,6 +8,8 @@ OO Design: PipelineCompletenessChecker class wraps all logic (ALG-010 OO mandate
 from collections.abc import Callable
 from typing import Any
 
+import deal
+
 
 class PipelineCompletenessChecker:
     """Checks pipeline completeness by evaluating documentation assets.
@@ -107,6 +109,10 @@ class PipelineCompletenessChecker:
 
     # ── Public API ─────────────────────────────────────────────────────────────
 
+    @deal.ensure(
+        lambda _: 0.0 <= _.result["completeness_ratio"] <= 1.0,
+        message="Completeness ratio is a ratio in [0, 1]",
+    )
     def calculate(self) -> dict[str, Any]:
         """Calculate pipeline completeness by checking documentation assets.
 

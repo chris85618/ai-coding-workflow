@@ -9,6 +9,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
 
+import deal
+
 from agentic_workflow.domain.aggregates.pipeline import Pipeline
 from agentic_workflow.domain.value_objects.findings import Findings
 
@@ -28,6 +30,10 @@ class ISecurityAuditService(ABC):
 class SecurityAuditService(ISecurityAuditService):
     """Domain service for orchestrating 3-layer security audits."""
 
+    @deal.ensure(
+        lambda _: len(_.result.items) == sum(len(res.get("findings", [])) for res in _.layer_results),
+        message="Audit must surface every raw finding exactly once",
+    )
     def audit_pipeline(self, pipeline: Pipeline, layer_results: list[dict[str, Any]]) -> Findings:
         """Processes audit results and returns domain Findings.
 
@@ -48,6 +54,8 @@ class SecurityAuditService(ISecurityAuditService):
 
         return Findings(items=findings_list)
 
+    @deal.has()
+    @deal.post(lambda result: result in ("pass", "rework", "block"), message="Gate impact is a closed decision set")
     def decide_gate_impact(self, findings: Findings) -> str:
         """Determines the gate decision based on findings severity.
 

@@ -1,6 +1,6 @@
 """Domain Layer — Pure business logic.
 
-Zero external dependencies. All classes use icontract decorators.
+Zero external dependencies. All classes use deal contract decorators.
 All algorithms are deterministic (no LLM, no I/O).
 
 Subpackages:
@@ -8,5 +8,5 @@ Subpackages:
     services/    : Domain Services
     algorithms/  : Pure deterministic algorithms
     events/      : Immutable domain event dataclasses
-    contracts/   : icontract predicate functions
+    contracts/   : deal predicate functions
 """

@@ -18,15 +18,14 @@ def test_pipeline_advance_failure() -> None:
     assert any("Validation Error" in f for f in pipeline.current_stage.findings.items)
 
 
-def test_pipeline_increment_iteration_corrupted_state_rejected() -> None:
-    """INV-016: mutating stages into an inconsistent state must trip the invariant."""
-    import icontract
+def test_pipeline_empty_stages_corruption_rejected() -> None:
+    """INV-016: deal.inv validates at mutation time, so emptying stages is rejected outright."""
+    import deal
 
     pipeline = Pipeline(pipeline_id="no-stage-test")
-    pipeline.stages = {}  # Corrupt the aggregate state deliberately
 
-    with pytest.raises(icontract.errors.ViolationError):
-        pipeline.increment_stage_iteration()
+    with pytest.raises(deal.InvContractError):
+        pipeline.stages = {}
 
 
 def test_pipeline_with_prefilled_stages() -> None:
@@ -52,11 +51,15 @@ def test_pipeline_rejects_incomplete_stages() -> None:
         Pipeline(pipeline_id="partial", stages=stages)
 
 
-def test_pipeline_fail_validation_corrupted_state_rejected() -> None:
-    """INV-016: fail_validation on a corrupted aggregate must trip the invariant."""
-    import icontract
+def test_pipeline_partial_stages_corruption_rejected() -> None:
+    """INV-016: a stages mapping that drops the current position must trip the invariant."""
+    import deal
 
     pipeline = Pipeline(pipeline_id="no-stage-fail")
-    pipeline.stages = {}  # Corrupt the aggregate state deliberately
-    with pytest.raises(icontract.errors.ViolationError):
-        pipeline.fail_validation("Critical error")
+    pipeline.start()
+    pipeline.record_gate(GateDecision.PASS)
+    pipeline.advance()
+
+    without_current = {sid: stage for sid, stage in pipeline.stages.items() if sid != pipeline.current_position}
+    with pytest.raises(deal.InvContractError):
+        pipeline.stages = without_current

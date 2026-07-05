@@ -4,10 +4,20 @@ from __future__ import annotations
 
 from typing import Any
 
+import deal
+
 
 class ImpactAnalysisService:
     """Domain service for analyzing the impact of changes in the traceability matrix."""
 
+    @deal.ensure(
+        # INV-012: zero blast radius must classify as COSMETIC; MAJOR forces HITL (INV-013).
+        lambda _: (
+            (_.result["blast_radius"] > 0 or _.result["severity"] == "COSMETIC")
+            and _.result["requires_manual_resolution"] == (_.result["severity"] == "MAJOR")
+        ),
+        message="Impact severity must honor INV-012/INV-013 coupling",
+    )
     def analyze_change(
         self,
         *,

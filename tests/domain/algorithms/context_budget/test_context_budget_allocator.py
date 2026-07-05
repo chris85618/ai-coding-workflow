@@ -39,7 +39,7 @@ class TestContextBudgetAllocator:
 
     def test_allocate_invalid_budget_raises(self) -> None:
         """TC-194: Zero budget detection."""
-        import icontract
+        import deal
 
-        with pytest.raises(icontract.ViolationError):
+        with pytest.raises(deal.PreContractError):
             self.cls.allocate(0, RepoMap(symbols=(), token_count=0, file_ranks={}), [], "task")

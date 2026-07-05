@@ -10,8 +10,9 @@ class TestStateMapperCoverage:
     def test_pipeline_to_state_no_current_stage(self) -> None:
         """Cover 42->47 (if current_stage is False)."""
         pipeline = Pipeline(pipeline_id="test")
-        # Force current_position to something not in stages
-        pipeline.current_position = "missing"
+        # Simulate a corrupt persisted state: bypass deal.inv (which blocks this
+        # mutation at setattr time) to exercise the mapper's defensive branch.
+        object.__setattr__(pipeline, "current_position", "missing")
 
         state = StateMapper.pipeline_to_state(pipeline)
 

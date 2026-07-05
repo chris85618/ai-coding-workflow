@@ -57,7 +57,7 @@ class TestModelSelectorOO:
 
     def test_no_providers_raises(self) -> None:
         """TC-205: No enabled providers raises error."""
-        import icontract
+        import deal
 
         config = StrategyConfig(
             reasoning_model=self.reasoning,
@@ -67,5 +67,5 @@ class TestModelSelectorOO:
             fallback_model=self.fallback,
             enabled_providers=frozenset(),
         )
-        with pytest.raises(icontract.ViolationError):
+        with pytest.raises(deal.PreContractError):
             self.cls.select(TaskType.CRITIQUE, config)

@@ -6,6 +6,8 @@ Replaces: ``skills/workflow-skills/phase-*-orchestration.md``, ``stage-*-dimensi
 
 from typing import Any
 
+import deal
+
 from agentic_workflow.domain.algorithms.orchestrator.phase_status import PhaseStatus
 
 
@@ -13,6 +15,7 @@ class Orchestrator:
     """Manages Phase, Stage, and Spec-to-Code transitions."""
 
     @classmethod
+    @deal.ensure(lambda _: "status" in _.result, message="Phase execution must report a status")
     def execute_phase(cls, phase_id: int, context: dict[str, Any]) -> dict[str, Any]:
         """Executes a defined phase."""
         return {
@@ -21,6 +24,7 @@ class Orchestrator:
         }
 
     @classmethod
+    @deal.ensure(lambda _: "status" in _.result, message="Stage execution must report a status")
     def execute_stage(cls, stage_id: int, context: dict[str, Any]) -> dict[str, Any]:
         """Executes a defined stage with specific dimensions."""
         return {
@@ -29,6 +33,7 @@ class Orchestrator:
         }
 
     @classmethod
+    @deal.post(lambda result: isinstance(result, str) and bool(result), message="S2C generation must emit content")
     def run_s2c_generation(cls, s2c_type: str, input_spec: str) -> str:
         """Runs Spec-to-Code generation algorithms.
 

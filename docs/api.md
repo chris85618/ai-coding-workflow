@@ -1,7 +1,7 @@
 # API Reference
 
 Auto-generated API documentation for the `agentic_workflow` package,
-including icontract contracts rendered by `sphinx_icontract`.
+including deal contracts rendered by the `deal.autodoc` hook.
 
 ```{eval-rst}
 .. autosummary::

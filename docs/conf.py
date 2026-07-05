@@ -7,12 +7,14 @@ Feature parity with the retired MkDocs/pdoc toolchain:
 - API reference (pdoc)    -> sphinx.ext.autodoc + autosummary + napoleon + viewcode
 - readthedocs theme       -> sphinx_rtd_theme
 - macros version inject   -> myst_substitutions built from pyproject metadata
-- Contract rendering      -> sphinx_icontract
+- Contract rendering      -> deal.autodoc hook (autodoc-process-docstring)
 """
 
 import pathlib
 import sys
 import tomllib
+
+import deal
 
 _root = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(_root / "src"))
@@ -35,7 +37,6 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "sphinx_icontract",
     "sphinxcontrib.mermaid",
 ]
 
@@ -66,3 +67,8 @@ napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 autodoc_member_order = "bysource"
 autosummary_generate = True
+
+
+def setup(app):
+    """Render deal contracts into autodoc output (replaces sphinx_icontract)."""
+    deal.autodoc(app)

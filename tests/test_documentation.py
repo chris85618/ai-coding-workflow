@@ -6,7 +6,7 @@ Feature mapping enforced here:
 - API reference (pdoc)    -> sphinx.ext.autodoc + sphinx.ext.napoleon + sphinx.ext.viewcode
 - readthedocs theme       -> sphinx_rtd_theme
 - pyproject metadata SSOT -> conf.py reads [project] from pyproject.toml
-- Contract rendering      -> sphinx_icontract
+- Contract rendering      -> deal.autodoc hook registered in conf.py setup()
 
 Traceable to: TC-DOC-001 ~ TC-DOC-005, FR-QUALITY-001
 """
@@ -28,15 +28,15 @@ _required_extensions = (
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "sphinx_icontract",
 )
 
 _required_dev_dependencies = (
     "sphinx",
     "myst-parser",
     "sphinx-rtd-theme",
-    "sphinx-icontract",
 )
+
+_legacy_contract_extension = "sphinx_icontract"
 
 _legacy_artifacts = (
     "mkdocs.yml",
@@ -66,6 +66,11 @@ def test_sphinx_conf_declares_required_extensions() -> None:
     assert isinstance(extensions, list), "conf.py must define an 'extensions' list"
     missing = [ext for ext in _required_extensions if ext not in extensions]
     assert not missing, f"conf.py is missing required Sphinx extensions: {missing}"
+    assert _legacy_contract_extension not in extensions, (
+        "sphinx_icontract is retired; contract rendering must go through deal.autodoc"
+    )
+    setup_hook = namespace.get("setup")
+    assert callable(setup_hook), "conf.py must define setup(app) registering deal.autodoc for contract rendering"
 
 
 def test_sphinx_conf_reads_metadata_from_pyproject() -> None:

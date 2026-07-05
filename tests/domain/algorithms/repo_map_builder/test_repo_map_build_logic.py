@@ -50,15 +50,15 @@ class TestRepoMapBuildLogic:
         assert test_file_paths == []
 
     def test_invalid_project_path_raises(self, tmp_path: Path) -> None:
-        """Icontract precondition: non-existent path raises."""
-        import icontract
+        """Deal precondition: non-existent path raises."""
+        import deal
 
-        with pytest.raises((icontract.ViolationError, ValueError)):
+        with pytest.raises((deal.PreContractError, ValueError)):
             RepoMapBuilder.build("/nonexistent/path/xyz", token_budget=1000)
 
     def test_zero_budget_raises(self, tmp_path: Path) -> None:
-        """Icontract precondition: budget=0 raises."""
-        import icontract
+        """Deal precondition: budget=0 raises."""
+        import deal
 
-        with pytest.raises((icontract.ViolationError, ValueError)):
+        with pytest.raises((deal.PreContractError, ValueError)):
             RepoMapBuilder.build(str(tmp_path), token_budget=0)

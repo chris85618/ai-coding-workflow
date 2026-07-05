@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import deal
+
 from agentic_workflow.domain.value_objects.symbol_def import SymbolDef
 
 _CHARS_PER_TOKEN = 4
@@ -23,6 +25,10 @@ class RepoMap:
     token_count: int = 0
     file_ranks: dict[str, float] = field(default_factory=dict)
 
+    @deal.ensure(
+        lambda _: _.result.token_count <= max(_.budget, 0),
+        message="Pruned map must fit the requested budget (INV-024)",
+    )
     def prune_to_budget(self, budget: int) -> RepoMap:
         """Return a new RepoMap pruned to fit within token budget.
 
@@ -51,6 +57,8 @@ class RepoMap:
             file_ranks=self.file_ranks,
         )
 
+    @deal.has()
+    @deal.post(lambda result: isinstance(result, str))
     def get_context_string(self) -> str:
         """Render this map as a string for LLM context injection.
 

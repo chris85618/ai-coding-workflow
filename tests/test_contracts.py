@@ -1,9 +1,9 @@
 """Contract verification suite: static lint, property-based fuzzing, and symbolic checking.
 
-Three verification layers over the icontract Design-by-Contract annotations:
-- pyicontract-lint     -> static contract well-formedness over src/
-- icontract-hypothesis -> property-based fuzzing driven by contract-inferred strategies
-- CrossHair            -> Z3-backed symbolic checking of contract consistency
+Three verification layers over the deal Design-by-Contract annotations:
+- deal lint  -> static contract well-formedness over src/
+- deal.cases -> property-based fuzzing driven by contract-inferred strategies (hypothesis)
+- CrossHair  -> Z3-backed symbolic checking of contract consistency (analysis_kind=deal)
 
 Traceable to: TC-CONTRACT-001 ~ TC-CONTRACT-004, INV-015, INV-016
 """
@@ -14,11 +14,10 @@ import sys
 import typing
 from collections.abc import Callable
 
+import deal
 import hypothesis
 import hypothesis.strategies as st
-import icontract_hypothesis
 
-import icontract_lint
 from agentic_workflow.domain.algorithms.convergence import ConvergenceDetector
 from agentic_workflow.domain.algorithms.rice_scoring import RiceScorer
 
@@ -39,37 +38,45 @@ _crosshair_per_condition_timeout = "5"
 _fuzz_max_examples = 50
 
 
-def test_pyicontract_lint_src_clean() -> None:
-    """TC-CONTRACT-001: pyicontract-lint reports zero contract errors across src/."""
-    errors = icontract_lint.check_recursively(_src_dir)
-    report = [f"{e.filename}:{e.lineno}: {e.identifier}: {e.description}" for e in errors]
-    assert not report, "pyicontract-lint violations:\n" + "\n".join(report)
+def test_deal_lint_src_clean() -> None:
+    """TC-CONTRACT-001: deal lint reports zero contract errors across src/."""
+    cmd = [sys.executable, "-m", "deal", "lint", "--nocolor", str(_src_dir)]
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", check=False, cwd=_root)
+    assert result.returncode == 0, (
+        f"deal lint violations (exit {result.returncode}).\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
+    )
+
+
+def _classmethod_target(owner: type, name: str) -> Callable[..., object]:
+    """Unwrap a contracted classmethod to its raw function for deal.cases."""
+    return typing.cast("Callable[..., object]", owner.__dict__[name].__func__)
+
+
+_fuzz_settings = hypothesis.settings(
+    deadline=None,
+    # Sparse preconditions (e.g. VALID_IMPACT_VALUES membership) reject most
+    # generated floats; that is expected pruning, not a test-health problem.
+    suppress_health_check=[hypothesis.HealthCheck.filter_too_much, hypothesis.HealthCheck.too_slow],
+)
 
 
 def test_contract_fuzz_check_convergence() -> None:
-    """TC-CONTRACT-002: fuzz ConvergenceDetector.check_convergence via contract-inferred strategies."""
-    target = ConvergenceDetector.check_convergence
-    runner = typing.cast("Callable[..., object]", target)
-    strategy = icontract_hypothesis.infer_strategy(target)
-
-    @hypothesis.given(strategy)
-    @hypothesis.settings(max_examples=_fuzz_max_examples, deadline=None)
-    def run(kwargs: dict[str, object]) -> None:
-        arguments = dict(kwargs)
-        # infer_strategy on a classmethod also emits a 'self' binding; drop it.
-        arguments.pop("self", None)
-        runner(**arguments)
-
-    run()
+    """TC-CONTRACT-002: fuzz ConvergenceDetector.check_convergence via contract-driven cases."""
+    fuzz = deal.cases(
+        _classmethod_target(ConvergenceDetector, "check_convergence"),
+        kwargs={"cls": ConvergenceDetector},
+        count=_fuzz_max_examples,
+        settings=_fuzz_settings,
+    )
+    fuzz()
 
 
 def test_contract_fuzz_rice_score() -> None:
     """TC-CONTRACT-003: fuzz RiceScorer.score with explicit strategies.
 
-    The inferred strategy filters floats() through the sparse VALID_IMPACT_VALUES
-    membership predicate, which fails hypothesis health checks; impact is therefore
-    sampled directly from the valid set while the remaining preconditions keep
-    their inferred bounds.
+    The sparse VALID_IMPACT_VALUES membership precondition rejects nearly every
+    inferred float, so impact is sampled directly from the valid set while the
+    deal pre/ensure contracts stay fully enforced at call time.
     """
     valid_impacts = sorted(RiceScorer.VALID_IMPACT_VALUES)
 
@@ -96,7 +103,7 @@ def test_crosshair_symbolic_contract_check() -> None:
         "crosshair",
         "check",
         "--analysis_kind",
-        "icontract",
+        "deal",
         "--per_condition_timeout",
         timeout,
         *modules,

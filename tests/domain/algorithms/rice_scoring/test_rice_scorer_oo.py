@@ -30,28 +30,28 @@ class TestRiceScorerOO:
 
     def test_invalid_effort_raises(self) -> None:
         """TC-186: Invalid effort detection."""
-        import icontract
+        import deal
 
-        with pytest.raises(icontract.ViolationError):
+        with pytest.raises(deal.PreContractError):
             self.cls.score(10, 2.0, 1.0, 0)
 
     def test_invalid_reach_raises(self) -> None:
         """TC-187: Invalid reach detection."""
-        import icontract
+        import deal
 
-        with pytest.raises(icontract.ViolationError):
+        with pytest.raises(deal.PreContractError):
             self.cls.score(0, 2.0, 1.0, 1.0)
 
     def test_invalid_impact_raises(self) -> None:
         """TC-188: Invalid impact detection."""
-        import icontract
+        import deal
 
-        with pytest.raises(icontract.ViolationError):
+        with pytest.raises(deal.PreContractError):
             self.cls.score(10, 1.5, 1.0, 1.0)
 
     def test_invalid_confidence_raises(self) -> None:
         """TC-189: Invalid confidence detection."""
-        import icontract
+        import deal
 
-        with pytest.raises(icontract.ViolationError):
+        with pytest.raises(deal.PreContractError):
             self.cls.score(10, 2.0, 0.1, 1.0)

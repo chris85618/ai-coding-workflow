@@ -6,6 +6,8 @@ Replaces: ``skills/workflow-skills/tech-debt-collect.md`` and ``skills/workflow-
 
 from typing import Any
 
+import deal
+
 from agentic_workflow.domain.algorithms.rice_scoring import RiceScorer
 
 
@@ -13,6 +15,7 @@ class TechDebtManager:
     """Manages collection, scoring, and framework for technical debt."""
 
     @classmethod
+    @deal.post(lambda result: result >= 0.0, message="RICE scores are non-negative")
     def calculate_rice_score(cls, reach: int, impact: float, confidence: float, effort: float) -> float:
         """Calculates RICE score: (Reach x Impact x Confidence) / Effort."""
         if effort <= 0:
@@ -20,6 +23,11 @@ class TechDebtManager:
         return RiceScorer.score(reach, impact, confidence, effort)
 
     @classmethod
+    @deal.has()
+    @deal.post(
+        lambda result: result in ("Quick Win", "Major Project", "Fill In", "Thankless Task"),
+        message="Quadrant is a closed classification set",
+    )
     def classify_quadrant(cls, impact: float, effort: float) -> str:
         """Classifies the debt into action quadrants."""
         if impact >= 2.0 and effort <= 2.0:
@@ -31,6 +39,8 @@ class TechDebtManager:
         return "Thankless Task"
 
     @classmethod
+    @deal.has()
+    @deal.post(lambda result: result in ("P1", "P2", "P3"), message="Priority is a closed set")
     def assign_priority(cls, quadrant: str) -> str:
         """Assigns priority based on quadrant."""
         mapping = {
@@ -42,6 +52,7 @@ class TechDebtManager:
         return mapping.get(quadrant, "P3")
 
     @classmethod
+    @deal.post(lambda result: result.startswith("### "), message="Debt entries render as level-3 headings")
     def format_debt_markdown(cls, debt_item: dict[str, Any]) -> str:
         """Formats a debt item into the required Markdown structure."""
         return f"""### {debt_item.get("id")}: {debt_item.get("title")}

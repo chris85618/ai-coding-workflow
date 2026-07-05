@@ -64,8 +64,8 @@ class TestClassifySeverity:
         """TC-163: Blast 15 cross 5 is CRITICAL."""
         assert BlastRadiusClassifier.classify(15, 5) == Severity.CRITICAL
 
-    # ── icontract invariant check ─────────────────────────────────────────────
-    def test_icontract_enforces_zero_blast_cosmetic(self) -> None:
+    # ── deal contract check ─────────────────────────────────────────────
+    def test_contract_enforces_zero_blast_cosmetic(self) -> None:
         """TC-164: Contract enforces zero blast COSMETIC."""
         result = BlastRadiusClassifier.classify(0, 0)
         assert result == Severity.COSMETIC

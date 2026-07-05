@@ -7,6 +7,8 @@ Ensures 100% test coverage and zero High/Critical risks before ship.
 
 from typing import Any
 
+import deal
+
 
 class CompletionCheck:
     """Verifies that all requirements are met before a Phase 9 ship.
@@ -17,6 +19,12 @@ class CompletionCheck:
     COVERAGE_THRESHOLD: float = 1.00
 
     @classmethod
+    @deal.pre(lambda _: 0.0 <= _.test_coverage <= 1.0, message="Coverage is a ratio in [0, 1]")
+    @deal.pre(lambda _: _.open_risks >= 0 and _.pending_debts >= 0, message="Counters cannot be negative")
+    @deal.ensure(
+        lambda _: _.result["ready"] == (len(_.result["failures"]) == 0),
+        message="Readiness must equal the absence of failures",
+    )
     def verify_readiness(cls, test_coverage: float, open_risks: int, pending_debts: int = 0) -> dict[str, Any]:
         """Runs final checks before allowing Phase 9 ship.
 

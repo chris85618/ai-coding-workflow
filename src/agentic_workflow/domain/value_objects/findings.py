@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
+import deal
+
 
 @dataclass(frozen=True)
 class Findings:
@@ -16,6 +18,10 @@ class Findings:
 
     items: list[str] = field(default_factory=list)
 
+    @deal.ensure(
+        lambda _: len(_.result.items) == len(_.self.items) + 1 and _.result.items[-1] == _.finding,
+        message="add() must append exactly the given finding to a new VO",
+    )
     def add(self, finding: str) -> Findings:
         """Create a new Findings object with the additional finding.
 

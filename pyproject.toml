@@ -6,7 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "langgraph>=0.4",
     "langchain-core>=1.4.0",
-    "icontract>=2.7.3",
+    "deal>=4.24.6",
     "pydantic>=2.13.4",
     "python-sonarqube-api>=2.0.5",
     "python-dotenv>=1.0.0",
@@ -26,17 +26,8 @@ dev = [
     "sphinx>=8.2",
     "myst-parser>=4.0",
     "sphinx-rtd-theme>=3.0",
-    "sphinx-icontract>=2.0.3",
     "sphinxcontrib-mermaid>=1.0",
-    "pyicontract-lint>=2.1.4",
-    # pyicontract-lint pins astroid<3, but astroid<3 cannot parse Python 3.14
-    # sources (removed ast.Str). astroid 4 works with icontract_lint in practice;
-    # override the stale pin until pyicontract-lint updates.
-    "astroid>=3.3",
-    "icontract-hypothesis>=1.1.7",
-    # icontract-hypothesis 1.1.7 hooks hypothesis.internal.reflection.extract_lambda_source,
-    # which hypothesis removed in 6.137; unpin once icontract-hypothesis catches up.
-    "hypothesis>=6.100,<6.137",
+    "hypothesis>=6.100",
     "bandit>=1.9.4",
     "safety>=3.7.0",
     "pip-audit>=2.10.0",
@@ -69,14 +60,6 @@ known-first-party = ["agentic_workflow"]
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.lint.pep8-naming]
-# 警告：禁止無謂地增加此清單。
-# 此忽略僅限於 icontract 庫強制要求的 'OLD' 保留字，
-# 在環境無法相容且作為無奈之下的最終手段時才可使用。
-# 任何新增項必須經過嚴格的架構審核。
-extend-ignore-names = ["OLD"]
-
-
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
@@ -84,9 +67,6 @@ addopts = "--cov=src/agentic_workflow --cov-branch --cov-report=term-missing --c
 filterwarnings = [
     # Default: every unhandled warning becomes a hard test error.
     "error",
-    # pyicontract-lint imports astroid symbols from the deprecated top-level namespace;
-    # third-party code we cannot patch (see astroid>=3.3 override note in dev deps).
-    "ignore:importing '\\w+' from 'astroid' is deprecated:DeprecationWarning"
 ]
 
 [tool.coverage.run]

@@ -13,7 +13,7 @@ Priority order: task_context > current_files > repo_map
 
 from __future__ import annotations
 
-import icontract
+import deal
 
 from agentic_workflow.domain.value_objects import ContextAllocation, RepoMap
 
@@ -34,6 +34,8 @@ class ContextBudgetAllocator:
     FILES_BUDGET_FRACTION: float = 0.7
 
     @classmethod
+    @deal.has()
+    @deal.post(lambda result: result >= 1, message="Token estimate has a floor of 1")
     def estimate_tokens(cls, text: str) -> int:
         """Estimate token count from text length.
 
@@ -46,13 +48,13 @@ class ContextBudgetAllocator:
         return max(1, len(text) // cls.CHARS_PER_TOKEN)
 
     @classmethod
-    @icontract.require(
-        lambda total_budget: total_budget > 0,
-        "Total budget must be positive",
+    @deal.pre(
+        lambda _: _.total_budget > 0,
+        message="Total budget must be positive",
     )
-    @icontract.ensure(
-        lambda result, total_budget: result.total_tokens <= total_budget,
-        "Total allocated tokens must not exceed budget (INV-021)",
+    @deal.ensure(
+        lambda _: _.result.total_tokens <= _.total_budget,
+        message="Total allocated tokens must not exceed budget (INV-021)",
     )
     def allocate(
         cls,

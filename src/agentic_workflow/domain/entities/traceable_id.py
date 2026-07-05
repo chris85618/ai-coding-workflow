@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import icontract
+import deal
 
 from agentic_workflow.domain.enums.id_prefix import IDPrefix
 from agentic_workflow.domain.value_objects.trace_link import TraceLink
@@ -33,17 +33,17 @@ class TraceableID:
         """Return the canonical ID string (e.g., 'FR-001')."""
         return f"{self.prefix.value}-{self.sequence:03d}"
 
-    @icontract.require(
-        lambda self: self.prefix != IDPrefix.BG,
-        "BG IDs have no upstream links (INV-007)",
+    @deal.pre(
+        lambda _: _.self.prefix != IDPrefix.BG,
+        message="BG IDs have no upstream links (INV-007)",
     )
     def add_upstream(self, link: TraceLink) -> None:
         """Add an upstream trace link."""
         self.upstream_links.append(link)
 
-    @icontract.require(
-        lambda self: self.prefix != IDPrefix.TC,
-        "TC IDs have no downstream links (INV-007)",
+    @deal.pre(
+        lambda _: _.self.prefix != IDPrefix.TC,
+        message="TC IDs have no downstream links (INV-007)",
     )
     def add_downstream(self, link: TraceLink) -> None:
         """Add a downstream trace link."""
