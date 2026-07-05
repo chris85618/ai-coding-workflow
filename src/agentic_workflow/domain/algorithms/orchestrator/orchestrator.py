@@ -1,8 +1,7 @@
 """Orchestrator Algorithm for Phases and Stages — Orchestrator class.
 
 Traceable to: FR-002, FR-003, FR-017, FR-018
-Replaces: skills/workflow-skills/phase-*-orchestration.md,
-          stage-*-dimensions.md, s2c-*.md
+Replaces: ``skills/workflow-skills/phase-*-orchestration.md``, ``stage-*-dimensions.md``, ``s2c-*.md``
 """
 
 from typing import Any

@@ -1,8 +1,7 @@
 """Tech Debt Management Algorithm.
 
 Traceable to: FR-010, FR-011
-Replaces: skills/workflow-skills/tech-debt-collect.md,
-          skills/workflow-skills/tech-debt-framework.md
+Replaces: ``skills/workflow-skills/tech-debt-collect.md`` and ``skills/workflow-skills/tech-debt-framework.md``
 """
 
 from typing import Any

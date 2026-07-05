@@ -27,6 +27,10 @@ _STAGE_ORDER = [
 _stage_order = _STAGE_ORDER
 
 
+@icontract.invariant(
+    lambda self: self.current_position in self.stages,
+    "Current position must always resolve to a stage entity (INV-016)",
+)
 @dataclass
 class Pipeline:
     """Aggregate root representing the entire workflow pipeline.
@@ -42,22 +46,31 @@ class Pipeline:
 
     @property
     def current_stage(self) -> Stage:
-        """Get the stage entity for the current position."""
-        stage = self.stages.get(self.current_position)
-        if not stage:
-            raise ValueError(f"Current stage {self.current_position} not found")
-        return stage
+        """Get the stage entity for the current position.
+
+        INV-016 guarantees the current position always resolves to a stage.
+        """
+        return self.stages[self.current_position]
 
     def __post_init__(self) -> None:
-        """Ensure all required stages are initialized."""
-        if self.current_position not in _stage_order:
+        """Ensure all required stages are initialized.
+
+        :raises ValueError: if the position is unknown or supplied stages are incomplete
+        """
+        stage_order = _stage_order
+        if self.current_position not in stage_order:
             raise ValueError(f"Invalid position: {self.current_position}")
 
         # Initialize default stages if not provided
         if not self.stages:
-            for stage_id in _stage_order:
+            for stage_id in stage_order:
                 name = stage_id.replace("_", " ").title()
                 self.stages[stage_id] = Stage(stage_id=stage_id, name=name)
+
+        # Aggregate consistency boundary: every pipeline position must have a stage
+        missing = [stage_id for stage_id in stage_order if stage_id not in self.stages]
+        if missing:
+            raise ValueError(f"Stages missing required ids: {missing}")
 
     @icontract.require(
         lambda self: self.status == PipelineStatus.RUNNING,
@@ -76,7 +89,10 @@ class Pipeline:
         "Position must advance monotonically (INV-001)",
     )
     def advance(self) -> None:
-        """Advance pipeline to the next stage."""
+        """Advance pipeline to the next stage.
+
+        :raises ValueError: if the pipeline is already at the final stage
+        """
         current_idx = _stage_order.index(self.current_position)
         if current_idx >= len(_stage_order) - 1:
             raise ValueError("Pipeline is already at final stage")
@@ -86,16 +102,20 @@ class Pipeline:
 
         self.current_position = _stage_order[current_idx + 1]
 
+    @icontract.require(
+        lambda self: self.status == PipelineStatus.NOT_STARTED,
+        "Can only start a pipeline that has not started",
+    )
     def start(self) -> None:
         """Start the pipeline."""
-        if self.status != PipelineStatus.NOT_STARTED:
-            raise ValueError("Can only start a pipeline that has not started")
         self.status = PipelineStatus.RUNNING
 
+    @icontract.require(
+        lambda self: self.status == PipelineStatus.RUNNING,
+        "Can only complete a running pipeline",
+    )
     def complete(self) -> None:
         """Complete the pipeline."""
-        if self.status != PipelineStatus.RUNNING:
-            raise ValueError("Can only complete a running pipeline")
         self.status = PipelineStatus.COMPLETED
 
     def record_gate(self, decision: GateDecision) -> None:
@@ -122,11 +142,11 @@ class Pipeline:
         """Handle validation failure.
 
         Transitions current stage to FAILED and records the reason.
+        INV-016 guarantees the current stage exists.
         """
-        stage = self.stages.get(self.current_position)
-        if stage:
-            stage.transition(StageStatus.FAILED)
-            stage.add_finding(f"Validation Error: {reason}")
+        stage = self.stages[self.current_position]
+        stage.transition(StageStatus.FAILED)
+        stage.add_finding(f"Validation Error: {reason}")
         self.status = PipelineStatus.FAILED
 
     def increment_stage_iteration(self) -> None:

@@ -8,6 +8,8 @@ Module-level function retained as backward-compat facade.
 
 from __future__ import annotations
 
+import math
+
 import icontract
 
 VALID_IMPACT_VALUES: frozenset[float] = frozenset({0.5, 1.0, 2.0, 3.0})
@@ -41,7 +43,11 @@ class RiceScorer:
         "Confidence must be between 0.5 and 1.0",
     )
     @icontract.ensure(
-        lambda result, reach, impact, confidence, effort: abs(result - (reach * impact * confidence) / effort) < 1e-9,
+        # math.isclose keeps INV-015 well-defined even when a denormal effort
+        # overflows the quotient to infinity (abs(inf - inf) is NaN).
+        lambda result, reach, impact, confidence, effort: math.isclose(
+            result, (reach * impact * confidence) / effort, rel_tol=1e-9
+        ),
         "RICE formula must be exact (INV-015)",
     )
     def score(

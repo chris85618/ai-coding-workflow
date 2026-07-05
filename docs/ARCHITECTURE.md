@@ -154,7 +154,7 @@ export OPENAI_API_KEY="sk-..."
 
 建立 `.env`（已在 `.gitignore`）：
 
-```dotenv
+```ini
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
 ```

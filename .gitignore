@@ -24,6 +24,7 @@ coverage.xml
 htmlcov/
 coverage_report.txt
 reports/
+.hypothesis/
 
 # IDE
 .vscode/

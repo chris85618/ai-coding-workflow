@@ -18,29 +18,45 @@ def test_pipeline_advance_failure() -> None:
     assert any("Validation Error" in f for f in pipeline.current_stage.findings.items)
 
 
-def test_pipeline_increment_iteration_no_stage() -> None:
-    """Cover error path when current stage is missing (unlikely but for coverage)."""
-    pipeline = Pipeline(pipeline_id="no-stage-test")
-    pipeline.stages = {}  # Force empty
+def test_pipeline_increment_iteration_corrupted_state_rejected() -> None:
+    """INV-016: mutating stages into an inconsistent state must trip the invariant."""
+    import icontract
 
-    with pytest.raises(ValueError, match="Current stage phase0 not found"):
+    pipeline = Pipeline(pipeline_id="no-stage-test")
+    pipeline.stages = {}  # Corrupt the aggregate state deliberately
+
+    with pytest.raises(icontract.errors.ViolationError):
         pipeline.increment_stage_iteration()
 
 
 def test_pipeline_with_prefilled_stages() -> None:
-    """Cover the path where stages are already provided to constructor."""
+    """Cover the path where a complete stages mapping is provided to the constructor."""
+    from agentic_workflow.domain.aggregates.pipeline import _STAGE_ORDER
     from agentic_workflow.domain.entities.stage import Stage
 
-    stages = {"phase0": Stage(stage_id="phase0", name="Custom")}
+    stage_order = _STAGE_ORDER
+    stages = {stage_id: Stage(stage_id=stage_id, name=stage_id.title()) for stage_id in stage_order}
+    stages["phase0"] = Stage(stage_id="phase0", name="Custom")
     pipeline = Pipeline(pipeline_id="custom", stages=stages)
     assert pipeline.stages["phase0"].name == "Custom"
-    # Should not have initialized other default stages
-    assert len(pipeline.stages) == 1
+    # Should not have re-initialized the supplied stages
+    assert len(pipeline.stages) == len(stage_order)
 
 
-def test_pipeline_fail_validation_no_stage() -> None:
-    """Cover the path where fail_validation is called but stage is missing."""
+def test_pipeline_rejects_incomplete_stages() -> None:
+    """Aggregate consistency: constructing with a partial stages mapping must fail."""
+    from agentic_workflow.domain.entities.stage import Stage
+
+    stages = {"phase0": Stage(stage_id="phase0", name="Only One")}
+    with pytest.raises(ValueError, match="Stages missing required ids"):
+        Pipeline(pipeline_id="partial", stages=stages)
+
+
+def test_pipeline_fail_validation_corrupted_state_rejected() -> None:
+    """INV-016: fail_validation on a corrupted aggregate must trip the invariant."""
+    import icontract
+
     pipeline = Pipeline(pipeline_id="no-stage-fail")
-    pipeline.stages = {}  # Force empty
-    pipeline.fail_validation("Critical error")
-    assert pipeline.status == PipelineStatus.FAILED
+    pipeline.stages = {}  # Corrupt the aggregate state deliberately
+    with pytest.raises(icontract.errors.ViolationError):
+        pipeline.fail_validation("Critical error")

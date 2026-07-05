@@ -23,9 +23,20 @@ dev = [
     "mypy>=2.1.0",
     "types-requests>=2.33.0",
     "types-PyYAML",
-    "pdoc>=14.0.0",
-    "mkdocs>=1.5.3",
-    "mkdocs-macros-plugin>=1.0.0",
+    "sphinx>=8.2",
+    "myst-parser>=4.0",
+    "sphinx-rtd-theme>=3.0",
+    "sphinx-icontract>=2.0.3",
+    "sphinxcontrib-mermaid>=1.0",
+    "pyicontract-lint>=2.1.4",
+    # pyicontract-lint pins astroid<3, but astroid<3 cannot parse Python 3.14
+    # sources (removed ast.Str). astroid 4 works with icontract_lint in practice;
+    # override the stale pin until pyicontract-lint updates.
+    "astroid>=3.3",
+    "icontract-hypothesis>=1.1.7",
+    # icontract-hypothesis 1.1.7 hooks hypothesis.internal.reflection.extract_lambda_source,
+    # which hypothesis removed in 6.137; unpin once icontract-hypothesis catches up.
+    "hypothesis>=6.100,<6.137",
     "bandit>=1.9.4",
     "safety>=3.7.0",
     "pip-audit>=2.10.0",
@@ -72,7 +83,10 @@ testpaths = ["tests"]
 addopts = "--cov=src/agentic_workflow --cov-branch --cov-report=term-missing --cov-report=xml:reports/coverage.xml --junitxml=reports/pytest.xml"
 filterwarnings = [
     # Default: every unhandled warning becomes a hard test error.
-    "error"
+    "error",
+    # pyicontract-lint imports astroid symbols from the deprecated top-level namespace;
+    # third-party code we cannot patch (see astroid>=3.3 override note in dev deps).
+    "ignore:importing '\\w+' from 'astroid' is deprecated:DeprecationWarning"
 ]
 
 [tool.coverage.run]
@@ -113,16 +127,7 @@ python.version = "3.12"
 python.coverage.reportPaths = "reports/coverage.xml"
 python.xunit.reportPath = "reports/pytest.xml"
 
-# MkDocs Configuration (Custom Section for Macros Plugin)
-[tool.mkdocs]
+# Sphinx Configuration (Custom Section read by docs/conf.py)
+[tool.sphinx]
 site_name = "Agentic Workflow Documentation"
 site_description = "LangGraph-based agentic workflow orchestration system"
-nav = [
-    { Home = "index.md" },
-    { "API Reference" = "api.md" },
-    { "Workflow State" = "workflow-state.md" },
-    { "Traceability Matrix" = "traceability-matrix.md" },
-    { "Requirements" = "requirements.md" },
-    { "Use Cases" = "use-cases.md" },
-    { "ADR Index" = "adr/index.md" }
-]

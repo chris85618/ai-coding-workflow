@@ -12,39 +12,50 @@ class TestPipelineCoverage:
 
     def test_pipeline_init_with_stages(self) -> None:
         """Cover 46->exit (if not self.stages is False)."""
-        stages = {"phase0": Stage(stage_id="phase0", name="Phase 0")}
+        from agentic_workflow.domain.aggregates.pipeline import _STAGE_ORDER
+
+        stage_order = _STAGE_ORDER
+        stages = {stage_id: Stage(stage_id=stage_id, name=stage_id.title()) for stage_id in stage_order}
         pipeline = Pipeline(pipeline_id="test", stages=stages)
-        assert len(pipeline.stages) == 1
+        assert len(pipeline.stages) == len(stage_order)
         assert "phase0" in pipeline.stages
 
     def test_start_already_started_raises(self) -> None:
         """Cover line 81."""
         pipeline = Pipeline(pipeline_id="test")
         pipeline.start()
-        with pytest.raises(ValueError, match="Can only start a pipeline that has not started"):
+        import icontract
+
+        with pytest.raises(icontract.errors.ViolationError, match="Can only start a pipeline that has not started"):
             pipeline.start()
 
     def test_complete_not_running_raises(self) -> None:
         """Cover line 87."""
         pipeline = Pipeline(pipeline_id="test")
         # Status is NOT_STARTED
-        with pytest.raises(ValueError, match="Can only complete a running pipeline"):
+        import icontract
+
+        with pytest.raises(icontract.errors.ViolationError, match="Can only complete a running pipeline"):
             pipeline.complete()
 
     def test_update_findings_missing_stage_raises(self) -> None:
-        """Cover line 98."""
+        """INV-016: corrupting current_position must trip the aggregate invariant."""
+        import icontract
+
         pipeline = Pipeline(pipeline_id="test")
         pipeline.start()
         pipeline.current_position = "invalid_stage"
-        with pytest.raises(ValueError, match="Current stage invalid_stage not found"):
+        with pytest.raises(icontract.errors.ViolationError):
             pipeline.update_stage_findings(["finding"])
 
     def test_increment_iteration_missing_stage_raises(self) -> None:
-        """Cover line 106."""
+        """INV-016: corrupting current_position must trip the aggregate invariant."""
+        import icontract
+
         pipeline = Pipeline(pipeline_id="test")
         pipeline.start()
         pipeline.current_position = "invalid_stage"
-        with pytest.raises(ValueError, match="Current stage invalid_stage not found"):
+        with pytest.raises(icontract.errors.ViolationError):
             pipeline.increment_stage_iteration()
 
     def test_increment_iteration_not_pending(self) -> None:

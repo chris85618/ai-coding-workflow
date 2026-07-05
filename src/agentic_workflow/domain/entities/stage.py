@@ -51,7 +51,10 @@ class Stage:
         "Status must transition unidirectionally (INV-003)",
     )
     def transition(self, new_status: StageStatus) -> None:
-        """Transition stage to a new status."""
+        """Transition stage to a new status.
+
+        :raises ValueError: if the transition would regress the status order
+        """
         status_order = _status_order
         if status_order[new_status] < status_order[self.status]:
             raise ValueError(f"Cannot regress from {self.status} to {new_status}")
