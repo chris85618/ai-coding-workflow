@@ -1,4 +1,4 @@
-agentic\_workflow.adapters.langgraph.nodes
+﻿agentic\_workflow.adapters.langgraph.nodes
 ==========================================
 
 .. automodule:: agentic_workflow.adapters.langgraph.nodes
@@ -8,12 +8,15 @@ agentic\_workflow.adapters.langgraph.nodes
 
    .. autosummary::
    
+      node_absorb_debt
       node_advance_stage
       node_agent_alpha_critique
       node_agent_beta_resolve
+      node_align_check
       node_auto_gate
       node_complete_pipeline
       node_impact_analysis
+      node_inject_assumptions
       node_iterate_stage
       node_micro_validation
       node_orchestrator
@@ -23,6 +26,7 @@ agentic\_workflow.adapters.langgraph.nodes
       node_phase_2_analysis
       node_phase_9_ship
       node_pipeline_completeness
+      node_rollback
       node_root_cause_leftshift
       node_security_audit
       node_sonarcloud_gate
@@ -38,6 +42,7 @@ agentic\_workflow.adapters.langgraph.nodes
       node_step_5_orphan
       node_step_6_trigger_impact
       node_step_7_record_change
+      node_update_constraints
       set_container
       should_continue_iterating
    

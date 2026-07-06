@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 from agentic_workflow.application.ports.doc_io.document_io_gateway import DocumentIOGateway
 from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentReasoner
+from agentic_workflow.application.ports.gateways.version_control_gateway import IVersionControlGateway
 from agentic_workflow.application.ports.repositories.checkpoint_repository import CheckpointRepository
 from agentic_workflow.application.ports.repositories.pipeline_repository import IPipelineRepository
 from agentic_workflow.application.use_cases.advance_pipeline import AdvancePipelineUseCase
@@ -107,6 +108,13 @@ class DependencyContainer:
         from agentic_workflow.frameworks.sonarcloud.sonar_adapter import SonarCloudAdapter
 
         return SonarCloudAdapter(self.sonar_config)
+
+    @property
+    def version_control(self) -> IVersionControlGateway:
+        """Get the version-control gateway for the rollback degradation path."""
+        from agentic_workflow.frameworks.git_version_control import GitVersionControl
+
+        return GitVersionControl()
 
 
 # Backward compatibility facades

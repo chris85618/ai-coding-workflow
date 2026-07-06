@@ -135,3 +135,22 @@ class TestDependencyContainer:
         from agentic_workflow.frameworks.sonarcloud.sonar_adapter import SonarCloudAdapter
 
         assert isinstance(adapter, SonarCloudAdapter)
+
+    def test_version_control_property(
+        self,
+        mock_repo: MagicMock,
+        mock_io: MagicMock,
+        mock_reasoner: MagicMock,
+        mock_checkpoint_repo: MagicMock,
+    ) -> None:
+        """version_control property builds a GitVersionControl gateway (ADR-STR-029)."""
+        container = DependencyContainer(
+            pipeline_repo=mock_repo,
+            checkpoint_repo=mock_checkpoint_repo,
+            doc_io=mock_io,
+            reasoner=mock_reasoner,
+        )
+
+        from agentic_workflow.frameworks.git_version_control import GitVersionControl
+
+        assert isinstance(container.version_control, GitVersionControl)

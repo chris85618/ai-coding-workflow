@@ -22,11 +22,11 @@ class IterationNodes:
 
     @staticmethod
     def check_fixed_point(state: WorkflowState) -> str:
-        """Checks for convergence or YAGNI termination using domain ConvergenceDetector."""
+        """Route convergence outcome: continue (beta), align (exit_loop), or degrade (rollback)."""
         it, hist = state.get("iteration_count", 0), state.get("findings_history", [])
         curr = state.get("current_findings", [])
         res = ConvergenceDetector.check_convergence(iteration_count=it, findings_per_iter=hist, current_findings=curr)
-        return "exit_loop" if ConvergenceDetector.should_auto_pass(res) else "beta"
+        return ConvergenceDetector.route_fixed_point(res)
 
     @staticmethod
     def agent_beta_resolve(state: WorkflowState) -> WorkflowState:
@@ -55,6 +55,20 @@ class IterationNodes:
 
         return node_iterate_stage(state)
 
+    @staticmethod
+    def align_stage(state: WorkflowState) -> WorkflowState:
+        """Alignment check: diverge → converge → align closure (ADR-STR-029)."""
+        from agentic_workflow.adapters.langgraph.nodes import node_align_check
+
+        return node_align_check(state)
+
+    @staticmethod
+    def rollback_universal_base(state: WorkflowState) -> WorkflowState:
+        """Degradation path: roll back to the universal base on DIVERGING."""
+        from agentic_workflow.adapters.langgraph.nodes import node_rollback
+
+        return node_rollback(state)
+
 
 # Backward compatibility facades (delegated by __init__.py)
 agent_alpha_critique = IterationNodes.agent_alpha_critique
@@ -63,3 +77,5 @@ agent_beta_resolve = IterationNodes.agent_beta_resolve
 root_cause_leftshift = IterationNodes.root_cause_leftshift
 hitl_gate_choice = IterationNodes.hitl_gate_choice
 iterate_stage = IterationNodes.iterate_stage
+align_stage = IterationNodes.align_stage
+rollback_universal_base = IterationNodes.rollback_universal_base

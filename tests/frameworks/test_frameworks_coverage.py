@@ -542,6 +542,10 @@ class TestRepositoryCheckpointer:
             def reasoner(self) -> Any:
                 return None
 
+            @property
+            def version_control(self) -> Any:
+                return None
+
         d = DummyContainer()
         with contextlib.suppress(Exception):
             _ = d.start_pipeline
@@ -561,6 +565,8 @@ class TestRepositoryCheckpointer:
             _ = d.pipeline_repo
         with contextlib.suppress(Exception):
             _ = d.reasoner
+        with contextlib.suppress(Exception):
+            _ = d.version_control
 
         # Direct execution of WorkflowContainerProtocol getters to cover protocol pass statements
         proto = cast(Any, WorkflowContainerProtocol)
@@ -573,6 +579,7 @@ class TestRepositoryCheckpointer:
         assert proto.sonar_adapter.fget(None) is None
         assert proto.pipeline_repo.fget(None) is None
         assert proto.reasoner.fget(None) is None
+        assert proto.version_control.fget(None) is None
 
 
 class TestLangGraphNodes:

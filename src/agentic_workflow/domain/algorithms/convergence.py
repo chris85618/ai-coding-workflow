@@ -67,6 +67,31 @@ class ConvergenceDetector:
 
     @classmethod
     @deal.pre(lambda _: isinstance(_.result, FixedPointResult))
+    @deal.post(
+        lambda result: result in ("beta", "exit_loop", "rollback"),
+        message="Loop routing is a closed decision set (ADR-STR-029)",
+    )
+    def route_fixed_point(cls, result: FixedPointResult) -> str:
+        """Route the iteration loop for a convergence outcome (Pipeline v2).
+
+        NOT_REACHED continues the loop via beta; DIVERGING enters the
+        degradation path (rollback to universal base); REACHED and
+        MAX_ITERATIONS exit toward the alignment check.
+
+        Args:
+            result: The convergence check result.
+
+        Returns:
+            Edge name: "beta" | "exit_loop" | "rollback".
+        """
+        if result is FixedPointResult.NOT_REACHED:
+            return "beta"
+        if result is FixedPointResult.DIVERGING:
+            return "rollback"
+        return "exit_loop"
+
+    @classmethod
+    @deal.pre(lambda _: isinstance(_.result, FixedPointResult))
     def should_auto_pass(cls, result: FixedPointResult) -> bool:
         """Determine if the auto-gate should PASS given a convergence result.
 

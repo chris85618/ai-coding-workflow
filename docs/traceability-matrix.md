@@ -14,7 +14,7 @@
 |----|-----|------|------|
 | BG-001 | FEA-001, FEA-009, FEA-010, FEA-011, FEA-029 | derives | ✅ |
 | BG-002 | FEA-002, FEA-003 | derives | ✅ |
-| BG-003 | FEA-005, FEA-010 | derives | ✅ |
+| BG-003 | FEA-005, FEA-010, FEA-030 | derives | ✅ (FEA-030: Autonomous Pipeline v2) |
 | BG-004 | FEA-004, FEA-006, FEA-007, FEA-008 | derives | ✅ |
 | BG-005 | FEA-025 | derives | ✅ (DDD Transition) |
 | BG-006 | FEA-027, FEA-028 | derives | ✅ (Automation & Monitoring) |
@@ -60,6 +60,7 @@
 | FEA-028 | FR-064 | decomposes | ✅ (Visual Monitoring Badges) |
 | FEA-029 | FR-065, FR-066, FR-067 | decomposes | ✅ (OpenAI-compatible Provider) |
 | FEA-029 | NFR-012 | constrains | ✅ |
+| FEA-030 | FR-068, FR-069, FR-070, FR-071, FR-072 | decomposes | ✅ (Autonomous Pipeline v2: 動態債務迴圈/退化路徑/Ouroboros/延遲HITL/對齊閉環) |
 
 ### FR → UC
 
@@ -170,10 +171,12 @@
 | [ADR-STR-017](adr/ADR-STR-017.md) | 配置與文件巨集的生命週期隔離 | STR | Accepted | FEA-018, FR-044 | justifies |
 | [ADR-STR-019](adr/ADR-STR-019.md) | Mypy 常用執行參數固化 | STR | Accepted | FEA-021, FR-045 | justifies |
 | [ADR-STR-027](adr/ADR-STR-027.md) | 架構邊界防護與註解封鎖硬化 | STR | Accepted | FR-054~060 | justifies |
+| [ADR-STR-028](adr/ADR-STR-028.md) | Design-by-Contract 庫由 icontract 遷移至 deal | STR | Accepted | INV-001~024, TC-CONTRACT-001~005 | justifies |
+| [ADR-STR-029](adr/ADR-STR-029.md) | Autonomous Pipeline v2 — 動態債務迴圈、延遲 HITL、退化路徑與 Ouroboros 閉環 | STR | Accepted | FR-068~072, FEA-030 | justifies |
 | [ADR-GOV-028](adr/ADR-GOV-028.md) | 專案文件入口規範與 README 重構 | GOV | Accepted | FEA-020, FR-043 | justifies |
 | [ADR-GOV-029](adr/ADR-GOV-029.md) | Git Pre-commit Hook 整合 Ruff 格式化 | GOV | Accepted | FEA-022, FR-046 | justifies |
 
-> 類別統計：STR=13, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=42**
+> 類別統計：STR=15, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=44**
 
 ### ALG → FR
 
@@ -190,6 +193,11 @@
 | ALG-009 | FR-031, FEA-012 | implements | ✅ (NEW: Markdown Parser) |
 | ALG-010 | FR-002, NFR-002 | implements | ✅ (NEW: Stage 8 TDD骨架優先協議; test coverage 95.66%) |
 | ALG-013 | FR-033, FEA-013 | implements | ✅ (NEW: WarningPolicyVerifier) |
+| ALG-016 | FR-068, FEA-030 | implements | ✅ (DebtAccumulator: 失敗→DEBT 動態債務) |
+| ALG-017 | FR-071, FEA-030 | implements | ✅ (GovernanceCostModel: κ 延遲 HITL) |
+| ALG-018 | FR-069, FEA-030 | implements | ✅ (RollbackPolicy: DIVERGING→universal-base) |
+| ALG-019 | FR-070, FEA-030 | implements | ✅ (AssumptionRegistry: Ouroboros 閉環) |
+| ALG-020 | FR-072, FEA-030 | implements | ✅ (AlignmentChecker: 發散→收斂→對齊) |
 
 ### RISK → FEA (ISO 31000 完整屬性)
 
@@ -293,6 +301,7 @@
 | INV-023 | MCPGateway | formalizes | ✅ (NEW: Atomic commit completeness) |
 | INV-024 | ALG-006 | formalizes | ✅ (NEW: RepoMap budget constraint) |
 | INV-025 | CLS-021 | formalizes | ✅ (NEW: Token Bound Continuation Safety) |
+| INV-026 | ALG-016 | formalizes | ✅ (NEW: DEBT 編號 1-based 且絕不硬停閘門, deal.pre/post) |
 
 ### SC → UC / INV
 
@@ -328,6 +337,7 @@
 | TC-SONAR-002 | 驗證 SonarCloudConfig 缺失參數報告 | FR-032 | SonarCloudConfig | ✅ |
 | TC-SONAR-003 | 驗證 SonarCloudConfig 完整參數檢核 | FR-032 | SonarCloudConfig | ✅ |
 | TC-SONAR-004 | 驗證 SonarCloud 節點切換邏輯 (Mocked) | FR-015, FR-035, ADR-OPS-001 | node_sonarcloud_gate | ✅ |
+| TC-V2-001~063 | 驗證 Pipeline v2 (FR-068~072, ALG-016~020, INV-026) | validates | ✅ (63 案: DebtItem/Assumption/RollbackDecision VO、5 領域服務、5 DAG 節點、路由與 GitVersionControl) |
 | TC-001 | SC-001 | validates | ✅ |
 | TC-016 | SC-021 | validates | ✅ (Granular Test Set Verification) |
 | TC-017 | SC-019 | validates | ✅ (Step 0 & 1 validation failure and node branch coverage) |
@@ -520,18 +530,18 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 |------|---------|--------|--------|--------|--------|
 | Phase 2.0 | BG-xxx | 5 | — (源頭) | 5/5 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
-| Phase 2.2 | FEA-xxx | 23 | 23/23 | 23/23 | 100% |
+| Phase 2.2 | FEA-xxx | 24 | 24/24 | 24/24 | 100% (含 FEA-030 Pipeline v2) |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
-| Stage 3 | FR-xxx | 42+3v2 | 45/45 | 45/45 | 100% |
+| Stage 3 | FR-xxx | 47+3v2 | 50/50 | 50/50 | 100% (含 FR-068~072 Pipeline v2) |
 | Stage 3 | NFR-xxx | 10 | 10/10 | — (約束) | 100% |
 | Stage 3 | UC-xxx | 15 | 15/15 | 15/15 | 100% |
 | Stage 3 | ADR-STR-xxx | 14 | 14/14 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 27 | 27/27 | — (治理) | 100% |
-| Stage 4 | ALG-xxx | 11 | 11/11 | 11/11 | 100% |
+| Stage 4 | ALG-xxx | 16 | 16/16 | 16/16 | 100% (含 ALG-016~020 Pipeline v2) |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
 | Stage 5 | EVT-xxx | 10 | 10/10 | — | 100% |
-| Stage 6 | INV-xxx | 25 | 25/25 | 25/25 | 100% |
+| Stage 6 | INV-xxx | 26 | 26/26 | 26/26 | 100% (含 INV-026) |
 | Stage 7 | SC-xxx | 21 | 21/21 | 21/21 | 100% |
 | **自動化** | FR→Hook | 1 | 1/1 | — (實作) | 100% |
 | Stage 8 | TC-xxx | 24 | 24/24 | 24/24 | 100% |

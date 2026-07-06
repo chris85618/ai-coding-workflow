@@ -10,3 +10,6 @@ class DebtSource(StrEnum):
     CODE = "code"
     DOCUMENTATION = "documentation"
     TEST = "test"
+    QUALITY_GATE = "quality_gate"
+    SECURITY = "security"
+    VALIDATION = "validation"

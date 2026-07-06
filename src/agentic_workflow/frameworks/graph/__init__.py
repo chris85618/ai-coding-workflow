@@ -17,24 +17,30 @@ from agentic_workflow.frameworks.graph.iteration_graph_builder import (
 from agentic_workflow.frameworks.graph.iteration_nodes import (
     agent_alpha_critique,
     agent_beta_resolve,
+    align_stage,
     check_fixed_point,
     hitl_gate_choice,
     iterate_stage,
+    rollback_universal_base,
     root_cause_leftshift,
 )
 from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
 from agentic_workflow.frameworks.graph.master_pipeline_nodes import (
+    absorb_debt,
+    inject_assumptions,
     phase_0_init,
     phase_1_understanding,
     phase_2_analysis,
     phase_9_ship,
     phase_10_retro,
+    route_debt,
     stage_3_planning,
     stage_4_algorithm,
     stage_5_ooad,
     stage_6_formal,
     stage_7_bdd,
     stage_8_tdd,
+    update_constraints,
 )
 from agentic_workflow.frameworks.graph.micro_validation_graph_builder import (
     MicroValidationGraphBuilder,
@@ -73,6 +79,12 @@ __all__ = [
     "root_cause_leftshift",
     "hitl_gate_choice",
     "iterate_stage",
+    "align_stage",
+    "rollback_universal_base",
+    "inject_assumptions",
+    "absorb_debt",
+    "update_constraints",
+    "route_debt",
     "phase_0_init",
     "phase_1_understanding",
     "phase_2_analysis",

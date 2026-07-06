@@ -1,4 +1,4 @@
-agentic\_workflow.application.ports.gateways
+﻿agentic\_workflow.application.ports.gateways
 ============================================
 
 .. automodule:: agentic_workflow.application.ports.gateways
@@ -16,3 +16,4 @@ agentic\_workflow.application.ports.gateways
    mcp_gateway
    quality_gateway
    security_gateway
+   version_control_gateway

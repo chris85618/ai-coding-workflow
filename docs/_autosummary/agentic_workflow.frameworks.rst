@@ -1,4 +1,4 @@
-agentic\_workflow.frameworks
+﻿agentic\_workflow.frameworks
 ============================
 
 .. automodule:: agentic_workflow.frameworks
@@ -13,6 +13,7 @@ agentic\_workflow.frameworks
    config
    dependency_container
    filesystem_io
+   git_version_control
    graph
    langgraph
    llm

@@ -18,17 +18,21 @@ from agentic_workflow.frameworks.graph.iteration_graph_builder import (
     IterationGraphBuilder,
 )
 from agentic_workflow.frameworks.graph.master_pipeline_nodes import (
+    absorb_debt,
+    inject_assumptions,
     phase_0_init,
     phase_1_understanding,
     phase_2_analysis,
     phase_9_ship,
     phase_10_retro,
+    route_debt,
     stage_3_planning,
     stage_4_algorithm,
     stage_5_ooad,
     stage_6_formal,
     stage_7_bdd,
     stage_8_tdd,
+    update_constraints,
 )
 from agentic_workflow.frameworks.langgraph.nodes import (
     node_auto_gate,
@@ -71,7 +75,15 @@ class MasterGraphBuilder(IMasterGraphBuilder):
         wf.add_node("complete", node_complete_pipeline)
 
     @staticmethod
+    def _setup_debt_nodes(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add dynamic-debt and Ouroboros nodes (ADR-STR-029)."""
+        wf.add_node("sonar_debt", absorb_debt)
+        wf.add_node("security_debt", absorb_debt)
+        wf.add_node("update_constraints", update_constraints)
+
+    @staticmethod
     def _add_init_nodes(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        wf.add_node("inject", inject_assumptions)
         wf.add_node("start", node_start_pipeline)
         wf.add_node("phase_0", phase_0_init)
         wf.add_node("phase_1", phase_1_understanding)
@@ -97,6 +109,7 @@ class MasterGraphBuilder(IMasterGraphBuilder):
         cls._add_stage_nodes_2(wf)
         cls._setup_master_stages(wf, IterationGraphBuilder.build())
         cls._setup_master_final_nodes(wf)
+        cls._setup_debt_nodes(wf)
 
     @staticmethod
     def _setup_edges_stages_part1(wf: StateGraph[WorkflowState, Any, Any]) -> None:
@@ -123,23 +136,37 @@ class MasterGraphBuilder(IMasterGraphBuilder):
         cls._setup_edges_stages_part2(wf)
 
     @staticmethod
+    def _setup_edges_debt_loop(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Route gate failures through debt absorption instead of hard stops (ADR-STR-029)."""
+        wf.add_conditional_edges("sonar_gate", route_debt, {"debt": "sonar_debt", "pass": "security_audit"})
+        wf.add_edge("sonar_debt", "security_audit")
+        wf.add_conditional_edges("security_audit", route_debt, {"debt": "security_debt", "pass": "phase_9"})
+        wf.add_edge("security_debt", "phase_9")
+
+    @staticmethod
     def _setup_edges_final(wf: StateGraph[WorkflowState, Any, Any]) -> None:
         """Add final node edges."""
         wf.add_edge("stage_8", "sonar_gate")
-        wf.add_edge("sonar_gate", "security_audit")
-        wf.add_edge("security_audit", "phase_9")
         wf.add_edge("phase_9", "phase_10")
-        wf.add_edge("phase_10", "complete")
+        wf.add_edge("phase_10", "update_constraints")
+        wf.add_edge("update_constraints", "complete")
         wf.add_edge("complete", _end)
+
+    @staticmethod
+    def _setup_edges_init(wf: StateGraph[WorkflowState, Any, Any]) -> None:
+        """Add session-start edges (assumption injection first, ADR-STR-029)."""
+        wf.set_entry_point("inject")
+        wf.add_edge("inject", "start")
+        wf.add_edge("start", "phase_0")
+        wf.add_edge("phase_0", "phase_1")
+        wf.add_edge("phase_1", "phase_2")
 
     @classmethod
     def _setup_master_edges(cls, wf: StateGraph[WorkflowState, Any, Any]) -> None:
         """Add master edges."""
-        wf.set_entry_point("start")
-        wf.add_edge("start", "phase_0")
-        wf.add_edge("phase_0", "phase_1")
-        wf.add_edge("phase_1", "phase_2")
+        cls._setup_edges_init(wf)
         cls._setup_edges_stages(wf)
+        cls._setup_edges_debt_loop(wf)
         cls._setup_edges_final(wf)
 
     @classmethod

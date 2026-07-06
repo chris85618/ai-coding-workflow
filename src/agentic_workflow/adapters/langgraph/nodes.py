@@ -30,6 +30,7 @@ from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudCo
 
 if TYPE_CHECKING:
     from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentReasoner
+    from agentic_workflow.application.ports.gateways.version_control_gateway import IVersionControlGateway
     from agentic_workflow.application.ports.repositories.pipeline_repository import IPipelineRepository
     from agentic_workflow.application.use_cases.advance_pipeline import AdvancePipelineUseCase
     from agentic_workflow.application.use_cases.run_iteration import RunIterationUseCase
@@ -108,6 +109,11 @@ class WorkflowContainerProtocol(Protocol):
     @property
     def reasoner(self) -> IAgentReasoner:
         """Get the agent reasoner."""
+        pass
+
+    @property
+    def version_control(self) -> IVersionControlGateway:
+        """Get the version-control gateway for the rollback degradation path."""
         pass
 
 
@@ -761,4 +767,135 @@ def node_step_6_trigger_impact(state: WorkflowState) -> WorkflowState:
             state.update(partial_state)
     except Exception:
         pass
+    return state
+
+
+ASSUMPTION_REGISTRY_DOC = "docs/assumption-registry.md"
+
+
+def node_inject_assumptions(state: WorkflowState) -> WorkflowState:
+    """DAG Node: Inject L2 output-affecting assumptions at session START.
+
+    Pipeline v2 (ADR-STR-029, FR-070): rigid constraints produced by earlier
+    retros are loaded before any phase executes (self-bootstrapping left-shift).
+    Graceful degradation: a missing registry file injects nothing.
+    """
+    metadata = state.get("metadata", {})
+    registry_doc = ASSUMPTION_REGISTRY_DOC
+    try:
+        fs = get_filesystem()
+        content = fs.read_text(fs.resolve_path(registry_doc))
+        statements = [line.removeprefix("- ").strip() for line in content.splitlines() if line.startswith("- ASM-")]
+        metadata["injected_assumptions"] = statements
+    except Exception:
+        metadata["injected_assumptions"] = []
+    return {"metadata": metadata}
+
+
+def node_absorb_debt(state: WorkflowState) -> WorkflowState:
+    """DAG Node: Absorb gate failures into dynamic debt (no hard stop).
+
+    Pipeline v2 (ADR-STR-029, FR-068): SonarCloud/security failures become
+    DEBT items feeding the improvement loop; the flow continues with
+    PASS_WITH_WARNINGS instead of blocking on FAIL.
+    """
+    from agentic_workflow.domain.enums import DebtSource, Severity
+    from agentic_workflow.domain.services.debt_accumulator import DebtAccumulator
+
+    metadata = state.get("metadata", {})
+    sonar_failures = [str(item) for item in metadata.get("sonar_failures", [])]
+    security_findings = [str(item) for item in metadata.get("security_audit_findings", [])]
+    existing: list[dict[str, str]] = metadata.get("debt_items", [])
+
+    absorbed = DebtAccumulator.absorb(
+        DebtSource.QUALITY_GATE, Severity.HIGH, sonar_failures, start_index=len(existing) + 1
+    )
+    absorbed += DebtAccumulator.absorb(
+        DebtSource.SECURITY, Severity.HIGH, security_findings, start_index=len(existing) + len(absorbed) + 1
+    )
+
+    metadata["debt_items"] = existing + [item.as_dict() for item in absorbed]
+    metadata["sonar_failures"] = []
+    metadata["security_audit_findings"] = []
+    decision = DebtAccumulator.gate_decision_for(len(metadata["debt_items"]))
+    return {"metadata": metadata, "last_gate_decision": decision, "last_error": None}
+
+
+def node_align_check(state: WorkflowState) -> WorkflowState:
+    """DAG Node: Align converged output against traceability and design docs.
+
+    Pipeline v2 (ADR-STR-029, FR-072): the diverge → converge → align closure.
+    Misalignments are tagged and fed back to Agent alpha for deep extension;
+    a clean pass certifies the fixed point as a full solution.
+    """
+    from agentic_workflow.domain.services.alignment_checker import AlignmentChecker
+
+    metadata = state.get("metadata", {})
+    traceability_issues = [str(item) for item in metadata.get("traceability_issues", [])]
+    consistency_issues = [str(item) for item in metadata.get("consistency_issues", [])]
+
+    misalignments = AlignmentChecker.find_misalignments(traceability_issues, consistency_issues)
+    metadata["alignment_issues"] = misalignments
+
+    if AlignmentChecker.is_aligned(misalignments):
+        state["gate_decision"] = "pass"
+    else:
+        state["gate_decision"] = "fail"
+        state["current_findings"] = state.get("current_findings", []) + misalignments
+    state["metadata"] = metadata
+    return state
+
+
+def node_rollback(state: WorkflowState) -> WorkflowState:
+    """DAG Node: Roll back to the universal base on DIVERGING (EC2 Neutrality).
+
+    Pipeline v2 (ADR-STR-029, FR-069): the rigid degradation path. After the
+    rollback the delayed-HITL flag is raised — an unresolvable architectural
+    conflict is the only event that summons a human mid-flow (FR-071).
+    """
+    from agentic_workflow.domain.services.rollback_policy import RollbackPolicy
+
+    metadata = state.get("metadata", {})
+    target_ref = metadata.get("universal_base_ref") or RollbackPolicy.UNIVERSAL_BASE_REF
+    try:
+        container = _get_container()
+        metadata["rollback_performed"] = container.version_control.rollback_to(target_ref)
+    except Exception as exc:
+        metadata["rollback_performed"] = False
+        state["last_error"] = str(exc)
+    metadata["hitl_required"] = True
+    metadata["hitl_reason"] = "Unresolvable architectural conflict: DIVERGING (intent drift)"
+    state["metadata"] = metadata
+    return state
+
+
+def node_update_constraints(state: WorkflowState) -> WorkflowState:
+    """DAG Node: Close the Ouroboros — persist retro lessons as assumptions.
+
+    Pipeline v2 (ADR-STR-029, FR-070): Phase 10 lessons become ASM entries in
+    the assumption registry document, injected at the next session START.
+    """
+    from agentic_workflow.domain.services.assumption_registry import AssumptionRegistry
+
+    metadata = state.get("metadata", {})
+    lessons = [str(item) for item in metadata.get("lessons", [])]
+    existing_count = len(metadata.get("injected_assumptions", []))
+    assumptions = AssumptionRegistry.from_lessons(lessons, start_index=existing_count + 1)
+    metadata["registered_assumptions"] = [item.assumption_id for item in assumptions]
+
+    if assumptions:
+        registry_doc = ASSUMPTION_REGISTRY_DOC
+        try:
+            fs = get_filesystem()
+            lines = [f"- {item.assumption_id}: {item.statement}" for item in assumptions]
+            previous = ""
+            resolved = fs.resolve_path(registry_doc)
+            if fs.exists(resolved):
+                previous = fs.read_text(resolved)
+            header = previous or "# Assumption Registry (L2 Output-Affecting)\n"
+            doc_lines = [header.rstrip("\n"), *lines, ""]
+            fs.write_text(registry_doc, "\n".join(doc_lines))
+        except Exception as exc:
+            state["last_error"] = str(exc)
+    state["metadata"] = metadata
     return state

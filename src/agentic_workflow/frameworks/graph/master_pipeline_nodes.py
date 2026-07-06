@@ -95,6 +95,32 @@ class MasterPipelineNodes:
 
         return node_phase_10_retro(state)
 
+    @staticmethod
+    def inject_assumptions(state: WorkflowState) -> WorkflowState:
+        """Session START: inject L2 output-affecting assumptions (ADR-STR-029)."""
+        from agentic_workflow.adapters.langgraph.nodes import node_inject_assumptions
+
+        return node_inject_assumptions(state)
+
+    @staticmethod
+    def absorb_debt(state: WorkflowState) -> WorkflowState:
+        """Debt accumulator: absorb gate failures into dynamic debt (ADR-STR-029)."""
+        from agentic_workflow.adapters.langgraph.nodes import node_absorb_debt
+
+        return node_absorb_debt(state)
+
+    @staticmethod
+    def update_constraints(state: WorkflowState) -> WorkflowState:
+        """Ouroboros closure: persist retro lessons as assumptions (ADR-STR-029)."""
+        from agentic_workflow.adapters.langgraph.nodes import node_update_constraints
+
+        return node_update_constraints(state)
+
+    @staticmethod
+    def route_debt(state: WorkflowState) -> str:
+        """Continuous routing: FAIL gates flow into debt absorption, never hard-stop."""
+        return "debt" if state.get("last_gate_decision") == "fail" else "pass"
+
 
 # Backward compatibility facades (delegated by __init__.py)
 phase_0_init = MasterPipelineNodes.phase_0_init
@@ -108,3 +134,7 @@ stage_7_bdd = MasterPipelineNodes.stage_7_bdd
 stage_8_tdd = MasterPipelineNodes.stage_8_tdd
 phase_9_ship = MasterPipelineNodes.phase_9_ship
 phase_10_retro = MasterPipelineNodes.phase_10_retro
+inject_assumptions = MasterPipelineNodes.inject_assumptions
+absorb_debt = MasterPipelineNodes.absorb_debt
+update_constraints = MasterPipelineNodes.update_constraints
+route_debt = MasterPipelineNodes.route_debt
