@@ -42,6 +42,16 @@ for each exchange in conversation_history:
             record_pattern(pattern)
 ```
 
+## Step 2.5: 全庫過度工程審計（Ponytail）
+
+```
+/ponytail-audit                # 全庫膨脹審計：冗餘抽象、未用依賴、可剃除程式碼
+/ponytail-gain                 # 影響指標：本週期剃除量/節省量
+```
+
+- 審計發現 → 作為 Step 3 技術債收集的輸入（來源 #8）
+- 工具不可用 → LLM 依 YAGNI/Ockham 心法抽樣審查（ADR-GOV-017）
+
 ## Step 3: 技術債收集
 
 觸發 `skills/workflow-skills/tech-debt-collect.md`（含 Step 5 追溯矩陣更新）。
@@ -65,7 +75,8 @@ for each exchange in conversation_history:
 ## Step 5: /evolve 工作流改善
 
 ```
-/evolve                        # gstack: 工作流改善建議
+/evolve                        # ECC: 工作流改善建議
+/learn                         # ECC: 從本 session 萃取可複用模式（可選）
 ```
 
 - 識別瓶頸

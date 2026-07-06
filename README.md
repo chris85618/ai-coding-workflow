@@ -6,7 +6,7 @@
 
 > **Single Source of Truth** for agentic development workflow orchestration.
 
-本目錄管理跨 AI 工具鏈的統一開發流程配置，整合四個子模組為一套端對端迭代管線。
+本目錄管理跨 AI 工具鏈的統一開發流程配置，整合五個子模組為一套端對端迭代管線。
 
 ## Architecture
 
@@ -15,25 +15,20 @@ ai_coding/
 ├── AGENTS.md              # 統一執行協議：Step 0-12 結構化步驟 + skill routing
 ├── README.md              # 本文件：人類參考（流程圖、矩陣、安裝步驟）
 ├── docs/
-│   ├── governance/        # 跨切面治理：追溯、影響分析、變更管理、ADR
-│   │   ├── TRACEABILITY.md
-│   │   ├── IMPACT-ANALYSIS.md
-│   │   ├── TECH-DEBT.md
-│   │   ├── CHANGE-MANAGEMENT.md
+│   ├── governance/        # 跨切面治理理論參照
 │   │   └── ADR-GOVERNANCE.md
 │   ├── adr/               # ADR 決策紀錄（含變更紀錄 + LESSON）
 │   │   ├── ADR-TEMPLATE.md
-│   │   └── ADR-GOV-001..023, ADR-STR-001
-│   ├── phases/            # Phase 0-2, 9-10 定義
-│   ├── stages/            # Stage 3-8 完整定義 + 審查維度
+│   │   └── ADR-GOV-001..026, ADR-STR-001
 │   ├── workflow-state.md  # 工作流狀態機
 │   └── traceability-matrix.md  # 追溯矩陣
 └── skills/
-    ├── workflow-skills/           # 17 個可執行協議（全部 ## Step N 格式）
+    ├── workflow-skills/           # 33 個可執行協議（全部 ## Step N 格式）
     ├── everything-claude-code/    # ECC — 開發護欄、hooks、agents
     ├── gstack/                    # gstack — 工作流引擎（QA、ship、review）
     ├── understand-anything/       # Understand Anything — 程式碼理解、知識圖譜
-    └── skillfortify/              # SkillFortify — 供應鏈安全、SBOM
+    ├── skillfortify/              # SkillFortify — 供應鏈安全、SBOM
+    └── ponytail/                  # Ponytail — 懶人資深開發模式（YAGNI、stdlib-first）
 ```
 
 ## Workflow Pipeline
@@ -93,38 +88,38 @@ Step 2    Phase 1: /understand (Path B: 既有 codebase)
 Step 3    Phase 2: /office-hours → /plan-ceo-review                    → HITL ✅
 ─── Iterative Pipeline (Dual-Agent α/β Convergence) ───
 Step 4    Stage 3: 技術規劃 (T1-T7) + /autoplan                       → HITL ✅
-Step 5    Stage 4: 演算法設計 (A1-A22) + skillfortify                  → HITL ✅
-Step 6    Stage 5: OOAD + 三層安全審計 (O1-O4)                        → HITL ✅
-Step 7    Stage 6: 形式化驗證設計 (V1-V6)                              → HITL ✅
-Step 8    Stage 7: BDD/ATDD (B1-B9)                                    → HITL ✅
-Step 9    Stage 8: TDD + 測試 + 修復 (D1-D5) + 三層安全 + SonarCloud  → HITL ✅
+Step 5    Stage 4: 演算法設計 (A-V) + skillfortify                     → HITL ✅
+Step 6    Stage 5: OOAD + 三層安全審計 (OA-OD) + /ponytail-review     → HITL ✅
+Step 7    Stage 6: 形式化驗證設計 (F1-F6)                              → HITL ✅
+Step 8    Stage 7: BDD/ATDD (B1-B5, V1-V4)                             → HITL ✅
+Step 9    Stage 8: TDD (/ponytail) + 測試 + 修復 (D1-D5) + 三層安全 + SonarCloud → HITL ✅
 ─── End Iterative Pipeline ───
 Step 10   Phase 9: /ship → /land-and-deploy → /canary → /document-release
-Step 11   Phase 10: /retro → 技術債 → /understand → /evolve
+Step 11   Phase 10: /retro → /ponytail-audit → 技術債 → /understand → /evolve
 Step 12   Session Gate — 收尾（強制）
 ```
 
 **每個 Stage 的迭代迴圈**: Agent α → Agent β → 微驗證 → 不動點判定 →（收斂後）→ HITL
-**跨切面治理**: TRACEABILITY.md + IMPACT-ANALYSIS.md + CHANGE-MANAGEMENT.md + ADR-GOVERNANCE.md
+**跨切面治理**: traceability-system.md + impact-analysis-exec.md + change-management-protocol.md + adr-governance.md（皆位於 skills/workflow-skills/）
 **狀態持久化**: workflow-state.md + iteration-log.md
 
 ## Tool Responsibility Matrix
 
-| Phase/Stage | UA | gstack | ECC | SkillFortify | 治理層 |
-|-------------|:--:|:------:|:---:|:----------:|:------:|
-| **Step 0** | — | — | — | — | Session Gate |
-| **Step 1 (Phase 0)** | — | Preamble | SessionStart | — | — |
-| **Step 2 (Phase 1)** | ★ | — | — | — | — |
-| **Step 3 (Phase 2)** | context | ★ | 監控 | — | ID 指派 |
-| **Step 4 (Stage 3)** | context | ★ | 監控 | — | ID + 追溯 |
-| **Step 5 (Stage 4)** | — | — | — | 掃描 | ID + 追溯 |
-| **Step 6 (Stage 5)** | — | ★ /cso | AgentShield | ★ 供應鏈 | ID + 追溯 |
-| **Step 7 (Stage 6)** | — | — | — | — | ID + 追溯 |
-| **Step 8 (Stage 7)** | — | — | Hooks | — | ID + 追溯 |
-| **Step 9 (Stage 8)** | 增量 | Checkpoint | ★ Hooks | — | ID + 追溯 + SonarCloud |
-| **Step 10 (Phase 9)** | — | ★ | — | Lockfile | 完成檢查 |
-| **Step 11 (Phase 10)** | 圖譜 | Retro | Instinct | ASBOM | 技術債 |
-| **Step 12** | — | — | — | — | Session Gate |
+| Phase/Stage | UA | gstack | ECC | SkillFortify | Ponytail | 治理層 |
+|-------------|:--:|:------:|:---:|:----------:|:--------:|:------:|
+| **Step 0** | — | — | — | — | — | Session Gate |
+| **Step 1 (Phase 0)** | — | Preamble | SessionStart | — | — | 工具可用性 |
+| **Step 2 (Phase 1)** | ★ +domain | — | — | — | — | — |
+| **Step 3 (Phase 2)** | context | ★ | 監控 | — | — | ID 指派 |
+| **Step 4 (Stage 3)** | context | ★ | 監控 | — | — | ID + 追溯 |
+| **Step 5 (Stage 4)** | — | — | — | 掃描 | — | ID + 追溯 |
+| **Step 6 (Stage 5)** | domain 輸入 | ★ /cso | AgentShield | ★ 供應鏈 | β-1 審查 | ID + 追溯 |
+| **Step 7 (Stage 6)** | — | — | — | — | — | ID + 追溯 |
+| **Step 8 (Stage 7)** | — | — | Hooks | — | — | ID + 追溯 |
+| **Step 9 (Stage 8)** | 增量 | Checkpoint | ★ Hooks | — | ★ 懶人模式 + debt | ID + 追溯 + SonarCloud |
+| **Step 10 (Phase 9)** | — | ★ | — | Lockfile | — | 完成檢查 |
+| **Step 11 (Phase 10)** | 圖譜 | Retro | Instinct + /evolve | ASBOM | 全庫審計 | 技術債 |
+| **Step 12** | — | — | — | — | — | Session Gate |
 
 ## Skill Protocol Format
 
@@ -148,7 +143,7 @@ LLM 從 Step 1 按編號執行到最後一步。無需分析結構。
 ## Installation
 
 ```bash
-# 1. 確保四個 submodule 已初始化
+# 1. 確保五個 submodule 已初始化
 git submodule update --init --recursive
 
 # 2. 安裝 gstack
@@ -167,6 +162,10 @@ cd skills/everything-claude-code && npm install && ./install.sh --profile core
 # 5. 安裝 SkillFortify
 pip install skillfortify          # 核心掃描器
 pip install skillfortify[all]     # 含 registry 掃描
+
+# 6. 安裝 Ponytail（需 node 在 PATH 上供 lifecycle hooks 使用）
+/plugin marketplace add DietrichGebert/ponytail
+/plugin install ponytail@ponytail
 ```
 
 ## Running Tests

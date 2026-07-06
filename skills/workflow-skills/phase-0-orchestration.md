@@ -6,14 +6,28 @@
 
 ---
 
-## Step 1: gstack 首次引導
+## Step 1: 工具可用性檢查（優雅降級，ADR-GOV-017）
 
-若 gstack 尚未初始化：
+逐一檢查五套工具是否可用，記錄可用清單。缺任一工具不阻塞管線，該工具的步驟改走純 LLM 降級路徑並在報告中標注：
+
+| 工具 | 檢查方式 | 降級路徑 |
+|------|---------|---------|
+| gstack | `~/.claude/skills/gstack/` 存在或 `/office-hours` 可路由 | 由 LLM 直接執行對應審查框架 |
+| ECC | `/plan`、`tdd-workflow` skill 可路由 | Hooks 保障消失，改為每次編輯後手動 micro-validation |
+| Understand Anything | `/understand` 可路由 | LLM 直接讀碼建立架構摘要 |
+| SkillFortify | `skillfortify --version` | LLM 人工審查 skill/MCP 定義檔 |
+| Ponytail | `/ponytail` 可路由 | LLM 直接套用 YAGNI/stdlib-first 心法（見 Operational Principle 10） |
+
+若 gstack 已安裝但未設定持續 checkpoint：
 
 ```bash
-npx -y gstack@latest init
-gstack-config set language zh-TW    # 繁體中文
 gstack-config set checkpoint_mode continuous
+```
+
+若 gstack 未安裝，向使用者建議（不自動執行）：
+
+```bash
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup
 ```
 
 ## Step 2: 環境衛生與忽略清單驗證 (LESSON-048)

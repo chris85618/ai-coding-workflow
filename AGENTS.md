@@ -170,12 +170,14 @@ When the user's request matches an available skill, invoke it. When in doubt, in
 | 深入解說特定元件 | `/understand-explain <path>` |
 | 分析 diff 影響範圍 | `/understand-diff` |
 | 生成新人上手指南 | `/understand-onboard` |
+| 領域知識/業務流程圖 | `/understand-domain` |
+| LLM wiki 知識庫圖譜 | `/understand-knowledge <wiki-dir>` |
 
 ### ECC Commands
 
 | Pattern | Command |
 |---------|---------|
-| TDD workflow | `/tdd` or `tdd-workflow` skill |
+| TDD workflow | `tdd-workflow` skill（`/tdd` 為已退役 legacy shim，勿用） |
 | Implementation planning | `/plan` |
 | Code review | `/code-review` |
 | Fix build errors | `/build-fix` |
@@ -328,7 +330,7 @@ STATUS 值：
 > **輸出**: 強制
 
 → **INVOKE**: `stage-3-dimensions.md` + `iter-loop.md` (T1-T7) + `s2c-requirements.md`
-→ **TOOLS**: `/autoplan`, `/plan-eng-review`, `/plan-design-review`
+→ **TOOLS**: `/autoplan`, `/plan-eng-review`, `/plan-design-review`, `/plan-devex-review` (若開發 API/SDK/CLI)
 
 **產出**: FR-xxx, NFR-xxx, UC-xxx, ADR-STR-xxx → `{target_repo}/docs/`
 
@@ -355,7 +357,7 @@ STATUS 值：
 
 → **INVOKE**: `stage-5-dimensions.md` + `iter-loop.md` (OA-OD) + `s2c-domain-model.md`
 → **INVOKE**: `security-audit-3layer.md` (三層安全審計)
-→ **TOOLS**: `/cso`, `npx ecc-agentshield scan --opus --stream`, `skillfortify scan`
+→ **TOOLS**: `/cso`, `npx ecc-agentshield scan --opus --stream`, `skillfortify scan`, `/ponytail-review` (Agent β 過度工程收斂加速器)
 
 **產出**: CLS-xxx, EVT-xxx, ADR-SEC-xxx → `{target_repo}/docs/`
 
@@ -395,7 +397,7 @@ STATUS 值：
 → **INVOKE**: `stage-8-dimensions.md` + `iter-loop.md` (D1-D5)
 → **INVOKE**: `security-audit-3layer.md` (最終安全審計)
 → **INVOKE**: `sonarcloud-gate.md`
-→ **TOOLS**: `/qa`, `/review`, `/investigate`
+→ **TOOLS**: `/ponytail` (實作全程懶人模式), `/qa`, `/review`, `/ponytail-review`, `/investigate`, `/ponytail-debt` (ponytail: 註解 → DEBT-xxx)
 
 **產出**: TC-xxx, 實作程式碼 → `{target_repo}/`
 
@@ -421,7 +423,7 @@ STATUS 值：
 > **輸出**: 強制
 
 → **INVOKE**: `phase-10-orchestration.md`
-→ **TOOLS**: `/retro`, `/understand` (增量更新), `/evolve`
+→ **TOOLS**: `/retro` (gstack), `/understand` (增量更新), `/evolve` + `/learn` (ECC), `/ponytail-audit` + `/ponytail-gain` (全庫過度工程審計)
 
 **產出**: DEBT-xxx, LESSON-xxx, 知識圖譜更新
 

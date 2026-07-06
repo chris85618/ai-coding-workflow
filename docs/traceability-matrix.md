@@ -108,8 +108,9 @@
 | [ADR-GOV-023](adr/ADR-GOV-023.md) | Skill 追溯性擴充 + RCA 推論平準化 | GOV | Accepted | FR-004, FR-005, FR-007, FR-022, FR-023 | justifies |
 | [ADR-GOV-024](adr/ADR-GOV-024.md) | 強制循序輸出協議 | GOV | Accepted | FR-001, FR-005, FR-019 | justifies |
 | [ADR-GOV-025](adr/ADR-GOV-025.md) | ISO 31000 風險管理框架 + DEBT/RISK 完整追溯制度 | GOV | Accepted | FR-010, FR-011, FR-022, FR-023 | justifies |
+| [ADR-GOV-026](adr/ADR-GOV-026.md) | 五工具管線整合修正（Ponytail 接線 + 過期指令修正） | GOV | Accepted | FR-001, FR-005, RISK-003 | justifies |
 
-> 類別統計：STR=1, GOV=25, SEC=0, SCP=0, GATE=0, OPS=0, **合計=26**
+> 類別統計：STR=1, GOV=26, SEC=0, SCP=0, GATE=0, OPS=0, **合計=27**
 
 ### ALG → FR
 
@@ -288,6 +289,8 @@
 | LESSON-032 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 12.2 Pipeline Position 客觀判定守衛) | ADR-GOV-025 (追加) | guards |
 | LESSON-033 | GOVERNANCE_BYPASS | `AGENTS.md` (Step 輸出協議 — 每個 prompt = 完整協議觸發) | ADR-GOV-025 (追加) | guards |
 | LESSON-034 | ASSUMPTION_OVERRIDE | `AGENTS.md` (Factual Reporting — 範圍限定詞保護) | ADR-GOV-025 (追加) | guards |
+| LESSON-053 | DECLARATION_IMPLEMENTATION_GAP | `ADR-GOV-026.md` (工具整合 DoD 五項清單) | ADR-GOV-026 | guards |
+| LESSON-054 | ASSUMPTION_OVERRIDE | `phase-0-orchestration.md` (Step 1 工具可用性檢查) | ADR-GOV-026 | guards |
 
 > LESSON-015~019, LESSON-021 不存在（ID 跳號或已合併）
 
@@ -312,6 +315,7 @@
 | ADR-GOV-023 | `traceability-system.md`, `root-cause-leftshift.md`, `adr-governance.md` | modified-by |
 | ADR-GOV-024 | `AGENTS.md` (#15 + Step 輸出協議 + Step 0-12 輸出標注) | modified-by |
 | ADR-GOV-025 | `risk-management.md` (CREATE), `risk-register.md` (CREATE), `tech-debt-register.md` (CREATE), `tech-debt-collect.md` (Step 5), `ADR-TEMPLATE.md` (關聯產出物), `AGENTS.md` (Routing+12.5), `security-audit-3layer.md` (Step 5), `phase-10-orchestration.md` (Step 3.5), `stage-8-dimensions.md` (Step 5.5), `root-cause-leftshift.md` (Step 7.5), `phase-2-orchestration.md` (Step 4.5) | modified-by |
+| ADR-GOV-026 | `AGENTS.md` (路由表+TOOLS×4), `phase-0-orchestration.md` (Step 1), `phase-1-understanding.md` (Step 3.5), `stage-4-dimensions.md` (Step 4), `stage-5-dimensions.md` (β-1, Step 3), `stage-8-dimensions.md` (Step 2.5, 4, 5.5), `phase-9-orchestration.md` (Step 1), `phase-10-orchestration.md` (Step 2.5, 5), `tech-debt-collect.md` (Step 1), `README.md` | modified-by |
 
 > ADR-GOV-001/002/014/015/017/018/019/021, ADR-STR-001 為治理原則定義，嵌入 AGENTS.md Core Directives
 

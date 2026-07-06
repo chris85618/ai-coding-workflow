@@ -42,15 +42,15 @@
 
 ```bash
 skillfortify scan . --severity-threshold high
-skillfortify trust <algorithm-module>
+skillfortify trust <skill-or-mcp-module>
 ```
 
 | 審計維度 | 檢查項 |
 |---------|--------|
-| 數值安全 | 溢位、精度損失、NaN 傳播 |
-| 輸入邊界 | 對抗性輸入是否被系統性處理？ |
-| 隨機性安全 | CSPRNG 使用是否正確？種子管理？ |
-| 供應鏈 | 演算法依賴的數學庫是否經 SkillFortify 驗證？ |
+| 數值安全 | 溢位、精度損失、NaN 傳播（LLM 審查） |
+| 輸入邊界 | 對抗性輸入是否被系統性處理？（LLM 審查） |
+| 隨機性安全 | CSPRNG 使用是否正確？種子管理？（LLM 審查） |
+| 供應鏈 | 本階段引入的 agent skill / MCP / 工具定義是否經 SkillFortify 掃描？（SkillFortify 掃描 agent skill 供應鏈，不驗證一般數學庫；數學庫穩定性歸 Stage 3 T6 依賴風險） |
 
 ## Step 5: 迭代協議
 

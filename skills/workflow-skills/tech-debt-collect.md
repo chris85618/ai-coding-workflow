@@ -8,7 +8,7 @@
 
 ## Step 1: 收集來源盤點
 
-從以下 7 個來源識別技術債：
+從以下 8 個來源識別技術債：
 
 | # | 來源 | 偵測方式 |
 |---|------|----------|
@@ -19,6 +19,7 @@
 | 5 | 安全債 | 三層審計 HIGH+ 項目 |
 | 6 | 文件債 | 追溯矩陣孤兒 |
 | 7 | 流程債 | 追溯缺口 + 影響分析紀錄 |
+| 8 | 延後實作債 | `/ponytail-debt` 掃描 `ponytail:` 註解（工具不可用時 `grep -rn "ponytail:"`） |
 
 > **ID 指派前置條件 (LESSON-030 守衛)**：指派 DEBT-xxx ID 前，**必須**讀取 `{target_repo}/docs/traceability-matrix.md` § DEBT→FR 節，掃描最大序號後遞增。若矩陣不存在則窮舉搜尋全 repo（grep -rn "DEBT-"）。禁止「假設從 DEBT-001 開始」。
 

@@ -23,6 +23,16 @@
 - **整合邊界**：識別整合邊界，生成整合測試案例 → TC-xxx
 - **基礎設施檢查**：實作前驗證環境配置、依賴版本，全部通過才開始
 
+## Step 2.5: Ponytail 懶人模式（實作全程）
+
+實作開始前啟動 `/ponytail`（預設 full；重構債務區可用 ultra）：
+
+- **最少程式碼**：與 D1（紅-綠-重構）「寫最少程式碼通過測試」直接對齊
+- **stdlib-first**：新增依賴前先證明標準庫/既有依賴不能解
+- **邊界**：Ponytail 剃的是實作膨脹，不得剃掉 Stage 5 已定案的類別圖介面（偏離處依 D2 需有理由）；安全防護、錯誤處理（D4）不受懶人模式豁免
+- 有意識延後的實作以 `ponytail:` 註解標記，Step 5.5 統一收債
+- 工具不可用 → LLM 直接套用 YAGNI/stdlib-first 心法（ADR-GOV-017）
+
 ## Step 3: ECC Hooks（全程自動保障）
 
 | Hook | 觸發時機 | 作用 |
@@ -60,6 +70,7 @@ Path B 專屬：大量修改後 `/understand` 增量更新知識圖譜。
 /qa https://your-staging-url.com     # gstack 瀏覽器 QA 測試
 /qa-only https://your-staging-url.com # 僅報告不修復
 /review                               # gstack 程式碼審查
+/ponytail-review                      # Ponytail 過度工程審查（膨脹/冗餘抽象）
 /codex                                # 跨模型第二意見（可選）
 /design-review                        # 設計審查（前端）
 /devex-review                         # DX 審查（API/SDK）
@@ -75,6 +86,7 @@ Path B 專屬：大量修改後 `/understand` 增量更新知識圖譜。
 
 1. **技術債 → DEBT-xxx**：
    - Code Smells / 覆蓋率缺口 / TODO/FIXME → 呼叫 `skills/workflow-skills/tech-debt-collect.md` Step 1-5
+   - `/ponytail-debt` 掃描 `ponytail:` 註解（Step 2.5 有意識延後的實作）→ 一併登錄為 DEBT-xxx
    - 包含 RICE 計算、四象限分類、追溯矩陣更新
 
 2. **技術風險 → RISK-xxx**：

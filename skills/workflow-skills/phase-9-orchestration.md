@@ -12,6 +12,12 @@
 - 全部 PASS → 繼續
 - 任一 FAIL → 回到 Stage 8
 
+供應鏈 Lockfile 新鮮度（若專案含 agent skill / MCP 定義）：
+
+```bash
+skillfortify lock . --output skill-lock.json   # 重新生成並比對；有 diff → 回 Stage 8 重跑三層審計
+```
+
 ## Step 2: Ship
 
 > **交付模型守衛 (LESSON-044)**：

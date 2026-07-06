@@ -10,7 +10,7 @@
 
 **Pipeline ID**: `pipe-unified-governance-v1`
 **Current Phase/Stage**: `Phase 10 (反思與學習) — 框架 self-bootstrap Stage 3-8 全部完成，當前為治理強化迭代`
-**Last Updated**: `2026-05-14T08:46+08:00`
+**Last Updated**: `2026-07-06T00:00+08:00`
 **Recovery Mode**: false
 
 ---
@@ -204,9 +204,10 @@ FOR each pending WBS leaf L:
 | # | 行動 | 觸發條件 / LRM 判定 | 優先級 |
 |---|------|---------------------|--------|
 | 1 | 驗證 skills 自足性：在其他 repo 執行全套工作流，確認不需讀取 ai_coding/docs/ | 下次在非 ai_coding repo 工作時 | CRITICAL |
-| 2 | 持續監控 RISK-004 (Session結束前未執行完整CM) — HIGH, 策略 MT | 持續監控 | HIGH |
-| 3 | 監控 RISK-003/005 (docs/版本漂移 + ADR-TEMPLATE省略) — MEDIUM, 策略 MT | 下次撰寫 ADR 時驗證 | MEDIUM |
-| 4 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
+| 2 | 實測五工具整合：在真實專案跑 Stage 5/8/Phase 10 驗證 ponytail 接線有效（LESSON-053 DoD） | 下次執行對應 Stage 時 | HIGH |
+| 3 | 持續監控 RISK-004 (Session結束前未執行完整CM) — HIGH, 策略 MT | 持續監控 | HIGH |
+| 4 | 監控 RISK-003/005 (docs/版本漂移 + ADR-TEMPLATE省略) — MEDIUM, 策略 MT；/retro 時抽查 TOOLS 行有效性（LESSON-054） | 下次撰寫 ADR / retro 時 | MEDIUM |
+| 5 | 執行目標專案的 Step 1 (Phase 0 — 環境啟動) | 使用者啟動新專案時 | HIGH |
 
 ---
 
@@ -215,8 +216,8 @@ FOR each pending WBS leaf L:
 > 由 Session-End Hook 每次 session 結束時覆寫。
 > 用於下次 session 的 Step 2（比對差異）。
 
-- **Last Session Date**: 2026-05-14T08:46+08:00
+- **Last Session Date**: 2026-07-06
 - **Pipeline Position (recorded)**: Phase 10 (框架 self-bootstrap 完成，治理強化迭代)
-- **Actual Work Done**: (1) DEBT-001 resolved。(2) 15 個冗餘 docs 文件已刪除 (2,353 行)。(3) ADR-GOVERNANCE.md 精簡 403→240 行，僅保留 DU 理論推導 + HITL 進入點表 + 資訊新穎性框架。(4) phases/ 和 stages/ 空目錄已移除。(5) skills/ 和 AGENTS.md 零殘留過時引用。
-- **State Diff**: -15 files deleted, -2 empty dirs, ADR-GOVERNANCE.md trimmed 40%, Next Actions updated
+- **Actual Work Done**: (1) 全面調查 33 workflow-skills × 5 submodules，發現 8 項矛盾/過期 + Ponytail 零整合。(2) ADR-GOV-026：Ponytail 接線至 Stage 5/8 + Phase 10 + tech-debt-collect；Phase 0 改為五工具可用性檢查（修正臆造的 gstack 安裝指令與無效 config key）；/evolve 歸屬修正為 ECC；/tdd 標注退役；stage-4 SkillFortify 措辭修正；Phase 9 補 Lockfile 驗證；Phase 1 加 /understand-domain。(3) README 同步：ponytail 補入、五 submodule、維度代號、已刪目錄引用清除。(4) LESSON-053 (工具整合 DoD)、LESSON-054 (外部指令驗證) 登錄。
+- **State Diff**: 10 files modified + ADR-GOV-026 created; traceability-matrix +1 ADR +2 LESSON (合計 27 ADR)
 - **Pending Escalations Carried Over**: 無

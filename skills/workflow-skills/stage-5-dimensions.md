@@ -50,6 +50,7 @@
 - 該模式保護了什麼變異？此變異發生的機率與不應對代價多高？
 - **代價低 → 降級**（移除介面、退回普通類別或 Lambda）
 - **代價高 → 保留並優化介面隔離（ISP）**
+- **加速器**：`/ponytail-review`（Ponytail 過度工程審查）可對候選設計/既有程式碼跑一輪 YAGNI 掃描，其發現直接併入 β-1 降級決策。工具不可用時由 LLM 依本節心法執行（ADR-GOV-017）
 
 ### β-2：責任重新分配（GRASP 修正）
 - 判斷邏輯是否能被某個 Entity 內部吸收 → **充血模型優先**
@@ -70,7 +71,7 @@
 ## Step 3: DDD 領域建模
 
 觸發 `skills/workflow-skills/s2c-domain-model.md`：
-- 輸入：UC-xxx, ALG-xxx
+- 輸入：UC-xxx, ALG-xxx；Path B 另加 Phase 1 的 `/understand-domain` 領域流程圖（若已產出）
 - 輸出：CLS-xxx, EVT-xxx → `docs/domain-model.md`
 
 ## Step 4: 安全測試映射
