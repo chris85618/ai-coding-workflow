@@ -43,3 +43,7 @@ reports/
 
 # Web
 site/
+
+# Sphinx (auto-generated, rebuilt by `sphinx-build` / `make html`)
+docs/_autosummary/
+docs/_build/
