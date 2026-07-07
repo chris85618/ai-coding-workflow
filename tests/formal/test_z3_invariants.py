@@ -8,7 +8,6 @@ Traceable to: INV-001, INV-026, FR-071, ADR-STR-029, docs/formal-verification-sp
 """
 
 import z3
-
 from agentic_workflow.domain.services.governance_cost_model import GovernanceCostModel
 
 STAGE_COUNT = 11
