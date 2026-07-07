@@ -28,3 +28,28 @@ class AdvancePipelineUseCase:
 
         self._repo.save(pipeline)
         return pipeline
+
+    def execute_to(self, pipeline_id: str, target: str, decision: GateDecision) -> Pipeline:
+        """Advance the pipeline until it reaches the target position (idempotent).
+
+        Graph nodes name the stage they represent; the aggregate advances one
+        gate-checked slot at a time until both positions align (FR-001).
+
+        Args:
+            pipeline_id: The ID of the pipeline to advance.
+            target: The canonical stage id the pipeline must land on.
+            decision: The gate decision recorded for every advanced slot.
+
+        Raises:
+            ValueError: if the pipeline or the target position is unknown.
+        """
+        pipeline = self._repo.get_by_id(pipeline_id)
+        if not pipeline:
+            raise ValueError(f"Pipeline {pipeline_id} not found")
+        order = list(pipeline.stages)
+        if target not in order:
+            raise ValueError(f"Unknown target position: {target}")
+        while order.index(pipeline.current_position) < order.index(target):
+            pipeline.advance_stage(decision)
+        self._repo.save(pipeline)
+        return pipeline

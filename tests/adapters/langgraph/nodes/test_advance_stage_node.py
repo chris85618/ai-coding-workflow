@@ -44,10 +44,33 @@ class TestAdvanceStageNode:
         self.mock_repo.get_by_id.return_value = self.test_pipeline
 
     def test_node_advance_stage(self) -> None:
-        """TC-278: Advance stage transition."""
+        """TC-278: Advance stage transition aligns the aggregate to the stamped target."""
         state = _fresh_state()
+        state["current_position"] = "phase1"
         state["last_gate_decision"] = GateDecision.PASS.value
         # Satisfy DbC
         self.test_pipeline.last_gate_decision = GateDecision.PASS
         result = node_advance_stage(state)
         assert result.get("current_position") == "phase1"
+
+    def test_node_advance_stage_single_step_without_target(self) -> None:
+        """TC-BOOT-014: Without a stamped target the node advances exactly one slot."""
+        state = WorkflowState(
+            pipeline_id="test-pipeline-001",
+            pipeline_status="running",
+            last_error=None,
+            metadata={},
+        )
+        state["last_gate_decision"] = GateDecision.PASS.value
+        self.test_pipeline.last_gate_decision = GateDecision.PASS
+        result = node_advance_stage(state)
+        assert result.get("current_position") == "phase1"
+
+    def test_node_advance_stage_target_is_idempotent(self) -> None:
+        """TC-BOOT-015: Stamping the aggregate's current position leaves it unchanged."""
+        state = _fresh_state()
+        state["last_gate_decision"] = GateDecision.PASS.value
+        self.test_pipeline.last_gate_decision = GateDecision.PASS
+        result = node_advance_stage(state)
+        assert result.get("current_position") == "phase0"
+        assert self.test_pipeline.stages["phase0"].status.value == "pending"

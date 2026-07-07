@@ -1,9 +1,9 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Stage 8 (kanban TODO 清理: DbC 生態遷移 + 合約覆蓋率 + 模糊測試) — 🔄 IN PROGRESS
-**Last Position**: Phase 11 (Release v0.1.7)
-**Status**: icontract → deal migration complete (ADR-STR-028); contract coverage gate at 100%; contract-driven fuzz suite live. 1047 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
-**Last Updated**: 2026-07-06
+**Pipeline Position**: Phase 10 (kanban TODO 全數完成; 自舉管線端對端驗證通過) — ✅ DONE
+**Last Position**: Stage 8 (kanban TODO 清理: DbC 生態遷移 + 合約覆蓋率 + 模糊測試)
+**Status**: Archon 引擎無關化 (ADR-STR-030 Implemented)、DSPy prompt 最佳化堆疊 (ADR-STR-031)、Coq 定理閘門、OfflineReasoner 降級路徑與自舉管線 (scripts/self_bootstrap.py) 全數落地。1169 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
+**Last Updated**: 2026-07-07
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -84,6 +84,18 @@
 - [x] CC-02: 為 domain 80 個未合約化方法系統性補齊 pre/ensure/post/inv/has 合約，覆蓋率 8/88 → 83/83 (100%) — ✅ DONE
 - [x] FUZZ-01: 建立 tests/test_contract_fuzz.py (TC-FUZZ-001~011) deal.cases 合約驅動模糊測試套件 — ✅ DONE
 - [x] FUZZ-02: 修復模糊測試發現的 BlastRadiusClassifier.classify 負數輸入合約缺口（左移 deal.pre 基數約束） — ✅ DONE
+- [x] ARC-01: 建立 src/z3/__init__.pyi 型別存根修復 test_mypy_type_safety（沿用 SONAR-06 stub 慣例） — ✅ DONE
+- [x] ARC-02: 實作 ArchonWorkflowMapper (adapters/archon) 純字串 YAML 映射 — ✅ DONE
+- [x] ARC-03: 實作 ArchonOrchestrator (frameworks) 經 FilesystemIO/SubprocessExecutor 匯出與派發，無 archon CLI 時優雅降級 — ✅ DONE
+- [x] ARC-04: DependencyContainer.agent_orchestrator 注入點 + TC-ARCHON-001~008 — ✅ DONE
+- [x] COQ-01: 建立 docs/formal/PipelineInvariants.v（5 定理全 Qed 封閉）+ tests/formal/test_coq_proof_gate.py (TC-COQ-001~005) — ✅ DONE
+- [x] DSPY-01: 建立 IPromptOptimizer port + FewShotPromptOptimizer (adapters 降級) + DSPyPromptOptimizer (frameworks) — ✅ DONE
+- [x] DSPY-02: α/β 節點 prompt 統一經 prompt_optimizer（metadata.prompt_examples 掛載點）+ TC-DSPY-001~010 + ADR-STR-031 — ✅ DONE
+- [x] BOOT-01: 建立 OfflineReasoner (adapters/llm) 無 API key 純降級推理器 (FR-076) — ✅ DONE
+- [x] BOOT-02: 建立 scripts/self_bootstrap.py 組合根（真實 adapters、rollback 預設唯讀防護） — ✅ DONE
+- [x] BOOT-03: 根因修復 MarkdownPipelineRepository stub → 真 round-trip 持久化（TC-BOOT-005~009） — ✅ DONE
+- [x] BOOT-04: 根因修復 advance 語意錯位 → AdvancePipelineUseCase.execute_to 位置對齊 + phase9/10 推進 + complete 聚合持久化（TC-BOOT-010~018） — ✅ DONE
+- [x] BOOT-05: 自舉管線端對端執行驗證（phase10/completed/gate pass、stage3-8 各 1 次 α/β 迭代、無錯誤無 rollback） — ✅ DONE
 
 
 ## 🚦 Gate Status
@@ -105,8 +117,8 @@
 
 ## 📝 Session Summary
 
-1. **Framework Core Nodes Alignment**: Refactored the core LangGraph nodes in `master_pipeline_nodes.py`, `iteration_nodes.py`, and `micro_validation_nodes.py` from empty pass-through skeletons into production-grade implementations.
-2. **Defensive Programming with DbC**: Implemented Design by Contract invariants, assuring postconditions and state mutations across application boundaries.
-3. **Dual-Agent Execution & RCA**: Built the iterative convergence loop (Alpha/Beta cycles) and robust root-cause left-shift validations inside the framework nodes.
-4. **100% Test Suite & Coverage Green**: Extended the testing suite to 1023 test cases, keeping 100.00% branch and statement coverage without using a single `pragma no cover` or `type: ignore` in production files.
+1. **Kanban TODO 全數完成 (2026-07-07)**: Archon 引擎無關化實作落地 (ADR-STR-030 Implemented)、DSPy prompt 最佳化三層堆疊 + 論文映射 (ADR-STR-031)、Coq 定理閘門補完 TLA+/Z3 形式化矩陣、SonarQube 資料利用與 NFR 左移確認既有完成。
+2. **自舉管線端對端驗證 (Ouroboros 實證)**: scripts/self_bootstrap.py 以真實 adapters 組合 container 跑通 master graph 至 phase10/completed，並在過程中根因修復三個 skeleton 缺陷（MarkdownPipelineRepository stub 持久化、advance 位置錯位、complete 節點不持久化）。
+3. **降級路徑補完**: OfflineReasoner (無 API key)、ReadOnlyVersionControl (自舉防 rollback)、DSPy/archon CLI 缺席時全部優雅降級 (ADR-GOV-017)。
+4. **品質閘門全綠**: 1169 tests、100.00% statement & branch coverage、Ruff/Mypy/format 潔淨、合約覆蓋率閘門與模糊測試保持通過。
 

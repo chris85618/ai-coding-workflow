@@ -579,6 +579,7 @@ class TestLangGraphNodes:
 
         state = self._base_state()
         state["pipeline_status"] = "running"
+        state["current_position"] = "phase1"
         state["last_gate_decision"] = GateDecision.PASS.value
         # Satisfy DbC: Auto-gate must PASS before advance
         self.test_pipeline.last_gate_decision = GateDecision.PASS

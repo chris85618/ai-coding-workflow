@@ -4,7 +4,7 @@
 > **Tool**: `crosshair-tool` (symbolic execution for Python, Z3 SMT backend)
 > **DbC Library**: `deal` (pre/post/ensure/inv/reason/raises decorators) — migrated from `icontract` per ADR-STR-028
 > **Traceable to**: INV-001..024, CLS-001..018
-> **Last Updated**: 2026-07-06 (v4: icontract → deal migration)
+> **Last Updated**: 2026-07-07 (v5: TLA+/Z3/Coq machine-checked layer, ADR-STR-029 + kanban 形式化驗證)
 
 ---
 
@@ -17,6 +17,9 @@
 | crosshair-tool (`--analysis_kind deal`) | Every deal-decorated method | Symbolic execution / Z3 (TC-CONTRACT-004) |
 | deal.cases + hypothesis | ALG-001, ALG-004 contract fuzzing | Property-based fuzzing (TC-CONTRACT-002/003) |
 | State machine model check | SM-001..004 | crosshair + manual proof |
+| TLA+ spec gate | Pipeline v2 state machine (Init/Next/safety) | docs/formal/PipelineStateMachine.tla + TLC when installed (TC-TLA-001~005) |
+| Z3 SMT proofs | INV-001, INV-026, FR-071 arithmetic invariants | z3-solver unsat counterexample proofs (TC-Z3-001~005) |
+| Coq theorems | INV-001, INV-026, FR-071 over unbounded integers | docs/formal/PipelineInvariants.v + coqc when installed (TC-COQ-001~005) |
 
 **Requirement**: Every method in CLS-001..018 must have at least one deal decorator.
 

@@ -62,6 +62,7 @@
 | FEA-029 | NFR-012 | constrains | ✅ |
 | FEA-030 | FR-068, FR-069, FR-070, FR-071, FR-072 | decomposes | ✅ (Autonomous Pipeline v2: 動態債務迴圈/退化路徑/Ouroboros/延遲HITL/對齊閉環) |
 | FEA-030 | NFR-013, NFR-014, NFR-015 | constrains | ✅ (NFR 左移: 效能預算 TC-NFR-001~003 / 負載 TC-NFR-004~006 / 易用性啟發式 TC-NFR-007~010) |
+| FEA-030 | FR-073, FR-074, FR-075, FR-076 | decomposes | ✅ (Archon 引擎無關化匯出/派發、DSPy prompt 最佳化、Offline 降級推理器與自舉管線) |
 
 ### FR → UC
 
@@ -174,10 +175,12 @@
 | [ADR-STR-027](adr/ADR-STR-027.md) | 架構邊界防護與註解封鎖硬化 | STR | Accepted | FR-054~060 | justifies |
 | [ADR-STR-028](adr/ADR-STR-028.md) | Design-by-Contract 庫由 icontract 遷移至 deal | STR | Accepted | INV-001~024, TC-CONTRACT-001~005 | justifies |
 | [ADR-STR-029](adr/ADR-STR-029.md) | Autonomous Pipeline v2 — 動態債務迴圈、延遲 HITL、退化路徑與 Ouroboros 閉環 | STR | Accepted | FR-068~072, FEA-030 | justifies |
+| [ADR-STR-030](adr/ADR-STR-030.md) | Archon 編排整合策略 — 引擎無關化而非直接替換 LangGraph | STR | Accepted | FR-073, FR-074, FEA-030 | justifies |
+| [ADR-STR-031](adr/ADR-STR-031.md) | DSPy Prompt 最佳化整合與論文導向設計映射 | STR | Accepted | FR-075, FEA-030 | justifies |
 | [ADR-GOV-028](adr/ADR-GOV-028.md) | 專案文件入口規範與 README 重構 | GOV | Accepted | FEA-020, FR-043 | justifies |
 | [ADR-GOV-029](adr/ADR-GOV-029.md) | Git Pre-commit Hook 整合 Ruff 格式化 | GOV | Accepted | FEA-022, FR-046 | justifies |
 
-> 類別統計：STR=15, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=44**
+> 類別統計：STR=17, GOV=27, SEC=1, SCP=0, GATE=0, OPS=1, **合計=46**
 
 ### ALG → FR
 
@@ -342,6 +345,10 @@
 | TC-NFR-001~010 | 驗證 NFR-013~015 (效能預算/負載/易用性啟發式) | validates | ✅ (tests/nfr/: 左移非功能性需求測試) |
 | TC-Z3-001~005 | 驗證 INV-001, INV-026, FR-071 (Z3 SMT 反例不可滿足證明) | proves | ✅ (tests/formal/test_z3_invariants.py) |
 | TC-TLA-001~005 | 驗證 docs/formal/PipelineStateMachine.tla (TLA+ 規格結構閘門, TLC 可用時 parse) | validates | ✅ (優雅降級 ADR-GOV-017) |
+| TC-ARCHON-001~008 | 驗證 FR-073, FR-074 (Archon YAML 映射、匯出/派發、DI 注入點、無 CLI 時降級) | validates | ✅ (ADR-STR-030) |
+| TC-COQ-001~005 | 驗證 docs/formal/PipelineInvariants.v (Coq 定理結構閘門: 全定理宣告、Qed 封閉、無 Admitted, coqc 可用時機器驗證) | proves | ✅ (優雅降級 ADR-GOV-017) |
+| TC-DSPY-001~010 | 驗證 FR-075 (few-shot 降級路徑、dspy.Example 正規化、DI 注入點) | validates | ✅ (ADR-STR-031) |
+| TC-BOOT-001~018 | 驗證 FR-076 + 自舉管線接線 (OfflineReasoner、workflow-state round-trip 持久化、execute_to 位置對齊、complete 聚合持久化) | validates | ✅ (ADR-STR-029 Ouroboros 實證: scripts/self_bootstrap.py 端對端 phase10/completed) |
 | TC-001 | SC-001 | validates | ✅ |
 | TC-016 | SC-021 | validates | ✅ (Granular Test Set Verification) |
 | TC-017 | SC-019 | validates | ✅ (Step 0 & 1 validation failure and node branch coverage) |
@@ -537,10 +544,10 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Phase 2.2 | FEA-xxx | 24 | 24/24 | 24/24 | 100% (含 FEA-030 Pipeline v2) |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
-| Stage 3 | FR-xxx | 47+3v2 | 50/50 | 50/50 | 100% (含 FR-068~072 Pipeline v2) |
+| Stage 3 | FR-xxx | 51+3v2 | 54/54 | 54/54 | 100% (含 FR-068~072 Pipeline v2, FR-073~076 Archon/DSPy/Offline) |
 | Stage 3 | NFR-xxx | 13 | 13/13 | — (約束) | 100% (含 NFR-013~015 左移) |
 | Stage 3 | UC-xxx | 15 | 15/15 | 15/15 | 100% |
-| Stage 3 | ADR-STR-xxx | 14 | 14/14 | — | 100% |
+| Stage 3 | ADR-STR-xxx | 16 | 16/16 | — | 100% (含 ADR-STR-030/031) |
 | 治理層 | ADR-GOV-xxx | 27 | 27/27 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 16 | 16/16 | 16/16 | 100% (含 ALG-016~020 Pipeline v2) |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
@@ -548,13 +555,13 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Stage 6 | INV-xxx | 26 | 26/26 | 26/26 | 100% (含 INV-026) |
 | Stage 7 | SC-xxx | 21 | 21/21 | 21/21 | 100% |
 | **自動化** | FR→Hook | 1 | 1/1 | — (實作) | 100% |
-| Stage 8 | TC-xxx | 24 | 24/24 | 24/24 | 100% |
+| Stage 8 | TC-xxx | 28 | 28/28 | 28/28 | 100% (含 TC-ARCHON/TC-COQ/TC-DSPY/TC-BOOT 群組) |
 | Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 29 | 29/29 | — (映射) | 100% |
 | 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **360** | — | — | **100%** |
+| **合計** | — | **370** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)

@@ -2,6 +2,7 @@
 
 ## 狀態
 Accepted (2026-07-06) — 完全切換至 Archon 之最終決策標記為 **Pending HITL**
+Implemented (2026-07-07) — `ArchonWorkflowMapper`（adapters/archon）、`ArchonOrchestrator`（frameworks）、`DependencyContainer.agent_orchestrator` 注入點與 TC-ARCHON-001~008 已落地；LangGraph 仍為行程內預設引擎
 
 ## 背景
 kanban TODO 要求「全面改用 https://archon.diy/ 而非 LangGraph」。經調查（archon.diy, 2026-07）：

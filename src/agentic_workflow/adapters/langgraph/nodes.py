@@ -217,9 +217,12 @@ def node_advance_stage(state: WorkflowState) -> WorkflowState:
 
     try:
         pipeline_id = state.get("pipeline_id", "default")
+        target = state.get("current_position")
         container = _get_container()
         use_case = container.advance_pipeline
-        pipeline = use_case.execute(pipeline_id, decision)
+        pipeline = (
+            use_case.execute_to(pipeline_id, target, decision) if target else use_case.execute(pipeline_id, decision)
+        )
         return StateMapper.pipeline_to_state(pipeline)
     except Exception as e:
         state["last_error"] = str(e)
@@ -257,6 +260,15 @@ def node_complete_pipeline(state: WorkflowState) -> WorkflowState:
     pipeline = StateMapper.state_to_pipeline(state)
     if pipeline.status != PipelineStatus.COMPLETED:
         pipeline.complete()
+    try:
+        repo = _get_container().pipeline_repo
+        stored = repo.get_by_id(str(state.get("pipeline_id")))
+        if stored is not None:
+            if stored.status != PipelineStatus.COMPLETED:
+                stored.complete()
+            repo.save(stored)
+    except Exception as e:
+        state["last_error"] = str(e)
     return StateMapper.pipeline_to_state(pipeline)
 
 
@@ -482,6 +494,7 @@ def node_stage_6_formal(state: WorkflowState) -> WorkflowState:
 def node_phase_9_ship(state: WorkflowState) -> WorkflowState:
     """DAG Node: Phase 9 deployment and shipping."""
     state["current_position"] = "phase9"
+    state = node_advance_stage(state)
     try:
         from agentic_workflow.adapters.filesystem import get_filesystem
 
@@ -495,6 +508,7 @@ def node_phase_9_ship(state: WorkflowState) -> WorkflowState:
 def node_phase_10_retro(state: WorkflowState) -> WorkflowState:
     """DAG Node: Phase 10 retrospective and learning extraction."""
     state["current_position"] = "phase10"
+    state = node_advance_stage(state)
     try:
         from agentic_workflow.adapters.filesystem import get_filesystem
 
