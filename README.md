@@ -68,6 +68,19 @@ ruff check .
 mypy src
 ```
 
+### 建置 API 文件 (Sphinx)
+
+`docs/_autosummary/` 不納入版本控制（`.gitignore`），需在本機由 Sphinx 自動產生：
+
+```bash
+sphinx-build docs/ docs/_build/html
+# 或
+pip install -e ".[dev]"  # 確保 sphinx 已安裝
+python -m sphinx docs/ docs/_build/html
+```
+
+建置完成後，以瀏覽器開啟 `docs/_build/html/index.html` 即可檢視。CI 目前不建置文件，若需在 CI 發布，需在 workflow 補上此步驟。
+
 ---
 
 ## 📖 核心文檔 (Documentation)
