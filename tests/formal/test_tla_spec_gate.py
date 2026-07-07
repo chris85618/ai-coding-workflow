@@ -43,21 +43,24 @@ class TestTlaSpecGate:
 
     def test_spec_declares_all_v2_actions(self) -> None:
         """TC-TLA-002: Every Pipeline v2 action is specified."""
-        text = _SPEC_PATH.read_text(encoding="utf-8")
+        spec_path = _SPEC_PATH
+        text = spec_path.read_text(encoding="utf-8")
         required = REQUIRED_ACTIONS
         missing = [action for action in required if f"{action} ==" not in text]
         assert missing == []
 
     def test_spec_declares_all_safety_properties(self) -> None:
         """TC-TLA-003: Every safety property is specified."""
-        text = _SPEC_PATH.read_text(encoding="utf-8")
+        spec_path = _SPEC_PATH
+        text = spec_path.read_text(encoding="utf-8")
         required = REQUIRED_PROPERTIES
         missing = [prop for prop in required if f"{prop} ==" not in text]
         assert missing == []
 
     def test_spec_next_relation_covers_every_action(self) -> None:
         """TC-TLA-004: The Next relation is the disjunction of all actions."""
-        text = _SPEC_PATH.read_text(encoding="utf-8")
+        spec_path = _SPEC_PATH
+        text = spec_path.read_text(encoding="utf-8")
         next_block = text.split("Next ==", 1)[1].split("Spec ==", 1)[0]
         required = REQUIRED_ACTIONS
         missing = [action for action in required if action not in next_block]
@@ -69,8 +72,9 @@ class TestTlaSpecGate:
         if tlc is None:
             assert True
             return
+        spec_path = _SPEC_PATH
         result = subprocess.run(
-            [tlc, "-parse", str(_SPEC_PATH)],
+            [tlc, "-parse", str(spec_path)],
             capture_output=True,
             text=True,
             timeout=120,
