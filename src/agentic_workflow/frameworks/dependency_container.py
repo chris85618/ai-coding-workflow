@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 
 from agentic_workflow.application.ports.doc_io.document_io_gateway import DocumentIOGateway
+from agentic_workflow.application.ports.gateways.agent_orchestrator_gateway import IAgentOrchestratorGateway
 from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentReasoner
 from agentic_workflow.application.ports.gateways.version_control_gateway import IVersionControlGateway
 from agentic_workflow.application.ports.repositories.checkpoint_repository import CheckpointRepository
@@ -115,6 +116,13 @@ class DependencyContainer:
         from agentic_workflow.frameworks.git_version_control import GitVersionControl
 
         return GitVersionControl()
+
+    @property
+    def agent_orchestrator(self) -> IAgentOrchestratorGateway:
+        """Get the external agent orchestrator gateway (Archon, ADR-STR-030)."""
+        from agentic_workflow.frameworks.archon_orchestrator import ArchonOrchestrator
+
+        return ArchonOrchestrator()
 
 
 # Backward compatibility facades
