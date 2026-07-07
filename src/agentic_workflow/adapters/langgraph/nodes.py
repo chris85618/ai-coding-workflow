@@ -30,6 +30,7 @@ from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudCo
 
 if TYPE_CHECKING:
     from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentReasoner
+    from agentic_workflow.application.ports.gateways.prompt_optimizer import IPromptOptimizer
     from agentic_workflow.application.ports.gateways.version_control_gateway import IVersionControlGateway
     from agentic_workflow.application.ports.repositories.pipeline_repository import IPipelineRepository
     from agentic_workflow.application.use_cases.advance_pipeline import AdvancePipelineUseCase
@@ -114,6 +115,11 @@ class WorkflowContainerProtocol(Protocol):
     @property
     def version_control(self) -> IVersionControlGateway:
         """Get the version-control gateway for the rollback degradation path."""
+        pass
+
+    @property
+    def prompt_optimizer(self) -> IPromptOptimizer:
+        """Get the prompt optimizer gateway (ADR-STR-031)."""
         pass
 
 
@@ -505,9 +511,10 @@ def node_agent_alpha_critique(state: WorkflowState) -> WorkflowState:
         from agentic_workflow.adapters.langgraph.nodes import _get_container
 
         container = _get_container()
-        prompt = f"Critique stage content for pipeline {state.get('pipeline_id')}"
-        findings = container.reasoner.reason(prompt)
         metadata = state.get("metadata", {})
+        base_prompt = f"Critique stage content for pipeline {state.get('pipeline_id')}"
+        prompt = container.prompt_optimizer.optimize(base_prompt, metadata.get("prompt_examples", []))
+        findings = container.reasoner.reason(prompt)
         recent_findings = metadata.get("recent_findings", [])
         recent_findings.append(findings)
         metadata["recent_findings"] = recent_findings
@@ -527,9 +534,10 @@ def node_agent_beta_resolve(state: WorkflowState) -> WorkflowState:
         from agentic_workflow.adapters.langgraph.nodes import _get_container
 
         container = _get_container()
-        prompt = f"Resolve findings {state.get('current_findings')} for pipeline {state.get('pipeline_id')}"
-        resolution = container.reasoner.reason(prompt)
         metadata = state.get("metadata", {})
+        base_prompt = f"Resolve findings {state.get('current_findings')} for pipeline {state.get('pipeline_id')}"
+        prompt = container.prompt_optimizer.optimize(base_prompt, metadata.get("prompt_examples", []))
+        resolution = container.reasoner.reason(prompt)
         metadata["recent_resolution"] = resolution
         state["metadata"] = metadata
         it_count = state.get("iteration_count", 0)

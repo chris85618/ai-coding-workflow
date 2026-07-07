@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 from agentic_workflow.application.ports.doc_io.document_io_gateway import DocumentIOGateway
 from agentic_workflow.application.ports.gateways.agent_orchestrator_gateway import IAgentOrchestratorGateway
 from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentReasoner
+from agentic_workflow.application.ports.gateways.prompt_optimizer import IPromptOptimizer
 from agentic_workflow.application.ports.gateways.version_control_gateway import IVersionControlGateway
 from agentic_workflow.application.ports.repositories.checkpoint_repository import CheckpointRepository
 from agentic_workflow.application.ports.repositories.pipeline_repository import IPipelineRepository
@@ -123,6 +124,13 @@ class DependencyContainer:
         from agentic_workflow.frameworks.archon_orchestrator import ArchonOrchestrator
 
         return ArchonOrchestrator()
+
+    @property
+    def prompt_optimizer(self) -> IPromptOptimizer:
+        """Get the prompt optimizer gateway (DSPy with few-shot fallback, ADR-STR-031)."""
+        from agentic_workflow.frameworks.dspy_prompt_optimizer import DSPyPromptOptimizer
+
+        return DSPyPromptOptimizer()
 
 
 # Backward compatibility facades
