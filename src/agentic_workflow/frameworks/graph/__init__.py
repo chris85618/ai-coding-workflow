@@ -1,7 +1,7 @@
 """Frameworks Layer — Graph wiring.
 
 Constructs the LangGraph StateGraph.
-This file implements the highly detailed workflow requested, exploding AGENTS.md
+This file implements the unified 12-Step workflow protocol, exploding its
 steps into LangGraph subgraphs (Micro-Validation ALG-002, Iteration ALG-001,
 Master Pipeline).
 OO Design: Three builder classes encapsulate all graph construction logic

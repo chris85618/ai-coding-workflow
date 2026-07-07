@@ -17,19 +17,14 @@
 **追溯**: SC-001 (validates)
 **類型**: 結構驗證
 
-```
-TEST: 子模組存在性檢查
-  ASSERT exists("skills/everything-claude-code/")
-  ASSERT exists("skills/gstack/")
-  ASSERT exists("skills/understand-anything/")
-  ASSERT exists("skills/skillfortify/")
+> **更新 (ADR-STR-032, 2026-07-07)**：skills/ 子模組與 repo 副本 AGENTS.md 已移除；
+> 管線進入點改由 Python DAG 承載，斷言改寫如下。
 
-TEST: AGENTS.md 進入點完整性
-  ASSERT AGENTS.md contains "Phase 0"
-  ASSERT AGENTS.md contains "Phase 1"
-  ASSERT AGENTS.md contains "Stage 3" through "Stage 8"
-  ASSERT AGENTS.md contains "Phase 9"
-  ASSERT AGENTS.md contains "Phase 10"
+```
+TEST: 管線進入點完整性（原子模組/AGENTS.md 斷言，superseded by ADR-STR-032）
+  ASSERT exists("src/agentic_workflow/frameworks/graph/")   # 唯一建圖路徑 (ADR-STR-007)
+  ASSERT exists("scripts/self_bootstrap.py")                # 自舉組合根
+  ASSERT master graph covers "phase0" through "phase10"     # TC-BOOT-010~018 驗證
 ```
 
 ---

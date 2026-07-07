@@ -6,37 +6,33 @@
 
 > **Single Source of Truth** for LangGraph-based agentic development workflow orchestration.
 
-本目錄實作一套以 **LangGraph** 驅動的 AI 開發管線，將 AGENTS.md 的 12-Step 協議具象化為可執行的 Python DAG。
+本 repository 實作一套以 **LangGraph** 驅動的 AI 開發管線，將統一工作流 12-Step 協議（正本位於框架 repo `$FRAMEWORK_ROOT`）具象化為可執行的 Python DAG。各 domain algorithm 的 docstring 以 `Replaces: skills/workflow-skills/*.md` 標註其對應的協議來源（ADR-STR-032）。
 
 ---
 
 ## Repository Structure
 
 ```
-ai_coding/
-├── AGENTS.md                  # 統一執行協議：Step 0-12 + skill routing
-├── README.md                  # 本文件（人類參考）
-├── config.yaml                # 外部化 YAML 配置（模型、提示詞、圖拓樸）
-├── pyproject.toml             # Python 依賴 + 測試配置
-├── src/agentic_workflow/
-│   ├── domain/                # 純 Python 業務邏輯（不依賴 LangGraph）
-│   │   ├── algorithms/        # 25 個治理演算法（OO 類別）
-│   │   ├── models/            # Pipeline, Stage, Enums
-│   │   └── services/
-│   ├── application/           # Use Cases、Port 介面
-│   ├── adapters/
-│   │   └── langgraph/         # 唯一知道 LangGraph 的層
-│   │       ├── state_mapper.py    # WorkflowState TypedDict + 雙向轉換器
-│   │       └── nodes.py           # DAG 節點函數
-│   └── frameworks/
-│       ├── graph.py           # OO Builder Classes（唯一建圖路徑，ADR-STR-007）
-│       ├── config.py          # YAML 配置載入器
-│       └── main.py            # CLI 入口點
-├── docs/                      # 治理產出物
-│   ├── workflow-state.md      # 狀態機持久化
-│   ├── traceability-matrix.md # 追溯矩陣 + ADR 登記
-│   └── risk-register.md       # 風險登錄表
-└── skills/workflow-skills/    # 17 個可執行協議 (## Step N 格式)
+ai-coding-workflow/
+├── README.md                  # 入口文件（人類參考）
+├── config.yaml                # 外部化 YAML 配置（模型、提示詞；不含圖拓樸，ADR-STR-007）
+├── pyproject.toml             # Python 依賴 + 全工具 SSOT 配置（ruff/mypy/pytest/coverage/sonar/sphinx）
+├── sonar-project.properties   # 由 scripts/sync_sonar_props.py 從 pyproject.toml 生成
+├── scripts/                   # CLI 工具（自舉、Sonar 拉取、hooks 安裝、架構掃描）
+├── src/
+│   ├── agentic_workflow/
+│   │   ├── domain/            # 純 Python 業務邏輯（aggregates/entities/value_objects/algorithms/services）
+│   │   ├── application/       # Use Cases、Ports（repositories/gateways/doc_io）、DTOs
+│   │   ├── adapters/          # 內層抽象的轉接層（langgraph 節點、llm、persistence、archon、prompting）
+│   │   └── frameworks/        # 最外層：LangGraph 建圖、LLM providers、SonarCloud、DI 容器
+│   └── {langchain_*,sonarqube,z3}/  # 第三方套件 .pyi 型別存根（SONAR-06, ARC-01）
+├── tests/                     # 1169 案例：單元/BDD/合約/模糊/形式化/品質閘門，鏡射 src 結構
+└── docs/                      # 治理產出物
+    ├── workflow-state.md      # 管線位置 + WBS 持久化
+    ├── traceability-matrix.md # 追溯矩陣 + ADR 登記
+    ├── risk-register.md       # 風險登錄表
+    ├── adr/                   # 架構決策紀錄（ADR-STR/GOV/SEC/OPS）
+    └── formal/                # TLA+ / Coq 形式化規格
 ```
 
 ---
@@ -332,10 +328,11 @@ flowchart TD
 
 | File | Purpose |
 |------|---------|
-| [AGENTS.md](./AGENTS.md) | 統一執行協議：Step 0-12 + skill routing |
-| [config.yaml](./config.yaml) | 模型配置 + 提示詞範本（**不含**圖拓樸，見 ADR-STR-007） |
-| [docs/adr/ADR-STR-007.md](./docs/adr/ADR-STR-007.md) | 單一建圖路徑決策紀錄 |
-| [docs/traceability-matrix.md](./docs/traceability-matrix.md) | 追溯矩陣 + ADR 登記簿 |
-| [docs/workflow-state.md](./docs/workflow-state.md) | 當前管線位置持久化 |
+| [config.yaml](../config.yaml) | 模型配置 + 提示詞範本（**不含**圖拓樸，見 ADR-STR-007） |
+| [adr/ADR-STR-007.md](./adr/ADR-STR-007.md) | 單一建圖路徑決策紀錄 |
+| [traceability-matrix.md](./traceability-matrix.md) | 追溯矩陣 + ADR 登記簿 |
+| [workflow-state.md](./workflow-state.md) | 當前管線位置持久化 |
 | `src/agentic_workflow/adapters/langgraph/nodes.py` | 所有 DAG 節點函數 |
-| `src/agentic_workflow/frameworks/graph.py` | OO Graph Builder Classes（唯一建圖路徑） |
+| `src/agentic_workflow/frameworks/graph/` | OO Graph Builder Classes（唯一建圖路徑） |
+| `scripts/self_bootstrap.py` | 自舉組合根：以真實 adapters 端對端執行 master graph |
+| `scripts/clean_architecture_scan.py` | Clean Architecture 邊界掃描 CLI（原 tasks/，ADR-STR-032） |

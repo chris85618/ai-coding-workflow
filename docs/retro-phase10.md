@@ -274,7 +274,7 @@ Next Pipeline: 等待人類發起新功能需求 (Phase 2)
 ```
 Phase 10 Retro [v0.1.3]: COMPLETE
 LESSON: LESSON-050~053 歸檔
-DEBT: DEBT-008 (Async Sonar) P3 active
+DEBT: DEBT-012 (Async Sonar; 原 DEBT-008，ID 碰撞重編號 2026-07-07) P3 active
 RISK: RISK-001 CLOSED, RISK-004 降評 MEDIUM(6)→LOW(3)
 Archive: 追溯矩陣已更新 (338 條，100% 覆蓋)
 Next Pipeline: 交付模型穩定，進入維護/新功能階段

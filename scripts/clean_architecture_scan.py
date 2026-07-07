@@ -6,6 +6,7 @@ or unauthorized dependency injection attempts. Exits with non-zero code on viola
 
 import sys
 from pathlib import Path
+
 from agentic_workflow.frameworks.validation.clean_architecture_scanner import (
     CleanArchitectureBoundaryScanner,
 )
@@ -36,12 +37,13 @@ def run_scan() -> int:
 
     # Format output in a beautiful CLI Table
     print(f"{'Line:Col':<10} | {'Category':<20} | {'File Path (Relative to Root)':<50}")
-    print("-" * 10 + "-+-" + "-" * 20 + "-+-" + "-" * 50)
+    separator = f"{'-' * 10}-+-{'-' * 20}-+-{'-' * 50}"
+    print(separator)
     for v in violations:
         try:
             rel_file = Path(v.file_path).relative_to(project_root)
         except ValueError:
-            rel_file = v.file_path
+            rel_file = Path(v.file_path)
         loc_str = f"{v.line}:{v.column}"
         print(f"{loc_str:<10} | {v.category:<20} | {str(rel_file):<50}")
         print(f"  └─ Message: {v.message}\n")

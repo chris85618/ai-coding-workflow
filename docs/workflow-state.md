@@ -1,8 +1,8 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 10 (kanban TODO 全數完成; 自舉管線端對端驗證通過) — ✅ DONE
-**Last Position**: Stage 8 (kanban TODO 清理: DbC 生態遷移 + 合約覆蓋率 + 模糊測試)
-**Status**: Archon 引擎無關化 (ADR-STR-030 Implemented)、DSPy prompt 最佳化堆疊 (ADR-STR-031)、Coq 定理閘門、OfflineReasoner 降級路徑與自舉管線 (scripts/self_bootstrap.py) 全數落地。1169 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
+**Pipeline Position**: Phase 10 (Repository 範圍收斂 ADR-STR-032; kanban 退役) — ✅ DONE
+**Last Position**: Phase 10 (kanban TODO 全數完成; 自舉管線端對端驗證通過)
+**Status**: ADR-STR-032 落地：skills/ 子模組×4、repo 副本 AGENTS.md、skill-lock.json、agentic-workflow.cdx.json、test_ruff_* fixtures×3、coverage_report.txt 追蹤、kanban.md 全數移除；tasks/clean_architecture_scan.py 併入 scripts/；README/CHANGELOG/ARCHITECTURE 對齊現況；版本 0.2.0。1169 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
 **Last Updated**: 2026-07-07
 
 ## ⏳ WBS (Work Breakdown Structure)
@@ -117,6 +117,8 @@
 
 ## 📝 Session Summary
 
+-1. **治理修正 + CI SBOM (2026-07-07 續)**: DEBT-008 ID 碰撞以雙重編號解決（register type-ignore 債 → DEBT-011；matrix/retro Sonar 異步債 → DEBT-012 並補登 register）；DEBT-010 以 build.yml `sbom` job（cyclonedx-py 動態生成 + artifact 上傳）解決；README 新增 DSPy/Archon 選用整合章節（兩者均自動偵測、優雅降級，config.yaml 零改動相容）；`.archon/` 進 .gitignore。
+0. **Repository 範圍收斂 (2026-07-07, ADR-STR-032)**: kanban.md 逐條驗證全數反映後退役刪除；移除零引用的框架宿主殘留（skills/ 子模組×4 + .gitmodules、過期 AGENTS.md 副本、skill-lock.json、agentic-workflow.cdx.json、test_ruff_* 孤兒 fixtures×3、被追蹤的 coverage_report.txt）；tasks/ 併入 scripts/（CLI 高內聚）；NFR-002/003 標記 SUPERSEDED；新增 DEBT-010 (P3, SBOM CI 再生)；README/CHANGELOG(0.2.0)/ARCHITECTURE 全面對齊現況。
 1. **Kanban TODO 全數完成 (2026-07-07)**: Archon 引擎無關化實作落地 (ADR-STR-030 Implemented)、DSPy prompt 最佳化三層堆疊 + 論文映射 (ADR-STR-031)、Coq 定理閘門補完 TLA+/Z3 形式化矩陣、SonarQube 資料利用與 NFR 左移確認既有完成。
 2. **自舉管線端對端驗證 (Ouroboros 實證)**: scripts/self_bootstrap.py 以真實 adapters 組合 container 跑通 master graph 至 phase10/completed，並在過程中根因修復三個 skeleton 缺陷（MarkdownPipelineRepository stub 持久化、advance 位置錯位、complete 節點不持久化）。
 3. **降級路徑補完**: OfflineReasoner (無 API key)、ReadOnlyVersionControl (自舉防 rollback)、DSPy/archon CLI 缺席時全部優雅降級 (ADR-GOV-017)。

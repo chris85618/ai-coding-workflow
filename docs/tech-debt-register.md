@@ -1,7 +1,7 @@
 # Tech Debt Register — Unified Agentic Workflow System
 
-> **Last Updated**: 2026-05-17T23:36+08:00
-> **Total Active Items**: 0
+> **Last Updated**: 2026-07-07
+> **Total Active Items**: 1 (P3=1: DEBT-012)
 > **Sprint Allocation**: 20% capacity
 > **維護 Skill**: `skills/workflow-skills/tech-debt-collect.md`, `skills/workflow-skills/tech-debt-framework.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § DEBT → FR
@@ -11,11 +11,63 @@
 
 ## ## Active Debt
 
-### DEBT-008: src/ 下 `# type: ignore` 的全面徹底清空
+### DEBT-012: SonarCloud 切換邏輯異步化
+
+> **重編號 (2026-07-07)**：原 ID DEBT-008（僅登錄於追溯矩陣與 retro 文件）與本登錄表的 type: ignore 清空債發生 ID 碰撞；
+> 依 HITL 指示改派 DEBT-012 並正式補登本登錄表。
 
 | 欄位 | 值 |
 |------|-----|
-| **ID** | DEBT-008 |
+| **ID** | DEBT-012（原 DEBT-008） |
+| **狀態** | open |
+| **來源** | 效能債（docs/retro.md Phase 10 反思） |
+| **影響元件** | `src/agentic_workflow/frameworks/sonarcloud/sonar_adapter.py` |
+| **優先等級** | P3 |
+| **象限** | Fill In |
+| **RICE Score** | 2.0 (R=10, I=0.8, C=0.5, E=2) |
+| **ADR 追溯** | N/A |
+| **FR 追溯** | FR-015 |
+| **對應 RISK** | N/A |
+| **對應 LESSON** | LESSON-073 |
+| **建立日期** | 2026-05-18（原 DEBT-008 登錄於矩陣） |
+| **預計處理 Sprint** | 依容量排程 |
+
+**債務描述**：SonarCloud Web API 的同步呼叫在響應慢時會阻塞管線，未來應改為 async/await 模式。
+
+---
+
+### DEBT-010: SBOM 生成未接入 CI release 流程
+
+| 欄位 | 值 |
+|------|-----|
+| **ID** | DEBT-010 |
+| **狀態** | resolved |
+| **來源** | ADR-STR-032（移除過期 `agentic-workflow.cdx.json` 與 `skill-lock.json`） |
+| **影響元件** | `.github/workflows/build.yml` |
+| **優先等級** | P3 |
+| **象限** | Strategic |
+| **RICE Score** | 2.0 (R=10, I=0.8, C=0.5, E=2) |
+| **ADR 追溯** | ADR-STR-032 |
+| **FR 追溯** | N/A |
+| **對應 RISK** | N/A |
+| **對應 LESSON** | N/A |
+| **建立日期** | 2026-07-07 |
+| **預計處理 Sprint** | 依容量排程 |
+| **解決日期** | 2026-07-07 |
+
+**債務描述**：靜態提交的 CycloneDX SBOM 已過期且無 CI 接線，依 ADR-STR-032 移除。若未來需要供應鏈證明，應在 CI release job 以 `cyclonedx-py` 動態生成，而非提交會過期的靜態產物。
+**解決方式**：`.github/workflows/build.yml` 新增 `sbom` job — `cyclonedx-py environment` 動態生成 CycloneDX JSON 並以 artifact 上傳（保留 90 天預設）。
+
+---
+
+### DEBT-011: src/ 下 `# type: ignore` 的全面徹底清空
+
+> **重編號 (2026-07-07)**：原 ID DEBT-008 與追溯矩陣中「SonarCloud 切換邏輯異步化」發生 ID 碰撞；
+> 依 HITL 指示雙方均改派新流水號（本項 → DEBT-011，Sonar 異步項 → DEBT-012）。
+
+| 欄位 | 值 |
+|------|-----|
+| **ID** | DEBT-011（原 DEBT-008） |
 | **狀態** | resolved |
 | **來源** | 程式碼品質 |
 | **影響元件** | `src/` |

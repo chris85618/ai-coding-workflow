@@ -8,6 +8,33 @@ on:
 env:
   PYTHON_VERSION: "3.12"
 jobs:
+  sbom:
+    # DEBT-010 (ADR-STR-032): generate the CycloneDX SBOM dynamically instead of
+    # committing a static artifact that goes stale.
+    name: SBOM (CycloneDX)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+          cache-dependency-path: "pyproject.toml"
+      - name: Install package and SBOM tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install cyclonedx-bom
+      - name: Generate CycloneDX SBOM
+        run: |
+          cyclonedx-py environment --pyproject pyproject.toml --of JSON -o agentic-workflow.cdx.json
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentic-workflow-sbom
+          path: agentic-workflow.cdx.json
+
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest

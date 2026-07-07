@@ -6,6 +6,43 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0] — 2026-07-07
+
+### Summary
+Repository scope consolidation & autonomous pipeline completion release.
+Aggregates all work since 0.1.6 (kanban backlog fully landed) and narrows the repository to its executable-pipeline identity per ADR-STR-032.
+1169 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
+
+### Added
+- **Design by Contract (ADR-STR-028)**: full migration icontract → `deal` (src 14 files, tests 12 files); contract-coverage gate TC-CONTRACT-005 (100% of domain concrete public methods carry contracts); contract-driven fuzzing suite `tests/test_contract_fuzz.py` (TC-FUZZ-001~011).
+- **Formal verification**: `docs/formal/PipelineStateMachine.tla` (TC-TLA-001~005), `tests/formal/test_z3_invariants.py` (TC-Z3-001~005), `docs/formal/PipelineInvariants.v` with all theorems Qed-closed (TC-COQ-001~005); structural gates degrade gracefully when TLC/coqc are absent (ADR-GOV-017).
+- **Archon engine-agnostic orchestration (ADR-STR-030)**: `IAgentOrchestratorGateway` port, `ArchonWorkflowMapper` (adapters), `ArchonOrchestrator` (frameworks) with graceful degradation when the archon CLI is missing (TC-ARCHON-001~008).
+- **DSPy prompt optimization stack (ADR-STR-031)**: `IPromptOptimizer` port, `FewShotPromptOptimizer` fallback (adapters), `DSPyPromptOptimizer` (frameworks, optional extra); α/β node prompts routed through the optimizer.
+- **Self-bootstrap (Ouroboros)**: `scripts/self_bootstrap.py` composition root runs the master graph end-to-end with real adapters (phase10/completed, gate pass); `OfflineReasoner` no-API-key degradation (FR-076, TC-BOOT-001~018); `ReadOnlyVersionControl` rollback guard by default.
+- **SonarCloud tooling (SONAR-01~06)**: full metric/issue retrieval in `SonarCloudAdapter`; `scripts/fetch_sonar_metrics_detail.py`, `scripts/fetch_sonar_issues.py`; package-level `.pyi` type stubs for `langchain_openai`, `langchain_anthropic`, `sonarqube`, `z3`.
+- **Frameworks quality guards (TC-QUALITY-004~011)**: AST-enforced NLOC ≤ 6, CC ≤ 2, nesting ≤ 1, single-return, inner-abstraction-only methods, no module-level functions in the frameworks layer.
+- `docs/adr/ADR-STR-032.md` — repository scope consolidation decision record.
+- **CI SBOM job (resolves DEBT-010)**: `.github/workflows/build.yml` now generates the CycloneDX SBOM dynamically via `cyclonedx-py environment` and uploads it as a build artifact.
+- `README.md` — Optional Integrations section: DSPy extra (`pip install -e ".[dspy]"`) and Archon CLI install, both with documented graceful-degradation paths; `.archon/` added to `.gitignore`.
+
+### Changed
+- `README.md` — refreshed to current state: no submodules, Sphinx (not MkDocs), self-bootstrap quick start, scripts overview, current quality gates.
+- `docs/ARCHITECTURE.md` — repository tree and key-files table realigned with the DDD/Clean Architecture layout.
+- `config.yaml` — reviewer/left-shift prompts now reference the workflow protocol via `docs/ARCHITECTURE.md` instead of the removed AGENTS.md copy.
+- `tasks/clean_architecture_scan.py` → `scripts/clean_architecture_scan.py` (CLI utilities consolidated under `scripts/`; `tasks/` removed).
+- `docs/requirements.md` — NFR-002 (read-only submodules) and NFR-003 (AGENTS.md compatibility) marked SUPERSEDED by ADR-STR-032.
+- **DEBT-008 ID collision resolved**: the register's type-ignore cleanup debt renumbered to DEBT-011, the matrix/retro Sonar-async debt renumbered to DEBT-012 (now also formally registered in the tech-debt register).
+
+### Removed (ADR-STR-032)
+- `skills/` git submodules (everything-claude-code, gstack, understand-anything, skillfortify) and `.gitmodules` — zero references from src/tests/CI/scripts.
+- `AGENTS.md` repository copy — stale duplicate; the protocol's single source of truth lives in the framework repo (`$FRAMEWORK_ROOT`).
+- `skill-lock.json`, `agentic-workflow.cdx.json` — stale supply-chain artifacts (SBOM regeneration tracked as DEBT-010).
+- `test_ruff_include/`, `test_ruff_include_dir/`, `test_ruff_whitelist/` — orphaned experiment fixtures with zero references.
+- `coverage_report.txt` — generated artifact removed from tracking (already gitignored).
+- `kanban.md` — retired after verifying every item is reflected in `docs/workflow-state.md` WBS, ADRs, src, and tests.
+
+---
+
 ## [0.1.6] — 2026-05-17
 
 ### Summary

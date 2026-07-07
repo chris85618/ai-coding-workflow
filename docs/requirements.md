@@ -196,15 +196,17 @@
 **描述**：所有文件必須為純 Markdown 格式，不使用可執行程式碼，任何文字編輯器皆可閱讀。
 **追溯**：FEA-009 (constrains)
 
-### NFR-002: 子模組唯讀
+### NFR-002: 子模組唯讀 — **SUPERSEDED (ADR-STR-032)**
 
-**描述**：不修改 ECC/gstack/UA/SkillFortify 子模組，僅引用其工具。
-**追溯**：FEA-001 (constrains)
+**描述**：~~不修改 ECC/gstack/UA/SkillFortify 子模組，僅引用其工具。~~
+skills/ 子模組已於 2026-07-07 移除（零程式碼引用）；本約束隨載體移除終止適用。
+**追溯**：FEA-001 (constrains), ADR-STR-032 (supersedes)
 
-### NFR-003: 向下相容
+### NFR-003: 向下相容 — **SUPERSEDED (ADR-STR-032)**
 
-**描述**：AGENTS.md 格式變更不得破壞既有 symlink 和工具讀取。
-**追溯**：FEA-001 (constrains)
+**描述**：~~AGENTS.md 格式變更不得破壞既有 symlink 和工具讀取。~~
+repo 副本 AGENTS.md 已移除，協議正本由框架 repo（$FRAMEWORK_ROOT）維護；本約束移轉至框架層。
+**追溯**：FEA-001 (constrains), ADR-STR-032 (supersedes)
 
 ### NFR-004: 追溯矩陣驗證效率
 

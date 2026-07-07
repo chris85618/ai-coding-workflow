@@ -70,7 +70,7 @@ prompts:
       當前輸入（FR/NFR/UC）：
       {input_artifacts}
 
-      請逐條審查，確保符合 AGENTS.md 的每一項要求。
+      請逐條審查，確保符合統一工作流 12-Step 協議（docs/ARCHITECTURE.md）的每一項要求。
       輸出格式：
       - [SEVERITY] 問題描述 | 影響範圍 | 受影響 ID
 
@@ -115,7 +115,7 @@ prompts:
     system: |
       你負責根因左移分析 (Root-Cause Left-Shift)。
       使用 5-Whys 方法找到系統性根因，而非表面症狀。
-      最終產出必須是可插入 AGENTS.md 的防護規則。
+      最終產出必須是可左移進工作流協議的防護規則（ADR 或 LESSON 守衛）。
     task_template: |
       發生的治理繞道事件：
       {issue}

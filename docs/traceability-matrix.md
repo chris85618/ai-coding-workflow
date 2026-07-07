@@ -177,6 +177,7 @@
 | [ADR-STR-029](adr/ADR-STR-029.md) | Autonomous Pipeline v2 — 動態債務迴圈、延遲 HITL、退化路徑與 Ouroboros 閉環 | STR | Accepted | FR-068~072, FEA-030 | justifies |
 | [ADR-STR-030](adr/ADR-STR-030.md) | Archon 編排整合策略 — 引擎無關化而非直接替換 LangGraph | STR | Accepted | FR-073, FR-074, FEA-030 | justifies |
 | [ADR-STR-031](adr/ADR-STR-031.md) | DSPy Prompt 最佳化整合與論文導向設計映射 | STR | Accepted | FR-075, FEA-030 | justifies |
+| [ADR-STR-032](adr/ADR-STR-032.md) | Repository 範圍收斂 — 移除框架宿主殘留物 | STR | Accepted | FEA-001, NFR-002, NFR-003 | supersedes |
 | [ADR-GOV-028](adr/ADR-GOV-028.md) | 專案文件入口規範與 README 重構 | GOV | Accepted | FEA-020, FR-043 | justifies |
 | [ADR-GOV-029](adr/ADR-GOV-029.md) | Git Pre-commit Hook 整合 Ruff 格式化 | GOV | Accepted | FEA-022, FR-046 | justifies |
 
@@ -227,7 +228,9 @@
 | DEBT-006 | SonarCloudGate.evaluate 認知複雜度過高 | resolved | 程式碼品質 | P2 | 9.0 | Quick Win | ADR-STR-017 | 設定中心化 SSOT 策略 | FR-042 | [LESSON-023](docs/lessons.md) |
 | ADR-STR-018 | 強制 Git Hook 整合 Ruff Format | FR-044 | - |
 | DEBT-007 | `os.environ` 依賴清理 | resolved | 安全債 | P1 | 12.0 | Quick Win | FR-032 | RISK-005 | LESSON-071,072 | derives |
-| DEBT-008 | SonarCloud 切換邏輯異步化 | open | 效能債 | P3 | 2.0 | Fill In | FR-015 | N/A | LESSON-073 | derives |
+| DEBT-012 | SonarCloud 切換邏輯異步化（原 DEBT-008，ID 碰撞重編號） | open | 效能債 | P3 | 2.0 | Fill In | FR-015 | N/A | LESSON-073 | derives |
+| DEBT-010 | SBOM 生成未接入 CI release 流程 | resolved | 供應鏈債 | P3 | 2.0 | Strategic | ADR-STR-032 | N/A | N/A | derives |
+| DEBT-011 | src/ 下 `# type: ignore` 的全面徹底清空（原 DEBT-008，ID 碰撞重編號） | resolved | 程式碼品質 | P1 | 12.0 | Quick Win | FR-032 | RISK-005 | N/A | derives |
 
 ### CLS → UC / ALG
 
@@ -543,11 +546,11 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
 | Phase 2.2 | FEA-xxx | 24 | 24/24 | 24/24 | 100% (含 FEA-030 Pipeline v2) |
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
-| Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
+| Phase 2.2 | DEBT-xxx | 10 | 10/10 | — | 100% (含 DEBT-010~012；DEBT-008 因 ID 碰撞退役，由 DEBT-011/012 承接) |
 | Stage 3 | FR-xxx | 51+3v2 | 54/54 | 54/54 | 100% (含 FR-068~072 Pipeline v2, FR-073~076 Archon/DSPy/Offline) |
 | Stage 3 | NFR-xxx | 13 | 13/13 | — (約束) | 100% (含 NFR-013~015 左移) |
 | Stage 3 | UC-xxx | 15 | 15/15 | 15/15 | 100% |
-| Stage 3 | ADR-STR-xxx | 16 | 16/16 | — | 100% (含 ADR-STR-030/031) |
+| Stage 3 | ADR-STR-xxx | 17 | 17/17 | — | 100% (含 ADR-STR-030/031/032) |
 | 治理層 | ADR-GOV-xxx | 27 | 27/27 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 16 | 16/16 | 16/16 | 100% (含 ALG-016~020 Pipeline v2) |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
@@ -565,4 +568,4 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
 > **未應對風險**: 1 (RISK-004 MEDIUM)
-> **技術債**: 1 (DEBT-008 P3)
+> **技術債**: 1 (DEBT-012 P3)

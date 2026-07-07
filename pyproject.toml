@@ -1,6 +1,6 @@
 [project]
 name = "agentic-workflow"
-version = "0.1.7"
+version = "0.2.0"
 description = "LangGraph-based agentic workflow orchestration system"
 requires-python = ">=3.12"
 dependencies = [
