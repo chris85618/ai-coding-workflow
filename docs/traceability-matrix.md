@@ -61,6 +61,7 @@
 | FEA-029 | FR-065, FR-066, FR-067 | decomposes | ✅ (OpenAI-compatible Provider) |
 | FEA-029 | NFR-012 | constrains | ✅ |
 | FEA-030 | FR-068, FR-069, FR-070, FR-071, FR-072 | decomposes | ✅ (Autonomous Pipeline v2: 動態債務迴圈/退化路徑/Ouroboros/延遲HITL/對齊閉環) |
+| FEA-030 | NFR-013, NFR-014, NFR-015 | constrains | ✅ (NFR 左移: 效能預算 TC-NFR-001~003 / 負載 TC-NFR-004~006 / 易用性啟發式 TC-NFR-007~010) |
 
 ### FR → UC
 
@@ -338,6 +339,9 @@
 | TC-SONAR-003 | 驗證 SonarCloudConfig 完整參數檢核 | FR-032 | SonarCloudConfig | ✅ |
 | TC-SONAR-004 | 驗證 SonarCloud 節點切換邏輯 (Mocked) | FR-015, FR-035, ADR-OPS-001 | node_sonarcloud_gate | ✅ |
 | TC-V2-001~063 | 驗證 Pipeline v2 (FR-068~072, ALG-016~020, INV-026) | validates | ✅ (63 案: DebtItem/Assumption/RollbackDecision VO、5 領域服務、5 DAG 節點、路由與 GitVersionControl) |
+| TC-NFR-001~010 | 驗證 NFR-013~015 (效能預算/負載/易用性啟發式) | validates | ✅ (tests/nfr/: 左移非功能性需求測試) |
+| TC-Z3-001~005 | 驗證 INV-001, INV-026, FR-071 (Z3 SMT 反例不可滿足證明) | proves | ✅ (tests/formal/test_z3_invariants.py) |
+| TC-TLA-001~005 | 驗證 docs/formal/PipelineStateMachine.tla (TLA+ 規格結構閘門, TLC 可用時 parse) | validates | ✅ (優雅降級 ADR-GOV-017) |
 | TC-001 | SC-001 | validates | ✅ |
 | TC-016 | SC-021 | validates | ✅ (Granular Test Set Verification) |
 | TC-017 | SC-019 | validates | ✅ (Step 0 & 1 validation failure and node branch coverage) |
@@ -534,7 +538,7 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
 | Phase 2.2 | DEBT-xxx | 6 | 6/6 | — | 100% |
 | Stage 3 | FR-xxx | 47+3v2 | 50/50 | 50/50 | 100% (含 FR-068~072 Pipeline v2) |
-| Stage 3 | NFR-xxx | 10 | 10/10 | — (約束) | 100% |
+| Stage 3 | NFR-xxx | 13 | 13/13 | — (約束) | 100% (含 NFR-013~015 左移) |
 | Stage 3 | UC-xxx | 15 | 15/15 | 15/15 | 100% |
 | Stage 3 | ADR-STR-xxx | 14 | 14/14 | — | 100% |
 | 治理層 | ADR-GOV-xxx | 27 | 27/27 | — (治理) | 100% |
