@@ -23,7 +23,7 @@ dev = [
     "crosshair-tool>=0.0.104",
     "ruff>=0.11",
     "mypy>=2.1.0",
-    "types-requests>=2.33.0",
+    "types-requests>=2.33.0.20260518",
     "types-PyYAML",
     "sphinx>=8.2",
     "myst-parser>=4.0",
