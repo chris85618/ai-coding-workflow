@@ -62,15 +62,15 @@ class TestArchonOrchestrator:
         assert ArchonOrchestrator().export_workflow("main", stages) == expected
 
     def test_dispatch_persists_document_and_runs_archon(self) -> None:
-        """TC-ARCHON-006: dispatch writes the YAML then invokes archon run on it."""
+        """TC-ARCHON-006: dispatch writes the YAML into .archon/workflows and runs the workflow by name."""
         fs = RecordingFilesystem()
         executor = RecordingExecutor(code=0)
         register_filesystem(fs)
         register_executor(executor)
-        assert ArchonOrchestrator().dispatch("name: wf\n") is True
-        assert fs.made_dirs == [".archon"]
-        assert fs.written == {".archon/agentic-workflow.yaml": "name: wf\n"}
-        assert executor.commands == [["archon", "run", ".archon/agentic-workflow.yaml"]]
+        assert ArchonOrchestrator().dispatch("name: wf\nnodes:\n") is True
+        assert fs.made_dirs == [".archon/workflows"]
+        assert fs.written == {".archon/workflows/wf.yaml": "name: wf\nnodes:\n"}
+        assert executor.commands == [["archon", "workflow", "run", "wf"]]
 
     def test_dispatch_degrades_gracefully_without_archon_binary(self) -> None:
         """TC-ARCHON-007: dispatch reports False when the archon CLI is unavailable."""

@@ -136,7 +136,7 @@
 | **影響** | 3 (中等 — 主管線無法一鍵端對端執行，退化為逐步 `scripts/run_node.py`) |
 | **風險強度** | 9 (MEDIUM) |
 | **應對策略** | AC (接受 — HITL 於 ADR-STR-033 明示接受此取捨) |
-| **應對動作** | 降級路徑透明：dispatch 失敗回傳 False 並輸出降級指引；排程權威永遠在匯出的工作流文件；禁止行程內 fallback runner（ADR-STR-033 第 4 點禁令） |
+| **應對動作** | 降級路徑透明：dispatch 失敗回傳 False 並輸出降級指引；排程權威永遠在匯出的工作流文件；禁止行程內 fallback runner（ADR-STR-033 第 4 點禁令）。2026-07-08 實證：本機 archon CLI v0.5.0 validate 通過、沙箱 dispatch 確定型節點鏈（inject→stage3）全數執行成功；AI loop 節點另需 CLAUDE_BIN_PATH + 憑證設定 |
 | **預期殘餘風險** | 9 (接受不緩解；所有確定型演算法仍受 100% 覆蓋/合約/Coq/Z3 閘門保護) |
 | **觸發來源** | ADR-STR-033 — 完全切換 Archon 的 HITL 決策 |
 | **受影響 FEA** | FEA-030 |

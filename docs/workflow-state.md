@@ -2,7 +2,7 @@
 
 **Pipeline Position**: Phase 10 (ADR-STR-033 完全切換 Archon；LangGraph 全面移除) — ✅ DONE
 **Last Position**: Phase 10 (Repository 範圍收斂 ADR-STR-032; kanban 退役)
-**Status**: HITL 決策落地（ADR-STR-030 Pending 解除 → ADR-STR-033 Accepted）：Archon 為唯一編排引擎、langgraph 依賴/模組/builders 全刪、單節點執行模型（NodeExecutor + scripts/run_node.py）、內部編排引擎禁令、確定型演算法零損失保留。1139 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
+**Status**: HITL 決策落地（ADR-STR-030 Pending 解除 → ADR-STR-033 Accepted + Verified）：Archon 為唯一編排引擎、langgraph 依賴/模組/builders 全刪、單節點執行模型（NodeExecutor + scripts/run_node.py）、內部編排引擎禁令、確定型演算法零損失保留。真實 archon CLI v0.5.0 validate 通過 + 沙箱 dispatch 實證。1139 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
 **Last Updated**: 2026-07-08
 
 ## ⏳ WBS (Work Breakdown Structure)
@@ -102,6 +102,7 @@
 - [x] ARCX-04: ArchonWorkflowMapper 完整主管線拓撲（α/β loop、fixed-point/HITL/debt 條件路由、rollback 路徑、quality gate）+ self_bootstrap 改道 export→dispatch — ✅ DONE
 - [x] ARCX-05: 測試套件遷移收尾（7 收集錯誤修復、退役 LangGraph 測試×8 刪除、BDD 改綁 archon_workflow.feature、TC-ARCHON-009~021 新增、set_container 洩漏根因修復 teardown） — ✅ DONE
 - [x] ARCX-06: 品質閘門全綠（TC-QUALITY-014/015 違規修復、invariants_run 豁免規則更新、殘留 _autosummary 清除、1139 tests 100.00% coverage、Ruff/Mypy 潔淨） — ✅ DONE
+- [x] ARCX-07: 真實 archon CLI v0.5.0 對齊與實證（mapper 改產 nodes-DAG 格式：depends_on/loop+until_bash/when/approval/trigger_rule；dispatch 改 `.archon/workflows/` + `archon workflow run <name>`；`archon validate workflows` 通過；沙箱 dispatch 確定型節點鏈 inject→stage3 全數執行、checkpoint round-trip 驗證） — ✅ DONE
 
 
 ## 🚦 Gate Status

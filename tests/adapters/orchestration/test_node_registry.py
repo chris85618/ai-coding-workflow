@@ -30,7 +30,7 @@ class TestRegistryCompleteness:
         """TC-ARCHON-013: Every --node in the exported document resolves in a registry."""
         positions = list(Pipeline(pipeline_id="align").stages)
         doc = ArchonWorkflowMapper().to_workflow_yaml("align", positions)
-        referenced = set(re.findall(r"--node (\S+)", doc))
+        referenced = set(re.findall(r"--node (\w+)", doc))
         assert referenced
         node_registry_table = NODE_REGISTRY
         router_registry_table = ROUTER_REGISTRY

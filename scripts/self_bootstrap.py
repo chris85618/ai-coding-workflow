@@ -26,7 +26,7 @@ from agentic_workflow.application.ports.gateways.agent_reasoner import IAgentRea
 from agentic_workflow.application.ports.gateways.version_control_gateway import IVersionControlGateway
 from agentic_workflow.domain.aggregates.pipeline import Pipeline
 from agentic_workflow.domain.value_objects.model_config import ModelConfig
-from agentic_workflow.frameworks.archon_orchestrator import WORKFLOW_DOC_PATH
+from agentic_workflow.frameworks.archon_orchestrator import WORKFLOW_DOC_DIR
 from agentic_workflow.frameworks.dependency_container import DependencyContainer
 from agentic_workflow.frameworks.persistence.checkpoint_repository import FileCheckpointRepository
 
@@ -98,10 +98,10 @@ def build_container(allow_rollback: bool) -> BootstrapContainer:
 
 def summarize(pipeline_id: str, dispatched: bool) -> str:
     """Render the observable outcome of a bootstrap dispatch."""
-    workflow_doc_path = WORKFLOW_DOC_PATH
+    workflow_doc_dir = WORKFLOW_DOC_DIR
     lines = [
         f"pipeline_id : {pipeline_id}",
-        f"workflow_doc: {workflow_doc_path}",
+        f"workflow_doc: {workflow_doc_dir}/agentic-workflow-{pipeline_id}.yaml",
         f"dispatched  : {dispatched}",
     ]
     if not dispatched:

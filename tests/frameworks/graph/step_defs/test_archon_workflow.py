@@ -57,11 +57,10 @@ def then_document_contains_start(context: dict[str, Any]) -> None:
 
 @then("every command step should invoke the single-node runner")
 def then_steps_invoke_single_node_runner(context: dict[str, Any]) -> None:
-    """BDD then: every run command goes through scripts/run_node.py (FR-077)."""
-    run_lines = [line for line in context["workflow_doc"].splitlines() if "run: " in line]
-    command_lines = [line for line in run_lines if "python" in line]
-    assert command_lines
-    assert all("scripts/run_node.py" in line for line in command_lines)
+    """BDD then: every workflow-node command goes through scripts/run_node.py (FR-077)."""
+    node_lines = [line for line in context["workflow_doc"].splitlines() if "--node" in line]
+    assert node_lines
+    assert all("scripts/run_node.py" in line for line in node_lines)
 
 
 @given("an exported Archon workflow document")

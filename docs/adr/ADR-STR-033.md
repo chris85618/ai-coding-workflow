@@ -1,6 +1,6 @@
 # ADR-STR-033: 完全切換至 Archon — 唯一編排引擎與 LangGraph 全面移除
 
-**狀態**: Accepted
+**狀態**: Accepted; Verified against real archon CLI v0.5.0 (2026-07-08) — mapper 對齊真實 nodes-DAG schema（`steps:` 格式已被 CLI 拒絕），`archon validate workflows` 通過，沙箱 dispatch 實證 7 個確定型 bash 節點（inject→stage3）成功執行、checkpoint round-trip 正常；AI loop 節點需 `CLAUDE_BIN_PATH` + archon 憑證（RISK-006 範疇）
 **日期**: 2026-07-07
 **決策者**: HITL（使用者最終決策，解除 ADR-STR-030 Pending 項）+ Agent α/β 收斂
 **追溯**: FEA-030, FR-073, FR-074, FR-077, FR-078, ADR-STR-030 (partially superseded), ADR-STR-002 (superseded), ADR-GOV-017, LESSON-034, RISK-006
@@ -24,6 +24,7 @@ ADR-STR-030 完成引擎無關化（`IAgentOrchestratorGateway` port、`ArchonWo
 ## Decision
 
 1. **編排拓撲唯一定義於 Archon YAML**：`ArchonWorkflowMapper`（adapters，純字串邏輯）從 domain canonical order（`Pipeline` aggregate，SSOT）生成完整主管線工作流：inject → start → phase 0-2 → stage 3-8（每個 stage 一個 α/β 迭代迴圈區塊，以 Archon 原生 loop/until 構件表達）→ sonar gate → 條件式 debt 吸收 → security audit → 條件式 debt 吸收 → phase 9 → phase 10 → update constraints → complete。條件路由（route_debt、check_fixed_point、hitl_gate_choice）以 Archon condition 構件承載，判定邏輯仍由行程內確定型演算法執行（見 2）。
+   - **真實 schema 對齊（2026-07-08 驗證）**：目標為 archon CLI v0.5.0 的 nodes-DAG 格式（唯一合法格式）——序列以 `depends_on` 鏈、α/β 迴圈以 `loop`（收斂由 `until_bash` 執行行程內 `check_fixed_point` 確定型判定，非 AI 輸出）、條件路由以 `when: "$node.output == '...'"`、HITL 閘門以原生 `approval` 節點、debt 連續流以 `trigger_rule: none_failed_min_one_success` 表達。文件寫入 `.archon/workflows/<name>.yaml`，派發指令 `archon workflow run <name>`。self-bootstrap 語意固定 `worktree.enabled: false`（在目標 repo 上執行；rollback 由 ReadOnlyVersionControl 防護）。
 2. **單節點執行模型（確定型演算法保留）**：每個 Archon step 執行 `python scripts/run_node.py --node <name> --pipeline-id <id>`。`NodeExecutor`（adapters/orchestration）載入 checkpoint 狀態 → 執行**恰好一個**節點函式（呼叫既有 use cases / domain algorithms，一行不改）→ 持久化狀態。路由節點以 stdout 輸出路由名供 Archon 條件消費。`NodeExecutor` 無邊、無序列、無迴圈 — 不構成編排引擎。
 3. **LangGraph 全面移除**：
    - `frameworks/graph/`（MasterGraphBuilder、IterationGraphBuilder、MicroValidationGraphBuilder 與其節點包裝）刪除；stage 節點的 position 設定包裝與 route_debt 併入 `adapters/orchestration`。
