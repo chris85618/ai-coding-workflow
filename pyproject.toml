@@ -9,7 +9,7 @@ dependencies = [
     "pydantic>=2.13.4",
     "python-sonarqube-api>=2.0.5",
     "python-dotenv>=1.0.0",
-    "z3-solver>=4.13.0",
+    "z3-solver>=4.16.0.0",
 ]
 
 [project.optional-dependencies]
