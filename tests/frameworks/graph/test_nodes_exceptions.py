@@ -6,7 +6,7 @@ Verifies that all nodes correctly suppress exceptions and proceed gracefully whe
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
-from agentic_workflow.adapters.langgraph.nodes import (
+from agentic_workflow.adapters.orchestration.nodes import (
     node_agent_alpha_critique,
     node_agent_beta_resolve,
     node_phase_0_init,
@@ -20,13 +20,13 @@ from agentic_workflow.adapters.langgraph.nodes import (
     node_step_1_id_structure,
     node_step_6_trigger_impact,
 )
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
 
 
 def test_node_phase_0_init_exception() -> None:
     """Verifies node_phase_0_init exception handling."""
     state = WorkflowState(pipeline_id="error-pipe")
-    with patch("agentic_workflow.adapters.langgraph.nodes._get_container", side_effect=Exception("mock error")):
+    with patch("agentic_workflow.adapters.orchestration.nodes._get_container", side_effect=Exception("mock error")):
         res = node_phase_0_init(state)
         assert res is state
 
@@ -75,7 +75,7 @@ def test_node_phase_10_retro_exception() -> None:
 def test_node_agent_alpha_critique_exception() -> None:
     """Verifies node_agent_alpha_critique exception handling."""
     state = WorkflowState(pipeline_id="error-pipe")
-    with patch("agentic_workflow.adapters.langgraph.nodes._get_container", side_effect=Exception("mock error")):
+    with patch("agentic_workflow.adapters.orchestration.nodes._get_container", side_effect=Exception("mock error")):
         res = node_agent_alpha_critique(state)
         assert res is state
 
@@ -83,7 +83,7 @@ def test_node_agent_alpha_critique_exception() -> None:
 def test_node_agent_beta_resolve_exception() -> None:
     """Verifies node_agent_beta_resolve exception handling."""
     state = WorkflowState(pipeline_id="error-pipe")
-    with patch("agentic_workflow.adapters.langgraph.nodes._get_container", side_effect=Exception("mock error")):
+    with patch("agentic_workflow.adapters.orchestration.nodes._get_container", side_effect=Exception("mock error")):
         res = node_agent_beta_resolve(state)
         assert res is state
 
@@ -91,7 +91,7 @@ def test_node_agent_beta_resolve_exception() -> None:
 def test_node_root_cause_leftshift_exception() -> None:
     """Verifies node_root_cause_leftshift exception handling."""
     state = WorkflowState(pipeline_id="error-pipe")
-    with patch("agentic_workflow.adapters.langgraph.nodes._get_container", side_effect=Exception("mock error")):
+    with patch("agentic_workflow.adapters.orchestration.nodes._get_container", side_effect=Exception("mock error")):
         res = node_root_cause_leftshift(state)
         assert res is state
 
@@ -135,7 +135,7 @@ def test_node_step_1_id_structure_failure() -> None:
 def test_node_step_6_trigger_impact_exception() -> None:
     """Verifies node_step_6_trigger_impact exception handling."""
     state = WorkflowState(pipeline_id="error-pipe")
-    with patch("agentic_workflow.adapters.langgraph.nodes._get_container", side_effect=Exception("mock error")):
+    with patch("agentic_workflow.adapters.orchestration.nodes._get_container", side_effect=Exception("mock error")):
         res = node_step_6_trigger_impact(state)
         assert res is state
 
@@ -145,7 +145,7 @@ def test_node_root_cause_leftshift_pipeline_none() -> None:
     state = WorkflowState(pipeline_id="none-pipe")
     mock_container = MagicMock()
     mock_container.pipeline_repo.get_by_id.return_value = None
-    with patch("agentic_workflow.adapters.langgraph.nodes._get_container", return_value=mock_container):
+    with patch("agentic_workflow.adapters.orchestration.nodes._get_container", return_value=mock_container):
         res = node_root_cause_leftshift(state)
         assert res is state
         mock_container.pipeline_repo.get_by_id.assert_called_once_with("none-pipe")
@@ -155,6 +155,6 @@ def test_node_root_cause_leftshift_pipeline_none() -> None:
 def test_node_step_6_trigger_impact_partial_none() -> None:
     """Verifies node_step_6_trigger_impact when partial_state is None."""
     state = WorkflowState(pipeline_id="some-pipe")
-    with patch("agentic_workflow.adapters.langgraph.nodes.node_impact_analysis", return_value=None):
+    with patch("agentic_workflow.adapters.orchestration.nodes.node_impact_analysis", return_value=None):
         res = node_step_6_trigger_impact(state)
         assert res is state

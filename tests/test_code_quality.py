@@ -337,7 +337,7 @@ def _is_exempt_from_inheritance(class_name: str, file_path: pathlib.Path) -> boo
         return True
     if class_name.endswith(("Config", "ConfigLoader", "Loader", "Builder", "Registry", "Mapper")):
         return True
-    return "config" in file_path.parts or "graph" in file_path.parts
+    return "config" in file_path.parts or file_path.name == "invariants_run.py"
 
 
 def _find_framework_python_files() -> list[pathlib.Path]:

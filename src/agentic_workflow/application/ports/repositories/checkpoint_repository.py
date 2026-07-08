@@ -10,7 +10,7 @@ from typing import Any
 
 
 class CheckpointRepository(ABC):
-    """Abstract repository for LangGraph DAG checkpoint persistence.
+    """Abstract repository for workflow checkpoint persistence (engine-neutral).
 
     Traceable to: FR-019-v2, FR-021-v2, UC-010 (workflow resume)
     Implements DAG checkpoint pattern (ADR-STR-003).
@@ -22,7 +22,7 @@ class CheckpointRepository(ABC):
 
         Args:
             pipeline_id: Identifier for the pipeline being checkpointed.
-            state: LangGraph state dictionary to persist.
+            state: Workflow state dictionary to persist.
 
         Returns:
             Checkpoint identifier (e.g., timestamp or UUID string).

@@ -1,9 +1,9 @@
 # Workflow State — Unified Agentic Workflow System
 
-**Pipeline Position**: Phase 10 (Repository 範圍收斂 ADR-STR-032; kanban 退役) — ✅ DONE
-**Last Position**: Phase 10 (kanban TODO 全數完成; 自舉管線端對端驗證通過)
-**Status**: ADR-STR-032 落地：skills/ 子模組×4、repo 副本 AGENTS.md、skill-lock.json、agentic-workflow.cdx.json、test_ruff_* fixtures×3、coverage_report.txt 追蹤、kanban.md 全數移除；tasks/clean_architecture_scan.py 併入 scripts/；README/CHANGELOG/ARCHITECTURE 對齊現況；版本 0.2.0。1169 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
-**Last Updated**: 2026-07-07
+**Pipeline Position**: Phase 10 (ADR-STR-033 完全切換 Archon；LangGraph 全面移除) — ✅ DONE
+**Last Position**: Phase 10 (Repository 範圍收斂 ADR-STR-032; kanban 退役)
+**Status**: HITL 決策落地（ADR-STR-030 Pending 解除 → ADR-STR-033 Accepted）：Archon 為唯一編排引擎、langgraph 依賴/模組/builders 全刪、單節點執行模型（NodeExecutor + scripts/run_node.py）、內部編排引擎禁令、確定型演算法零損失保留。1139 tests, 100.00% statement & branch coverage, Ruff/Mypy clean.
+**Last Updated**: 2026-07-08
 
 ## ⏳ WBS (Work Breakdown Structure)
 
@@ -96,6 +96,12 @@
 - [x] BOOT-03: 根因修復 MarkdownPipelineRepository stub → 真 round-trip 持久化（TC-BOOT-005~009） — ✅ DONE
 - [x] BOOT-04: 根因修復 advance 語意錯位 → AdvancePipelineUseCase.execute_to 位置對齊 + phase9/10 推進 + complete 聚合持久化（TC-BOOT-010~018） — ✅ DONE
 - [x] BOOT-05: 自舉管線端對端執行驗證（phase10/completed/gate pass、stage3-8 各 1 次 α/β 迭代、無錯誤無 rollback） — ✅ DONE
+- [x] ARCX-01: 建立 ADR-STR-033（HITL 解除 ADR-STR-030 Pending：Archon 唯一引擎、內部引擎禁令、演算法保留）+ ADR-STR-002/030 狀態更新 — ✅ DONE
+- [x] ARCX-02: LangGraph 全面移除（frameworks/graph×7、frameworks/langgraph×5、gateways/graph_builder 刪除；adapters/langgraph → adapters/orchestration 更名；pyproject 移除 langgraph 依賴） — ✅ DONE
+- [x] ARCX-03: 單節點執行模型落地（NodeExecutor + NODE_REGISTRY/ROUTER_REGISTRY + scripts/run_node.py；無邊無序列無迴圈，排程權威在匯出文件） — ✅ DONE
+- [x] ARCX-04: ArchonWorkflowMapper 完整主管線拓撲（α/β loop、fixed-point/HITL/debt 條件路由、rollback 路徑、quality gate）+ self_bootstrap 改道 export→dispatch — ✅ DONE
+- [x] ARCX-05: 測試套件遷移收尾（7 收集錯誤修復、退役 LangGraph 測試×8 刪除、BDD 改綁 archon_workflow.feature、TC-ARCHON-009~021 新增、set_container 洩漏根因修復 teardown） — ✅ DONE
+- [x] ARCX-06: 品質閘門全綠（TC-QUALITY-014/015 違規修復、invariants_run 豁免規則更新、殘留 _autosummary 清除、1139 tests 100.00% coverage、Ruff/Mypy 潔淨） — ✅ DONE
 
 
 ## 🚦 Gate Status
@@ -117,6 +123,7 @@
 
 ## 📝 Session Summary
 
+-2. **完全切換 Archon (2026-07-08, ADR-STR-033)**: HITL 解除 ADR-STR-030 Pending 項——接受領域節點外部化、Archon 唯一編排引擎、LangGraph 全面淘汰、內部編排引擎禁令、確定型演算法全數保留。實作：單節點執行模型（NodeExecutor/node_registry/run_node.py，無邊無序列）、mapper 生成完整主管線 Archon YAML（loop/route/when 構件承載拓撲，路由判定仍為行程內確定型演算法）、self_bootstrap 改道 export→dispatch（無 fallback runner）、DAGInvariantVerifier 改繫匯出拓撲。測試側：8 個退役測試刪除、BDD 改綁 archon_workflow.feature、TC-ARCHON-009~021 新增、set_container 全域洩漏根因修復。登錄：FR-077/078、RISK-006 (AC)、矩陣合計 370→375。1139 tests、100.00% coverage、Ruff/Mypy 潔淨。
 -1. **治理修正 + CI SBOM (2026-07-07 續)**: DEBT-008 ID 碰撞以雙重編號解決（register type-ignore 債 → DEBT-011；matrix/retro Sonar 異步債 → DEBT-012 並補登 register）；DEBT-010 以 build.yml `sbom` job（cyclonedx-py 動態生成 + artifact 上傳）解決；README 新增 DSPy/Archon 選用整合章節（兩者均自動偵測、優雅降級，config.yaml 零改動相容）；`.archon/` 進 .gitignore。
 0. **Repository 範圍收斂 (2026-07-07, ADR-STR-032)**: kanban.md 逐條驗證全數反映後退役刪除；移除零引用的框架宿主殘留（skills/ 子模組×4 + .gitmodules、過期 AGENTS.md 副本、skill-lock.json、agentic-workflow.cdx.json、test_ruff_* 孤兒 fixtures×3、被追蹤的 coverage_report.txt）；tasks/ 併入 scripts/（CLI 高內聚）；NFR-002/003 標記 SUPERSEDED；新增 DEBT-010 (P3, SBOM CI 再生)；README/CHANGELOG(0.2.0)/ARCHITECTURE 全面對齊現況。
 1. **Kanban TODO 全數完成 (2026-07-07)**: Archon 引擎無關化實作落地 (ADR-STR-030 Implemented)、DSPy prompt 最佳化三層堆疊 + 論文映射 (ADR-STR-031)、Coq 定理閘門補完 TLA+/Z3 形式化矩陣、SonarQube 資料利用與 NFR 左移確認既有完成。

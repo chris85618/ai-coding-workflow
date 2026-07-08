@@ -17,7 +17,7 @@ from agentic_workflow.application.ports.gateways.agent_orchestrator_gateway impo
 )
 
 _WORKFLOW_DOC_DIR = ".archon"
-_WORKFLOW_DOC_PATH = ".archon/agentic-workflow.yaml"
+WORKFLOW_DOC_PATH = ".archon/agentic-workflow.yaml"
 
 
 class ArchonOrchestrator(IAgentOrchestratorGateway):
@@ -30,7 +30,7 @@ class ArchonOrchestrator(IAgentOrchestratorGateway):
     def dispatch(self, workflow_doc: str) -> bool:
         """Persist the workflow document and dispatch it via the archon CLI."""
         doc_dir = _WORKFLOW_DOC_DIR
-        doc_path = _WORKFLOW_DOC_PATH
+        doc_path = WORKFLOW_DOC_PATH
         get_filesystem().mkdir(doc_dir)
         get_filesystem().write_text(doc_path, workflow_doc)
         code, _, _ = get_executor().run_cmd_list(["archon", "run", doc_path])

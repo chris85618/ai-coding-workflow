@@ -1,10 +1,9 @@
 [project]
 name = "agentic-workflow"
 version = "0.2.0"
-description = "LangGraph-based agentic workflow orchestration system"
+description = "Archon-orchestrated agentic workflow pipeline (deterministic in-process nodes)"
 requires-python = ">=3.12"
 dependencies = [
-    "langgraph>=0.4",
     "langchain-core>=1.4.0",
     "deal>=4.24.6",
     "pydantic>=2.13.4",
@@ -113,4 +112,4 @@ python.xunit.reportPath = "reports/pytest.xml"
 # Sphinx Configuration (Custom Section read by docs/conf.py)
 [tool.sphinx]
 site_name = "Agentic Workflow Documentation"
-site_description = "LangGraph-based agentic workflow orchestration system"
+site_description = "Archon-orchestrated agentic workflow pipeline (deterministic in-process nodes)"

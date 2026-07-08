@@ -1,7 +1,7 @@
 """Stage 6 Formal Verification Design.
 
 Traceable to: INV-001, INV-002, INV-003
-Provides formal invariant checking for the LangGraph DAG to ensure workflow integrity.
+Provides formal invariant checking for the exported workflow topology (ADR-STR-033).
 """
 
 from typing import Any

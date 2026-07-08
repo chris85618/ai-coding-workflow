@@ -63,6 +63,7 @@
 | FEA-030 | FR-068, FR-069, FR-070, FR-071, FR-072 | decomposes | ✅ (Autonomous Pipeline v2: 動態債務迴圈/退化路徑/Ouroboros/延遲HITL/對齊閉環) |
 | FEA-030 | NFR-013, NFR-014, NFR-015 | constrains | ✅ (NFR 左移: 效能預算 TC-NFR-001~003 / 負載 TC-NFR-004~006 / 易用性啟發式 TC-NFR-007~010) |
 | FEA-030 | FR-073, FR-074, FR-075, FR-076 | decomposes | ✅ (Archon 引擎無關化匯出/派發、DSPy prompt 最佳化、Offline 降級推理器與自舉管線) |
+| FEA-030 | FR-077, FR-078 | decomposes | ✅ (Archon 唯一編排引擎：單節點執行模型 NodeExecutor/run_node.py、內部編排引擎禁令與 LangGraph 全面移除) |
 
 ### FR → UC
 
@@ -159,7 +160,7 @@
 | [ADR-GOV-025](adr/ADR-GOV-025.md) | ISO 31000 風險管理框架 + DEBT/RISK 完整追溯制度 | GOV | Accepted | FR-010, FR-011, FR-022, FR-023 | justifies |
 | [ADR-GOV-026](adr/ADR-GOV-026.md) | 零容忍警告政策與嚴格 Scope 制度 (Logic-Fix First) | GOV | Accepted | NFR-001, FR-004, FR-005, FR-033 | justifies |
 | [ADR-STR-001](adr/ADR-STR-001.md) | 模組化架構 — 每個 Class 獨立檔案原則 | STR | Accepted | NFR-002, NFR-003 | justifies |
-| [ADR-STR-002](adr/ADR-STR-002.md) | Clean Architecture for LangGraph Migration | STR | Accepted | FR-001, FR-002, FR-003 | justifies |
+| [ADR-STR-002](adr/ADR-STR-002.md) | Clean Architecture for LangGraph Migration | STR | Superseded (ADR-STR-033) | FR-001, FR-002, FR-003 | justifies |
 | [ADR-STR-003](adr/ADR-STR-003.md) | 自主執行模型 (No HITL Gates) | STR | Accepted | FR-012, FR-013, FR-014-v2, FR-019-v2, FR-021-v2 | justifies |
 | [ADR-STR-004](adr/ADR-STR-004.md) | AI Tool Feature Absorption — Strategy Pattern + Hooks + RepoMap | STR | Accepted | FR-026, FR-027, FR-028, FR-029, FR-030, NFR-008 | justifies |
 | [ADR-STR-005](adr/ADR-STR-005.md) | Markdown ↔ JSON 雙向轉換策略 | STR | Accepted | FR-031, NFR-009 | justifies |
@@ -175,9 +176,10 @@
 | [ADR-STR-027](adr/ADR-STR-027.md) | 架構邊界防護與註解封鎖硬化 | STR | Accepted | FR-054~060 | justifies |
 | [ADR-STR-028](adr/ADR-STR-028.md) | Design-by-Contract 庫由 icontract 遷移至 deal | STR | Accepted | INV-001~024, TC-CONTRACT-001~005 | justifies |
 | [ADR-STR-029](adr/ADR-STR-029.md) | Autonomous Pipeline v2 — 動態債務迴圈、延遲 HITL、退化路徑與 Ouroboros 閉環 | STR | Accepted | FR-068~072, FEA-030 | justifies |
-| [ADR-STR-030](adr/ADR-STR-030.md) | Archon 編排整合策略 — 引擎無關化而非直接替換 LangGraph | STR | Accepted | FR-073, FR-074, FEA-030 | justifies |
+| [ADR-STR-030](adr/ADR-STR-030.md) | Archon 編排整合策略 — 引擎無關化而非直接替換 LangGraph | STR | Partially superseded (ADR-STR-033) | FR-073, FR-074, FEA-030 | justifies |
 | [ADR-STR-031](adr/ADR-STR-031.md) | DSPy Prompt 最佳化整合與論文導向設計映射 | STR | Accepted | FR-075, FEA-030 | justifies |
 | [ADR-STR-032](adr/ADR-STR-032.md) | Repository 範圍收斂 — 移除框架宿主殘留物 | STR | Accepted | FEA-001, NFR-002, NFR-003 | supersedes |
+| [ADR-STR-033](adr/ADR-STR-033.md) | 完全切換至 Archon — 唯一編排引擎與 LangGraph 全面移除 | STR | Accepted | FR-077, FR-078, FEA-030, RISK-006 | supersedes |
 | [ADR-GOV-028](adr/ADR-GOV-028.md) | 專案文件入口規範與 README 重構 | GOV | Accepted | FEA-020, FR-043 | justifies |
 | [ADR-GOV-029](adr/ADR-GOV-029.md) | Git Pre-commit Hook 整合 Ruff 格式化 | GOV | Accepted | FEA-022, FR-046 | justifies |
 
@@ -213,6 +215,7 @@
 | RISK-003 | docs/與skills/版本漂移 | closed | 3 | 3 | 9(MEDIUM) | MT | FEA-001,009 | LESSON-022 | ADR-GOV-022 | mitigates |
 | RISK-004 | Session結束前未執行完整CM協議 | open | 2 | 4 | 8(MEDIUM) | MT | FEA-006 | LESSON-009,011,030 | ADR-GOV-010,011 | mitigates |
 | RISK-005 | ADR-TEMPLATE欄位過長導致LLM省略 | open | 2 | 3 | 6(MEDIUM) | MT | FEA-006,007 | LESSON-029 | ADR-GOV-025 | mitigates |
+| RISK-006 | archon CLI 缺席時端對端執行降級為逐步 run_node.py（無行程內 fallback runner） | open | 3 | 3 | 9(MEDIUM) | AC | FEA-030 | LESSON-034 | ADR-STR-033,ADR-GOV-017 | accepts |
 
 > **未應對風險計數公式**：status=`open` AND 強度>=MEDIUM 的 RISK-xxx 數量。當前值 = **3**
 
@@ -349,6 +352,7 @@
 | TC-Z3-001~005 | 驗證 INV-001, INV-026, FR-071 (Z3 SMT 反例不可滿足證明) | proves | ✅ (tests/formal/test_z3_invariants.py) |
 | TC-TLA-001~005 | 驗證 docs/formal/PipelineStateMachine.tla (TLA+ 規格結構閘門, TLC 可用時 parse) | validates | ✅ (優雅降級 ADR-GOV-017) |
 | TC-ARCHON-001~008 | 驗證 FR-073, FR-074 (Archon YAML 映射、匯出/派發、DI 注入點、無 CLI 時降級) | validates | ✅ (ADR-STR-030) |
+| TC-ARCHON-009~021 | 驗證 FR-077, FR-078 (單節點執行器 NodeExecutor、註冊表完整性/互斥、位置對齊 stage wrappers、確定型路由 in-process、完整主管線拓撲映射、DI 注入點) | validates | ✅ (ADR-STR-033: test_node_executor.py / test_node_registry.py / test_archon_workflow_mapper.py) |
 | TC-COQ-001~005 | 驗證 docs/formal/PipelineInvariants.v (Coq 定理結構閘門: 全定理宣告、Qed 封閉、無 Admitted, coqc 可用時機器驗證) | proves | ✅ (優雅降級 ADR-GOV-017) |
 | TC-DSPY-001~010 | 驗證 FR-075 (few-shot 降級路徑、dspy.Example 正規化、DI 注入點) | validates | ✅ (ADR-STR-031) |
 | TC-BOOT-001~018 | 驗證 FR-076 + 自舉管線接線 (OfflineReasoner、workflow-state round-trip 持久化、execute_to 位置對齊、complete 聚合持久化) | validates | ✅ (ADR-STR-029 Ouroboros 實證: scripts/self_bootstrap.py 端對端 phase10/completed) |
@@ -545,12 +549,12 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Phase 2.0 | BG-xxx | 5 | — (源頭) | 5/5 | 100% |
 | Phase 2.1 | S-xxx | 3 | 3/3 | — | 100% |
 | Phase 2.2 | FEA-xxx | 24 | 24/24 | 24/24 | 100% (含 FEA-030 Pipeline v2) |
-| Phase 2.2 | RISK-xxx | 5 | 5/5 | — (ISO 31000 完整欄位) | 100% |
+| Phase 2.2 | RISK-xxx | 6 | 6/6 | — (ISO 31000 完整欄位) | 100% (含 RISK-006 Archon CLI 降級) |
 | Phase 2.2 | DEBT-xxx | 10 | 10/10 | — | 100% (含 DEBT-010~012；DEBT-008 因 ID 碰撞退役，由 DEBT-011/012 承接) |
-| Stage 3 | FR-xxx | 51+3v2 | 54/54 | 54/54 | 100% (含 FR-068~072 Pipeline v2, FR-073~076 Archon/DSPy/Offline) |
+| Stage 3 | FR-xxx | 53+3v2 | 56/56 | 56/56 | 100% (含 FR-068~072 Pipeline v2, FR-073~076 Archon/DSPy/Offline, FR-077~078 Archon 唯一引擎) |
 | Stage 3 | NFR-xxx | 13 | 13/13 | — (約束) | 100% (含 NFR-013~015 左移) |
 | Stage 3 | UC-xxx | 15 | 15/15 | 15/15 | 100% |
-| Stage 3 | ADR-STR-xxx | 17 | 17/17 | — | 100% (含 ADR-STR-030/031/032) |
+| Stage 3 | ADR-STR-xxx | 18 | 18/18 | — | 100% (含 ADR-STR-030/031/032/033) |
 | 治理層 | ADR-GOV-xxx | 27 | 27/27 | — (治理) | 100% |
 | Stage 4 | ALG-xxx | 16 | 16/16 | 16/16 | 100% (含 ALG-016~020 Pipeline v2) |
 | Stage 5 | CLS-xxx | 21 | 21/21 | 21/21 | 100% |
@@ -562,10 +566,10 @@ ADR-STR-006 (workflow_graph 部分) → Superseded by → ADR-STR-007 (單一建
 | Skill 實作 | FR→Skill | 28 | 28/28 | — (映射) | 100% |
 | Skill 守衛 | LESSON→Skill | 45 | 45/45 | — (映射) | 100% |
 | Skill 修改 | ADR→Skill | 29 | 29/29 | — (映射) | 100% |
-| 風險追溯 | RISK→FEA | 5 | 5/5 | — (治理) | 100% |
+| 風險追溯 | RISK→FEA | 6 | 6/6 | — (治理) | 100% |
 | 技術債追溯 | DEBT→FR | 6 | 6/6 | — (治理) | 100% |
-| **合計** | — | **370** | — | — | **100%** |
+| **合計** | — | **375** | — | — | **100%** |
 
 > **Status**: RISK-001 已驗證緩解，實作切換邏輯並補齊 TC-SONAR-004。
-> **未應對風險**: 1 (RISK-004 MEDIUM)
+> **未應對風險**: 2 (RISK-004 MEDIUM, RISK-006 MEDIUM — HITL 已明示接受 AC)
 > **技術債**: 1 (DEBT-012 P3)

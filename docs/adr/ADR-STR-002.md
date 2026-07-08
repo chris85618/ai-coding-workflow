@@ -1,6 +1,6 @@
 # ADR-STR-002: Clean Architecture for LangGraph Migration
 
-**Status**: Proposed
+**Status**: Superseded by ADR-STR-033 (2026-07-07) — LangGraph 選型終止；Clean Architecture 四層結構本身由 ADR-STR-021 延續
 **Date**: 2026-05-14
 **Category**: STR (Architecture)
 

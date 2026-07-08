@@ -1,4 +1,4 @@
-"""Filesystem-backed LangGraph checkpoint repository mapper and implementation."""
+"""Filesystem-backed workflow checkpoint repository mapper and implementation."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ class CheckpointRepositoryMapper:
 
 
 class FileCheckpointRepository(CheckpointRepository):
-    """Filesystem-backed LangGraph checkpoint repository.
+    """Filesystem-backed workflow checkpoint repository.
 
     Checkpoints are stored as timestamped JSON files:
         ``.agentic/checkpoints/{pipeline_id}/{timestamp}.json``
@@ -56,7 +56,7 @@ class FileCheckpointRepository(CheckpointRepository):
 
         Args:
             pipeline_id: Identifier for the pipeline being checkpointed.
-            state: LangGraph state dictionary to persist.
+            state: Workflow state dictionary to persist.
 
         Returns:
             Checkpoint identifier (ISO 8601 UTC timestamp string).

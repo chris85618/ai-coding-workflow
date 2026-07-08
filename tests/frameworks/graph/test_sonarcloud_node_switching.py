@@ -13,8 +13,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from agentic_workflow.adapters.langgraph.nodes import node_sonarcloud_gate
-from agentic_workflow.adapters.langgraph.state_mapper.workflow_state import WorkflowState
+from agentic_workflow.adapters.orchestration.nodes import node_sonarcloud_gate
+from agentic_workflow.adapters.orchestration.state_mapper.workflow_state import WorkflowState
 from agentic_workflow.domain.enums import GateDecision
 from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
 
@@ -25,7 +25,7 @@ class TestSonarCloudNodeSwitching:
     @pytest.fixture(autouse=True)
     def setup_container(self) -> Any:
         """Set up a mock container for node tests."""
-        from agentic_workflow.adapters.langgraph.nodes import set_container
+        from agentic_workflow.adapters.orchestration.nodes import set_container
 
         mock_container = MagicMock()
         set_container(mock_container)

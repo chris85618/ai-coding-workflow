@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from agentic_workflow.application.ports.gateways.graph_builder import IGraphVerifier
+from agentic_workflow.application.ports.gateways.workflow_verifier import IGraphVerifier
 
 
 class VerifyDAGInvariantsUseCase:

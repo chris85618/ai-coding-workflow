@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 if TYPE_CHECKING:
-    from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+    from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
     from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
     from agentic_workflow.domain.entities.traceable_id import TraceableID
 
@@ -448,7 +448,7 @@ class TestSequentialThinkingMCPAdapter:
 
 
 # ===========================================================================
-# LangGraph: StateMapper
+# Orchestration: StateMapper
 # ===========================================================================
 
 
@@ -457,7 +457,7 @@ class TestStateMapper:
 
     def test_pipeline_roundtrip(self) -> None:
         """Test bidirectional mapping for Pipeline."""
-        from agentic_workflow.adapters.langgraph.state_mapper import StateMapper
+        from agentic_workflow.adapters.orchestration.state_mapper import StateMapper
         from agentic_workflow.domain.aggregates.pipeline import Pipeline
         from agentic_workflow.domain.enums import PipelineStatus
 
@@ -470,7 +470,7 @@ class TestStateMapper:
 
     def test_stage_roundtrip(self) -> None:
         """Test bidirectional mapping for Stage."""
-        from agentic_workflow.adapters.langgraph.state_mapper import StateMapper
+        from agentic_workflow.adapters.orchestration.state_mapper import StateMapper
         from agentic_workflow.domain.entities.stage import Stage
         from agentic_workflow.domain.enums import StageStatus
 
@@ -483,7 +483,7 @@ class TestStateMapper:
 
     def test_state_to_stage_none_when_no_stage_id(self) -> None:
         """Test mapping returns None when stage_id missing."""
-        from agentic_workflow.adapters.langgraph.state_mapper import (
+        from agentic_workflow.adapters.orchestration.state_mapper import (
             StateMapper,
             WorkflowState,
         )
@@ -493,7 +493,7 @@ class TestStateMapper:
 
     def test_pipeline_with_gate(self) -> None:
         """Test mapping includes gate decision."""
-        from agentic_workflow.adapters.langgraph.state_mapper import StateMapper
+        from agentic_workflow.adapters.orchestration.state_mapper import StateMapper
         from agentic_workflow.domain.aggregates.pipeline import Pipeline
         from agentic_workflow.domain.enums import GateDecision
 
@@ -505,18 +505,18 @@ class TestStateMapper:
 
 
 # ===========================================================================
-# LangGraph: DAG Node Functions
+# Orchestration: Workflow Node Functions
 # ===========================================================================
 
 
-class TestLangGraphNodes:
-    """Tests for LangGraph DAG node functions."""
+class TestOrchestrationNodes:
+    """Tests for orchestration workflow node functions."""
 
     def setup_method(self) -> None:
-        """Set up for TestLangGraphNodes."""
+        """Set up for TestOrchestrationNodes."""
         from unittest.mock import MagicMock
 
-        from agentic_workflow.adapters.langgraph.nodes import set_container
+        from agentic_workflow.adapters.orchestration.nodes import set_container
 
         # Initialize container with mocks to satisfy nodes
         from agentic_workflow.domain.aggregates.pipeline import Pipeline
@@ -536,8 +536,14 @@ class TestLangGraphNodes:
         self.test_pipeline.start()
         self.mock_repo.get_by_id.return_value = self.test_pipeline
 
+    def teardown_method(self) -> None:
+        """Reset the global container so later tests see a clean state."""
+        from agentic_workflow.adapters.orchestration.nodes import set_container
+
+        set_container(None)
+
     def _base_state(self) -> WorkflowState:
-        from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+        from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
 
         return WorkflowState(
             pipeline_id="pipe-test",
@@ -547,7 +553,7 @@ class TestLangGraphNodes:
 
     def test_node_start_pipeline(self) -> None:
         """Test start_pipeline node logic."""
-        from agentic_workflow.adapters.langgraph.nodes import node_start_pipeline
+        from agentic_workflow.adapters.orchestration.nodes import node_start_pipeline
 
         state = self._base_state()
         result = node_start_pipeline(state)
@@ -555,7 +561,7 @@ class TestLangGraphNodes:
 
     def test_node_auto_gate_default_pass(self) -> None:
         """Test auto_gate node default PASS."""
-        from agentic_workflow.adapters.langgraph.nodes import node_auto_gate
+        from agentic_workflow.adapters.orchestration.nodes import node_auto_gate
 
         state = self._base_state()
         state["pipeline_status"] = "running"
@@ -564,7 +570,7 @@ class TestLangGraphNodes:
 
     def test_node_auto_gate_pass_with_warnings(self) -> None:
         """Test auto_gate node with override."""
-        from agentic_workflow.adapters.langgraph.nodes import node_auto_gate
+        from agentic_workflow.adapters.orchestration.nodes import node_auto_gate
 
         state = self._base_state()
         state["pipeline_status"] = "running"
@@ -574,7 +580,7 @@ class TestLangGraphNodes:
 
     def test_node_advance_stage(self) -> None:
         """Test advance_stage node logic."""
-        from agentic_workflow.adapters.langgraph.nodes import node_advance_stage
+        from agentic_workflow.adapters.orchestration.nodes import node_advance_stage
         from agentic_workflow.domain.enums import GateDecision
 
         state = self._base_state()
@@ -588,7 +594,7 @@ class TestLangGraphNodes:
 
     def test_node_iterate_stage(self) -> None:
         """Test iterate_stage node logic."""
-        from agentic_workflow.adapters.langgraph.nodes import node_iterate_stage
+        from agentic_workflow.adapters.orchestration.nodes import node_iterate_stage
 
         state = self._base_state()
         state["current_stage_id"] = "phase0"  # Use a valid stage id
@@ -601,7 +607,7 @@ class TestLangGraphNodes:
 
     def test_node_complete_pipeline(self) -> None:
         """Test complete_pipeline node logic."""
-        from agentic_workflow.adapters.langgraph.nodes import node_complete_pipeline
+        from agentic_workflow.adapters.orchestration.nodes import node_complete_pipeline
 
         state = self._base_state()
         state["pipeline_status"] = "running"
@@ -610,14 +616,14 @@ class TestLangGraphNodes:
 
     def test_should_continue_iterating_no_stage(self) -> None:
         """Test transition logic when no stage active."""
-        from agentic_workflow.adapters.langgraph.nodes import should_continue_iterating
+        from agentic_workflow.adapters.orchestration.nodes import should_continue_iterating
 
         state = self._base_state()
         assert should_continue_iterating(state) == "gate"
 
     def test_should_continue_iterating_iterate(self) -> None:
         """Test transition logic for iteration path."""
-        from agentic_workflow.adapters.langgraph.nodes import should_continue_iterating
+        from agentic_workflow.adapters.orchestration.nodes import should_continue_iterating
 
         state = self._base_state()
         state["current_stage_id"] = "stage3"
@@ -628,7 +634,7 @@ class TestLangGraphNodes:
 
     def test_should_continue_iterating_gate_on_max(self) -> None:
         """Test transition logic after max iterations."""
-        from agentic_workflow.adapters.langgraph.nodes import should_continue_iterating
+        from agentic_workflow.adapters.orchestration.nodes import should_continue_iterating
         from agentic_workflow.domain.entities.stage import MAX_ITERATIONS
 
         state = self._base_state()

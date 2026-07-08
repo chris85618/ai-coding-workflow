@@ -10,8 +10,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agentic_workflow.adapters.langgraph.nodes import node_sonarcloud_gate
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+from agentic_workflow.adapters.orchestration.nodes import node_sonarcloud_gate
+from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
 from agentic_workflow.domain.enums import GateDecision
 from agentic_workflow.domain.value_objects.sonarcloud_config import SonarCloudConfig
 
@@ -22,13 +22,13 @@ class TestSonarCloudNode:
     @pytest.fixture
     def mock_gate(self) -> Any:
         """Mock the SonarCloudGate domain algorithm."""
-        with patch("agentic_workflow.adapters.langgraph.nodes.SonarCloudGate") as mock:
+        with patch("agentic_workflow.adapters.orchestration.nodes.SonarCloudGate") as mock:
             yield mock
 
     @pytest.fixture(autouse=True)
     def setup_container(self) -> Any:
         """Set up a mock container for node tests."""
-        from agentic_workflow.adapters.langgraph.nodes import set_container
+        from agentic_workflow.adapters.orchestration.nodes import set_container
 
         mock_container = MagicMock()
         set_container(mock_container)

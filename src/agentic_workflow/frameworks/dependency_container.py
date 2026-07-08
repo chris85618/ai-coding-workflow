@@ -6,7 +6,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from agentic_workflow.adapters.langgraph.nodes import SonarAdapterProtocol
+    from agentic_workflow.adapters.orchestration.node_executor import NodeExecutor
+    from agentic_workflow.adapters.orchestration.nodes import SonarAdapterProtocol
     from agentic_workflow.application.use_cases.verify_invariants import VerifyDAGInvariantsUseCase
 
 
@@ -131,6 +132,13 @@ class DependencyContainer:
         from agentic_workflow.frameworks.dspy_prompt_optimizer import DSPyPromptOptimizer
 
         return DSPyPromptOptimizer()
+
+    @property
+    def node_executor(self) -> NodeExecutor:
+        """Get the single-node executor invoked by Archon workflow steps (ADR-STR-033)."""
+        from agentic_workflow.adapters.orchestration.node_executor import NodeExecutor
+
+        return NodeExecutor(self.checkpoint_repo)
 
 
 # Backward compatibility facades

@@ -12,23 +12,14 @@ from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import MagicMock, patch
 
 import pytest
-from pytest_bdd import given, scenario, then, when
 
 if TYPE_CHECKING:
-    from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+    from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
     from agentic_workflow.domain.entities.traceable_id import TraceableID
 
 # ===========================================================================
 # LLM Adapter: _build_langchain_model error paths
 # ===========================================================================
-
-
-@scenario(
-    "../frameworks/graph/features/langgraph_dag.feature",
-    "Invariants Verifier passes on a correctly structured DAG",
-)
-def test_invariants_verifier_passes_on_correct_dag() -> None:
-    """BDD scenario for invariant verification."""
 
 
 class TestLLMProviders:
@@ -142,15 +133,6 @@ class TestLLMProviders:
 # ===========================================================================
 
 
-@given("a compiled LangGraph built from config.yaml")
-def given_compiled_langgraph(context: dict[str, Any]) -> None:
-    """BDD given step: compiled graph."""
-    # ADR-STR-007: OO Builder is the sole path
-    from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
-
-    context["compiled_graph"] = MasterGraphBuilder.build()
-
-
 class TestGitKrakenEdgeCases:
     """Additional branch coverage for GitKrakenMCPAdapter."""
 
@@ -235,13 +217,6 @@ class TestSequentialAdapterEdgeCases:
 # ===========================================================================
 
 
-@then('the graph should contain "start_pipeline" node')
-def then_contains_start_pipeline(context: dict[str, Any]) -> None:
-    """BDD then step: verify start node."""
-    graph = context["compiled_graph"]
-    assert "start_pipeline" in graph.nodes or "start" in graph.nodes
-
-
 class TestLangGraphNodeEdgeCases:
     """Edge cases for DAG node functions."""
 
@@ -249,7 +224,7 @@ class TestLangGraphNodeEdgeCases:
         """Set up for TestLangGraphNodeEdgeCases."""
         from unittest.mock import MagicMock
 
-        from agentic_workflow.adapters.langgraph.nodes import set_container
+        from agentic_workflow.adapters.orchestration.nodes import set_container
         from agentic_workflow.domain.aggregates.pipeline import Pipeline
         from agentic_workflow.frameworks.dependency_container import DependencyContainer
 
@@ -275,7 +250,7 @@ class TestLangGraphNodeEdgeCases:
         self.mock_repo.get_by_id.side_effect = get_by_id_side_effect
 
     def _running_state(self) -> WorkflowState:
-        from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+        from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
         from agentic_workflow.domain.enums import GateDecision
 
         return WorkflowState(
@@ -287,7 +262,7 @@ class TestLangGraphNodeEdgeCases:
 
     def test_node_start_already_running(self) -> None:
         """Starting a running pipeline should not re-start (no-op)."""
-        from agentic_workflow.adapters.langgraph.nodes import node_start_pipeline
+        from agentic_workflow.adapters.orchestration.nodes import node_start_pipeline
 
         state = self._running_state()
         result = node_start_pipeline(state)
@@ -295,7 +270,7 @@ class TestLangGraphNodeEdgeCases:
 
     def test_node_complete_already_completed(self) -> None:
         """Completing a completed pipeline is a no-op."""
-        from agentic_workflow.adapters.langgraph.nodes import node_complete_pipeline
+        from agentic_workflow.adapters.orchestration.nodes import node_complete_pipeline
 
         state = self._running_state()
         state["pipeline_status"] = "completed"
@@ -304,8 +279,8 @@ class TestLangGraphNodeEdgeCases:
 
     def test_node_iterate_no_stage(self) -> None:
         """Test iterate_stage node when stage_id is missing."""
-        from agentic_workflow.adapters.langgraph.nodes import node_iterate_stage
-        from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+        from agentic_workflow.adapters.orchestration.nodes import node_iterate_stage
+        from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
 
         state = WorkflowState(pipeline_id="unknown", pipeline_status="running")
         result = node_iterate_stage(state)
@@ -313,8 +288,8 @@ class TestLangGraphNodeEdgeCases:
 
     def test_should_continue_gate_on_passed_status(self) -> None:
         """Test transition logic for passed status."""
-        from agentic_workflow.adapters.langgraph.nodes import should_continue_iterating
-        from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+        from agentic_workflow.adapters.orchestration.nodes import should_continue_iterating
+        from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
 
         state = WorkflowState(
             pipeline_id="p1",
@@ -326,59 +301,9 @@ class TestLangGraphNodeEdgeCases:
         assert should_continue_iterating(state) == "gate"
 
 
-@when("the graph builder compiles the LangGraph")
-def when_graph_builder_compiles(context: dict[str, Any]) -> None:
-    """BDD when step: compile graph."""
-    from agentic_workflow.frameworks.graph.master_graph_builder import MasterGraphBuilder
-
-    context["compiled_graph"] = MasterGraphBuilder.build()
-
-
-@then("it should return a compiled graph")
-def then_returns_compiled_graph(context: dict[str, Any]) -> None:
-    """BDD then step: verify compilation."""
-    assert context.get("compiled_graph") is not None
-    assert hasattr(context["compiled_graph"], "nodes")
-
-
-@then('the graph should contain "orchestrator" node')
-def then_contains_orchestrator(context: dict[str, Any]) -> None:
-    """BDD then step: verify orchestrator presence."""
-    assert context.get("compiled_graph") is not None
-
-
-@given("a valid config.yaml with workflow_graph configuration")
-def given_valid_config(monkeypatch: pytest.MonkeyPatch) -> None:
-    """BDD given step: valid config."""
-
-
-@then("all structural invariants should pass")
-def then_invariants_should_pass(context: dict[str, Any]) -> None:
-    """BDD then step: structural pass."""
-    result = context["verification_result"]
-    assert result["passed"] is True
-
-
-@then("there should be zero validation failures")
-def then_zero_validation_failures(context: dict[str, Any]) -> None:
-    """BDD then step: zero failures."""
-    result = context["verification_result"]
-    assert len(result["failures"]) == 0
-
-
 # ===========================================================================
 # FileTraceableIDRepository: find_all with data
 # ===========================================================================
-
-
-@when("the DAG Invariant Verifier checks the graph")
-def when_verifier_checks_graph(context: dict[str, Any]) -> None:
-    """BDD when step: run verification."""
-    from agentic_workflow.domain.algorithms.invariants_verifier import (
-        DAGInvariantVerifier,
-    )
-
-    context["verification_result"] = DAGInvariantVerifier.run_all_verifications(context["compiled_graph"])
 
 
 class TestFileRepositoryFindAll:
@@ -414,14 +339,6 @@ class TestFileRepositoryFindAll:
 # ===========================================================================
 # LLM Adapter: Token Limit Exceeded
 # ===========================================================================
-
-
-@scenario(
-    "../frameworks/graph/features/langgraph_dag.feature",
-    "Graph Builder constructs a valid StateGraph from config.yaml",
-)
-def test_graph_builder_constructs_valid_stategraph() -> None:
-    """BDD scenario for graph construction."""
 
 
 class TestLLMAdapterTokenLimit:
@@ -599,7 +516,7 @@ class TestWorkflowContainerProtocol:
 
     def test_protocol_getters(self) -> None:
         """TC-DI-001: Execute fget properties directly on WorkflowContainerProtocol."""
-        from agentic_workflow.adapters.langgraph.nodes import WorkflowContainerProtocol
+        from agentic_workflow.adapters.orchestration.nodes import WorkflowContainerProtocol
 
         proto = cast(Any, WorkflowContainerProtocol)
         assert proto.start_pipeline.fget(None) is None
@@ -612,7 +529,7 @@ class TestWorkflowContainerProtocol:
 
     def test_sonar_adapter_protocol(self) -> None:
         """TC-DI-002: Execute pass statements directly on SonarAdapterProtocol methods to secure coverage."""
-        from agentic_workflow.adapters.langgraph.nodes import SonarAdapterProtocol
+        from agentic_workflow.adapters.orchestration.nodes import SonarAdapterProtocol
 
         SonarAdapterProtocol.get_metrics(cast(Any, None))
         SonarAdapterProtocol.get_issues(cast(Any, None), include_closed=False)

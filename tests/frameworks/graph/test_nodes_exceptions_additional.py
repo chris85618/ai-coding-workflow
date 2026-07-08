@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agentic_workflow.adapters.langgraph.nodes import (
+from agentic_workflow.adapters.orchestration.nodes import (
     node_agent_beta_resolve,
     node_root_cause_leftshift,
     node_step_2_forward_trace,
@@ -22,7 +22,7 @@ from agentic_workflow.adapters.langgraph.nodes import (
     node_step_7_record_change,
     set_container,
 )
-from agentic_workflow.adapters.langgraph.state_mapper import WorkflowState
+from agentic_workflow.adapters.orchestration.state_mapper import WorkflowState
 
 
 @pytest.fixture(autouse=True)
@@ -225,9 +225,9 @@ def test_node_step_6_trigger_impact_no_partial() -> None:
     """Covers trigger impact when partial_state is None or raises Exception."""
     # When partial_state is None
     with (
-        patch("agentic_workflow.adapters.langgraph.nodes._get_container"),
+        patch("agentic_workflow.adapters.orchestration.nodes._get_container"),
         patch(
-            "agentic_workflow.adapters.langgraph.nodes.node_impact_analysis",
+            "agentic_workflow.adapters.orchestration.nodes.node_impact_analysis",
             return_value=None,
         ),
     ):
@@ -237,9 +237,9 @@ def test_node_step_6_trigger_impact_no_partial() -> None:
 
     # When Exception is raised
     with (
-        patch("agentic_workflow.adapters.langgraph.nodes._get_container"),
+        patch("agentic_workflow.adapters.orchestration.nodes._get_container"),
         patch(
-            "agentic_workflow.adapters.langgraph.nodes.node_impact_analysis",
+            "agentic_workflow.adapters.orchestration.nodes.node_impact_analysis",
             side_effect=Exception("mocked impact exception"),
         ),
     ):
@@ -251,9 +251,9 @@ def test_node_step_6_trigger_impact_no_partial() -> None:
 def test_node_step_6_trigger_impact_success() -> None:
     """Covers trigger impact success branch when partial_state is returned."""
     with (
-        patch("agentic_workflow.adapters.langgraph.nodes._get_container"),
+        patch("agentic_workflow.adapters.orchestration.nodes._get_container"),
         patch(
-            "agentic_workflow.adapters.langgraph.nodes.node_impact_analysis",
+            "agentic_workflow.adapters.orchestration.nodes.node_impact_analysis",
             return_value={"gate_decision": "pass"},
         ),
     ):

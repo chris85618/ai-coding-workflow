@@ -1,6 +1,6 @@
 """Comprehensive unit tests for the frameworks layer.
 
-Covers llm, persistence, sonarcloud, langgraph, and validation packages to achieve
+Covers llm, persistence, sonarcloud, orchestration, and validation packages to achieve
 100% statement and branch coverage. No type: ignore or ellipsis are used in this file.
 """
 
@@ -16,16 +16,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agentic_workflow.application.ports.repositories import CheckpointRepository
-from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
-from agentic_workflow.domain.entities.traceable_id import TraceableID
-from agentic_workflow.domain.enums import IDPrefix, TaskType
-from agentic_workflow.domain.value_objects import ModelConfig, SonarCloudConfig
-from agentic_workflow.frameworks.langgraph.checkpointer import (
-    CheckpointHelperBuilder,
-    RepositoryCheckpointer,
-)
-from agentic_workflow.frameworks.langgraph.nodes import (
+from agentic_workflow.adapters.orchestration.nodes import (
     WorkflowContainerProtocol,
     node_advance_stage,
     node_auto_gate,
@@ -41,6 +32,10 @@ from agentic_workflow.frameworks.langgraph.nodes import (
     set_container,
     should_continue_iterating,
 )
+from agentic_workflow.domain.algorithms.model_selector import StrategyConfig
+from agentic_workflow.domain.entities.traceable_id import TraceableID
+from agentic_workflow.domain.enums import IDPrefix, TaskType
+from agentic_workflow.domain.value_objects import ModelConfig, SonarCloudConfig
 from agentic_workflow.frameworks.llm.anthropic_reasoner import AnthropicReasoner
 from agentic_workflow.frameworks.llm.llm_adapter import LangChainLLMAdapter
 from agentic_workflow.frameworks.llm.provider_registry import LLMProviderRegistry
@@ -450,57 +445,11 @@ class TestSonarCloudAdapter:
                 adapter.get_issues()
 
 
-# ── LangGraph Package Tests ────────────────────────────────────────────────────
+# ── Orchestration Package Tests (ADR-STR-033) ─────────────────────────────────
 
 
-class TestRepositoryCheckpointer:
-    """Test RepositoryCheckpointer class and helper casts."""
-
-    def test_checkpointer_ops(self) -> None:
-        """Checkpointer saves, retrieves, lists, and casts checkpoints correctly."""
-        mock_repo = MagicMock(spec=CheckpointRepository)
-        checkpointer = RepositoryCheckpointer(mock_repo)
-
-        # 1. put
-        config = {"configurable": {"thread_id": "thread-1"}}
-        res_cfg = checkpointer.put(
-            cast(Any, config), cast(Any, "check-data"), cast(Any, {"meta": "data"}), cast(Any, {"versions": "x"})
-        )
-        assert res_cfg == config
-        mock_repo.save_checkpoint.assert_called_once()
-
-        # 2. get_tuple missing
-        mock_repo.load_latest.return_value = None
-        tup_none = checkpointer.get_tuple(cast(Any, config))
-        assert tup_none is None
-
-        # 3. get_tuple success
-        mock_repo.load_latest.return_value = {
-            "checkpoint": "check-data",
-            "metadata": {"meta": "data"},
-            "parent_config": "parent",
-        }
-        tup = checkpointer.get_tuple(cast(Any, config))
-        assert tup is not None
-        assert cast(Any, tup.checkpoint) == "check-data"
-        assert cast(Any, tup.metadata) == {"meta": "data"}
-
-        # 4. list
-        mock_repo.list_checkpoints.return_value = ["c1", "c2"]
-        mock_repo.load_latest.return_value = {"checkpoint": "ok"}
-        items = list(checkpointer.list(cast(Any, config)))
-        assert len(items) == 2
-
-        # 4.1 list with some None tuple
-        mock_repo.load_latest.side_effect = [{"checkpoint": "ok"}, None]
-        items_none = list(checkpointer.list(cast(Any, config)))
-        assert len(items_none) == 1
-        mock_repo.load_latest.side_effect = None  # Reset
-        mock_repo.load_latest.return_value = {"checkpoint": "ok"}
-
-        # 5. cast helpers
-        assert cast(Any, CheckpointHelperBuilder.cast_checkpoint("ok")) == "ok"
-        assert cast(Any, CheckpointHelperBuilder.cast_metadata("ok")) == "ok"
+class TestWorkflowContainerProtocol:
+    """Test the container protocol used by orchestration nodes."""
 
     def test_protocol_properties_coverage(self) -> None:
         """Call methods on a dummy subclass of WorkflowContainerProtocol to achieve 100% statement coverage."""
@@ -589,8 +538,8 @@ class TestRepositoryCheckpointer:
         assert proto.prompt_optimizer.fget(None) is None
 
 
-class TestLangGraphNodes:
-    """Test DAG Nodes and conditional edges in langgraph packages."""
+class TestOrchestrationNodes:
+    """Test workflow nodes and routing functions in the orchestration package."""
 
     def test_should_continue_iterating(self) -> None:
         """should_continue_iterating handles all status and count branches."""
@@ -1064,9 +1013,9 @@ class TestStateMapperFramework:
 
     def test_stage_to_state_mapping(self) -> None:
         """Verify standard stage to state translation maps correctly."""
+        from agentic_workflow.adapters.orchestration.state_mapper.state_mapper import StateMapper
         from agentic_workflow.domain.entities.stage import Stage
         from agentic_workflow.domain.enums import StageStatus
-        from agentic_workflow.frameworks.langgraph.state_mapper.state_mapper import StateMapper
 
         stage = Stage(stage_id="s1", name="stage1", status=StageStatus.ITERATING, iteration_count=2)
         state = StateMapper.stage_to_state(stage)

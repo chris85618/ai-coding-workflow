@@ -1,9 +1,9 @@
 # Risk Register — Unified Agentic Workflow System
 
 > **標準**: ISO 31000:2018
-> **Last Updated**: 2026-05-15T17:42+08:00
-> **Total Active (Open/In-Progress)**: 3 (RISK-001, RISK-004, RISK-005) — RISK-004 降評 MEDIUM(8)→MEDIUM(6)
-> **Total Closed/Rejected**: 2 (RISK-002, RISK-003)
+> **Last Updated**: 2026-07-08
+> **Total Active (Open/In-Progress)**: 3 (RISK-004, RISK-005, RISK-006) — RISK-006 為 HITL 明示接受 (AC)
+> **Total Closed/Rejected**: 3 (RISK-001, RISK-002, RISK-003)
 > **維護 Skill**: `skills/workflow-skills/risk-management.md`
 > **追溯矩陣**: `docs/traceability-matrix.md` § RISK → FEA
 
@@ -122,6 +122,31 @@
 | **負責人** | AI |
 
 **風險描述**：RISK/DEBT 登錄表欄位較多（ISO 31000 屬性），當 LLM 在 token 預算緊張時可能省略非明顯必填欄位。
+
+---
+
+### RISK-006: archon CLI 缺席時端對端執行降級為逐步執行
+
+| 欄位 | 值 |
+|------|-----|
+| **ID** | RISK-006 |
+| **狀態** | open |
+| **類別** | OPERATIONAL |
+| **機率** | 3 (26-50% — archon 為外部二進位，CI/新環境常缺席) |
+| **影響** | 3 (中等 — 主管線無法一鍵端對端執行，退化為逐步 `scripts/run_node.py`) |
+| **風險強度** | 9 (MEDIUM) |
+| **應對策略** | AC (接受 — HITL 於 ADR-STR-033 明示接受此取捨) |
+| **應對動作** | 降級路徑透明：dispatch 失敗回傳 False 並輸出降級指引；排程權威永遠在匯出的工作流文件；禁止行程內 fallback runner（ADR-STR-033 第 4 點禁令） |
+| **預期殘餘風險** | 9 (接受不緩解；所有確定型演算法仍受 100% 覆蓋/合約/Coq/Z3 閘門保護) |
+| **觸發來源** | ADR-STR-033 — 完全切換 Archon 的 HITL 決策 |
+| **受影響 FEA** | FEA-030 |
+| **對應 LESSON** | LESSON-034 |
+| **對應 ADR** | ADR-STR-033, ADR-GOV-017 |
+| **建立日期** | 2026-07-08 |
+| **最後更新** | 2026-07-08 |
+| **負責人** | HITL |
+
+**風險描述**：ADR-STR-033 廢除行程內編排引擎後，端對端自舉執行依賴外部 `archon` 二進位。無 archon 的環境（CI、fresh clone）只能依匯出文件逐步執行單節點，無自動化排程。
 
 ---
 
