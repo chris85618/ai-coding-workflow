@@ -30,7 +30,7 @@ jobs:
         run: |
           cyclonedx-py environment --pyproject pyproject.toml --of JSON -o agentic-workflow.cdx.json
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: agentic-workflow-sbom
           path: agentic-workflow.cdx.json
